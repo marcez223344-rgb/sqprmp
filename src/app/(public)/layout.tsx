@@ -8,7 +8,7 @@ export default function PublicLayout({ children }: LayoutProps<"/">) {
     <>
       <a
         href="#contenido"
-        className="focus:bg-primary focus:text-primary-fg sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:px-4 focus:py-2"
+        className="bg-primary text-primary-fg fixed top-2 left-2 z-50 inline-flex min-h-10 -translate-y-[300%] items-center rounded-md px-4 py-2 focus:translate-y-0 motion-safe:transition-transform"
       >
         {t("skipToContent")}
       </a>

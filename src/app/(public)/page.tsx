@@ -23,7 +23,7 @@ export default async function LandingPage() {
       {/* Hero */}
       <section className="container-page grid gap-10 py-16 md:grid-cols-2 md:items-center md:py-24">
         <div className="space-y-6">
-          <p className="text-accent text-sm font-semibold tracking-wide uppercase">
+          <p className="text-accent-ink text-sm font-semibold tracking-wide uppercase">
             {t("hero.eyebrow")}
           </p>
           <h1 className="text-4xl leading-tight sm:text-5xl">{t("hero.title")}</h1>

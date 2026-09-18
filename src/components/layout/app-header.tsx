@@ -30,19 +30,19 @@ export async function AppHeader({ alias, displayName, isAdmin, onboarded }: AppH
       <div className="container-page flex h-16 items-center justify-between gap-4">
         <Link
           href={onboarded ? "/aprender" : "/onboarding"}
-          className="rounded-md"
+          className="inline-flex min-h-10 items-center rounded-md"
           aria-label="Inicio"
         >
           <Logo compact />
         </Link>
 
         {onboarded ? (
-          <nav aria-label="Aplicación" className="hidden items-center gap-1 md:flex">
+          <nav aria-label="Aplicación" className="hidden items-center gap-1 xl:flex">
             {links.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}
-                className="text-muted hover:bg-surface-2 hover:text-text rounded-md px-3 py-2 text-sm"
+                className="text-muted hover:bg-surface-2 hover:text-text inline-flex min-h-10 items-center rounded-md px-3 py-2 text-sm"
               >
                 {l.label}
               </Link>
@@ -50,7 +50,7 @@ export async function AppHeader({ alias, displayName, isAdmin, onboarded }: AppH
             {isAdmin ? (
               <Link
                 href="/admin"
-                className="text-muted hover:bg-surface-2 hover:text-text rounded-md px-3 py-2 text-sm"
+                className="text-muted hover:bg-surface-2 hover:text-text inline-flex min-h-10 items-center rounded-md px-3 py-2 text-sm"
               >
                 <ShieldCheck aria-hidden="true" className="mr-1 inline size-4" />
                 {t("nav.admin")}
@@ -77,13 +77,13 @@ export async function AppHeader({ alias, displayName, isAdmin, onboarded }: AppH
         </div>
       </div>
       {onboarded ? (
-        <nav aria-label="Aplicación (móvil)" className="border-border border-t md:hidden">
+        <nav aria-label="Aplicación (móvil)" className="border-border border-t xl:hidden">
           <div className="container-page flex gap-1 overflow-x-auto py-2">
             {links.map((l) => (
               <Link
                 key={l.href}
                 href={l.href}
-                className="hover:bg-surface-2 rounded-md px-3 py-2 text-sm whitespace-nowrap"
+                className="hover:bg-surface-2 inline-flex min-h-10 items-center rounded-md px-3 py-2 text-sm whitespace-nowrap"
               >
                 {l.label}
               </Link>

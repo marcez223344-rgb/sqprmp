@@ -4,7 +4,7 @@ import { getFormatter, getTranslations } from "next-intl/server";
 import { Card } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { brand } from "@/config/brand";
-import { verifyCertificate } from "@/lib/certificates/service";
+import { verificationRateLimited, verifyCertificate } from "@/lib/certificates/service";
 import { cn } from "@/lib/utils/cn";
 
 const CODE = /^[a-z0-9]{20}$/;
@@ -17,7 +17,8 @@ export async function generateMetadata() {
 export default async function VerifyCodePage({ params }: PageProps<"/verificar/[code]">) {
   const { code } = await params;
   const [t, format] = await Promise.all([getTranslations("verify"), getFormatter()]);
-  const result = CODE.test(code) ? await verifyCertificate(code) : null;
+  const limited = await verificationRateLimited();
+  const result = CODE.test(code) && !limited ? await verifyCertificate(code) : null;
 
   return (
     <div className="container-page max-w-xl space-y-6 py-12">
@@ -28,7 +29,11 @@ export default async function VerifyCodePage({ params }: PageProps<"/verificar/[
         </h1>
       </header>
 
-      {!result ? (
+      {limited ? (
+        <Card className="space-y-3" role="status">
+          <p className="text-warning font-semibold">{t("rateLimited")}</p>
+        </Card>
+      ) : !result ? (
         <Card className="space-y-3" role="status">
           <p className="text-danger inline-flex items-center gap-2 font-semibold">
             <XCircle aria-hidden="true" className="size-5" />

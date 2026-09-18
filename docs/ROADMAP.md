@@ -53,10 +53,12 @@ Sections 4 (alias y expresiones), 5 (DISTINCT), 6 (WHERE, 2 lessons), 7 (operado
 
 Sections 14 (agregación), 15 (GROUP BY, 2 lessons), 17 (INNER JOIN, 2 lessons), 18 (LEFT/RIGHT/FULL, 2 lessons) and 25 (funciones de ventana, 2 lessons) authored and published; datasets `bolsillo` (wallet) and `pidelo` (delivery) generated, verified and described. Totals now: 13 published sections, 84 lessons, 124 questions, 49 verified exercises, 3 datasets — MVP volume per CURRICULUM §3 reached (38 exercises target exceeded). Gate change: window frame clauses are normalized before parsing (documented in SQL_SANDBOX.md). Snapshots are rebuilt by `prebuild` so Vercel ships them.
 
-## Phase 9 — Quality and launch ☐
+## Phase 9 — Quality and launch ◐ (engineering done 2026-09-18; launch blocked on owner decisions)
 
 Accessibility review, security review, performance (Lighthouse ≥ 90 mobile on public pages), full E2E, seed validation on prod, legal pages, Supabase Pro + Vercel Pro, domain, production deployment runbook, post-launch checklist (monitoring, backups, support inbox).
 **Approval needed:** D-09, P-1, P-4, production payments.
+
+Done: real public pages (`/nosotros`, `/como-funciona`, `/preguntas-frecuentes`, legal drafts `/terminos` + `/privacidad` from `src/content/legal/*` with a visible "pending legal review" notice while D-09 placeholders remain); `tests/e2e/a11y.spec.ts` (axe on 11 public + 7 learner pages) and `tests/e2e/responsive.spec.ts`; fixes for target size, accent contrast (`--accent-ink`), header reflow at 768 px and Escape on the mobile menu; per-IP rate limit on public certificate verification; reviews in `docs/reviews/2026-09-18-{security,accessibility}.md`; launch runbook + post-launch checklist in DEPLOYMENT.md §5b. Not done (needs a deployed URL or the owner): Lighthouse run on the preview deploy, real screen-reader pass, Supabase/Vercel Pro, domain, production payments.
 
 ## Post-MVP backlog
 

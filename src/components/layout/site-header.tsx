@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Logo } from "@/components/layout/logo";
@@ -21,20 +21,30 @@ export function SiteHeader() {
   const t = useTranslations("nav");
   const tc = useTranslations("common");
   const [open, setOpen] = useState(false);
+  const trigger = useRef<HTMLButtonElement>(null);
 
   return (
-    <header className="border-border bg-bg/80 sticky top-0 z-40 border-b backdrop-blur">
+    <header
+      className="border-border bg-bg/80 sticky top-0 z-40 border-b backdrop-blur"
+      onKeyDown={(e) => {
+        // Escape closes the disclosure and returns focus to its trigger (keyboard parity).
+        if (e.key === "Escape" && open) {
+          setOpen(false);
+          trigger.current?.focus();
+        }
+      }}
+    >
       <div className="container-page flex h-16 items-center justify-between gap-4">
-        <Link href="/" className="rounded-md" aria-label="Inicio">
+        <Link href="/" className="inline-flex min-h-10 items-center rounded-md" aria-label="Inicio">
           <Logo />
         </Link>
 
-        <nav aria-label="Principal" className="hidden items-center gap-1 md:flex">
+        <nav aria-label="Principal" className="hidden items-center gap-1 lg:flex">
           {links.map((l) => (
             <Link
               key={l.href}
               href={l.href}
-              className="text-muted hover:bg-surface-2 hover:text-text rounded-md px-3 py-2 text-sm"
+              className="text-muted hover:bg-surface-2 hover:text-text inline-flex min-h-10 items-center rounded-md px-3 py-2 text-sm"
             >
               {t(l.key)}
             </Link>
@@ -61,7 +71,8 @@ export function SiteHeader() {
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden"
+            className="lg:hidden"
+            ref={trigger}
             aria-expanded={open}
             aria-controls="mobile-nav"
             aria-label={open ? tc("closeMenu") : tc("openMenu")}
@@ -72,7 +83,7 @@ export function SiteHeader() {
         </div>
       </div>
 
-      <div id="mobile-nav" hidden={!open} className="border-border bg-bg border-t md:hidden">
+      <div id="mobile-nav" hidden={!open} className="border-border bg-bg border-t lg:hidden">
         <nav aria-label="Principal (móvil)" className="container-page flex flex-col gap-1 py-3">
           {links.map((l) => (
             <Link

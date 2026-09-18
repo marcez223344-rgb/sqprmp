@@ -78,3 +78,5 @@ Related: [SQL_SANDBOX.md](SQL_SANDBOX.md) (learner SQL), [DATABASE_DESIGN.md](DA
 ## 8. Security review cadence
 
 `review-security` skill before each phase sign-off and before any deployment to production; `release-reviewer` agent produces a written report saved under `docs/reviews/`.
+
+Reviews are stored under `docs/reviews/` (latest: `2026-09-18-security.md`).

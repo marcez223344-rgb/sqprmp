@@ -101,12 +101,6 @@
       "cta": "Crear mi cuenta gratis"
     }
   },
-  "pages": {
-    "placeholder": {
-      "title": "{page}",
-      "body": "Esta sección se construye en las próximas fases. Mientras tanto puedes explorar la página principal."
-    }
-  },
   "auth": {
     "title": "Ingresa a tu cuenta",
     "subtitle": "Usa tu cuenta de Google. Los primeros {count} ejercicios son gratis.",
@@ -1104,6 +1098,131 @@
       "id": "ID",
       "issuer": "Emisor"
     },
-    "privacyNote": "Esta página muestra solo los datos necesarios para validar el certificado."
+    "privacyNote": "Esta página muestra solo los datos necesarios para validar el certificado.",
+    "rateLimited": "Demasiadas verificaciones desde esta conexión. Espera un minuto e intenta de nuevo."
+  },
+  "legal": {
+    "termsTitle": "Términos y condiciones",
+    "privacyTitle": "Política de privacidad",
+    "version": "Versión vigente desde el {date}.",
+    "draftNotice": "Borrador en revisión legal: los datos de la empresa marcados como PENDIENTE se completarán antes del lanzamiento público."
+  },
+  "about": {
+    "title": "Nosotros",
+    "intro": "{product} nace de una convicción: SQL se aprende resolviendo problemas de negocio reales, con datos que se parecen a los de una empresa latinoamericana y con retroalimentación que explica el porqué.",
+    "linkedin": "Ver perfil en LinkedIn",
+    "principles": {
+      "title": "Cómo enseñamos",
+      "real": {
+        "title": "Datos con contexto",
+        "body": "Tres empresas ficticias pero verosímiles: un marketplace, una billetera digital y un delivery. Monedas, estacionalidad y problemas de calidad reales."
+      },
+      "safe": {
+        "title": "Ejecución segura",
+        "body": "Tus consultas corren en un entorno aislado con PostgreSQL real. Puedes equivocarte sin romper nada."
+      },
+      "feedback": {
+        "title": "Retroalimentación que enseña",
+        "body": "No solo «correcto o incorrecto»: te decimos qué filtro falta, qué join multiplica filas o por qué el nivel de agregación es otro."
+      },
+      "honest": {
+        "title": "Sin humo",
+        "body": "Un pago único, sin suscripciones ocultas. Certificados que dicen exactamente lo que acreditan y se verifican públicamente."
+      }
+    },
+    "company": {
+      "title": "La empresa",
+      "body": "{org} es una consultora de datos con base en Argentina que trabaja con equipos de toda América Latina. La academia es nuestra forma de compartir lo que enseñamos en proyectos reales.",
+      "contact": "Escríbenos a"
+    },
+    "cta": "Empezar gratis"
+  },
+  "howItWorks": {
+    "title": "Cómo funciona",
+    "intro": "De la primera consulta al certificado, paso a paso. Todo ocurre en el navegador; no necesitas instalar nada.",
+    "steps": {
+      "signin": {
+        "title": "Ingresa con Google",
+        "body": "Sin contraseñas. Elige un alias y un avatar, cuéntanos tu nivel y tu meta semanal."
+      },
+      "learn": {
+        "title": "Lee la teoría justa",
+        "body": "Cada sección abre con una lección corta: por qué importa, el concepto, un ejemplo resuelto y los errores comunes."
+      },
+      "run": {
+        "title": "Escribe y ejecuta SQL",
+        "body": "El editor ejecuta tus consultas contra una copia real del dataset, en un entorno aislado con un límite de {timeout} segundos por consulta. Explora sin miedo."
+      },
+      "submit": {
+        "title": "Envía tu respuesta",
+        "body": "Comparamos tu resultado con el esperado (columnas, filas, orden si corresponde) y te decimos qué falla y por qué: filtro faltante, join que multiplica, nivel de agregación, bordes de fecha, NULL."
+      },
+      "hints": {
+        "title": "Pide pistas cuando te trabes",
+        "body": "{hints} niveles de pista, cada uno más concreto. Si aun así no sale, puedes ver la solución explicada paso a paso después de intentarlo en serio."
+      },
+      "progress": {
+        "title": "Suma progreso",
+        "body": "XP por cada primer acierto, monedas para pistas, rachas con un congelamiento mensual e insignias por hitos. Los primeros {free} ejercicios son gratis; luego, un pago único desbloquea todo."
+      },
+      "certify": {
+        "title": "Aprueba el quiz y certifícate",
+        "body": "Cada sección cierra con un quiz ({pass}% para aprobar). Al completar una ruta, emites un certificado con código público de verificación y PDF."
+      }
+    },
+    "safety": {
+      "title": "Seguridad del entorno de práctica",
+      "body": "Tus consultas nunca tocan la base de datos de la plataforma: se ejecutan en una instancia de PostgreSQL aislada y de solo lectura, con límites de tiempo y de resultados. Las soluciones y las respuestas correctas de los quizzes se guardan del lado del servidor y solo se muestran cuando corresponde."
+    },
+    "ctaDemo": "Probar el editor sin cuenta",
+    "ctaStart": "Crear mi cuenta gratis"
+  },
+  "faq": {
+    "title": "Preguntas frecuentes",
+    "intro": "Lo que más nos preguntan antes de empezar.",
+    "items": {
+      "who": {
+        "q": "¿Para quién es este curso?",
+        "a": "Para personas adultas que trabajan o quieren trabajar con datos: análisis, producto, finanzas, operaciones, marketing. No necesitas saber programar; empezamos desde cero y llegamos a funciones de ventana, cohortes y casos de entrevista."
+      },
+      "free": {
+        "q": "¿Qué incluye el plan gratuito?",
+        "a": "Las lecciones teóricas de las primeras secciones, los quizzes de esas secciones y los primeros {free} ejercicios que abras. Sin tarjeta ni límite de tiempo."
+      },
+      "price": {
+        "q": "¿Cuánto cuesta y es una suscripción?",
+        "a": "Es un pago único de acceso de por vida. No hay suscripción ni renovaciones. El precio en tu moneda está en la página de precios."
+      },
+      "payments": {
+        "q": "¿Cómo puedo pagar desde mi país?",
+        "a": "Con tarjeta a través de Hotmart (acepta cuotas y métodos locales según el país) o por transferencia: banco o Mercado Pago en pesos argentinos y Wallbit en dólares. Las transferencias se validan manualmente en horas hábiles."
+      },
+      "refund": {
+        "q": "¿Puedo pedir un reembolso?",
+        "a": "Sí: dentro de los {refundDays} días de la compra, escribiendo a {email}, sin preguntas."
+      },
+      "certificate": {
+        "q": "¿Los certificados tienen validez oficial?",
+        "a": "Acreditan que completaste una ruta de la academia (secciones, ejercicios y quizzes aprobados). No son títulos oficiales, pero cualquier persona puede verificar su autenticidad con el código público, y puedes agregarlos a tu perfil profesional."
+      },
+      "sandbox": {
+        "q": "¿Necesito instalar PostgreSQL?",
+        "a": "No. El editor ejecuta tus consultas en un PostgreSQL real dentro del navegador y en un entorno aislado del servidor al enviar respuestas. Funciona en computadora y en celular."
+      },
+      "level": {
+        "q": "¿Qué dialecto de SQL enseñan?",
+        "a": "PostgreSQL, el más usado en analítica moderna. Señalamos las diferencias con otros motores cuando importan."
+      },
+      "time": {
+        "q": "¿Cuánto tiempo lleva?",
+        "a": "Cada sección se completa en 1 a 3 horas. Con 3 horas por semana, la ruta de fundamentos lleva unas 4 semanas; el currículo completo, unos 6 meses."
+      },
+      "support": {
+        "q": "¿Dónde pido ayuda?",
+        "a": "Desde la plataforma o escribiendo a {email}. Respondemos en días hábiles."
+      }
+    },
+    "ctaPricing": "Ver precios",
+    "ctaStart": "Empezar gratis"
   }
 }

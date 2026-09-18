@@ -18,4 +18,8 @@ export const brand = {
   },
   supportEmail: "hola@dataminds.example", // placeholder until P-3 is answered
   legalName: "Data Minds Solutions", // placeholder until D-09 is answered
+  legalAddress: "PENDIENTE (D-09)", // street address for legal pages; owner fills in (D-09)
+  taxId: "PENDIENTE (D-09)", // CUIT or equivalent; owner fills in (D-09)
+  jurisdiction: "Ciudad Autónoma de Buenos Aires, República Argentina",
+  refundDays: 7,
 } as const;

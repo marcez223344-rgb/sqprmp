@@ -16,6 +16,7 @@
   --primary-hover: #2342c4;
   --accent: #f2652e;
   --accent-fg: #ffffff;
+  --accent-ink: #b8461a; /* accent as text on light surfaces (≥ 4.5:1) */
   --success: #1c8a5a;
   --warning: #b7791f;
   --danger: #c53a3a;
@@ -39,6 +40,7 @@
   --primary-hover: #93a6ff;
   --accent: #ff8a5b;
   --accent-fg: #0e1117;
+  --accent-ink: #ffa17a;
   --success: #4cc38a;
   --warning: #f0b35a;
   --danger: #f27474;
@@ -59,6 +61,7 @@
   --color-primary-hover: var(--primary-hover);
   --color-accent: var(--accent);
   --color-accent-fg: var(--accent-fg);
+  --color-accent-ink: var(--accent-ink);
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-danger: var(--danger);

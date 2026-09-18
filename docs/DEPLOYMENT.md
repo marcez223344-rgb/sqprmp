@@ -38,6 +38,29 @@ npx vercel --prod          # BLOCKED by hook unless owner approval recorded in t
 
 See `.claude/templates/release-checklist.md`. Highlights: migrations applied to prod and reviewed for destructive statements; env vars verified; Google OAuth redirect URLs include production domain; webhook URL registered and a sandbox event verified; certificates PDF renders on Vercel; privacy/terms pages live; monitoring (Vercel logs, Supabase advisors) checked.
 
+## 5b. Production launch runbook (Phase 9)
+
+Every step below is performed by the **owner** (or by the assistant only with explicit approval in the conversation, per CLAUDE.md). Order matters.
+
+1. **Decisions closed**: D-09 (legal data in `src/config/brand.ts`, drafts reviewed), P-1 (domain), P-4 (Supabase Pro + Vercel Pro approved). Rotate any credential ever pasted in chat.
+2. **Supabase production project**: create → link the CLI to the project ref → push the reviewed migrations 0001–0008 (forward-only) → run seeds `0001–0003` once (`0002_content.sql` is idempotent on slugs) → enable the custom access token hook (`docs/SECURITY.md §3`) → Google provider with the production redirect URL → enable PITR/backups (Pro).
+3. **Vercel project**: import the GitHub repo → Node 22 → env vars from `.env.example` (server secrets only as _Sensitive_) → `NEXT_PUBLIC_APP_URL` = production URL → custom domain + HTTPS → Deployment Protection off for production only.
+4. **Preview deploy first**: open a PR, confirm the preview builds (`prebuild` regenerates dataset snapshots and PGlite assets), run the smoke list: landing, `/demo` runs a query, Google login, onboarding, 1 free exercise submit, `/precios`, `/verificar/<known code>`, `/certificados/<id>/pdf`.
+5. **Payments**: register the Hotmart **sandbox** webhook URL (`/api/webhooks/hotmart`) and replay a sandbox event; verify `/admin/pagos` shows it processed. Switch to production credentials **only** after a written go from the owner; keep `HOTMART_SKIP_REFETCH` unset.
+6. **Go live** (merge to `main`). Immediately: create the first admin (`update public.profiles set role = 'admin' where id = '<owner uuid>'` in the SQL editor — note it in DECISIONS.md), open `/admin/metricas`, and verify a real Google sign-in.
+7. **Announce** only after the post-launch checklist below is green for 24 h.
+
+### Post-launch checklist (first week)
+
+- [ ] Vercel: no 5xx in logs; function duration for `/ejercicio/*` submit < 3 s p95; PGlite worker cold start acceptable.
+- [ ] Supabase: advisors clean (no missing indexes on hot paths, no permissive policies), DB CPU < 50 %, connection count stable.
+- [ ] `/admin/pagos`: no unmatched events older than 24 h; manual transfers reviewed daily.
+- [ ] Support inbox (`brand.supportEmail`) monitored; refund window (`brand.refundDays`) honored.
+- [ ] Backups: first PITR restore drill executed on a scratch project.
+- [ ] Analytics: `admin_metrics` signup → onboarding → first exercise funnel reviewed; fix the biggest drop-off first.
+- [ ] Content: hardest exercises / frequent SQLSTATEs reviewed weekly; hints adjusted where reveal rate > 40 %.
+- [ ] Dependencies: Dependabot PRs merged weekly after `npm run quality`.
+
 ## 6. Rollback
 
 App: promote previous Vercel deployment. DB: migrations are forward-only; destructive changes require an expand/contract plan and a backup (Supabase Pro daily backups).

@@ -8,22 +8,23 @@
 
 ## 2. Color tokens (CSS variables, Tailwind 4 `@theme`)
 
-| Token                | Light                                                              | Dark      | Use                                 |
-| -------------------- | ------------------------------------------------------------------ | --------- | ----------------------------------- |
-| `--color-bg`         | `#F7F8FB`                                                          | `#0E1117` | page background                     |
-| `--color-surface`    | `#FFFFFF`                                                          | `#161B25` | cards, editor chrome                |
-| `--color-surface-2`  | `#EEF1F7`                                                          | `#1E2533` | table headers, wells                |
-| `--color-border`     | `#D9DEE8`                                                          | `#2A3242` |                                     |
-| `--color-text`       | `#151A24`                                                          | `#E8ECF3` | body (contrast ≥ 12:1)              |
-| `--color-text-muted` | `#5B6474`                                                          | `#A3ACBD` | secondary (≥ 4.5:1)                 |
-| `--color-primary`    | `#2B4FE0`                                                          | `#7C93FF` | actions, links, focus               |
-| `--color-primary-fg` | `#FFFFFF`                                                          | `#0E1117` |                                     |
-| `--color-accent`     | `#F2652E`                                                          | `#FF8A5B` | streaks, XP, highlights (sparingly) |
-| `--color-success`    | `#1C8A5A`                                                          | `#4CC38A` | correct (always with icon + text)   |
-| `--color-warning`    | `#B7791F`                                                          | `#F0B35A` | partial, hints                      |
-| `--color-danger`     | `#C53A3A`                                                          | `#F27474` | errors                              |
-| `--color-info`       | `#2E6F9E`                                                          | `#6FB6E8` | theory callouts                     |
-| Difficulty scale     | 1–5 use a **shape + label** (dot count + text), color is secondary |           |                                     |
+| Token                | Light                                                              | Dark      | Use                                                                                            |
+| -------------------- | ------------------------------------------------------------------ | --------- | ---------------------------------------------------------------------------------------------- |
+| `--color-bg`         | `#F7F8FB`                                                          | `#0E1117` | page background                                                                                |
+| `--color-surface`    | `#FFFFFF`                                                          | `#161B25` | cards, editor chrome                                                                           |
+| `--color-surface-2`  | `#EEF1F7`                                                          | `#1E2533` | table headers, wells                                                                           |
+| `--color-border`     | `#D9DEE8`                                                          | `#2A3242` |                                                                                                |
+| `--color-text`       | `#151A24`                                                          | `#E8ECF3` | body (contrast ≥ 12:1)                                                                         |
+| `--color-text-muted` | `#5B6474`                                                          | `#A3ACBD` | secondary (≥ 4.5:1)                                                                            |
+| `--color-primary`    | `#2B4FE0`                                                          | `#7C93FF` | actions, links, focus                                                                          |
+| `--color-primary-fg` | `#FFFFFF`                                                          | `#0E1117` |                                                                                                |
+| `--color-accent`     | `#F2652E`                                                          | `#FF8A5B` | streaks, XP, highlights (sparingly)                                                            |
+| `--color-accent-ink` | `#B8461A`                                                          | `#FFA17A` | accent used as **text** (eyebrows, labels): the base accent only reaches 3:1 on light surfaces |
+| `--color-success`    | `#1C8A5A`                                                          | `#4CC38A` | correct (always with icon + text)                                                              |
+| `--color-warning`    | `#B7791F`                                                          | `#F0B35A` | partial, hints                                                                                 |
+| `--color-danger`     | `#C53A3A`                                                          | `#F27474` | errors                                                                                         |
+| `--color-info`       | `#2E6F9E`                                                          | `#6FB6E8` | theory callouts                                                                                |
+| Difficulty scale     | 1–5 use a **shape + label** (dot count + text), color is secondary |           |                                                                                                |
 
 Rules: never encode status by color alone (icon + label always); minimum 4.5:1 for text, 3:1 for UI borders/icons; accent limited to ≤ 5 % of any screen.
 

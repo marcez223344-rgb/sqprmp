@@ -1,4 +1,7 @@
 import "server-only";
+import { createHash } from "node:crypto";
+import { headers } from "next/headers";
+import { limits } from "@/config/limits";
 import { track } from "@/lib/analytics/track";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -158,6 +161,22 @@ export interface VerificationResult {
   skills: string[];
   issuedAt: string;
   revoked: boolean;
+}
+
+/**
+ * Per-IP token bucket for the public verifier (codes are 20-char random, but scraping the
+ * endpoint should still be bounded). The IP is hashed; nothing identifying is stored.
+ */
+export async function verificationRateLimited(): Promise<boolean> {
+  const h = await headers();
+  const ip = h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "unknown";
+  const key = `verify:${createHash("sha256").update(ip).digest("hex").slice(0, 32)}`;
+  const { data, error } = await createAdminClient().rpc("consume_rate_limit", {
+    p_key: key,
+    p_capacity: limits.rateLimits.verification.capacity,
+    p_refill_per_second: limits.rateLimits.verification.refillPerSecond,
+  });
+  return Boolean(error) || data === false;
 }
 
 /** Public verification by code: minimal data, no user identifiers. */
