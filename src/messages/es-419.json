@@ -126,7 +126,9 @@
       "profile": "Perfil",
       "admin": "Admin",
       "badges": "Insignias",
-      "access": "Mi acceso"
+      "access": "Mi acceso",
+      "review": "Repaso",
+      "certificates": "Certificados"
     },
     "signOut": "Salir",
     "signedInAs": "Sesión iniciada como"
@@ -375,7 +377,9 @@
     },
     "quiz": {
       "title": "Quiz de la sección · {count} preguntas",
-      "soon": "Los quizzes interactivos se activan en la fase de evaluaciones. Las preguntas ya están listas y validadas."
+      "intro": "Respondé todas las preguntas y enviá el quiz. Necesitás {percent}% de aciertos para aprobar; podés repetirlo las veces que quieras.",
+      "lastAttempt": "Tu último intento: {score}/{total}.",
+      "empty": "Este quiz todavía no tiene preguntas publicadas."
     },
     "exercise": {
       "soon": "Los ejercicios prácticos con editor SQL se activan en la fase del motor de ejercicios."
@@ -748,5 +752,125 @@
         "revokedDone": "Acceso revocado."
       }
     }
+  },
+  "quiz": {
+    "empty": "No hay preguntas para mostrar.",
+    "score": "{score} de {total} correctas",
+    "passed": "¡Aprobaste! Superaste el {percent}% requerido.",
+    "failed": "No alcanzaste el {percent}% requerido. Revisá las explicaciones y volvé a intentarlo.",
+    "reviewDone": "Sesión de repaso terminada. Las respuestas del repaso no suman XP ni cuentan como intento.",
+    "reward": "+{xp} XP por aprobar el quiz.",
+    "sectionCompleted": "Completaste la sección entera. ¡Bien ahí!",
+    "questionN": "Pregunta {n}",
+    "correct": "Correcta",
+    "incorrect": "Incorrecta",
+    "yourAnswer": "Tu respuesta",
+    "correctAnswer": "Respuesta correcta",
+    "retry": "Repetir",
+    "continue": "Continuar",
+    "goReview": "Ir a repaso",
+    "progress": "Pregunta {current} de {total}",
+    "answered": "{answered}/{total} respondidas",
+    "progressLabel": "Avance del quiz",
+    "types": {
+      "single": "Opción única",
+      "multiple": "Opción múltiple",
+      "true_false": "Verdadero o falso",
+      "fill_blank": "Completar",
+      "query_interpretation": "Interpretar consulta",
+      "error_diagnosis": "Diagnóstico de error",
+      "matching": "Relacionar",
+      "scenario": "Escenario"
+    },
+    "prev": "Anterior",
+    "next": "Siguiente",
+    "submit": "Enviar quiz",
+    "answerAll": "Respondé todas las preguntas para poder enviar.",
+    "selectMany": "Seleccioná todas las opciones correctas",
+    "fillBlank": "Escribí tu respuesta",
+    "choose": "Elegir…",
+    "selectOne": "Seleccioná una opción",
+    "errors": {
+      "unauthorized": "Tenés que iniciar sesión para enviar el quiz.",
+      "validation": "Las respuestas no tienen un formato válido.",
+      "not_found": "No encontramos este quiz.",
+      "unknown": "Ocurrió un error. Intentá de nuevo."
+    }
+  },
+  "review": {
+    "title": "Repaso",
+    "subtitle": "Practicá las preguntas que respondiste mal la última vez. El repaso no suma XP: sirve para afianzar conceptos.",
+    "empty": "No tenés preguntas pendientes de repaso. Cuando falles alguna en un quiz, aparecerá acá.",
+    "count": "{count} preguntas para repasar",
+    "backToPath": "Volver a la ruta"
+  },
+  "certificates": {
+    "title": "Certificados",
+    "subtitle": "Cada certificado se emite cuando completás todas las secciones de una ruta y aprobás sus quizzes. Tiene un código público de verificación.",
+    "empty": "Todavía no hay rutas certificables publicadas.",
+    "progress": "{completed} de {total} secciones completadas",
+    "status": {
+      "issued": "Emitido",
+      "revoked": "Revocado",
+      "eligible": "Listo para emitir",
+      "inProgress": "En progreso"
+    },
+    "sectionDone": "Sección completada:",
+    "sectionPending": "Sección pendiente:",
+    "skills": "Habilidades",
+    "issuedOn": "Emitido el {date}",
+    "downloadPdf": "Descargar PDF",
+    "verifyLink": "Ver página de verificación",
+    "howToEarn": "Para obtenerlo: completá todas las lecciones y ejercicios de cada sección y aprobá cada quiz con al menos {percent}%.",
+    "issue": {
+      "nameLabel": "Nombre completo para el certificado",
+      "nameHint": "Así aparecerá impreso en el certificado. Solo letras, espacios, apóstrofes y guiones.",
+      "submit": "Emitir certificado",
+      "errors": {
+        "unauthorized": "Tenés que iniciar sesión.",
+        "validation": "Ingresá un nombre válido (3 a 60 caracteres).",
+        "not_eligible": "Todavía no cumplís todos los requisitos de esta ruta.",
+        "not_found": "No encontramos esta ruta certificable.",
+        "unknown": "No pudimos emitir el certificado. Intentá de nuevo."
+      }
+    },
+    "pdf": {
+      "certifies": "Certifica que",
+      "completed": "completó satisfactoriamente la ruta",
+      "skills": "Habilidades acreditadas",
+      "issuedOn": "Emitido el",
+      "verifyAt": "Verificar en",
+      "id": "ID",
+      "revoked": "CERTIFICADO REVOCADO"
+    }
+  },
+  "verify": {
+    "title": "Verificar certificado",
+    "subtitle": "Ingresá el código de verificación impreso en el certificado (o pegá el enlace completo) para confirmar que es auténtico y está vigente.",
+    "codeLabel": "Código de verificación",
+    "codeHint": "20 caracteres, letras y números.",
+    "invalidFormat": "El código no tiene el formato esperado.",
+    "submit": "Verificar",
+    "tryAgain": "Probar otro código",
+    "notFound": {
+      "title": "No encontramos un certificado con ese código",
+      "body": "Revisá que el código esté completo. Si el problema persiste, el certificado puede no existir o haber sido emitido por otra entidad."
+    },
+    "valid": {
+      "title": "Certificado válido"
+    },
+    "revoked": {
+      "title": "Certificado revocado",
+      "body": "Este certificado fue emitido pero luego revocado por la institución y ya no es válido."
+    },
+    "fields": {
+      "recipient": "Titular",
+      "title": "Ruta",
+      "skills": "Habilidades",
+      "issuedAt": "Fecha de emisión",
+      "id": "ID",
+      "issuer": "Emisor"
+    },
+    "privacyNote": "Esta página muestra solo los datos necesarios para validar el certificado."
   }
 }

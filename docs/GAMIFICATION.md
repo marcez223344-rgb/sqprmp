@@ -4,18 +4,18 @@ Implemented in Phase 5. Amounts live in `src/config/limits.ts` and `docs/CONTENT
 
 ## Principles
 
-- Rewards encourage learning, never clicking: XP only for first completions, quizzes (Phase 7) and streak/section milestones; repeating a completed exercise pays nothing (personal best only).
+- Rewards encourage learning, never clicking: XP only for first completions, quizzes and streak/section milestones; repeating a completed exercise pays nothing (personal best only).
 - Everything is server-side and idempotent: `award_reward()` keys every payout by `(user_id, event_key)`; the browser never sends XP or coins.
 - No dark patterns: missing a day never erases history (longest streak is kept), one streak freeze per month bridges a one-day gap automatically, and revealing a solution keeps 25 % XP instead of punishing.
 
 ## XP, coins and levels
 
-| Event                       | XP                                                                                                               | Coins       | Key                                |
-| --------------------------- | ---------------------------------------------------------------------------------------------------------------- | ----------- | ---------------------------------- |
-| Exercise first completion   | difficulty default (10/20/40/70/120) minus 10 % per hint (max 30 %); 25 % if the solution was revealed (0 coins) | 2/4/8/14/25 | `exercise_completed:<exercise_id>` |
-| Quiz ≥ 80 % (Phase 7)       | 5 per correct answer + 20 bonus                                                                                  | 0           | `quiz_passed:<lesson_id>`          |
-| Section completed (Phase 7) | 50                                                                                                               | 10          | `section_completed:<section_id>`   |
-| Daily cap                   | 600 XP/day (coins uncapped)                                                                                      |             |                                    |
+| Event                     | XP                                                                                                               | Coins       | Key                                |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------- | ----------- | ---------------------------------- |
+| Exercise first completion | difficulty default (10/20/40/70/120) minus 10 % per hint (max 30 %); 25 % if the solution was revealed (0 coins) | 2/4/8/14/25 | `exercise_completed:<exercise_id>` |
+| Quiz ≥ 80 % (first pass)  | 5 per correct answer + 20 bonus                                                                                  | 0           | `quiz_passed:<lesson_id>`          |
+| Section completed         | 50                                                                                                               | 10          | `section_completed:<section_id>`   |
+| Daily cap                 | 600 XP/day (coins uncapped)                                                                                      |             |                                    |
 
 Level `n` requires `100·n·(n−1)/2` total XP (100, 300, 600, 1000, 1500 …); `level_for_xp()` in SQL mirrors `levelForXp()` in TS (both unit/DB tested).
 

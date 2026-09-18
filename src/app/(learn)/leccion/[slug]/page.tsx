@@ -1,15 +1,18 @@
+import type { Route } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, ArrowRight, ListChecks, Lock } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { CompleteLessonButton } from "@/components/learn/complete-lesson-button";
 import { Markdown } from "@/components/learn/markdown";
+import { QuizRunner } from "@/components/quiz/quiz-runner";
 import { Card } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { canReadLesson } from "@/lib/auth/entitlements";
 import { requireOnboardedProfile } from "@/lib/auth/session";
 import { getLessonBySlug, getPremiumLessonBody } from "@/lib/curriculum/queries";
 import { recordLessonView } from "@/lib/curriculum/progress";
+import { getQuiz } from "@/lib/quizzes/service";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils/cn";
 
@@ -55,6 +58,8 @@ export default async function LessonPage({ params }: PageProps<"/leccion/[slug]"
     if (progress?.status === "completed") status = "completed";
     else status = "in_progress";
   }
+  const quiz =
+    access === "ok" && lesson.kind === "quiz" ? await getQuiz(profile, lesson.slug) : null;
 
   return (
     <div className="container-page max-w-3xl space-y-8 py-10">
@@ -87,13 +92,33 @@ export default async function LessonPage({ params }: PageProps<"/leccion/[slug]"
             {t("locked.cta")}
           </Link>
         </Card>
-      ) : lesson.kind === "quiz" ? (
-        <Card className="space-y-3">
-          <p className="inline-flex items-center gap-2 text-sm font-semibold">
+      ) : lesson.kind === "quiz" && quiz ? (
+        <section className="space-y-4" aria-labelledby="quiz-heading">
+          <p id="quiz-heading" className="inline-flex items-center gap-2 text-sm font-semibold">
             <ListChecks aria-hidden="true" className="size-4" />
             {t("quiz.title", { count: questionCount })}
           </p>
-          <p className="text-muted">{t("quiz.soon")}</p>
+          <p className="text-muted text-sm">
+            {t("quiz.intro", { percent: quiz.passThresholdPercent })}
+            {quiz.lastAttempt
+              ? " " +
+                t("quiz.lastAttempt", {
+                  score: quiz.lastAttempt.score,
+                  total: quiz.lastAttempt.total,
+                })
+              : ""}
+          </p>
+          <QuizRunner
+            questions={quiz.questions}
+            mode="quiz"
+            lessonSlug={lesson.slug}
+            passThresholdPercent={quiz.passThresholdPercent}
+            nextHref={next ? (`/leccion/${next.slug}` as Route) : "/ruta"}
+          />
+        </section>
+      ) : lesson.kind === "quiz" ? (
+        <Card>
+          <p className="text-muted">{t("quiz.empty")}</p>
         </Card>
       ) : lesson.kind === "theory" && body ? (
         <article>

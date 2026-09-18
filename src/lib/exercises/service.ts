@@ -15,6 +15,7 @@ import {
 } from "@/lib/validation/compare";
 import { buildFeedback, type FeedbackItem } from "@/lib/validation/feedback";
 import { awardExerciseCompletion, touchActivity, type AwardOutcome } from "@/lib/rewards/service";
+import { settleSectionCompletion } from "@/lib/quizzes/service";
 import type { Database, Json, Profile } from "@/types/database";
 
 type ExercisePublic = Database["public"]["Views"]["exercises_public"]["Row"];
@@ -362,6 +363,13 @@ export async function submitExercise(
       progress.hints_used,
       Boolean(progress.solution_revealed_at),
     );
+    // Section completion is evaluated after every first completion (idempotent reward).
+    const { data: exRow } = await admin
+      .from("exercises")
+      .select("section_id")
+      .eq("id", exerciseId)
+      .single();
+    if (exRow?.section_id) await settleSectionCompletion(profile, exRow.section_id);
   }
 
   return {

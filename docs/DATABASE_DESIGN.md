@@ -177,6 +177,14 @@ Every migration that creates a table must: `enable row level security`, add poli
 - `has_active_entitlement` now reads `entitlements` (Phase 4 fallback removed). Admins always have access.
 - Products/prices are seeded from `src/config/pricing.ts` by `content:build` (unique per product/provider/currency/country).
 
+### 4h. Implementation notes (Phase 7, migration `20260918230000_assessments_certificates.sql`)
+
+- Grading happens in `src/lib/quizzes/service.ts` with the answer key read through the admin client; the browser only receives `questions_public` / `question_options_public` (shuffled, no `is_correct`, no explanations). `record_quiz_attempt` (service role) stores the attempt + per-question answers and marks the quiz lesson completed on a pass.
+- `check_section_completion` defines "section complete" as every published exercise completed **and** the section quiz passed (theory lessons are not required); it inserts `section_progress` idempotently and is called after each exercise completion and quiz pass. `certificate_eligible` re-evaluates late completions so a requirement can be satisfied even if the check never ran.
+- Requirements are data (`certificate_requirements.rules`: `{"sections":[slug…],"min_quiz_score_percent":n}`); the seed carries the four paths in [CURRICULUM.md](CURRICULUM.md). `issue_certificate` is idempotent per (user, requirement), generates `public_id` `DMSA-YYYY-XXXXXXXX` and a 20-char `verification_code`, and audit-logs. Only `verify_certificate(code)` is callable by anon and returns name, title, skills, date and revoked flag — no user ids.
+- Review sessions (`/repaso`) grade the learner's most recent wrong answers without writing attempts or rewards.
+- PDFs are rendered on demand by `/certificados/[publicId]/pdf` (owner or admin, RLS) with `@react-pdf/renderer`; no Storage bucket yet (deferred until volume justifies caching).
+
 ## 5. Indexes (initial)
 
 `attempts (user_id, exercise_id, created_at desc)`, `exercise_progress (user_id, status)`, `reward_ledger (user_id, created_at)`, `entitlements (user_id) WHERE revoked_at IS NULL`, `payment_events (provider, provider_event_id)`, `certificates (verification_code)`, `analytics_events (name, created_at)`, `lessons (section_id, sort_order)`, `daily_activity (user_id, activity_date desc)`.

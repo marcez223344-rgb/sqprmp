@@ -33,9 +33,11 @@ Done: migration `20260918210000_gamification` (reward ledger with idempotent key
 Done: migration `20260918220000_commerce` (products, prices, purchases, subscriptions modeled, entitlements, promo codes/redemptions, payment events; RPCs for manual purchase flow, admin review/grant/revoke, idempotent webhook apply, promo redemption, buyer matching), `PaymentProvider` abstraction with `manual` and `hotmart` (sandbox) adapters, Hotmart webhook route (rate-limited, token verified, re-fetch before grant), `/precios` with card checkout + transfer channels + «Ya pagué», `/acceso` (plan, pending purchase, promo codes, history), `/admin/accesos` (approve/reject, grant/revoke by alias, audit), 5 provider unit tests, pgTAP 0006, E2E 06 (journeys 9–10 via manual approval, admin authz, webhook 401). Pending owner: fill transfer details in `src/config/pricing.ts`; Hotmart sandbox credentials to run the runbook.
 **Approval needed before Phase 6:** Hotmart payout eligibility confirmed by owner. Production credentials never without explicit approval.
 
-## Phase 7 — Assessments and certificates ☐
+## Phase 7 — Assessments and certificates ☑ (2026-09-18)
 
 Question bank types (8), quiz UI, review sessions, section completion rules, certificate requirements, issuance RPC, PDF, verification page, revocation. Gate: E2E 11–12.
+
+Done: migration `20260918230000_assessments_certificates` (quiz_attempts/answers, section_progress, certificate_requirements seed of 4 paths, certificates; RPCs `record_quiz_attempt`, `check_section_completion`, `certificate_eligible`, `issue_certificate`, `revoke_certificate`, `verify_certificate`), pure grader for the 8 question types (`src/lib/quizzes/grading.ts`, 7 unit tests), quiz runner wired into `/leccion/[slug]` with rewards (`quiz_passed`, `section_completed`) and badge evaluation, `/repaso` review sessions, `/certificados` (requirement status, issue form, PDF), public `/verificar` + `/verificar/[code]`, pgTAP 0007 (RPC flow also smoke-tested on PGlite), E2E 07 (journeys 11–12). Deferred: admin revocation UI (Phase 8), PDF caching in Storage.
 
 ## Phase 8 — Administration and analytics ☐
 

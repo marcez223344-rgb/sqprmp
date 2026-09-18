@@ -182,6 +182,87 @@ export type Database = {
         };
         Relationships: [];
       };
+      certificate_requirements: {
+        Row: {
+          id: string;
+          slug: string;
+          title: string;
+          skills: string[];
+          rules: Json;
+          sort_order: number;
+          is_active: boolean;
+        };
+        Insert: {
+          id?: string;
+          slug: string;
+          title: string;
+          skills?: string[];
+          rules: Json;
+          sort_order?: number;
+          is_active?: boolean;
+        };
+        Update: {
+          id?: string;
+          slug?: string;
+          title?: string;
+          skills?: string[];
+          rules?: Json;
+          sort_order?: number;
+          is_active?: boolean;
+        };
+        Relationships: [];
+      };
+      certificates: {
+        Row: {
+          id: string;
+          public_id: string;
+          verification_code: string;
+          user_id: string;
+          requirement_id: string;
+          recipient_name: string;
+          issued_at: string;
+          revoked_at: string | null;
+          revoked_reason: string | null;
+        };
+        Insert: {
+          id?: string;
+          public_id: string;
+          verification_code: string;
+          user_id: string;
+          requirement_id: string;
+          recipient_name: string;
+          issued_at?: string;
+          revoked_at?: string | null;
+          revoked_reason?: string | null;
+        };
+        Update: {
+          id?: string;
+          public_id?: string;
+          verification_code?: string;
+          user_id?: string;
+          requirement_id?: string;
+          recipient_name?: string;
+          issued_at?: string;
+          revoked_at?: string | null;
+          revoked_reason?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "certificates_requirement_id_fkey";
+            columns: ["requirement_id"];
+            isOneToOne: false;
+            referencedRelation: "certificate_requirements";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "certificates_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       courses: {
         Row: {
           id: string;
@@ -1479,6 +1560,116 @@ export type Database = {
           },
         ];
       };
+      quiz_answers: {
+        Row: {
+          id: string;
+          quiz_attempt_id: string;
+          user_id: string;
+          question_id: string;
+          answer: Json;
+          is_correct: boolean;
+          answered_at: string;
+        };
+        Insert: {
+          id?: string;
+          quiz_attempt_id: string;
+          user_id: string;
+          question_id: string;
+          answer: Json;
+          is_correct: boolean;
+          answered_at?: string;
+        };
+        Update: {
+          id?: string;
+          quiz_attempt_id?: string;
+          user_id?: string;
+          question_id?: string;
+          answer?: Json;
+          is_correct?: boolean;
+          answered_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "quiz_answers_question_id_fkey";
+            columns: ["question_id"];
+            isOneToOne: false;
+            referencedRelation: "theory_questions";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "quiz_answers_quiz_attempt_id_fkey";
+            columns: ["quiz_attempt_id"];
+            isOneToOne: false;
+            referencedRelation: "quiz_attempts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "quiz_answers_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      quiz_attempts: {
+        Row: {
+          id: string;
+          user_id: string;
+          lesson_id: string;
+          section_id: string;
+          score: number;
+          total: number;
+          passed: boolean;
+          started_at: string;
+          submitted_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          lesson_id: string;
+          section_id: string;
+          score: number;
+          total: number;
+          passed: boolean;
+          started_at?: string;
+          submitted_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          lesson_id?: string;
+          section_id?: string;
+          score?: number;
+          total?: number;
+          passed?: boolean;
+          started_at?: string;
+          submitted_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "quiz_attempts_lesson_id_fkey";
+            columns: ["lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "quiz_attempts_section_id_fkey";
+            columns: ["section_id"];
+            isOneToOne: false;
+            referencedRelation: "sections";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "quiz_attempts_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       rate_limits: {
         Row: { key: string; tokens: number; refilled_at: string };
         Insert: { key: string; tokens: number; refilled_at?: string };
@@ -1570,6 +1761,39 @@ export type Database = {
           },
           {
             foreignKeyName: "saved_queries_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      section_progress: {
+        Row: {
+          user_id: string;
+          section_id: string;
+          completed_at: string;
+        };
+        Insert: {
+          user_id: string;
+          section_id: string;
+          completed_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          section_id?: string;
+          completed_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "section_progress_section_id_fkey";
+            columns: ["section_id"];
+            isOneToOne: false;
+            referencedRelation: "sections";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "section_progress_user_id_fkey";
             columns: ["user_id"];
             isOneToOne: false;
             referencedRelation: "profiles";
@@ -2191,6 +2415,44 @@ export type Database = {
           coin_cost: number;
           xp_penalty_percent: number;
           hints_used: number;
+        }[];
+      };
+      certificate_eligible: {
+        Args: { p_user_id: string; p_requirement_slug: string };
+        Returns: boolean;
+      };
+      check_section_completion: {
+        Args: { p_user_id: string; p_section_id: string };
+        Returns: boolean;
+      };
+      issue_certificate: {
+        Args: { p_user_id: string; p_requirement_slug: string; p_recipient_name: string };
+        Returns: { public_id: string; verification_code: string; already_issued: boolean }[];
+      };
+      record_quiz_attempt: {
+        Args: {
+          p_user_id: string;
+          p_lesson_id: string;
+          p_score: number;
+          p_total: number;
+          p_passed: boolean;
+          p_answers: Json;
+        };
+        Returns: string;
+      };
+      revoke_certificate: {
+        Args: { p_public_id: string; p_actor: string | null; p_reason: string };
+        Returns: undefined;
+      };
+      verify_certificate: {
+        Args: { p_code: string };
+        Returns: {
+          public_id: string;
+          recipient_name: string;
+          title: string;
+          skills: string[];
+          issued_at: string;
+          revoked: boolean;
         }[];
       };
       check_alias_available: { Args: { candidate: string }; Returns: boolean };

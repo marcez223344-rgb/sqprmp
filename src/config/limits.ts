@@ -27,6 +27,8 @@ export const limits = {
     quizXpPerCorrect: 5,
     quizPassBonusXp: 20,
     quizPassThresholdPercent: 80,
+    sectionCompletedXp: 50,
+    sectionCompletedCoins: 10,
     byDifficulty: {
       very_easy: { xp: 10, coins: 2 },
       easy: { xp: 20, coins: 4 },

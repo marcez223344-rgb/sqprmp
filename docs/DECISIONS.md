@@ -24,7 +24,7 @@ Status: Proposed · 2026-09-18 · Single `authorize()` on the server + RLS mirro
 
 ### D-05 · Payment channels for MVP
 
-Status: **Approved (owner, 2026-09-18): manual channel + Hotmart** · Owner facts: entity in Argentina, sell to all LATAM from day one, price ≈ US$20. Proposed: `manual` provider (ARS bank/Mercado Pago transfer, Wallbit USD, wire) with admin approval **plus** one automated Merchant-of-Record for cards (Hotmart recommended; Paddle alternative), all behind `PaymentProvider`; Mercado Pago Checkout Pro in Phase 6b. Rejected: Stripe (no Argentine sellers), Lemon Squeezy (no payouts to Argentina), subscriptions at launch. See [PAYMENTS.md](PAYMENTS.md) §2b–3.
+Status: **Approved (owner, 2026-09-18): manual channel + Hotmart** · Owner facts: entity in Argentina, sell to all LATAM from day one, price ≈ US$20. Proposed: `manual` provider (ARS bank/Mercado Pago transfer, Wallbit USD, wire) with admin approval **plus** one automated Merchant-of-Record for cards (Hotmart recommended; Paddle alternative), all behind `PaymentProvider`; Mercado Pago Checkout Pro in Phase 6b. Rejected: Stripe (no Argentine sellers), Lemon Squeezy (no payouts to Argentina), subscriptions at launch. Also considered (2026-09-18, owner question): Gumroad — simple webhook ("Ping") integration, but ≈13% effective fees, cards-only in USD (no Mercado Pago/PIX), and no local-bank payouts to Argentina (PayPal only); kept as a fallback card provider if Hotmart onboarding fails. See [PAYMENTS.md](PAYMENTS.md) §2b–3.
 
 ### D-06 · Pricing
 
