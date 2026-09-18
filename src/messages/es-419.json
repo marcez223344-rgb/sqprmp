@@ -106,5 +106,175 @@
       "title": "{page}",
       "body": "Esta sección se construye en las próximas fases. Mientras tanto puedes explorar la página principal."
     }
+  },
+  "auth": {
+    "title": "Ingresa a tu cuenta",
+    "subtitle": "Usa tu cuenta de Google. Los primeros {count} ejercicios son gratis.",
+    "googleButton": "Continuar con Google",
+    "legal": "Al continuar aceptas los <terms>Términos</terms> y la <privacy>Política de privacidad</privacy>.",
+    "errors": {
+      "oauth": "No pudimos iniciar el ingreso con Google. Intenta de nuevo.",
+      "missing_code": "El enlace de ingreso no es válido. Intenta de nuevo.",
+      "exchange": "No pudimos completar el ingreso. Intenta de nuevo.",
+      "session": "Tu sesión no pudo crearse. Intenta de nuevo."
+    }
+  },
+  "app": {
+    "nav": {
+      "dashboard": "Mi aprendizaje",
+      "path": "Ruta",
+      "profile": "Perfil",
+      "admin": "Admin"
+    },
+    "signOut": "Salir",
+    "signedInAs": "Sesión iniciada como"
+  },
+  "dashboard": {
+    "welcome": "Hola, {name}",
+    "weeklyGoal": "Tu meta semanal: {minutes} minutos de práctica.",
+    "continue": {
+      "title": "Tu ruta de aprendizaje",
+      "body": "El currículo y los ejercicios se activan en las próximas fases. Recuerda: los primeros {count} ejercicios prácticos son gratis.",
+      "cta": "Ver la ruta"
+    },
+    "stats": {
+      "title": "Tu progreso",
+      "xp": "XP",
+      "streak": "Racha (días)",
+      "note": "Las estadísticas se activan cuando completes tu primer ejercicio."
+    }
+  },
+  "onboarding": {
+    "title": "Configura tu perfil",
+    "intro": "Tres pasos rápidos para personalizar tu aprendizaje. Puedes cambiar casi todo después desde tu perfil.",
+    "progressLabel": "Progreso de configuración",
+    "steps": {
+      "identity": "Identidad",
+      "about": "Sobre ti",
+      "consent": "Consentimiento"
+    },
+    "submit": "Terminar y empezar",
+    "fields": {
+      "displayName": "Nombre para mostrar",
+      "alias": "Alias",
+      "avatar": "Elige un avatar",
+      "country": "País",
+      "birthDate": "Fecha de nacimiento",
+      "gender": "Género (opcional)",
+      "sqlLevel": "Tu nivel de SQL hoy",
+      "mainGoal": "Tu objetivo principal",
+      "weeklyGoal": "Meta semanal de práctica"
+    },
+    "hints": {
+      "displayName": "Así te saludaremos dentro de la plataforma.",
+      "alias": "Entre {min} y {max} caracteres: letras minúsculas, números y guion bajo. Es único y puede aparecer en tablas de posiciones si lo autorizas.",
+      "avatar": "Ilustraciones abstractas, sin fotos. Puedes cambiarlo cuando quieras.",
+      "birthDate": "Debes tener al menos {age} años. Solo usamos tu año de nacimiento para estadísticas agregadas.",
+      "gender": "Solo se usa para métricas agregadas de inclusión. Nunca se muestra públicamente."
+    },
+    "aliasStatus": {
+      "checking": "Verificando",
+      "available": "Disponible",
+      "taken": "No disponible"
+    },
+    "options": {
+      "gender": {
+        "unset": "Prefiero no decirlo",
+        "female": "Femenino",
+        "male": "Masculino",
+        "non_binary": "No binario",
+        "other": "Otro",
+        "prefer_not_to_say": "Prefiero no decirlo"
+      },
+      "sqlLevel": {
+        "none": "Nunca escribí SQL",
+        "beginner": "Principiante: conozco SELECT y WHERE",
+        "intermediate": "Intermedio: uso JOIN y GROUP BY",
+        "advanced": "Avanzado: funciones de ventana y CTE"
+      },
+      "mainGoal": {
+        "first_job": "Conseguir mi primer trabajo en datos",
+        "improve": "Mejorar como analista",
+        "career_change": "Cambiar de carrera hacia datos",
+        "business": "Usar SQL en mi rol de negocio",
+        "interviews": "Prepararme para entrevistas técnicas",
+        "advanced_practice": "Practicar desafíos avanzados"
+      },
+      "weeklyGoal": "{minutes} min / semana"
+    },
+    "privacy": {
+      "title": "Por qué pedimos estos datos",
+      "email": "Tu correo viene de Google y sirve para identificarte y enviarte recibos.",
+      "birthDate": "Tu fecha de nacimiento confirma que eres mayor de edad; solo guardamos estadísticas por año.",
+      "country": "Tu país nos ayuda a mostrar precios y ejemplos relevantes.",
+      "gender": "El género es opcional y solo alimenta métricas agregadas.",
+      "rights": "Puedes exportar o eliminar tus datos desde tu perfil en cualquier momento."
+    },
+    "consent": {
+      "terms": "Acepto los <link>Términos y condiciones</link>.",
+      "privacy": "Acepto la <link>Política de privacidad</link> y el tratamiento de mis datos descrito arriba."
+    },
+    "errors": {
+      "generic": "No pudimos guardar tu perfil. Intenta de nuevo.",
+      "invalid": "Revisa este campo.",
+      "required": "Este campo es obligatorio.",
+      "too_long": "Demasiado largo.",
+      "choose": "Elige una opción.",
+      "alias_length": "El alias debe tener entre 3 y 20 caracteres.",
+      "alias_pattern": "Usa solo letras minúsculas, números y guion bajo.",
+      "alias_taken": "Ese alias no está disponible.",
+      "avatar_invalid": "Elige un avatar de la lista.",
+      "consent_required": "Necesitamos tu aceptación para continuar.",
+      "invalid_date": "Ingresa una fecha válida.",
+      "min_age": "Debes ser mayor de 18 años para usar la plataforma."
+    }
+  },
+  "profile": {
+    "title": "Tu perfil",
+    "aliasNote": "El alias se puede cambiar hasta dos veces por año desde soporte.",
+    "sections": {
+      "identity": "Identidad y preferencias",
+      "privacy": "Privacidad y datos"
+    },
+    "privacyIntro": "Controlas tus datos: puedes pedir una copia o eliminar tu cuenta.",
+    "fields": {
+      "certificateName": "Nombre en certificados",
+      "timezone": "Zona horaria",
+      "leaderboardOptIn": "Participar en tablas de posiciones"
+    },
+    "hints": {
+      "certificateName": "Tal como quieres que aparezca en tus certificados.",
+      "timezone": "Se usa para calcular tus rachas diarias.",
+      "leaderboardOptIn": "Solo se mostrará tu alias y avatar. Puedes desactivarlo cuando quieras."
+    },
+    "save": "Guardar cambios",
+    "saved": "Cambios guardados",
+    "saveError": "No pudimos guardar. Revisa los campos e intenta de nuevo.",
+    "privacy": {
+      "export": {
+        "title": "Exportar mis datos",
+        "body": "Preparamos un archivo con tu perfil, intentos y progreso. Te avisaremos por correo cuando esté listo (hasta 72 horas).",
+        "cta": "Solicitar exportación"
+      },
+      "deletion": {
+        "title": "Eliminar mi cuenta",
+        "body": "Tu cuenta y tus datos personales se eliminan tras 30 días de gracia. Los certificados emitidos conservan solo el nombre que elegiste para verificación.",
+        "cta": "Solicitar eliminación",
+        "confirm": "Sí, eliminar mi cuenta"
+      },
+      "requested": {
+        "export": "Solicitud de exportación registrada.",
+        "deletion": "Solicitud de eliminación registrada. Puedes cancelarla dentro de los 30 días."
+      },
+      "pendingSince": "Solicitud pendiente desde el {date}.",
+      "cancel": "Cancelar solicitud",
+      "cancelled": "Solicitud cancelada.",
+      "errors": {
+        "already_pending": "Ya tienes una solicitud pendiente.",
+        "unknown": "No pudimos registrar la solicitud. Intenta de nuevo.",
+        "unauthorized": "Debes iniciar sesión.",
+        "validation": "Solicitud inválida."
+      }
+    }
   }
 }

@@ -24,6 +24,7 @@ Related: [SQL_SANDBOX.md](SQL_SANDBOX.md) (learner SQL), [DATABASE_DESIGN.md](DA
 - Middleware refreshes sessions; server components read the user via `getUser()` (validated with the auth server), never `getSession()` alone for authorization.
 - OAuth callback validates `next` redirect against an allowlist of internal paths (no open redirects).
 - Magic-link email is architecturally supported (provider toggle in `features.ts`), disabled in MVP.
+- Implementation (Phase 2): `signInWithGoogle` server action → Supabase OAuth with `redirectTo=/auth/callback?next=…` (`next` validated by `safeNextPath()`), `exchangeCodeForSession`, then `/onboarding` until `onboarding_completed_at` is set. Sign-out is POST-only. `proxy.ts` does an optimistic redirect; layouts re-verify with `getUser()`; the token hook adds `user_role` so `is_admin()` needs no subquery.
 
 ## 4. Authorization
 

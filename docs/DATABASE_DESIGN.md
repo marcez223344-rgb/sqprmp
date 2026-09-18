@@ -140,6 +140,13 @@ Every migration that creates a table must: `enable row level security`, add poli
 - `rate_limits` has RLS enabled and no policies; only `consume_rate_limit()` (service role) touches it.
 - Local validation without Docker: `npm run db:validate` (PGlite). pgTAP: `supabase/tests/0001_foundation.test.sql`.
 
+### 4c. Implementation notes (Phase 2, migration `20260918180000_onboarding.sql`)
+
+- `complete_onboarding(payload jsonb)`: single transaction that validates alias (blocklist + normalized uniqueness), avatar and both consents, writes consent versions/timestamps and `onboarding_completed_at`, and audit-logs `onboarding.completed`. Raises `P0001` with `detail` in {`alias_unavailable`, `avatar_invalid`, `consent_required`} so the server action maps them to field errors.
+- `data_requests`: learners insert/cancel their own pending requests (partial unique index: one pending per type); fulfilment is an admin/cron job (Phase 8).
+- `custom_access_token_hook`: adds `user_role` claim; enabled in `supabase/config.toml` and must be enabled in the cloud dashboard (Auth → Hooks) per environment.
+- Alias blocklist seeded with impersonation/brand/slur patterns (regex on the normalized alias).
+
 ## 5. Indexes (initial)
 
 `attempts (user_id, exercise_id, created_at desc)`, `exercise_progress (user_id, status)`, `reward_ledger (user_id, created_at)`, `entitlements (user_id) WHERE revoked_at IS NULL`, `payment_events (provider, provider_event_id)`, `certificates (verification_code)`, `analytics_events (name, created_at)`, `lessons (section_id, sort_order)`, `daily_activity (user_id, activity_date desc)`.

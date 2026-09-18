@@ -23,12 +23,19 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 240_000,
     env: {
+      ...process.env,
       NEXT_PUBLIC_SUPABASE_URL:
         process.env.NEXT_PUBLIC_SUPABASE_URL ?? "https://example.supabase.co",
       NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:
         process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
         "sb_publishable_placeholder_key_for_tests",
       NEXT_PUBLIC_APP_URL: `http://localhost:${port}`,
+      // Server-only secrets are validated at boot; placeholders satisfy the schema in tests.
+      SUPABASE_SECRET_KEY:
+        process.env.SUPABASE_SECRET_KEY ?? "sb_secret_placeholder_key_for_tests_only",
+      SANDBOX_SIGNING_SECRET: process.env.SANDBOX_SIGNING_SECRET ?? "0".repeat(32),
+      CERTIFICATE_SIGNING_SECRET: process.env.CERTIFICATE_SIGNING_SECRET ?? "0".repeat(32),
+      CRON_SECRET: process.env.CRON_SECRET ?? "0".repeat(32),
     },
   },
 });

@@ -47,6 +47,20 @@ jobs:
           version: latest
       - run: supabase db start
       - run: supabase test db
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Generated types must match src/types/database.ts
+        run: |
+          supabase gen types typescript --local > /tmp/database.generated.ts
+          cp src/types/database.ts /tmp/database.committed.ts
+          npx prettier --write /tmp/database.generated.ts /tmp/database.committed.ts > /dev/null
+          if ! diff -u /tmp/database.committed.ts /tmp/database.generated.ts; then
+            echo "::error::src/types/database.ts drifted from the schema. Run: npx supabase gen types typescript --local > src/types/database.ts"
+            exit 1
+          fi
 
   e2e:
     name: Playwright smoke
@@ -60,6 +74,19 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Start local Supabase (auth + migrations + seed)
+        run: |
+          supabase start
+          supabase status -o env > .supabase-status.env
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=$(grep '^API_URL=' .supabase-status.env | cut -d= -f2- | tr -d '"')"
+            echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$(grep '^ANON_KEY=' .supabase-status.env | cut -d= -f2- | tr -d '"')"
+            echo "SUPABASE_SECRET_KEY=$(grep '^SERVICE_ROLE_KEY=' .supabase-status.env | cut -d= -f2- | tr -d '"')"
+            echo "E2E_SUPABASE=1"
+          } >> "$GITHUB_ENV"
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
       - uses: actions/upload-artifact@v4

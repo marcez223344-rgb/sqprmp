@@ -21,6 +21,7 @@ const supabaseStub = `
     if not exists (select 1 from pg_roles where rolname = 'anon') then create role anon nologin; end if;
     if not exists (select 1 from pg_roles where rolname = 'authenticated') then create role authenticated nologin; end if;
     if not exists (select 1 from pg_roles where rolname = 'service_role') then create role service_role nologin bypassrls; end if;
+    if not exists (select 1 from pg_roles where rolname = 'supabase_auth_admin') then create role supabase_auth_admin nologin; end if;
   end $$;
   create table if not exists auth.users (
     id uuid primary key,
@@ -102,6 +103,56 @@ async function main() {
     console.error("consume_rate_limit token bucket misbehaves");
     process.exit(1);
   }
+
+  // Seeds must apply cleanly too.
+  const seedDir = join(process.cwd(), "supabase", "seed");
+  for (const file of readdirSync(seedDir)
+    .filter((f) => f.endsWith(".sql"))
+    .sort()) {
+    await db.exec(readFileSync(join(seedDir, file), "utf8"));
+    console.log(`seeded   ${file}`);
+  }
+
+  // Onboarding RPC as the learner (JWT sub) with a real avatar id.
+  const avatar = await db.query<{ id: string }>(
+    "select id from public.avatars where is_active order by sort_order limit 1",
+  );
+  await db.exec(
+    "select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-000000000001', false)",
+  );
+  const onboarding = await db.query<{ alias: string; onboarding_completed_at: string }>(
+    `select alias::text, onboarding_completed_at::text from public.complete_onboarding($1::jsonb)`,
+    [
+      JSON.stringify({
+        display_name: "Ana",
+        alias: "ana_datos",
+        avatar_id: avatar.rows[0]?.id,
+        country: "ar",
+        birth_date: "1995-04-12",
+        gender: "prefer_not_to_say",
+        sql_level: "beginner",
+        main_goal: "first_job",
+        weekly_goal_minutes: 120,
+        timezone: "America/Argentina/Buenos_Aires",
+        accept_terms: true,
+        accept_privacy: true,
+        terms_version: "2026-09-18",
+        privacy_version: "2026-09-18",
+      }),
+    ],
+  );
+  if (onboarding.rows[0]?.alias !== "ana_datos" || !onboarding.rows[0]?.onboarding_completed_at) {
+    console.error("complete_onboarding did not persist the profile");
+    process.exit(1);
+  }
+  const blocked = await db.query<{ ok: boolean }>(
+    "select public.check_alias_available('admin_ana') as ok",
+  );
+  if (blocked.rows[0]?.ok !== false) {
+    console.error("alias blocklist not enforced");
+    process.exit(1);
+  }
+  await db.exec("select set_config('request.jwt.claim.sub', '', false)");
 
   const tables = await db.query<{ n: number }>(
     `select count(*)::int as n from pg_tables where schemaname='public'`,

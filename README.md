@@ -4,7 +4,7 @@ Plataforma de aprendizaje de SQL para adultos de habla hispana en América Latin
 
 **Organización:** Data Minds Solutions · **Fundador e instructor:** Marcelo Pisner
 
-> Estado actual: **Fase 1 (fundación) completada** — proyecto Next.js 16, sistema de diseño, i18n, clientes Supabase, primera migración con RLS, pruebas y CI. Ver [docs/ROADMAP.md](docs/ROADMAP.md).
+> Estado actual: **Fase 2 (identidad y onboarding) completada** — ingreso con Google, onboarding en 3 pasos, alias moderados, avatares, perfil y privacidad; Fase 3 (currículo) en curso. Ver [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Documentación
 

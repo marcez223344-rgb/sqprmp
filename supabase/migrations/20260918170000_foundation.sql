@@ -145,7 +145,8 @@ set search_path = public, pg_temp
 as $$
 begin
   new.alias_normalized = case when new.alias is null then null else public.normalize_alias(new.alias::text) end;
-  if tg_op = 'UPDATE' and not public.is_admin() and current_setting('role', true) <> 'service_role' then
+  -- Direct learner writes run as 'authenticated'; RPCs (security definer) run as their owner.
+  if tg_op = 'UPDATE' and current_user = 'authenticated' and not public.is_admin() then
     -- Learners cannot escalate or tamper with consent/onboarding timestamps directly.
     new.role = old.role;
     new.deleted_at = old.deleted_at;
