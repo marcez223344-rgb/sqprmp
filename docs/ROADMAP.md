@@ -45,6 +45,10 @@ Admin pages (users/entitlements, payment events, certificates, flags, audit log)
 
 Done: migration `20260918240000_admin_analytics` (`analytics_events`, normalized payment event fields + `reconcile_payment_event`, audited RPCs for flags/promos, `admin_metrics`, `admin_find_user`), `src/lib/analytics` (Zod spec for the 22 events + server-only `track()`) wired into onboarding, lessons, exercises (submit/complete/hint/reveal), quizzes, sections, certificates, review, paywall, checkout, purchases, promos and badges; admin hub with `/admin/{metricas,pagos,usuarios,certificados,promos,flags,auditoria}`; pgTAP 0008 (RPC flow also smoke-tested on PGlite), unit tests for the event spec, E2E 08 (journey 13). Deferred: `page_viewed` + anonymous id (D-15), materialized metrics.
 
+## Content sprint A — Fundamentos (sections 4–8) ☑ (2026-09-18)
+
+Sections 4 (alias y expresiones), 5 (DISTINCT), 6 (WHERE, 2 lessons), 7 (operadores) and 8 (NULL, 2 lessons) authored on `tiendaviva` and published: 7 theory lessons, 44 questions, 17 exercises (all verified by `content:verify`). Sections 1–8 complete → the `fundamentos-sql` certificate is attainable. Author tooling: `scripts/dataset-query.ts` (ad-hoc SQL against a built snapshot). Deviation from CURRICULUM §3: section 8 uses `tiendaviva` (NULL shipping dates, ratings, comments) instead of `bolsillo`; `bolsillo` will add exercises later. Remaining: sections 14–15, 17, 18, 25 + datasets `bolsillo` / `pidelo` (sprint B).
+
 ## Phase 9 — Quality and launch ☐
 
 Accessibility review, security review, performance (Lighthouse ≥ 90 mobile on public pages), full E2E, seed validation on prod, legal pages, Supabase Pro + Vercel Pro, domain, production deployment runbook, post-launch checklist (monitoring, backups, support inbox).

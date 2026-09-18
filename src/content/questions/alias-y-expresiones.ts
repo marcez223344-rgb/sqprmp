@@ -1,0 +1,237 @@
+import type { QuestionDef } from "../schemas/question";
+
+const section = "alias-y-expresiones";
+const lesson = "alias-y-expresiones-basico";
+
+export const questions: QuestionDef[] = [
+  {
+    slug: "alias-q01-nombre-columna",
+    section,
+    lesson,
+    type: "single",
+    difficulty: "very_easy",
+    topic: "Alias de columna",
+    tags: ["alias"],
+    estimated_seconds: 30,
+    prompt_md: "¿Cómo se llama la segunda columna del resultado?",
+    code_md: "```sql\nSELECT id, subtotal - discount AS neto\nFROM orders;\n```",
+    options: [
+      { key: "a", body_md: "`neto`", is_correct: true },
+      {
+        key: "b",
+        body_md: "`subtotal - discount`",
+        is_correct: false,
+        why_incorrect_md: "El alias reemplaza la expresión como nombre de la columna.",
+      },
+      {
+        key: "c",
+        body_md: "`?column?`",
+        is_correct: false,
+        why_incorrect_md: "Ese es el nombre que aparece cuando **no** hay alias.",
+      },
+    ],
+    explanation_md:
+      "`AS` asigna el nombre con el que la columna aparece en el resultado. Sin alias, PostgreSQL muestra `?column?` para expresiones.",
+    is_published: true,
+  },
+  {
+    slug: "alias-q02-division-entera",
+    section,
+    lesson,
+    type: "single",
+    difficulty: "easy",
+    topic: "Aritmética",
+    tags: ["alias", "aritmetica"],
+    estimated_seconds: 40,
+    prompt_md: "¿Qué devuelve `SELECT 7 / 2;` en PostgreSQL?",
+    options: [
+      { key: "a", body_md: "`3`", is_correct: true },
+      {
+        key: "b",
+        body_md: "`3.5`",
+        is_correct: false,
+        why_incorrect_md:
+          "Ambos operandos son enteros, así que la división es entera. Para `3.5` escribe `7 / 2.0`.",
+      },
+      {
+        key: "c",
+        body_md: "Un error de tipos.",
+        is_correct: false,
+        why_incorrect_md: "Dividir enteros es válido; simplemente descarta la parte decimal.",
+      },
+    ],
+    explanation_md:
+      "La división entre dos enteros descarta decimales. Convierte uno de los operandos (`7 / 2.0` o `7::numeric / 2`) cuando necesites el resultado exacto.",
+    is_published: true,
+  },
+  {
+    slug: "alias-q03-alias-en-where",
+    section,
+    lesson,
+    type: "error_diagnosis",
+    difficulty: "easy",
+    topic: "Orden de evaluación",
+    tags: ["alias", "where"],
+    estimated_seconds: 45,
+    prompt_md: 'Esta consulta falla con `column "neto" does not exist`. ¿Por qué?',
+    code_md:
+      "```sql\nSELECT id, subtotal - discount AS neto\nFROM orders\nWHERE neto > 100000;\n```",
+    options: [
+      {
+        key: "a",
+        body_md:
+          "El `WHERE` se evalúa antes que la lista del `SELECT`, así que el alias todavía no existe.",
+        is_correct: true,
+      },
+      {
+        key: "b",
+        body_md: "Falta poner el alias entre comillas dobles.",
+        is_correct: false,
+        why_incorrect_md:
+          "Las comillas no cambian el orden de evaluación; el alias seguiría sin existir en `WHERE`.",
+      },
+      {
+        key: "c",
+        body_md: "`neto` es una palabra reservada.",
+        is_correct: false,
+        why_incorrect_md: "No lo es; el problema es dónde se usa el alias.",
+      },
+    ],
+    explanation_md:
+      "En `WHERE` repite la expresión: `WHERE subtotal - discount > 100000`. Los alias sí se pueden usar en `ORDER BY`.",
+    is_published: true,
+  },
+  {
+    slug: "alias-q04-concatenar",
+    section,
+    lesson,
+    type: "fill_blank",
+    difficulty: "easy",
+    topic: "Texto",
+    tags: ["alias", "texto"],
+    estimated_seconds: 30,
+    prompt_md:
+      "Completa el operador que une textos en PostgreSQL: `SELECT 'CAT-' ___ id AS codigo FROM categories;`",
+    answer: { accepted: ["||"], case_sensitive: false },
+    explanation_md: "`||` concatena. `+` no funciona con textos en PostgreSQL.",
+    is_published: true,
+  },
+  {
+    slug: "alias-q05-precedencia",
+    section,
+    lesson,
+    type: "query_interpretation",
+    difficulty: "intermediate",
+    topic: "Precedencia",
+    tags: ["alias", "aritmetica"],
+    estimated_seconds: 50,
+    prompt_md:
+      "Con `subtotal = 100`, `discount = 20` y una tasa de 0.21, ¿qué valor devuelve `impuesto`?",
+    code_md: "```sql\nSELECT subtotal - discount * 0.21 AS impuesto\nFROM orders;\n```",
+    options: [
+      { key: "a", body_md: "`95.80`", is_correct: true },
+      {
+        key: "b",
+        body_md: "`16.80`",
+        is_correct: false,
+        why_incorrect_md:
+          "Eso sería `(subtotal - discount) * 0.21`. Sin paréntesis, la multiplicación se resuelve primero.",
+      },
+      {
+        key: "c",
+        body_md: "`80`",
+        is_correct: false,
+        why_incorrect_md:
+          "Ignora la multiplicación; la expresión sí multiplica `discount` por 0.21.",
+      },
+    ],
+    explanation_md:
+      "`*` tiene prioridad sobre `-`: `100 - (20 * 0.21) = 95.80`. Si querías el impuesto sobre el neto, escribe `(subtotal - discount) * 0.21`.",
+    is_published: true,
+  },
+  {
+    slug: "alias-q06-round",
+    section,
+    lesson,
+    type: "single",
+    difficulty: "easy",
+    topic: "Redondeo",
+    tags: ["alias", "numeric_functions"],
+    estimated_seconds: 30,
+    prompt_md: "¿Qué devuelve `SELECT ROUND(2.4567, 2);`?",
+    options: [
+      { key: "a", body_md: "`2.46`", is_correct: true },
+      {
+        key: "b",
+        body_md: "`2.45`",
+        is_correct: false,
+        why_incorrect_md: "El tercer decimal es 6, así que se redondea hacia arriba.",
+      },
+      {
+        key: "c",
+        body_md: "`2`",
+        is_correct: false,
+        why_incorrect_md: "El segundo argumento indica cuántos decimales conservar.",
+      },
+    ],
+    explanation_md: "`ROUND(valor, n)` conserva `n` decimales redondeando al más cercano.",
+    is_published: true,
+  },
+  {
+    slug: "alias-q07-comillas-simples",
+    section,
+    lesson,
+    type: "true_false",
+    difficulty: "easy",
+    topic: "Alias de columna",
+    tags: ["alias", "sintaxis"],
+    estimated_seconds: 25,
+    prompt_md:
+      "Verdadero o falso: `SELECT subtotal AS 'monto' FROM orders;` crea una columna llamada `monto`.",
+    options: [
+      {
+        key: "a",
+        body_md: "Verdadero",
+        is_correct: false,
+        why_incorrect_md:
+          "Las comillas simples delimitan textos, no identificadores. PostgreSQL devuelve un error de sintaxis.",
+      },
+      { key: "b", body_md: "Falso", is_correct: true },
+    ],
+    explanation_md:
+      "Los alias son identificadores: sin comillas (`AS monto`) o con comillas dobles si necesitas mayúsculas o espacios.",
+    is_published: true,
+  },
+  {
+    slug: "alias-q08-escenario-reporte",
+    section,
+    lesson,
+    type: "scenario",
+    difficulty: "intermediate",
+    topic: "Alias legibles",
+    tags: ["alias", "readability"],
+    estimated_seconds: 50,
+    prompt_md:
+      "Finanzas te pide un reporte con el neto de cada pedido para pegarlo en una planilla que luego consumirá otra consulta. ¿Qué alias conviene?",
+    options: [
+      { key: "a", body_md: "`AS neto_pedido`", is_correct: true },
+      {
+        key: "b",
+        body_md: '`AS "Neto del pedido"`',
+        is_correct: false,
+        why_incorrect_md:
+          "Funciona, pero obliga a usar comillas dobles en cada consulta posterior y suele romper herramientas.",
+      },
+      {
+        key: "c",
+        body_md: "Sin alias; la planilla ya tiene encabezados.",
+        is_correct: false,
+        why_incorrect_md:
+          "La columna se llamaría `?column?` y la consulta posterior no podría referenciarla con claridad.",
+      },
+    ],
+    explanation_md:
+      "Un alias en `snake_case`, sin espacios ni acentos, es legible para personas y estable para las consultas que reutilizan el resultado.",
+    is_published: true,
+  },
+];

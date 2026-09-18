@@ -74,7 +74,7 @@ const outlines: Outline[] = [
       "Explicar la precedencia de operadores y el uso de paréntesis",
     ],
     is_free_theory: true,
-    is_published: false,
+    is_published: true,
     certificate: null,
   },
   {
@@ -91,7 +91,7 @@ const outlines: Outline[] = [
       "Detectar cuándo DISTINCT oculta un problema de duplicados en los datos",
     ],
     is_free_theory: true,
-    is_published: false,
+    is_published: true,
     certificate: null,
   },
   {
@@ -108,7 +108,7 @@ const outlines: Outline[] = [
       "Usar LIKE e ILIKE para búsquedas por patrón",
     ],
     is_free_theory: true,
-    is_published: false,
+    is_published: true,
     certificate: null,
   },
   {
@@ -125,7 +125,7 @@ const outlines: Outline[] = [
       "Diagnosticar filtros que devuelven más o menos filas de lo esperado",
     ],
     is_free_theory: true,
-    is_published: false,
+    is_published: true,
     certificate: null,
   },
   {
@@ -142,7 +142,7 @@ const outlines: Outline[] = [
       "Reconocer el impacto de NULL en agregaciones y ordenamientos",
     ],
     is_free_theory: true,
-    is_published: false,
+    is_published: true,
     certificate: "fundamentos-sql",
   },
   // N2 · Transformar datos ---------------------------------------------------------

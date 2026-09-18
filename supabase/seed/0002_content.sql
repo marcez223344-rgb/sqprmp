@@ -19,23 +19,23 @@ values ((select id from public.courses where slug = $c15$ruta-sql-analistas$c15$
 on conflict (slug) do update set number = excluded.number, level = excluded.level, title = excluded.title, summary = excluded.summary, objectives = excluded.objectives, is_free_theory = excluded.is_free_theory, is_published = excluded.is_published, certificate_slug = excluded.certificate_slug;
 
 insert into public.sections (course_id, slug, number, level, title, summary, objectives, is_free_theory, is_published, certificate_slug)
-values ((select id from public.courses where slug = $c21$ruta-sql-analistas$c21$), $c22$alias-y-expresiones$c22$, 4, $c23$beginner$c23$, $c24$Alias y expresiones$c24$, $c25$Calcular valores nuevos a partir de columnas, renombrar resultados y presentar información clara para el negocio.$c25$, $c26$["Crear columnas calculadas con operadores aritméticos y de texto","Renombrar columnas y tablas con alias legibles","Concatenar y formatear valores para reportes","Explicar la precedencia de operadores y el uso de paréntesis"]$c26$::jsonb, true, false, null)
+values ((select id from public.courses where slug = $c21$ruta-sql-analistas$c21$), $c22$alias-y-expresiones$c22$, 4, $c23$beginner$c23$, $c24$Alias y expresiones$c24$, $c25$Calcular valores nuevos a partir de columnas, renombrar resultados y presentar información clara para el negocio.$c25$, $c26$["Crear columnas calculadas con operadores aritméticos y de texto","Renombrar columnas y tablas con alias legibles","Concatenar y formatear valores para reportes","Explicar la precedencia de operadores y el uso de paréntesis"]$c26$::jsonb, true, true, null)
 on conflict (slug) do update set number = excluded.number, level = excluded.level, title = excluded.title, summary = excluded.summary, objectives = excluded.objectives, is_free_theory = excluded.is_free_theory, is_published = excluded.is_published, certificate_slug = excluded.certificate_slug;
 
 insert into public.sections (course_id, slug, number, level, title, summary, objectives, is_free_theory, is_published, certificate_slug)
-values ((select id from public.courses where slug = $c27$ruta-sql-analistas$c27$), $c28$distinct$c28$, 5, $c29$beginner$c29$, $c30$DISTINCT: valores únicos$c30$, $c31$Obtener listas de valores únicos y combinaciones únicas, y entender cómo DISTINCT interactúa con NULL y con el rendimiento.$c31$, $c32$["Listar valores únicos de una o varias columnas","Diferenciar DISTINCT de GROUP BY en casos simples","Explicar cómo trata DISTINCT a los valores NULL","Detectar cuándo DISTINCT oculta un problema de duplicados en los datos"]$c32$::jsonb, true, false, null)
+values ((select id from public.courses where slug = $c27$ruta-sql-analistas$c27$), $c28$distinct$c28$, 5, $c29$beginner$c29$, $c30$DISTINCT: valores únicos$c30$, $c31$Obtener listas de valores únicos y combinaciones únicas, y entender cómo DISTINCT interactúa con NULL y con el rendimiento.$c31$, $c32$["Listar valores únicos de una o varias columnas","Diferenciar DISTINCT de GROUP BY en casos simples","Explicar cómo trata DISTINCT a los valores NULL","Detectar cuándo DISTINCT oculta un problema de duplicados en los datos"]$c32$::jsonb, true, true, null)
 on conflict (slug) do update set number = excluded.number, level = excluded.level, title = excluded.title, summary = excluded.summary, objectives = excluded.objectives, is_free_theory = excluded.is_free_theory, is_published = excluded.is_published, certificate_slug = excluded.certificate_slug;
 
 insert into public.sections (course_id, slug, number, level, title, summary, objectives, is_free_theory, is_published, certificate_slug)
-values ((select id from public.courses where slug = $c33$ruta-sql-analistas$c33$), $c34$where$c34$, 6, $c35$beginner$c35$, $c36$WHERE: filtrar filas$c36$, $c37$Responder preguntas concretas del negocio filtrando filas por condiciones sobre texto, números y fechas.$c37$, $c38$["Filtrar filas con condiciones de igualdad, rango y pertenencia","Combinar filtros con AND, OR y NOT de forma correcta","Filtrar por rangos de fechas sin perder registros en los bordes","Usar LIKE e ILIKE para búsquedas por patrón"]$c38$::jsonb, true, false, null)
+values ((select id from public.courses where slug = $c33$ruta-sql-analistas$c33$), $c34$where$c34$, 6, $c35$beginner$c35$, $c36$WHERE: filtrar filas$c36$, $c37$Responder preguntas concretas del negocio filtrando filas por condiciones sobre texto, números y fechas.$c37$, $c38$["Filtrar filas con condiciones de igualdad, rango y pertenencia","Combinar filtros con AND, OR y NOT de forma correcta","Filtrar por rangos de fechas sin perder registros en los bordes","Usar LIKE e ILIKE para búsquedas por patrón"]$c38$::jsonb, true, true, null)
 on conflict (slug) do update set number = excluded.number, level = excluded.level, title = excluded.title, summary = excluded.summary, objectives = excluded.objectives, is_free_theory = excluded.is_free_theory, is_published = excluded.is_published, certificate_slug = excluded.certificate_slug;
 
 insert into public.sections (course_id, slug, number, level, title, summary, objectives, is_free_theory, is_published, certificate_slug)
-values ((select id from public.courses where slug = $c39$ruta-sql-analistas$c39$), $c40$operadores-comparacion-logicos$c40$, 7, $c41$beginner$c41$, $c42$Operadores de comparación y lógicos$c42$, $c43$Dominar la precedencia de AND/OR, los operadores IN, BETWEEN y NOT, y evitar los errores lógicos más comunes.$c43$, $c44$["Aplicar la precedencia de AND, OR y NOT con paréntesis explícitos","Usar IN y BETWEEN para expresar condiciones de forma clara","Reescribir condiciones equivalentes y elegir la más legible","Diagnosticar filtros que devuelven más o menos filas de lo esperado"]$c44$::jsonb, true, false, null)
+values ((select id from public.courses where slug = $c39$ruta-sql-analistas$c39$), $c40$operadores-comparacion-logicos$c40$, 7, $c41$beginner$c41$, $c42$Operadores de comparación y lógicos$c42$, $c43$Dominar la precedencia de AND/OR, los operadores IN, BETWEEN y NOT, y evitar los errores lógicos más comunes.$c43$, $c44$["Aplicar la precedencia de AND, OR y NOT con paréntesis explícitos","Usar IN y BETWEEN para expresar condiciones de forma clara","Reescribir condiciones equivalentes y elegir la más legible","Diagnosticar filtros que devuelven más o menos filas de lo esperado"]$c44$::jsonb, true, true, null)
 on conflict (slug) do update set number = excluded.number, level = excluded.level, title = excluded.title, summary = excluded.summary, objectives = excluded.objectives, is_free_theory = excluded.is_free_theory, is_published = excluded.is_published, certificate_slug = excluded.certificate_slug;
 
 insert into public.sections (course_id, slug, number, level, title, summary, objectives, is_free_theory, is_published, certificate_slug)
-values ((select id from public.courses where slug = $c45$ruta-sql-analistas$c45$), $c46$null$c46$, 8, $c47$beginner$c47$, $c48$NULL: el valor desconocido$c48$, $c49$Entender qué significa NULL, por qué rompe comparaciones intuitivas y cómo tratarlo con IS NULL, COALESCE y NULLIF.$c49$, $c50$["Explicar la lógica de tres valores y por qué NULL = NULL no es verdadero","Filtrar y contar registros con y sin NULL","Reemplazar NULL con valores de negocio usando COALESCE","Reconocer el impacto de NULL en agregaciones y ordenamientos"]$c50$::jsonb, true, false, $c51$fundamentos-sql$c51$)
+values ((select id from public.courses where slug = $c45$ruta-sql-analistas$c45$), $c46$null$c46$, 8, $c47$beginner$c47$, $c48$NULL: el valor desconocido$c48$, $c49$Entender qué significa NULL, por qué rompe comparaciones intuitivas y cómo tratarlo con IS NULL, COALESCE y NULLIF.$c49$, $c50$["Explicar la lógica de tres valores y por qué NULL = NULL no es verdadero","Filtrar y contar registros con y sin NULL","Reemplazar NULL con valores de negocio usando COALESCE","Reconocer el impacto de NULL en agregaciones y ordenamientos"]$c50$::jsonb, true, true, $c51$fundamentos-sql$c51$)
 on conflict (slug) do update set number = excluded.number, level = excluded.level, title = excluded.title, summary = excluded.summary, objectives = excluded.objectives, is_free_theory = excluded.is_free_theory, is_published = excluded.is_published, certificate_slug = excluded.certificate_slug;
 
 insert into public.sections (course_id, slug, number, level, title, summary, objectives, is_free_theory, is_published, certificate_slug)
@@ -900,760 +900,2619 @@ $c720$, null, (select id from public.datasets where slug = $c721$tiendaviva$c721
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
-values ((select id from public.sections where slug = $c722$tablas-filas-columnas-tipos$c722$), $c723$ejercicio-explorar-clientes$c723$, $c724$exercise$c724$, $c725$Explorar la tabla de clientes$c725$, 2, 3, null, $c726$explorar-clientes$c726$, (select id from public.datasets where slug = $c727$tiendaviva$c727$), false, true)
+values ((select id from public.sections where slug = $c722$alias-y-expresiones$c722$), $c723$alias-y-expresiones-basico$c723$, $c724$theory$c724$, $c725$Alias y columnas calculadas$c725$, 0, 9, $c726$## Por qué importa
+
+Los datos crudos rara vez están en la forma que el negocio necesita. Un reporte de ventas no muestra `subtotal` y `discount`: muestra el **neto**. Una lista para el equipo de logística no dice `destination_city`, dice «Ciudad». Con expresiones y alias transformas columnas en respuestas.
+
+## Columnas calculadas
+
+Dentro de `SELECT` puedes escribir expresiones, no solo nombres de columna:
+
+```sql
+SELECT
+  id,
+  subtotal,
+  discount,
+  subtotal - discount
+FROM orders
+LIMIT 5;
+```
+
+La cuarta columna se calcula fila por fila. Operadores aritméticos: `+`, `-`, `*`, `/`. Cuidado con la división entre enteros: `7 / 2` da `3` en PostgreSQL; `7 / 2.0` da `3.5`.
+
+## Alias: nombres para el resultado
+
+La columna calculada de arriba se llamaría `?column?`. Ponle nombre con `AS`:
+
+```sql
+SELECT
+  id,
+  subtotal - discount AS neto
+FROM orders
+LIMIT 5;
+```
+
+Reglas prácticas:
+
+- Usa `snake_case` en minúsculas (`neto`, `envio_pct`), sin espacios ni acentos. Si necesitas espacios tendrás que usar comillas dobles (`"Total neto"`) y arrastrarlas en cada consulta que reutilice el resultado. Evítalo.
+- `AS` es opcional en PostgreSQL (`subtotal - discount neto` funciona), pero escribirlo hace la consulta más legible.
+- Un alias **no** se puede usar en el `WHERE` de la misma consulta (lo verás en la sección 6): el filtro se evalúa antes que la lista de columnas.
+
+También puedes renombrar tablas (`FROM orders AS o`), útil cuando combinas varias tablas en la sección 17.
+
+## Texto: concatenar y dar formato
+
+El operador `||` une textos. Si una parte es número, PostgreSQL la convierte a texto automáticamente en la mayoría de los casos:
+
+```sql
+SELECT
+  'CAT-' || id AS codigo,
+  name
+FROM categories;
+```
+
+Funciones útiles: `upper()`, `lower()`, `length()`. Las verás en detalle en la sección 9.
+
+## Redondeo y precedencia
+
+```sql
+SELECT
+  id,
+  ROUND(shipping_fee / total_amount * 100, 1) AS envio_pct
+FROM orders
+LIMIT 5;
+```
+
+`ROUND(valor, decimales)` redondea. La precedencia es la de la aritmética escolar: `*` y `/` antes que `+` y `-`. Cuando dudes, **usa paréntesis**: `(subtotal - discount) * 1.21` deja claro qué se multiplica.
+
+## Ejemplo resuelto
+
+Pedido: «Quiero ver los 20 pedidos más grandes con el neto (subtotal menos descuento) y qué porcentaje del total es el envío».
+
+```sql
+SELECT
+  id,
+  subtotal - discount AS neto,
+  ROUND(shipping_fee / total_amount * 100, 1) AS envio_pct
+FROM orders
+ORDER BY total_amount DESC
+LIMIT 20;
+```
+
+Fíjate: `ORDER BY` puede usar `total_amount` aunque no esté en el `SELECT`.
+
+## Errores comunes
+
+- Olvidar el alias y entregar una columna llamada `?column?`.
+- Dividir dos enteros esperando decimales.
+- Usar el alias dentro de `WHERE` (error «column does not exist»).
+- Poner el alias entre comillas simples: `AS 'neto'` no es un alias, es un texto.
+$c726$, null, (select id from public.datasets where slug = $c727$tiendaviva$c727$), true, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
-values ((select id from public.sections where slug = $c728$tablas-filas-columnas-tipos$c728$), $c729$ejercicio-tipos-en-pedidos$c729$, $c730$exercise$c730$, $c731$Tipos de datos en los pedidos$c731$, 3, 4, null, $c732$tipos-en-pedidos$c732$, (select id from public.datasets where slug = $c733$tiendaviva$c733$), false, true)
+values ((select id from public.sections where slug = $c728$distinct$c728$), $c729$distinct-valores-unicos$c729$, $c730$theory$c730$, $c731$DISTINCT: valores únicos$c731$, 0, 8, $c732$## Por qué importa
+
+«¿En qué países vendemos?», «¿qué transportistas usamos?», «¿qué estados puede tener un pedido?». Son preguntas sobre **qué valores existen**, no sobre cuántas filas hay. `DISTINCT` responde exactamente eso y es, además, la herramienta más rápida para conocer una tabla nueva.
+
+## El concepto
+
+```sql
+SELECT DISTINCT country
+FROM customers;
+```
+
+Devuelve cada país **una sola vez**, aunque haya cientos de clientes por país. `DISTINCT` va inmediatamente después de `SELECT` y se aplica a **toda la fila del resultado**, no a una columna en particular:
+
+```sql
+SELECT DISTINCT carrier, destination_city
+FROM shipments;
+```
+
+Aquí una fila se repite solo si coinciden **ambos** valores. Habrá una fila por cada combinación transportista–ciudad que realmente aparezca en los envíos.
+
+## DISTINCT y NULL
+
+Para `DISTINCT`, todos los NULL son «iguales entre sí»: si una columna tiene valores NULL, el resultado incluye **una** fila NULL.
+
+```sql
+SELECT DISTINCT parent_id
+FROM categories;
+```
+
+Devuelve los ids de las categorías que son padre de alguna otra **y** una fila NULL (las categorías raíz no tienen padre). En la sección 8 verás que en comparaciones `NULL = NULL` no es verdadero; `DISTINCT` es una de las excepciones donde NULL se agrupa.
+
+## DISTINCT no es un arreglo
+
+Si una consulta devuelve filas repetidas que no esperabas, agregar `DISTINCT` esconde el síntoma pero no la causa. Las causas típicas:
+
+- Un `JOIN` que multiplica filas (sección 17).
+- Datos duplicados de verdad (por ejemplo, correos con distinta capitalización en `customers`).
+
+Antes de escribir `DISTINCT`, pregúntate: ¿la pregunta del negocio es sobre valores únicos? Si la respuesta es no, busca la causa.
+
+## Costo
+
+Para eliminar duplicados el motor debe ordenar o agrupar todas las filas. En tablas pequeñas no se nota; en millones de filas, sí. Úsalo cuando la pregunta lo pide, no «por si acaso».
+
+## Ejemplo resuelto
+
+Pedido: «¿Qué monedas se usan en el catálogo?».
+
+```sql
+SELECT DISTINCT currency
+FROM products
+ORDER BY currency;
+```
+
+`ORDER BY` se aplica después de eliminar duplicados, así que el resultado queda ordenado y sin repeticiones.
+$c732$, null, (select id from public.datasets where slug = $c733$tiendaviva$c733$), true, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
-values ((select id from public.sections where slug = $c734$select$c734$), $c735$ejercicio-catalogo-de-categorias$c735$, $c736$exercise$c736$, $c737$El catálogo de categorías$c737$, 2, 3, null, $c738$catalogo-de-categorias$c738$, (select id from public.datasets where slug = $c739$tiendaviva$c739$), false, true)
+values ((select id from public.sections where slug = $c734$where$c734$), $c735$where-filtros-basicos$c735$, $c736$theory$c736$, $c737$WHERE: quedarse con las filas que importan$c737$, 0, 9, $c738$## Por qué importa
+
+Casi ninguna pregunta de negocio es sobre «todo». Es sobre los clientes de Uruguay, los productos sin stock, los pedidos cancelados. `WHERE` convierte una tabla en la respuesta a una pregunta concreta.
+
+## El concepto
+
+```sql
+SELECT id, full_name, city
+FROM customers
+WHERE country = 'UY';
+```
+
+`WHERE` va después de `FROM` y contiene una **condición** que se evalúa fila por fila. Solo pasan las filas donde la condición es verdadera.
+
+Comparaciones disponibles: `=`, `<>` (distinto; también `!=`), `<`, `<=`, `>`, `>=`.
+
+## Texto, números y booleanos
+
+- Los textos van entre **comillas simples** y distinguen mayúsculas: `'UY'` no es `'uy'`.
+- Los números van sin comillas: `stock = 0`.
+- Los booleanos se comparan con `TRUE` / `FALSE`, o simplemente se usan: `WHERE is_active` equivale a `WHERE is_active = TRUE`.
+
+```sql
+SELECT id, name, stock
+FROM products
+WHERE stock = 0
+  AND is_active;
+```
+
+## Combinar condiciones
+
+- `AND`: ambas deben cumplirse.
+- `OR`: basta con una.
+- `NOT`: invierte la condición.
+
+Escribe cada condición en su propia línea, con sangría, para que se lea como una lista. En la sección 7 verás por qué `AND` y `OR` mezclados necesitan paréntesis.
+
+## Alias en WHERE
+
+Los alias del `SELECT` **no existen** todavía cuando se evalúa `WHERE`. Si filtras por una expresión, repítela:
+
+```sql
+SELECT id, subtotal - discount AS neto
+FROM orders
+WHERE subtotal - discount > 100000;
+```
+
+## Ejemplo resuelto
+
+Pedido: «Necesito los productos activos que están agotados para avisar a los vendedores».
+
+1. Tabla: `products`.
+2. Condiciones: `stock = 0` **y** `is_active`.
+3. Columnas útiles: `id`, `seller_id`, `name`.
+
+```sql
+SELECT id, seller_id, name
+FROM products
+WHERE stock = 0
+  AND is_active;
+```
+
+## Errores comunes
+
+- Comparar texto con comillas dobles (`"UY"`): PostgreSQL lo interpreta como nombre de columna.
+- Escribir `WHERE country = UY` sin comillas: error «column uy does not exist».
+- Usar `=` con NULL: nunca es verdadero (sección 8).
+$c738$, null, (select id from public.datasets where slug = $c739$tiendaviva$c739$), true, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
-values ((select id from public.sections where slug = $c740$select$c740$), $c741$ejercicio-vendedores-basico$c741$, $c742$exercise$c742$, $c743$Lista de vendedores$c743$, 3, 3, null, $c744$vendedores-basico$c744$, (select id from public.datasets where slug = $c745$tiendaviva$c745$), false, true)
+values ((select id from public.sections where slug = $c740$where$c740$), $c741$where-texto-y-fechas$c741$, $c742$theory$c742$, $c743$Filtrar por patrón de texto y por fechas$c743$, 1, 10, $c744$## Patrones con LIKE e ILIKE
+
+Cuando no conoces el valor exacto, usa patrones:
+
+- `%` representa cualquier secuencia de caracteres (incluida la vacía).
+- `_` representa exactamente un carácter.
+
+```sql
+SELECT id, store_name
+FROM sellers
+WHERE store_name LIKE 'Bazar%';
+```
+
+`LIKE` distingue mayúsculas; `ILIKE` (específico de PostgreSQL) no. `'%urbano%'` encuentra el texto en cualquier posición, pero impide usar índices: en tablas grandes es lento.
+
+## Fechas: el problema de los bordes
+
+`orders.created_at` es un `timestamptz`: fecha **y hora**. Comparar con una fecha sola tiene una trampa:
+
+```sql
+-- MAL: excluye casi todo el 31 de marzo
+WHERE created_at BETWEEN '2025-03-01' AND '2025-03-31'
+```
+
+`'2025-03-31'` se interpreta como las **00:00:00** de ese día; los pedidos de las 15:00 quedan afuera. La forma robusta es un rango **semiabierto**: mayor o igual al inicio y **menor** que el día siguiente.
+
+```sql
+-- BIEN: todo marzo, sin importar la hora
+WHERE created_at >= '2025-03-01'
+  AND created_at <  '2025-04-01'
+```
+
+Funciona igual con fechas sin hora (`date`) y evita pensar en «23:59:59».
+
+## Funciones de fecha útiles
+
+- `created_at::date` convierte a fecha (descarta la hora).
+- `date_trunc('month', created_at)` devuelve el primer instante del mes.
+- `extract(year from created_at)` devuelve el año como número.
+
+Cuidado: aplicar una función a la columna en el `WHERE` (`WHERE created_at::date = '2025-03-15'`) es legible, pero impide usar el índice de la columna. Para rangos, prefiere la comparación directa.
+
+## Zonas horarias
+
+Un `timestamptz` guarda un instante absoluto. «El 15 de marzo» depende de la zona horaria desde la que se mira; en este curso el sandbox trabaja en UTC. En tu empresa, acuerda con el equipo la zona de referencia para los reportes.
+
+## Ejemplo resuelto
+
+Pedido: «Pedidos de la primera quincena de marzo de 2025 (del 1 al 15 inclusive)».
+
+```sql
+SELECT id, created_at, total_amount
+FROM orders
+WHERE created_at >= '2025-03-01'
+  AND created_at <  '2025-03-16';
+```
+
+El límite superior es el **16** a las 00:00, excluido: así entra todo el día 15.
+$c744$, null, (select id from public.datasets where slug = $c745$tiendaviva$c745$), true, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
-values ((select id from public.sections where slug = $c746$select$c746$), $c747$ejercicio-columnas-en-orden$c747$, $c748$exercise$c748$, $c749$Columnas en el orden que pide el negocio$c749$, 4, 4, null, $c750$columnas-en-orden$c750$, (select id from public.datasets where slug = $c751$tiendaviva$c751$), false, true)
+values ((select id from public.sections where slug = $c746$operadores-comparacion-logicos$c746$), $c747$operadores-precedencia-in-between$c747$, $c748$theory$c748$, $c749$AND, OR, NOT, IN y BETWEEN sin sorpresas$c749$, 0, 10, $c750$## Por qué importa
+
+Un filtro mal combinado no da error: devuelve **más o menos filas de las correctas** y nadie lo nota hasta que el reporte llega a la gerencia. Esta sección es sobre escribir condiciones que dicen exactamente lo que quieres.
+
+## Precedencia: AND antes que OR
+
+SQL evalúa `NOT` primero, luego `AND`, luego `OR`. Esta consulta **no** hace lo que parece:
+
+```sql
+-- Parece: (AR o UY) con marketing
+-- Es:     AR, o bien (UY con marketing)
+SELECT id
+FROM customers
+WHERE country = 'AR' OR country = 'UY' AND marketing_opt_in;
+```
+
+Con paréntesis queda claro y correcto:
+
+```sql
+WHERE (country = 'AR' OR country = 'UY')
+  AND marketing_opt_in
+```
+
+Regla práctica: cuando mezclas `AND` y `OR`, **siempre** paréntesis, aunque la precedencia por defecto coincida con tu intención. Quien lea después no tendrá que recordarla.
+
+## IN: pertenencia a una lista
+
+```sql
+WHERE status IN ('cancelled', 'returned')
+```
+
+Equivale a `status = 'cancelled' OR status = 'returned'`, pero es más corto, más legible y evita el problema de precedencia. `NOT IN` invierte la condición… con una trampa con NULL que verás en la sección 8.
+
+## BETWEEN: rangos inclusivos
+
+```sql
+WHERE list_price BETWEEN 100000 AND 200000
+```
+
+Equivale a `list_price >= 100000 AND list_price <= 200000`: **ambos extremos incluidos**. Es ideal para números y fechas sin hora. Para `timestamptz` prefiere el rango semiabierto (`>=` y `<`) que viste en la sección 6.
+
+## NOT y sus equivalentes
+
+`NOT (a AND b)` equivale a `NOT a OR NOT b` (leyes de De Morgan). En la práctica:
+
+- `NOT status = 'delivered'` → escribe `status <> 'delivered'`.
+- `NOT (status IN (...))` → escribe `status NOT IN (...)`.
+- `NOT is_active` está bien: es claro para booleanos.
+
+## Elegir la forma más legible
+
+Estas condiciones son equivalentes; la segunda se lee de un vistazo:
+
+```sql
+WHERE status = 'cancelled' OR status = 'returned' OR status = 'pending'
+WHERE status IN ('cancelled', 'returned', 'pending')
+```
+
+## Diagnosticar un filtro
+
+Si un filtro devuelve un número inesperado de filas:
+
+1. Ejecuta cada condición por separado y cuenta filas.
+2. Combínalas de a una, con paréntesis.
+3. Compara con lo que esperas del negocio.
+
+## Ejemplo resuelto
+
+Pedido: «Clientes de Argentina o Uruguay que aceptaron marketing».
+
+```sql
+SELECT id, full_name, country
+FROM customers
+WHERE country IN ('AR', 'UY')
+  AND marketing_opt_in;
+```
+
+`IN` elimina la ambigüedad y los paréntesis dejan de ser necesarios.
+$c750$, null, (select id from public.datasets where slug = $c751$tiendaviva$c751$), true, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
-values ((select id from public.sections where slug = $c752$select$c752$), $c753$ejercicio-explorar-productos$c753$, $c754$exercise$c754$, $c755$Explorar el catálogo de productos$c755$, 5, 4, null, $c756$explorar-productos$c756$, (select id from public.datasets where slug = $c757$tiendaviva$c757$), false, true)
+values ((select id from public.sections where slug = $c752$null$c752$), $c753$null-logica-de-tres-valores$c753$, $c754$theory$c754$, $c755$NULL y la lógica de tres valores$c755$, 0, 10, $c756$## Por qué importa
+
+En **TiendaViva** hay vendedores sin calificación, reseñas sin comentario y envíos que todavía no llegaron. Eso no es «cero» ni «texto vacío»: es **desconocido** o **no aplica**. SQL lo representa con `NULL`, y casi todos los reportes incorrectos que verás en tu carrera involucran un NULL mal tratado.
+
+## Qué es NULL
+
+`NULL` es la ausencia de valor. No es 0, no es `''`, no es `FALSE`. Una columna puede admitirlo (`rating numeric`) o prohibirlo (`store_name text NOT NULL`).
+
+## La regla que rompe la intuición
+
+Cualquier comparación con NULL devuelve **UNKNOWN** (desconocido), no verdadero ni falso:
+
+```sql
+NULL = NULL      -- UNKNOWN
+NULL <> 5        -- UNKNOWN
+NULL > 4         -- UNKNOWN
+```
+
+`WHERE` solo deja pasar filas cuya condición es **TRUE**. UNKNOWN se descarta igual que FALSE. Consecuencias:
+
+- `WHERE rating = NULL` no devuelve nada, nunca.
+- `WHERE rating <> 4.5` **no** incluye a los vendedores sin calificación.
+- `WHERE rating > 4` (70 filas) y `WHERE rating <= 4` (82 filas) **no** suman los 180 vendedores: faltan los 28 con NULL.
+
+## IS NULL e IS NOT NULL
+
+Para preguntar por NULL hay operadores específicos:
+
+```sql
+SELECT id, store_name
+FROM sellers
+WHERE rating IS NULL;
+```
+
+`IS NOT NULL` filtra los que sí tienen valor. Nunca uses `= NULL` o `<> NULL`.
+
+## NOT y NULL
+
+`NOT UNKNOWN` sigue siendo UNKNOWN. Por eso `WHERE NOT (rating > 4)` **tampoco** incluye los NULL. Si quieres «los que no superan 4, incluidos los sin calificación», dilo explícitamente:
+
+```sql
+WHERE rating <= 4
+   OR rating IS NULL
+```
+
+## NOT IN con NULL: la trampa clásica
+
+Si la lista de `NOT IN` contiene un NULL, la condición es UNKNOWN para **todas** las filas y la consulta no devuelve nada. Ocurre al usar subconsultas (sección 21) sobre columnas que admiten NULL. Filtra los NULL de la lista o usa `NOT EXISTS`.
+
+## Ejemplo resuelto
+
+Pedido: «Reseñas negativas (1 o 2 estrellas) que no dejaron comentario, para contactar al cliente».
+
+```sql
+SELECT id, product_id, customer_id, rating
+FROM reviews
+WHERE rating <= 2
+  AND comment IS NULL;
+```
+$c756$, null, (select id from public.datasets where slug = $c757$tiendaviva$c757$), true, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
-values ((select id from public.sections where slug = $c758$select$c758$), $c759$ejercicio-reto-vendedores-antiguos$c759$, $c760$challenge$c760$, $c761$Desafío: los vendedores más antiguos$c761$, 6, 6, null, $c762$reto-vendedores-antiguos$c762$, (select id from public.datasets where slug = $c763$tiendaviva$c763$), false, true)
+values ((select id from public.sections where slug = $c758$null$c758$), $c759$null-coalesce-y-nullif$c759$, $c760$theory$c760$, $c761$Reemplazar y producir NULL: COALESCE y NULLIF$c761$, 1, 8, $c762$## COALESCE: el primer valor no nulo
+
+`COALESCE(a, b, c, ...)` devuelve el primer argumento que no sea NULL. Es la forma estándar de mostrar un valor de negocio en lugar de un hueco:
+
+```sql
+SELECT
+  id,
+  store_name,
+  COALESCE(rating, 0) AS rating_o_cero
+FROM sellers;
+```
+
+Cuidado con el significado: un 0 «inventado» puede arruinar un promedio. Para un reporte legible está bien; para un cálculo, muchas veces conviene dejar el NULL y que la agregación lo ignore (sección 14).
+
+Con texto:
+
+```sql
+COALESCE(comment, '(sin comentario)') AS comentario
+```
+
+Todos los argumentos deben ser del mismo tipo (o convertibles).
+
+## NULLIF: convertir un valor en NULL
+
+`NULLIF(a, b)` devuelve NULL si `a = b`; si no, devuelve `a`. Dos usos típicos:
+
+- Limpiar cadenas vacías: `NULLIF(trim(comment), '')`.
+- Evitar divisiones por cero: `total / NULLIF(cantidad, 0)` devuelve NULL en lugar de fallar.
+
+## NULL en operaciones
+
+- Aritmética: `NULL + 1` es NULL. Un descuento NULL vuelve NULL a todo el total.
+- Concatenación: `'Hola ' || NULL` es NULL. `concat()` ignora los NULL.
+- `ORDER BY`: en PostgreSQL los NULL van al final en ascendente y al principio en descendente; ajusta con `NULLS FIRST` / `NULLS LAST`.
+- Agregaciones: `count(columna)` ignora NULL; `count(*)` no. `avg` y `sum` ignoran NULL (sección 14).
+
+## Ejemplo resuelto
+
+Pedido: «Lista de vendedores con su calificación; los que no tienen, que muestren 0, y que aparezcan primero los mejor calificados».
+
+```sql
+SELECT
+  id,
+  store_name,
+  COALESCE(rating, 0) AS rating_o_cero
+FROM sellers
+ORDER BY rating_o_cero DESC, id;
+```
+
+El alias sí puede usarse en `ORDER BY`. El segundo criterio (`id`) vuelve el orden determinista cuando hay empates.
+$c762$, null, (select id from public.datasets where slug = $c763$tiendaviva$c763$), true, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
-values ((select id from public.sections where slug = $c764$introduccion-bases-de-datos$c764$), $c765$introduccion-bases-de-datos-quiz$c765$, $c766$quiz$c766$, $c767$Quiz de la sección$c767$, 2, 7, null, $c768$introduccion-bases-de-datos$c768$, null, true, true)
+values ((select id from public.sections where slug = $c764$tablas-filas-columnas-tipos$c764$), $c765$ejercicio-explorar-clientes$c765$, $c766$exercise$c766$, $c767$Explorar la tabla de clientes$c767$, 2, 3, null, $c768$explorar-clientes$c768$, (select id from public.datasets where slug = $c769$tiendaviva$c769$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
-values ((select id from public.sections where slug = $c769$tablas-filas-columnas-tipos$c769$), $c770$tablas-filas-columnas-tipos-quiz$c770$, $c771$quiz$c771$, $c772$Quiz de la sección$c772$, 4, 8, null, $c773$tablas-filas-columnas-tipos$c773$, null, true, true)
+values ((select id from public.sections where slug = $c770$tablas-filas-columnas-tipos$c770$), $c771$ejercicio-tipos-en-pedidos$c771$, $c772$exercise$c772$, $c773$Tipos de datos en los pedidos$c773$, 3, 4, null, $c774$tipos-en-pedidos$c774$, (select id from public.datasets where slug = $c775$tiendaviva$c775$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
-values ((select id from public.sections where slug = $c774$select$c774$), $c775$select-quiz$c775$, $c776$quiz$c776$, $c777$Quiz de la sección$c777$, 7, 6, null, $c778$select$c778$, null, true, true)
+values ((select id from public.sections where slug = $c776$select$c776$), $c777$ejercicio-catalogo-de-categorias$c777$, $c778$exercise$c778$, $c779$El catálogo de categorías$c779$, 2, 3, null, $c780$catalogo-de-categorias$c780$, (select id from public.datasets where slug = $c781$tiendaviva$c781$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
-delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c779$que-es-una-base-de-datos$c779$);
+insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
+values ((select id from public.sections where slug = $c782$select$c782$), $c783$ejercicio-vendedores-basico$c783$, $c784$exercise$c784$, $c785$Lista de vendedores$c785$, 3, 3, null, $c786$vendedores-basico$c786$, (select id from public.datasets where slug = $c787$tiendaviva$c787$), false, true)
+on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
-delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c780$como-piensa-un-analista$c780$);
+insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
+values ((select id from public.sections where slug = $c788$select$c788$), $c789$ejercicio-columnas-en-orden$c789$, $c790$exercise$c790$, $c791$Columnas en el orden que pide el negocio$c791$, 4, 4, null, $c792$columnas-en-orden$c792$, (select id from public.datasets where slug = $c793$tiendaviva$c793$), false, true)
+on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
-insert into public.lesson_prerequisites (lesson_id, requires_lesson_id) values ((select id from public.lessons where slug = $c781$como-piensa-un-analista$c781$), (select id from public.lessons where slug = $c782$que-es-una-base-de-datos$c782$)) on conflict do nothing;
+insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
+values ((select id from public.sections where slug = $c794$select$c794$), $c795$ejercicio-explorar-productos$c795$, $c796$exercise$c796$, $c797$Explorar el catálogo de productos$c797$, 5, 4, null, $c798$explorar-productos$c798$, (select id from public.datasets where slug = $c799$tiendaviva$c799$), false, true)
+on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
-delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c783$anatomia-de-una-tabla$c783$);
+insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
+values ((select id from public.sections where slug = $c800$select$c800$), $c801$ejercicio-reto-vendedores-antiguos$c801$, $c802$challenge$c802$, $c803$Desafío: los vendedores más antiguos$c803$, 6, 6, null, $c804$reto-vendedores-antiguos$c804$, (select id from public.datasets where slug = $c805$tiendaviva$c805$), false, true)
+on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
-delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c784$tipos-de-datos$c784$);
+insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
+values ((select id from public.sections where slug = $c806$alias-y-expresiones$c806$), $c807$ejercicio-tiendas-en-espanol$c807$, $c808$exercise$c808$, $c809$Encabezados en español$c809$, 1, 3, null, $c810$tiendas-en-espanol$c810$, (select id from public.datasets where slug = $c811$tiendaviva$c811$), false, true)
+on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
-insert into public.lesson_prerequisites (lesson_id, requires_lesson_id) values ((select id from public.lessons where slug = $c785$tipos-de-datos$c785$), (select id from public.lessons where slug = $c786$anatomia-de-una-tabla$c786$)) on conflict do nothing;
+insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
+values ((select id from public.sections where slug = $c812$alias-y-expresiones$c812$), $c813$ejercicio-codigos-de-categoria$c813$, $c814$exercise$c814$, $c815$Códigos de categoría$c815$, 2, 5, null, $c816$codigos-de-categoria$c816$, (select id from public.datasets where slug = $c817$tiendaviva$c817$), false, true)
+on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
-delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c787$select-columnas$c787$);
+insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
+values ((select id from public.sections where slug = $c818$alias-y-expresiones$c818$), $c819$ejercicio-neto-y-porcentaje-de-envio$c819$, $c820$exercise$c820$, $c821$Neto y peso del envío$c821$, 3, 7, null, $c822$neto-y-porcentaje-de-envio$c822$, (select id from public.datasets where slug = $c823$tiendaviva$c823$), false, true)
+on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
-delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c788$select-buenas-practicas$c788$);
+insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
+values ((select id from public.sections where slug = $c824$distinct$c824$), $c825$ejercicio-paises-con-clientes$c825$, $c826$exercise$c826$, $c827$¿En qué países tenemos clientes?$c827$, 1, 3, null, $c828$paises-con-clientes$c828$, (select id from public.datasets where slug = $c829$tiendaviva$c829$), false, true)
+on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
-insert into public.lesson_prerequisites (lesson_id, requires_lesson_id) values ((select id from public.lessons where slug = $c789$select-buenas-practicas$c789$), (select id from public.lessons where slug = $c790$select-columnas$c790$)) on conflict do nothing;
+insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
+values ((select id from public.sections where slug = $c830$distinct$c830$), $c831$ejercicio-cobertura-de-transportistas$c831$, $c832$exercise$c832$, $c833$Cobertura de transportistas$c833$, 2, 5, null, $c834$cobertura-de-transportistas$c834$, (select id from public.datasets where slug = $c835$tiendaviva$c835$), false, true)
+on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
-delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c791$ejercicio-explorar-clientes$c791$);
+insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
+values ((select id from public.sections where slug = $c836$distinct$c836$), $c837$ejercicio-categorias-padre$c837$, $c838$exercise$c838$, $c839$Categorías que son padre$c839$, 3, 5, null, $c840$categorias-padre$c840$, (select id from public.datasets where slug = $c841$tiendaviva$c841$), false, true)
+on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
-delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c792$ejercicio-tipos-en-pedidos$c792$);
+insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
+values ((select id from public.sections where slug = $c842$where$c842$), $c843$ejercicio-clientes-de-uruguay$c843$, $c844$exercise$c844$, $c845$Clientes de Uruguay$c845$, 2, 3, null, $c846$clientes-de-uruguay$c846$, (select id from public.datasets where slug = $c847$tiendaviva$c847$), false, true)
+on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
-delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c793$ejercicio-catalogo-de-categorias$c793$);
+insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
+values ((select id from public.sections where slug = $c848$where$c848$), $c849$ejercicio-productos-agotados-activos$c849$, $c850$exercise$c850$, $c851$Agotados pero publicados$c851$, 3, 5, null, $c852$productos-agotados-activos$c852$, (select id from public.datasets where slug = $c853$tiendaviva$c853$), false, true)
+on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
-delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c794$ejercicio-vendedores-basico$c794$);
+insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
+values ((select id from public.sections where slug = $c854$where$c854$), $c855$ejercicio-tiendas-bazar$c855$, $c856$exercise$c856$, $c857$Las tiendas «Bazar»$c857$, 4, 5, null, $c858$tiendas-bazar$c858$, (select id from public.datasets where slug = $c859$tiendaviva$c859$), false, true)
+on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
-delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c795$ejercicio-columnas-en-orden$c795$);
+insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
+values ((select id from public.sections where slug = $c860$where$c860$), $c861$ejercicio-pedidos-primera-quincena-marzo$c861$, $c862$challenge$c862$, $c863$Primera quincena de marzo$c863$, 5, 8, null, $c864$pedidos-primera-quincena-marzo$c864$, (select id from public.datasets where slug = $c865$tiendaviva$c865$), false, true)
+on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
-delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c796$ejercicio-explorar-productos$c796$);
+insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
+values ((select id from public.sections where slug = $c866$operadores-comparacion-logicos$c866$), $c867$ejercicio-pedidos-problematicos-del-partner$c867$, $c868$exercise$c868$, $c869$Pedidos problemáticos del partner$c869$, 1, 5, null, $c870$pedidos-problematicos-del-partner$c870$, (select id from public.datasets where slug = $c871$tiendaviva$c871$), false, true)
+on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
-delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c797$ejercicio-reto-vendedores-antiguos$c797$);
+insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
+values ((select id from public.sections where slug = $c872$operadores-comparacion-logicos$c872$), $c873$ejercicio-cuotas-largas-rechazadas$c873$, $c874$exercise$c874$, $c875$Cuotas largas rechazadas$c875$, 2, 5, null, $c876$cuotas-largas-rechazadas$c876$, (select id from public.datasets where slug = $c877$tiendaviva$c877$), false, true)
+on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
-delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c798$introduccion-bases-de-datos-quiz$c798$);
+insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
+values ((select id from public.sections where slug = $c878$operadores-comparacion-logicos$c878$), $c879$ejercicio-campana-rio-de-la-plata$c879$, $c880$challenge$c880$, $c881$Campaña Río de la Plata$c881$, 3, 7, null, $c882$campana-rio-de-la-plata$c882$, (select id from public.datasets where slug = $c883$tiendaviva$c883$), false, true)
+on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
-delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c799$tablas-filas-columnas-tipos-quiz$c799$);
+insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
+values ((select id from public.sections where slug = $c884$null$c884$), $c885$ejercicio-vendedores-sin-calificacion$c885$, $c886$exercise$c886$, $c887$Vendedores sin calificación$c887$, 2, 3, null, $c888$vendedores-sin-calificacion$c888$, (select id from public.datasets where slug = $c889$tiendaviva$c889$), false, true)
+on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
-delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c800$select-quiz$c800$);
+insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
+values ((select id from public.sections where slug = $c890$null$c890$), $c891$ejercicio-envios-pendientes-latampost$c891$, $c892$exercise$c892$, $c893$Envíos pendientes de LatamPost$c893$, 3, 5, null, $c894$envios-pendientes-latampost$c894$, (select id from public.datasets where slug = $c895$tiendaviva$c895$), false, true)
+on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
+
+insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
+values ((select id from public.sections where slug = $c896$null$c896$), $c897$ejercicio-calificacion-o-cero$c897$, $c898$exercise$c898$, $c899$Calificación o cero$c899$, 4, 6, null, $c900$calificacion-o-cero$c900$, (select id from public.datasets where slug = $c901$tiendaviva$c901$), false, true)
+on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
+
+insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
+values ((select id from public.sections where slug = $c902$null$c902$), $c903$ejercicio-resenas-negativas-sin-comentario$c903$, $c904$challenge$c904$, $c905$Reseñas negativas sin comentario$c905$, 5, 7, null, $c906$resenas-negativas-sin-comentario$c906$, (select id from public.datasets where slug = $c907$tiendaviva$c907$), false, true)
+on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
+
+insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
+values ((select id from public.sections where slug = $c908$introduccion-bases-de-datos$c908$), $c909$introduccion-bases-de-datos-quiz$c909$, $c910$quiz$c910$, $c911$Quiz de la sección$c911$, 2, 7, null, $c912$introduccion-bases-de-datos$c912$, null, true, true)
+on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
+
+insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
+values ((select id from public.sections where slug = $c913$tablas-filas-columnas-tipos$c913$), $c914$tablas-filas-columnas-tipos-quiz$c914$, $c915$quiz$c915$, $c916$Quiz de la sección$c916$, 4, 8, null, $c917$tablas-filas-columnas-tipos$c917$, null, true, true)
+on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
+
+insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
+values ((select id from public.sections where slug = $c918$select$c918$), $c919$select-quiz$c919$, $c920$quiz$c920$, $c921$Quiz de la sección$c921$, 7, 6, null, $c922$select$c922$, null, true, true)
+on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
+
+insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
+values ((select id from public.sections where slug = $c923$alias-y-expresiones$c923$), $c924$alias-y-expresiones-quiz$c924$, $c925$quiz$c925$, $c926$Quiz de la sección$c926$, 4, 5, null, $c927$alias-y-expresiones$c927$, null, true, true)
+on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
+
+insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
+values ((select id from public.sections where slug = $c928$distinct$c928$), $c929$distinct-quiz$c929$, $c930$quiz$c930$, $c931$Quiz de la sección$c931$, 4, 5, null, $c932$distinct$c932$, null, true, true)
+on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
+
+insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
+values ((select id from public.sections where slug = $c933$where$c933$), $c934$where-quiz$c934$, $c935$quiz$c935$, $c936$Quiz de la sección$c936$, 6, 7, null, $c937$where$c937$, null, true, true)
+on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
+
+insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
+values ((select id from public.sections where slug = $c938$operadores-comparacion-logicos$c938$), $c939$operadores-comparacion-logicos-quiz$c939$, $c940$quiz$c940$, $c941$Quiz de la sección$c941$, 4, 6, null, $c942$operadores-comparacion-logicos$c942$, null, true, true)
+on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
+
+insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
+values ((select id from public.sections where slug = $c943$null$c943$), $c944$null-quiz$c944$, $c945$quiz$c945$, $c946$Quiz de la sección$c946$, 6, 7, null, $c947$null$c947$, null, true, true)
+on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c948$que-es-una-base-de-datos$c948$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c949$como-piensa-un-analista$c949$);
+
+insert into public.lesson_prerequisites (lesson_id, requires_lesson_id) values ((select id from public.lessons where slug = $c950$como-piensa-un-analista$c950$), (select id from public.lessons where slug = $c951$que-es-una-base-de-datos$c951$)) on conflict do nothing;
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c952$anatomia-de-una-tabla$c952$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c953$tipos-de-datos$c953$);
+
+insert into public.lesson_prerequisites (lesson_id, requires_lesson_id) values ((select id from public.lessons where slug = $c954$tipos-de-datos$c954$), (select id from public.lessons where slug = $c955$anatomia-de-una-tabla$c955$)) on conflict do nothing;
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c956$select-columnas$c956$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c957$select-buenas-practicas$c957$);
+
+insert into public.lesson_prerequisites (lesson_id, requires_lesson_id) values ((select id from public.lessons where slug = $c958$select-buenas-practicas$c958$), (select id from public.lessons where slug = $c959$select-columnas$c959$)) on conflict do nothing;
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c960$alias-y-expresiones-basico$c960$);
+
+insert into public.lesson_prerequisites (lesson_id, requires_lesson_id) values ((select id from public.lessons where slug = $c961$alias-y-expresiones-basico$c961$), (select id from public.lessons where slug = $c962$select-columnas$c962$)) on conflict do nothing;
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c963$distinct-valores-unicos$c963$);
+
+insert into public.lesson_prerequisites (lesson_id, requires_lesson_id) values ((select id from public.lessons where slug = $c964$distinct-valores-unicos$c964$), (select id from public.lessons where slug = $c965$select-columnas$c965$)) on conflict do nothing;
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c966$where-filtros-basicos$c966$);
+
+insert into public.lesson_prerequisites (lesson_id, requires_lesson_id) values ((select id from public.lessons where slug = $c967$where-filtros-basicos$c967$), (select id from public.lessons where slug = $c968$select-columnas$c968$)) on conflict do nothing;
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c969$where-texto-y-fechas$c969$);
+
+insert into public.lesson_prerequisites (lesson_id, requires_lesson_id) values ((select id from public.lessons where slug = $c970$where-texto-y-fechas$c970$), (select id from public.lessons where slug = $c971$where-filtros-basicos$c971$)) on conflict do nothing;
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c972$operadores-precedencia-in-between$c972$);
+
+insert into public.lesson_prerequisites (lesson_id, requires_lesson_id) values ((select id from public.lessons where slug = $c973$operadores-precedencia-in-between$c973$), (select id from public.lessons where slug = $c974$where-filtros-basicos$c974$)) on conflict do nothing;
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c975$null-logica-de-tres-valores$c975$);
+
+insert into public.lesson_prerequisites (lesson_id, requires_lesson_id) values ((select id from public.lessons where slug = $c976$null-logica-de-tres-valores$c976$), (select id from public.lessons where slug = $c977$operadores-precedencia-in-between$c977$)) on conflict do nothing;
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c978$null-coalesce-y-nullif$c978$);
+
+insert into public.lesson_prerequisites (lesson_id, requires_lesson_id) values ((select id from public.lessons where slug = $c979$null-coalesce-y-nullif$c979$), (select id from public.lessons where slug = $c980$null-logica-de-tres-valores$c980$)) on conflict do nothing;
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c981$ejercicio-explorar-clientes$c981$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c982$ejercicio-tipos-en-pedidos$c982$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c983$ejercicio-catalogo-de-categorias$c983$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c984$ejercicio-vendedores-basico$c984$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c985$ejercicio-columnas-en-orden$c985$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c986$ejercicio-explorar-productos$c986$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c987$ejercicio-reto-vendedores-antiguos$c987$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c988$ejercicio-tiendas-en-espanol$c988$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c989$ejercicio-codigos-de-categoria$c989$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c990$ejercicio-neto-y-porcentaje-de-envio$c990$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c991$ejercicio-paises-con-clientes$c991$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c992$ejercicio-cobertura-de-transportistas$c992$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c993$ejercicio-categorias-padre$c993$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c994$ejercicio-clientes-de-uruguay$c994$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c995$ejercicio-productos-agotados-activos$c995$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c996$ejercicio-tiendas-bazar$c996$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c997$ejercicio-pedidos-primera-quincena-marzo$c997$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c998$ejercicio-pedidos-problematicos-del-partner$c998$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c999$ejercicio-cuotas-largas-rechazadas$c999$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c1000$ejercicio-campana-rio-de-la-plata$c1000$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c1001$ejercicio-vendedores-sin-calificacion$c1001$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c1002$ejercicio-envios-pendientes-latampost$c1002$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c1003$ejercicio-calificacion-o-cero$c1003$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c1004$ejercicio-resenas-negativas-sin-comentario$c1004$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c1005$introduccion-bases-de-datos-quiz$c1005$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c1006$tablas-filas-columnas-tipos-quiz$c1006$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c1007$select-quiz$c1007$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c1008$alias-y-expresiones-quiz$c1008$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c1009$distinct-quiz$c1009$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c1010$where-quiz$c1010$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c1011$operadores-comparacion-logicos-quiz$c1011$);
+
+delete from public.lesson_prerequisites where lesson_id = (select id from public.lessons where slug = $c1012$null-quiz$c1012$);
 
 insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
-values ((select id from public.sections where slug = $c801$introduccion-bases-de-datos$c801$), (select id from public.lessons where slug = $c802$que-es-una-base-de-datos$c802$), $c803$intro-q01-relacional$c803$, $c804$single$c804$, $c805$very_easy$c805$, $c806$Bases de datos relacionales$c806$, $c807$¿Cómo organiza la información una base de datos relacional?$c807$, null, $c808$El modelo relacional guarda cada tipo de entidad (clientes, pedidos) en una tabla y las conecta mediante identificadores, como `orders.customer_id` → `customers.id`.$c808$, null, null, array[$c809$conceptos$c809$,$c810$tablas$c810$]::text[], 40, true)
+values ((select id from public.sections where slug = $c1013$introduccion-bases-de-datos$c1013$), (select id from public.lessons where slug = $c1014$que-es-una-base-de-datos$c1014$), $c1015$intro-q01-relacional$c1015$, $c1016$single$c1016$, $c1017$very_easy$c1017$, $c1018$Bases de datos relacionales$c1018$, $c1019$¿Cómo organiza la información una base de datos relacional?$c1019$, null, $c1020$El modelo relacional guarda cada tipo de entidad (clientes, pedidos) en una tabla y las conecta mediante identificadores, como `orders.customer_id` → `customers.id`.$c1020$, null, null, array[$c1021$conceptos$c1021$,$c1022$tablas$c1022$]::text[], 40, true)
 on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
 
-delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c811$intro-q01-relacional$c811$);
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1023$intro-q01-relacional$c1023$);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c811$intro-q01-relacional$c811$), $c812$a$c812$, $c813$En tablas con filas y columnas, relacionadas por identificadores.$c813$, true, null, 0);
+values ((select id from public.theory_questions where slug = $c1023$intro-q01-relacional$c1023$), $c1024$a$c1024$, $c1025$En tablas con filas y columnas, relacionadas por identificadores.$c1025$, true, null, 0);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c811$intro-q01-relacional$c811$), $c814$b$c814$, $c815$En un único archivo de texto con todos los datos de la empresa.$c815$, false, $c816$Un archivo único no permite relacionar entidades ni evitar duplicados; eso es justamente lo que resuelve el modelo relacional.$c816$, 1);
+values ((select id from public.theory_questions where slug = $c1023$intro-q01-relacional$c1023$), $c1026$b$c1026$, $c1027$En un único archivo de texto con todos los datos de la empresa.$c1027$, false, $c1028$Un archivo único no permite relacionar entidades ni evitar duplicados; eso es justamente lo que resuelve el modelo relacional.$c1028$, 1);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c811$intro-q01-relacional$c811$), $c817$c$c817$, $c818$En hojas de cálculo separadas por departamento.$c818$, false, $c819$Las hojas sueltas pierden consistencia y versiones; la base relacional centraliza y relaciona los datos.$c819$, 2);
+values ((select id from public.theory_questions where slug = $c1023$intro-q01-relacional$c1023$), $c1029$c$c1029$, $c1030$En hojas de cálculo separadas por departamento.$c1030$, false, $c1031$Las hojas sueltas pierden consistencia y versiones; la base relacional centraliza y relaciona los datos.$c1031$, 2);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c811$intro-q01-relacional$c811$), $c820$d$c820$, $c821$En documentos sin estructura fija.$c821$, false, $c822$Eso describe a algunas bases de datos documentales, no al modelo relacional basado en tablas.$c822$, 3);
+values ((select id from public.theory_questions where slug = $c1023$intro-q01-relacional$c1023$), $c1032$d$c1032$, $c1033$En documentos sin estructura fija.$c1033$, false, $c1034$Eso describe a algunas bases de datos documentales, no al modelo relacional basado en tablas.$c1034$, 3);
 
 insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
-values ((select id from public.sections where slug = $c823$introduccion-bases-de-datos$c823$), (select id from public.lessons where slug = $c824$que-es-una-base-de-datos$c824$), $c825$intro-q02-operativo-analitico$c825$, $c826$single$c826$, $c827$easy$c827$, $c828$Datos operativos vs. analíticos$c828$, $c829$El equipo de finanzas de TiendaViva quiere saber cuánto se vendió por país en agosto. ¿Qué tipo de uso de la base de datos es?$c829$, null, $c830$Los usos analíticos agregan y comparan datos históricos; los operativos crean o modifican registros individuales durante la operación diaria.$c830$, null, null, array[$c831$conceptos$c831$]::text[], 45, true)
+values ((select id from public.sections where slug = $c1035$introduccion-bases-de-datos$c1035$), (select id from public.lessons where slug = $c1036$que-es-una-base-de-datos$c1036$), $c1037$intro-q02-operativo-analitico$c1037$, $c1038$single$c1038$, $c1039$easy$c1039$, $c1040$Datos operativos vs. analíticos$c1040$, $c1041$El equipo de finanzas de TiendaViva quiere saber cuánto se vendió por país en agosto. ¿Qué tipo de uso de la base de datos es?$c1041$, null, $c1042$Los usos analíticos agregan y comparan datos históricos; los operativos crean o modifican registros individuales durante la operación diaria.$c1042$, null, null, array[$c1043$conceptos$c1043$]::text[], 45, true)
 on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
 
-delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c832$intro-q02-operativo-analitico$c832$);
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1044$intro-q02-operativo-analitico$c1044$);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c832$intro-q02-operativo-analitico$c832$), $c833$a$c833$, $c834$Analítico: resume muchos registros para responder una pregunta del negocio.$c834$, true, null, 0);
+values ((select id from public.theory_questions where slug = $c1044$intro-q02-operativo-analitico$c1044$), $c1045$a$c1045$, $c1046$Analítico: resume muchos registros para responder una pregunta del negocio.$c1046$, true, null, 0);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c832$intro-q02-operativo-analitico$c832$), $c835$b$c835$, $c836$Operativo: registra una transacción nueva.$c836$, false, $c837$Registrar un pedido es operativo; resumir ventas de un mes es analítico.$c837$, 1);
+values ((select id from public.theory_questions where slug = $c1044$intro-q02-operativo-analitico$c1044$), $c1047$b$c1047$, $c1048$Operativo: registra una transacción nueva.$c1048$, false, $c1049$Registrar un pedido es operativo; resumir ventas de un mes es analítico.$c1049$, 1);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c832$intro-q02-operativo-analitico$c832$), $c838$c$c838$, $c839$Ninguno: eso se hace en una hoja de cálculo.$c839$, false, $c840$Es exactamente el tipo de pregunta que SQL responde mejor que una hoja de cálculo, sin importar el volumen.$c840$, 2);
+values ((select id from public.theory_questions where slug = $c1044$intro-q02-operativo-analitico$c1044$), $c1050$c$c1050$, $c1051$Ninguno: eso se hace en una hoja de cálculo.$c1051$, false, $c1052$Es exactamente el tipo de pregunta que SQL responde mejor que una hoja de cálculo, sin importar el volumen.$c1052$, 2);
 
 insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
-values ((select id from public.sections where slug = $c841$introduccion-bases-de-datos$c841$), (select id from public.lessons where slug = $c842$que-es-una-base-de-datos$c842$), $c843$intro-q03-sql-declarativo$c843$, $c844$true_false$c844$, $c845$easy$c845$, $c846$Naturaleza de SQL$c846$, $c847$En SQL describes **qué** datos quieres, y el motor de la base de datos decide **cómo** obtenerlos.$c847$, null, $c848$Por eso la misma consulta funciona con mil o con millones de filas: el planificador del motor elige la estrategia de ejecución.$c848$, null, null, array[$c849$conceptos$c849$,$c850$sql$c850$]::text[], 30, true)
+values ((select id from public.sections where slug = $c1053$introduccion-bases-de-datos$c1053$), (select id from public.lessons where slug = $c1054$que-es-una-base-de-datos$c1054$), $c1055$intro-q03-sql-declarativo$c1055$, $c1056$true_false$c1056$, $c1057$easy$c1057$, $c1058$Naturaleza de SQL$c1058$, $c1059$En SQL describes **qué** datos quieres, y el motor de la base de datos decide **cómo** obtenerlos.$c1059$, null, $c1060$Por eso la misma consulta funciona con mil o con millones de filas: el planificador del motor elige la estrategia de ejecución.$c1060$, null, null, array[$c1061$conceptos$c1061$,$c1062$sql$c1062$]::text[], 30, true)
 on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
 
-delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c851$intro-q03-sql-declarativo$c851$);
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1063$intro-q03-sql-declarativo$c1063$);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c851$intro-q03-sql-declarativo$c851$), $c852$a$c852$, $c853$Verdadero$c853$, true, null, 0);
+values ((select id from public.theory_questions where slug = $c1063$intro-q03-sql-declarativo$c1063$), $c1064$a$c1064$, $c1065$Verdadero$c1065$, true, null, 0);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c851$intro-q03-sql-declarativo$c851$), $c854$b$c854$, $c855$Falso$c855$, false, $c856$SQL es declarativo: no indicas el algoritmo de búsqueda, solo el resultado deseado.$c856$, 1);
+values ((select id from public.theory_questions where slug = $c1063$intro-q03-sql-declarativo$c1063$), $c1066$b$c1066$, $c1067$Falso$c1067$, false, $c1068$SQL es declarativo: no indicas el algoritmo de búsqueda, solo el resultado deseado.$c1068$, 1);
 
 insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
-values ((select id from public.sections where slug = $c857$introduccion-bases-de-datos$c857$), (select id from public.lessons where slug = $c858$que-es-una-base-de-datos$c858$), $c859$intro-q04-relacion-tablas$c859$, $c860$fill_blank$c860$, $c861$easy$c861$, $c862$Relaciones entre tablas$c862$, $c863$En TiendaViva, la tabla `orders` guarda el identificador del cliente en la columna `________` en lugar de repetir su nombre completo.$c863$, null, $c864$`orders.customer_id` apunta a `customers.id`. Guardar solo el identificador evita duplicar datos del cliente en cada pedido.$c864$, $c865${"accepted":["customer_id"],"case_sensitive":false}$c865$::jsonb, null, array[$c866$claves$c866$,$c867$tablas$c867$]::text[], 40, true)
+values ((select id from public.sections where slug = $c1069$introduccion-bases-de-datos$c1069$), (select id from public.lessons where slug = $c1070$que-es-una-base-de-datos$c1070$), $c1071$intro-q04-relacion-tablas$c1071$, $c1072$fill_blank$c1072$, $c1073$easy$c1073$, $c1074$Relaciones entre tablas$c1074$, $c1075$En TiendaViva, la tabla `orders` guarda el identificador del cliente en la columna `________` en lugar de repetir su nombre completo.$c1075$, null, $c1076$`orders.customer_id` apunta a `customers.id`. Guardar solo el identificador evita duplicar datos del cliente en cada pedido.$c1076$, $c1077${"accepted":["customer_id"],"case_sensitive":false}$c1077$::jsonb, null, array[$c1078$claves$c1078$,$c1079$tablas$c1079$]::text[], 40, true)
 on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
 
-delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c868$intro-q04-relacion-tablas$c868$);
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1080$intro-q04-relacion-tablas$c1080$);
 
 insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
-values ((select id from public.sections where slug = $c869$introduccion-bases-de-datos$c869$), (select id from public.lessons where slug = $c870$que-es-una-base-de-datos$c870$), $c871$intro-q05-roles$c871$, $c872$multiple$c872$, $c873$very_easy$c873$, $c874$Quién usa SQL$c874$, $c875$¿Qué roles suelen usar SQL a diario en una empresa de datos? Selecciona todos los que apliquen.$c875$, null, $c876$SQL es la habilidad común a casi todos los roles de datos y, con frecuencia, la primera prueba técnica en un proceso de selección.$c876$, null, null, array[$c877$carrera$c877$]::text[], 40, true)
+values ((select id from public.sections where slug = $c1081$introduccion-bases-de-datos$c1081$), (select id from public.lessons where slug = $c1082$que-es-una-base-de-datos$c1082$), $c1083$intro-q05-roles$c1083$, $c1084$multiple$c1084$, $c1085$very_easy$c1085$, $c1086$Quién usa SQL$c1086$, $c1087$¿Qué roles suelen usar SQL a diario en una empresa de datos? Selecciona todos los que apliquen.$c1087$, null, $c1088$SQL es la habilidad común a casi todos los roles de datos y, con frecuencia, la primera prueba técnica en un proceso de selección.$c1088$, null, null, array[$c1089$carrera$c1089$]::text[], 40, true)
 on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
 
-delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c878$intro-q05-roles$c878$);
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1090$intro-q05-roles$c1090$);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c878$intro-q05-roles$c878$), $c879$a$c879$, $c880$Analista de datos$c880$, true, null, 0);
+values ((select id from public.theory_questions where slug = $c1090$intro-q05-roles$c1090$), $c1091$a$c1091$, $c1092$Analista de datos$c1092$, true, null, 0);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c878$intro-q05-roles$c878$), $c881$b$c881$, $c882$Analista de marketing o de producto$c882$, true, null, 1);
+values ((select id from public.theory_questions where slug = $c1090$intro-q05-roles$c1090$), $c1093$b$c1093$, $c1094$Analista de marketing o de producto$c1094$, true, null, 1);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c878$intro-q05-roles$c878$), $c883$c$c883$, $c884$Ingeniero de datos$c884$, true, null, 2);
+values ((select id from public.theory_questions where slug = $c1090$intro-q05-roles$c1090$), $c1095$c$c1095$, $c1096$Ingeniero de datos$c1096$, true, null, 2);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c878$intro-q05-roles$c878$), $c885$d$c885$, $c886$Ninguno: SQL solo lo usan administradores de bases de datos$c886$, false, $c887$SQL es una herramienta transversal; los administradores son solo uno de muchos perfiles que lo usan.$c887$, 3);
+values ((select id from public.theory_questions where slug = $c1090$intro-q05-roles$c1090$), $c1097$d$c1097$, $c1098$Ninguno: SQL solo lo usan administradores de bases de datos$c1098$, false, $c1099$SQL es una herramienta transversal; los administradores son solo uno de muchos perfiles que lo usan.$c1099$, 3);
 
 insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
-values ((select id from public.sections where slug = $c888$introduccion-bases-de-datos$c888$), (select id from public.lessons where slug = $c889$como-piensa-un-analista$c889$), $c890$intro-q06-metodo-orden$c890$, $c891$single$c891$, $c892$easy$c892$, $c893$Método de análisis$c893$, $c894$Te piden «las ventas de agosto». ¿Cuál es el mejor primer paso?$c894$, null, $c895$Los errores más costosos son de definición. Aclarar estado, fecha de referencia y moneda antes de escribir SQL evita rehacer el análisis.$c895$, null, null, array[$c896$metodo$c896$]::text[], 45, true)
+values ((select id from public.sections where slug = $c1100$introduccion-bases-de-datos$c1100$), (select id from public.lessons where slug = $c1101$como-piensa-un-analista$c1101$), $c1102$intro-q06-metodo-orden$c1102$, $c1103$single$c1103$, $c1104$easy$c1104$, $c1105$Método de análisis$c1105$, $c1106$Te piden «las ventas de agosto». ¿Cuál es el mejor primer paso?$c1106$, null, $c1107$Los errores más costosos son de definición. Aclarar estado, fecha de referencia y moneda antes de escribir SQL evita rehacer el análisis.$c1107$, null, null, array[$c1108$metodo$c1108$]::text[], 45, true)
 on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
 
-delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c897$intro-q06-metodo-orden$c897$);
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1109$intro-q06-metodo-orden$c1109$);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c897$intro-q06-metodo-orden$c897$), $c898$a$c898$, $c899$Definir qué significa «venta»: qué estados, qué fecha y qué moneda cuentan.$c899$, true, null, 0);
+values ((select id from public.theory_questions where slug = $c1109$intro-q06-metodo-orden$c1109$), $c1110$a$c1110$, $c1111$Definir qué significa «venta»: qué estados, qué fecha y qué moneda cuentan.$c1111$, true, null, 0);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c897$intro-q06-metodo-orden$c897$), $c900$b$c900$, $c901$Escribir de inmediato `SELECT SUM(total_amount) FROM orders`.$c901$, false, $c902$Sin definir estados, fechas y moneda, esa suma mezcla pedidos cancelados y monedas distintas.$c902$, 1);
+values ((select id from public.theory_questions where slug = $c1109$intro-q06-metodo-orden$c1109$), $c1112$b$c1112$, $c1113$Escribir de inmediato `SELECT SUM(total_amount) FROM orders`.$c1113$, false, $c1114$Sin definir estados, fechas y moneda, esa suma mezcla pedidos cancelados y monedas distintas.$c1114$, 1);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c897$intro-q06-metodo-orden$c897$), $c903$c$c903$, $c904$Exportar toda la tabla de pedidos a una hoja de cálculo.$c904$, false, $c905$Exportar todo no responde la pregunta y no escala; la definición sigue faltando.$c905$, 2);
+values ((select id from public.theory_questions where slug = $c1109$intro-q06-metodo-orden$c1109$), $c1115$c$c1115$, $c1116$Exportar toda la tabla de pedidos a una hoja de cálculo.$c1116$, false, $c1117$Exportar todo no responde la pregunta y no escala; la definición sigue faltando.$c1117$, 2);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c897$intro-q06-metodo-orden$c897$), $c906$d$c906$, $c907$Pedir acceso de administrador a la base de datos.$c907$, false, $c908$Los permisos no resuelven la ambigüedad de la métrica.$c908$, 3);
+values ((select id from public.theory_questions where slug = $c1109$intro-q06-metodo-orden$c1109$), $c1118$d$c1118$, $c1119$Pedir acceso de administrador a la base de datos.$c1119$, false, $c1120$Los permisos no resuelven la ambigüedad de la métrica.$c1120$, 3);
 
 insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
-values ((select id from public.sections where slug = $c909$introduccion-bases-de-datos$c909$), (select id from public.lessons where slug = $c910$como-piensa-un-analista$c910$), $c911$intro-q07-forma-resultado$c911$, $c912$scenario$c912$, $c913$intermediate$c913$, $c914$Forma del resultado$c914$, $c915$Marketing pide: «Cantidad de pedidos y ventas totales por país durante la semana del Hot Sale (12 al 18 de mayo de 2025), sin cancelados». ¿Qué forma debe tener el resultado?$c915$, null, $c916$Definir la «forma» del resultado (qué es una fila, qué columnas) antes de escribir SQL determina el nivel de agregación de la consulta.$c916$, null, null, array[$c917$metodo$c917$,$c918$agregacion$c918$]::text[], 60, true)
+values ((select id from public.sections where slug = $c1121$introduccion-bases-de-datos$c1121$), (select id from public.lessons where slug = $c1122$como-piensa-un-analista$c1122$), $c1123$intro-q07-forma-resultado$c1123$, $c1124$scenario$c1124$, $c1125$intermediate$c1125$, $c1126$Forma del resultado$c1126$, $c1127$Marketing pide: «Cantidad de pedidos y ventas totales por país durante la semana del Hot Sale (12 al 18 de mayo de 2025), sin cancelados». ¿Qué forma debe tener el resultado?$c1127$, null, $c1128$Definir la «forma» del resultado (qué es una fila, qué columnas) antes de escribir SQL determina el nivel de agregación de la consulta.$c1128$, null, null, array[$c1129$metodo$c1129$,$c1130$agregacion$c1130$]::text[], 60, true)
 on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
 
-delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c919$intro-q07-forma-resultado$c919$);
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1131$intro-q07-forma-resultado$c1131$);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c919$intro-q07-forma-resultado$c919$), $c920$a$c920$, $c921$Una fila por país con tres columnas: país, pedidos, ventas.$c921$, true, null, 0);
+values ((select id from public.theory_questions where slug = $c1131$intro-q07-forma-resultado$c1131$), $c1132$a$c1132$, $c1133$Una fila por país con tres columnas: país, pedidos, ventas.$c1133$, true, null, 0);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c919$intro-q07-forma-resultado$c919$), $c922$b$c922$, $c923$Una fila por pedido con su país e importe.$c923$, false, $c924$Eso es el detalle, no el resumen que pide marketing; faltaría agregar por país.$c924$, 1);
+values ((select id from public.theory_questions where slug = $c1131$intro-q07-forma-resultado$c1131$), $c1134$b$c1134$, $c1135$Una fila por pedido con su país e importe.$c1135$, false, $c1136$Eso es el detalle, no el resumen que pide marketing; faltaría agregar por país.$c1136$, 1);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c919$intro-q07-forma-resultado$c919$), $c925$c$c925$, $c926$Una sola fila con el total general de la semana.$c926$, false, $c927$El pedido dice «por país», así que se necesita una fila por cada país.$c927$, 2);
+values ((select id from public.theory_questions where slug = $c1131$intro-q07-forma-resultado$c1131$), $c1137$c$c1137$, $c1138$Una sola fila con el total general de la semana.$c1138$, false, $c1139$El pedido dice «por país», así que se necesita una fila por cada país.$c1139$, 2);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c919$intro-q07-forma-resultado$c919$), $c928$d$c928$, $c929$Una fila por día con el total diario.$c929$, false, $c930$La dimensión pedida es país, no día.$c930$, 3);
+values ((select id from public.theory_questions where slug = $c1131$intro-q07-forma-resultado$c1131$), $c1140$d$c1140$, $c1141$Una fila por día con el total diario.$c1141$, false, $c1142$La dimensión pedida es país, no día.$c1142$, 3);
 
 insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
-values ((select id from public.sections where slug = $c931$introduccion-bases-de-datos$c931$), (select id from public.lessons where slug = $c932$como-piensa-un-analista$c932$), $c933$intro-q08-fecha-referencia$c933$, $c934$single$c934$, $c935$intermediate$c935$, $c936$Definición de métricas$c936$, $c937$Un pedido se creó el 31 de agosto y se entregó el 3 de septiembre. Finanzas reconoce ingresos en la entrega. ¿En qué mes cuenta para «ventas de agosto» según esa definición?$c937$, null, $c938$La misma transacción cae en meses distintos según la fecha de referencia elegida. Por eso la definición debe explicitarse y acordarse.$c938$, null, null, array[$c939$metodo$c939$,$c940$fechas$c940$]::text[], 50, true)
+values ((select id from public.sections where slug = $c1143$introduccion-bases-de-datos$c1143$), (select id from public.lessons where slug = $c1144$como-piensa-un-analista$c1144$), $c1145$intro-q08-fecha-referencia$c1145$, $c1146$single$c1146$, $c1147$intermediate$c1147$, $c1148$Definición de métricas$c1148$, $c1149$Un pedido se creó el 31 de agosto y se entregó el 3 de septiembre. Finanzas reconoce ingresos en la entrega. ¿En qué mes cuenta para «ventas de agosto» según esa definición?$c1149$, null, $c1150$La misma transacción cae en meses distintos según la fecha de referencia elegida. Por eso la definición debe explicitarse y acordarse.$c1150$, null, null, array[$c1151$metodo$c1151$,$c1152$fechas$c1152$]::text[], 50, true)
 on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
 
-delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c941$intro-q08-fecha-referencia$c941$);
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1153$intro-q08-fecha-referencia$c1153$);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c941$intro-q08-fecha-referencia$c941$), $c942$a$c942$, $c943$En septiembre, porque la fecha de referencia es la entrega.$c943$, true, null, 0);
+values ((select id from public.theory_questions where slug = $c1153$intro-q08-fecha-referencia$c1153$), $c1154$a$c1154$, $c1155$En septiembre, porque la fecha de referencia es la entrega.$c1155$, true, null, 0);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c941$intro-q08-fecha-referencia$c941$), $c944$b$c944$, $c945$En agosto, porque el pedido se creó en agosto.$c945$, false, $c946$Con la definición de finanzas (reconocimiento en la entrega), la fecha de creación no es la que manda.$c946$, 1);
+values ((select id from public.theory_questions where slug = $c1153$intro-q08-fecha-referencia$c1153$), $c1156$b$c1156$, $c1157$En agosto, porque el pedido se creó en agosto.$c1157$, false, $c1158$Con la definición de finanzas (reconocimiento en la entrega), la fecha de creación no es la que manda.$c1158$, 1);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c941$intro-q08-fecha-referencia$c941$), $c947$c$c947$, $c948$En ambos meses.$c948$, false, $c949$Contarlo dos veces infla las cifras; cada pedido cuenta en un único período según la definición.$c949$, 2);
+values ((select id from public.theory_questions where slug = $c1153$intro-q08-fecha-referencia$c1153$), $c1159$c$c1159$, $c1160$En ambos meses.$c1160$, false, $c1161$Contarlo dos veces infla las cifras; cada pedido cuenta en un único período según la definición.$c1161$, 2);
 
 insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
-values ((select id from public.sections where slug = $c950$introduccion-bases-de-datos$c950$), (select id from public.lessons where slug = $c951$que-es-una-base-de-datos$c951$), $c952$intro-q09-hoja-vs-sql$c952$, $c953$single$c953$, $c954$easy$c954$, $c955$SQL vs. hojas de cálculo$c955$, $c956$¿Cuál es una ventaja concreta de una consulta SQL frente a una tabla dinámica en una hoja de cálculo?$c956$, null, $c957$SQL escala al volumen de la base de datos, es reproducible y se puede guardar en control de versiones, algo difícil con tablas dinámicas manuales.$c957$, null, null, array[$c958$conceptos$c958$]::text[], 40, true)
+values ((select id from public.sections where slug = $c1162$introduccion-bases-de-datos$c1162$), (select id from public.lessons where slug = $c1163$que-es-una-base-de-datos$c1163$), $c1164$intro-q09-hoja-vs-sql$c1164$, $c1165$single$c1165$, $c1166$easy$c1166$, $c1167$SQL vs. hojas de cálculo$c1167$, $c1168$¿Cuál es una ventaja concreta de una consulta SQL frente a una tabla dinámica en una hoja de cálculo?$c1168$, null, $c1169$SQL escala al volumen de la base de datos, es reproducible y se puede guardar en control de versiones, algo difícil con tablas dinámicas manuales.$c1169$, null, null, array[$c1170$conceptos$c1170$]::text[], 40, true)
 on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
 
-delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c959$intro-q09-hoja-vs-sql$c959$);
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1171$intro-q09-hoja-vs-sql$c1171$);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c959$intro-q09-hoja-vs-sql$c959$), $c960$a$c960$, $c961$Funciona igual con cien o con cien millones de filas y se puede versionar y compartir como texto.$c961$, true, null, 0);
+values ((select id from public.theory_questions where slug = $c1171$intro-q09-hoja-vs-sql$c1171$), $c1172$a$c1172$, $c1173$Funciona igual con cien o con cien millones de filas y se puede versionar y compartir como texto.$c1173$, true, null, 0);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c959$intro-q09-hoja-vs-sql$c959$), $c962$b$c962$, $c963$No necesita definir la métrica antes de calcularla.$c963$, false, $c964$La definición de la métrica es necesaria en cualquier herramienta.$c964$, 1);
+values ((select id from public.theory_questions where slug = $c1171$intro-q09-hoja-vs-sql$c1171$), $c1174$b$c1174$, $c1175$No necesita definir la métrica antes de calcularla.$c1175$, false, $c1176$La definición de la métrica es necesaria en cualquier herramienta.$c1176$, 1);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c959$intro-q09-hoja-vs-sql$c959$), $c965$c$c965$, $c966$Siempre es más rápida de escribir que una tabla dinámica.$c966$, false, $c967$No siempre; la ventaja está en escala, reproducibilidad y colaboración.$c967$, 2);
+values ((select id from public.theory_questions where slug = $c1171$intro-q09-hoja-vs-sql$c1171$), $c1177$c$c1177$, $c1178$Siempre es más rápida de escribir que una tabla dinámica.$c1178$, false, $c1179$No siempre; la ventaja está en escala, reproducibilidad y colaboración.$c1179$, 2);
 
 insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
-values ((select id from public.sections where slug = $c968$introduccion-bases-de-datos$c968$), (select id from public.lessons where slug = $c969$que-es-una-base-de-datos$c969$), $c970$intro-q10-cancelado-madrugada$c970$, $c971$scenario$c971$, $c972$intermediate$c972$, $c973$Interpretar datos operativos$c973$, $c974$Ves muchos pedidos con estado `cancelled` registrados a las 3:00 a. m. ¿Cuál es la interpretación más probable?$c974$, null, $c975$Entender cómo se generan los datos operativos (procesos automáticos, horarios, reglas) es clave para interpretarlos correctamente en el análisis.$c975$, null, null, array[$c976$conceptos$c976$,$c977$calidad$c977$]::text[], 50, true)
+values ((select id from public.sections where slug = $c1180$introduccion-bases-de-datos$c1180$), (select id from public.lessons where slug = $c1181$que-es-una-base-de-datos$c1181$), $c1182$intro-q10-cancelado-madrugada$c1182$, $c1183$scenario$c1183$, $c1184$intermediate$c1184$, $c1185$Interpretar datos operativos$c1185$, $c1186$Ves muchos pedidos con estado `cancelled` registrados a las 3:00 a. m. ¿Cuál es la interpretación más probable?$c1186$, null, $c1187$Entender cómo se generan los datos operativos (procesos automáticos, horarios, reglas) es clave para interpretarlos correctamente en el análisis.$c1187$, null, null, array[$c1188$conceptos$c1188$,$c1189$calidad$c1189$]::text[], 50, true)
 on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
 
-delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c978$intro-q10-cancelado-madrugada$c978$);
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1190$intro-q10-cancelado-madrugada$c1190$);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c978$intro-q10-cancelado-madrugada$c978$), $c979$a$c979$, $c980$Un proceso automático cancela pedidos sin pago aprobado en un horario programado.$c980$, true, null, 0);
+values ((select id from public.theory_questions where slug = $c1190$intro-q10-cancelado-madrugada$c1190$), $c1191$a$c1191$, $c1192$Un proceso automático cancela pedidos sin pago aprobado en un horario programado.$c1192$, true, null, 0);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c978$intro-q10-cancelado-madrugada$c978$), $c981$b$c981$, $c982$Los clientes latinoamericanos prefieren cancelar de madrugada.$c982$, false, $c983$Es una suposición de comportamiento sin evidencia; los patrones horarios regulares suelen indicar procesos automáticos.$c983$, 1);
+values ((select id from public.theory_questions where slug = $c1190$intro-q10-cancelado-madrugada$c1190$), $c1193$b$c1193$, $c1194$Los clientes latinoamericanos prefieren cancelar de madrugada.$c1194$, false, $c1195$Es una suposición de comportamiento sin evidencia; los patrones horarios regulares suelen indicar procesos automáticos.$c1195$, 1);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c978$intro-q10-cancelado-madrugada$c978$), $c984$c$c984$, $c985$Los datos están corruptos y deben eliminarse.$c985$, false, $c986$Un patrón regular no es corrupción; hay que entender el proceso que lo genera antes de descartar datos.$c986$, 2);
+values ((select id from public.theory_questions where slug = $c1190$intro-q10-cancelado-madrugada$c1190$), $c1196$c$c1196$, $c1197$Los datos están corruptos y deben eliminarse.$c1197$, false, $c1198$Un patrón regular no es corrupción; hay que entender el proceso que lo genera antes de descartar datos.$c1198$, 2);
 
 insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
-values ((select id from public.sections where slug = $c987$tablas-filas-columnas-tipos$c987$), (select id from public.lessons where slug = $c988$anatomia-de-una-tabla$c988$), $c989$tablas-q01-pk$c989$, $c990$single$c990$, $c991$very_easy$c991$, $c992$Claves primarias$c992$, $c993$¿Qué garantiza una clave primaria?$c993$, null, $c994$La clave primaria (PK) identifica cada fila: es única y no admite NULL. En TiendaViva es la columna `id` de cada tabla.$c994$, null, null, array[$c995$claves$c995$]::text[], 35, true)
+values ((select id from public.sections where slug = $c1199$tablas-filas-columnas-tipos$c1199$), (select id from public.lessons where slug = $c1200$anatomia-de-una-tabla$c1200$), $c1201$tablas-q01-pk$c1201$, $c1202$single$c1202$, $c1203$very_easy$c1203$, $c1204$Claves primarias$c1204$, $c1205$¿Qué garantiza una clave primaria?$c1205$, null, $c1206$La clave primaria (PK) identifica cada fila: es única y no admite NULL. En TiendaViva es la columna `id` de cada tabla.$c1206$, null, null, array[$c1207$claves$c1207$]::text[], 35, true)
 on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
 
-delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c996$tablas-q01-pk$c996$);
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1208$tablas-q01-pk$c1208$);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c996$tablas-q01-pk$c996$), $c997$a$c997$, $c998$Que cada fila se identifica de forma única y el valor nunca es NULL.$c998$, true, null, 0);
+values ((select id from public.theory_questions where slug = $c1208$tablas-q01-pk$c1208$), $c1209$a$c1209$, $c1210$Que cada fila se identifica de forma única y el valor nunca es NULL.$c1210$, true, null, 0);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c996$tablas-q01-pk$c996$), $c999$b$c999$, $c1000$Que la tabla está ordenada por esa columna.$c1000$, false, $c1001$El orden físico o de lectura no está garantizado por la clave; solo la unicidad e integridad.$c1001$, 1);
+values ((select id from public.theory_questions where slug = $c1208$tablas-q01-pk$c1208$), $c1211$b$c1211$, $c1212$Que la tabla está ordenada por esa columna.$c1212$, false, $c1213$El orden físico o de lectura no está garantizado por la clave; solo la unicidad e integridad.$c1213$, 1);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c996$tablas-q01-pk$c996$), $c1002$c$c1002$, $c1003$Que la columna es de tipo texto.$c1003$, false, $c1004$Una clave primaria puede ser de cualquier tipo; en TiendaViva son enteros.$c1004$, 2);
+values ((select id from public.theory_questions where slug = $c1208$tablas-q01-pk$c1208$), $c1214$c$c1214$, $c1215$Que la columna es de tipo texto.$c1215$, false, $c1216$Una clave primaria puede ser de cualquier tipo; en TiendaViva son enteros.$c1216$, 2);
 
 insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
-values ((select id from public.sections where slug = $c1005$tablas-filas-columnas-tipos$c1005$), (select id from public.lessons where slug = $c1006$anatomia-de-una-tabla$c1006$), $c1007$tablas-q02-fk$c1007$, $c1008$fill_blank$c1008$, $c1009$easy$c1009$, $c1010$Claves foráneas$c1010$, $c1011$La columna `order_items.order_id` es una clave ________ que apunta a `orders.id`.$c1011$, null, $c1012$Una clave foránea guarda la clave primaria de otra tabla para expresar la relación «esta línea pertenece a este pedido».$c1012$, $c1013${"accepted":["foránea","foranea","foreign","fk"],"case_sensitive":false}$c1013$::jsonb, null, array[$c1014$claves$c1014$,$c1015$relaciones$c1015$]::text[], 40, true)
+values ((select id from public.sections where slug = $c1217$tablas-filas-columnas-tipos$c1217$), (select id from public.lessons where slug = $c1218$anatomia-de-una-tabla$c1218$), $c1219$tablas-q02-fk$c1219$, $c1220$fill_blank$c1220$, $c1221$easy$c1221$, $c1222$Claves foráneas$c1222$, $c1223$La columna `order_items.order_id` es una clave ________ que apunta a `orders.id`.$c1223$, null, $c1224$Una clave foránea guarda la clave primaria de otra tabla para expresar la relación «esta línea pertenece a este pedido».$c1224$, $c1225${"accepted":["foránea","foranea","foreign","fk"],"case_sensitive":false}$c1225$::jsonb, null, array[$c1226$claves$c1226$,$c1227$relaciones$c1227$]::text[], 40, true)
 on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
 
-delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1016$tablas-q02-fk$c1016$);
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1228$tablas-q02-fk$c1228$);
 
 insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
-values ((select id from public.sections where slug = $c1017$tablas-filas-columnas-tipos$c1017$), (select id from public.lessons where slug = $c1018$anatomia-de-una-tabla$c1018$), $c1019$tablas-q03-cardinalidad$c1019$, $c1020$scenario$c1020$, $c1021$intermediate$c1021$, $c1022$Cardinalidad$c1022$, $c1023$Un cliente tiene 4 pedidos. Si combinas `customers` con `orders` por `customer_id`, ¿cuántas veces aparece ese cliente en el resultado?$c1023$, null, $c1024$La relación uno a muchos multiplica las filas del lado «uno». Es la causa más común de importes duplicados al sumar después de combinar tablas.$c1024$, null, null, array[$c1025$relaciones$c1025$,$c1026$joins$c1026$]::text[], 60, true)
+values ((select id from public.sections where slug = $c1229$tablas-filas-columnas-tipos$c1229$), (select id from public.lessons where slug = $c1230$anatomia-de-una-tabla$c1230$), $c1231$tablas-q03-cardinalidad$c1231$, $c1232$scenario$c1232$, $c1233$intermediate$c1233$, $c1234$Cardinalidad$c1234$, $c1235$Un cliente tiene 4 pedidos. Si combinas `customers` con `orders` por `customer_id`, ¿cuántas veces aparece ese cliente en el resultado?$c1235$, null, $c1236$La relación uno a muchos multiplica las filas del lado «uno». Es la causa más común de importes duplicados al sumar después de combinar tablas.$c1236$, null, null, array[$c1237$relaciones$c1237$,$c1238$joins$c1238$]::text[], 60, true)
 on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
 
-delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1027$tablas-q03-cardinalidad$c1027$);
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1239$tablas-q03-cardinalidad$c1239$);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1027$tablas-q03-cardinalidad$c1027$), $c1028$a$c1028$, $c1029$4 veces, una por cada pedido.$c1029$, true, null, 0);
+values ((select id from public.theory_questions where slug = $c1239$tablas-q03-cardinalidad$c1239$), $c1240$a$c1240$, $c1241$4 veces, una por cada pedido.$c1241$, true, null, 0);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1027$tablas-q03-cardinalidad$c1027$), $c1030$b$c1030$, $c1031$1 vez, porque es un solo cliente.$c1031$, false, $c1032$En una relación uno a muchos, la fila del lado «uno» se repite por cada fila del lado «muchos».$c1032$, 1);
+values ((select id from public.theory_questions where slug = $c1239$tablas-q03-cardinalidad$c1239$), $c1242$b$c1242$, $c1243$1 vez, porque es un solo cliente.$c1243$, false, $c1244$En una relación uno a muchos, la fila del lado «uno» se repite por cada fila del lado «muchos».$c1244$, 1);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1027$tablas-q03-cardinalidad$c1027$), $c1033$c$c1033$, $c1034$Depende del orden de las tablas en la consulta.$c1034$, false, $c1035$El número de coincidencias no depende del orden en que nombres las tablas.$c1035$, 2);
+values ((select id from public.theory_questions where slug = $c1239$tablas-q03-cardinalidad$c1239$), $c1245$c$c1245$, $c1246$Depende del orden de las tablas en la consulta.$c1246$, false, $c1247$El número de coincidencias no depende del orden en que nombres las tablas.$c1247$, 2);
 
 insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
-values ((select id from public.sections where slug = $c1036$tablas-filas-columnas-tipos$c1036$), (select id from public.lessons where slug = $c1037$tipos-de-datos$c1037$), $c1038$tablas-q04-tipo-dinero$c1038$, $c1039$single$c1039$, $c1040$easy$c1040$, $c1041$Tipos numéricos$c1041$, $c1042$¿Qué tipo conviene para guardar importes de dinero como `total_amount`?$c1042$, null, $c1043$`numeric` representa decimales exactos; por eso se usa para dinero. Los flotantes son adecuados para mediciones, no para importes.$c1043$, null, null, array[$c1044$tipos$c1044$,$c1045$dinero$c1045$]::text[], 40, true)
+values ((select id from public.sections where slug = $c1248$tablas-filas-columnas-tipos$c1248$), (select id from public.lessons where slug = $c1249$tipos-de-datos$c1249$), $c1250$tablas-q04-tipo-dinero$c1250$, $c1251$single$c1251$, $c1252$easy$c1252$, $c1253$Tipos numéricos$c1253$, $c1254$¿Qué tipo conviene para guardar importes de dinero como `total_amount`?$c1254$, null, $c1255$`numeric` representa decimales exactos; por eso se usa para dinero. Los flotantes son adecuados para mediciones, no para importes.$c1255$, null, null, array[$c1256$tipos$c1256$,$c1257$dinero$c1257$]::text[], 40, true)
 on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
 
-delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1046$tablas-q04-tipo-dinero$c1046$);
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1258$tablas-q04-tipo-dinero$c1258$);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1046$tablas-q04-tipo-dinero$c1046$), $c1047$a$c1047$, $c1048$`numeric(12,2)`, porque es exacto en decimales.$c1048$, true, null, 0);
+values ((select id from public.theory_questions where slug = $c1258$tablas-q04-tipo-dinero$c1258$), $c1259$a$c1259$, $c1260$`numeric(12,2)`, porque es exacto en decimales.$c1260$, true, null, 0);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1046$tablas-q04-tipo-dinero$c1046$), $c1049$b$c1049$, $c1050$`double precision`, porque es más rápido.$c1050$, false, $c1051$Los flotantes binarios acumulan errores de redondeo en sumas largas; no sirven para contabilidad.$c1051$, 1);
+values ((select id from public.theory_questions where slug = $c1258$tablas-q04-tipo-dinero$c1258$), $c1261$b$c1261$, $c1262$`double precision`, porque es más rápido.$c1262$, false, $c1263$Los flotantes binarios acumulan errores de redondeo en sumas largas; no sirven para contabilidad.$c1263$, 1);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1046$tablas-q04-tipo-dinero$c1046$), $c1052$c$c1052$, $c1053$`text`, para conservar el formato con separador de miles.$c1053$, false, $c1054$Como texto no se puede sumar ni ordenar numéricamente («1000» < «200»).$c1054$, 2);
+values ((select id from public.theory_questions where slug = $c1258$tablas-q04-tipo-dinero$c1258$), $c1264$c$c1264$, $c1265$`text`, para conservar el formato con separador de miles.$c1265$, false, $c1266$Como texto no se puede sumar ni ordenar numéricamente («1000» < «200»).$c1266$, 2);
 
 insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
-values ((select id from public.sections where slug = $c1055$tablas-filas-columnas-tipos$c1055$), (select id from public.lessons where slug = $c1056$tipos-de-datos$c1056$), $c1057$tablas-q05-orden-texto$c1057$, $c1058$query_interpretation$c1058$, $c1059$intermediate$c1059$, $c1060$Tipos y ordenamiento$c1060$, $c1061$Una columna `precio_txt` de tipo `text` contiene '1000', '200' y '35'. ¿Qué devuelve esta consulta?$c1061$, $c1062$```sql
+values ((select id from public.sections where slug = $c1267$tablas-filas-columnas-tipos$c1267$), (select id from public.lessons where slug = $c1268$tipos-de-datos$c1268$), $c1269$tablas-q05-orden-texto$c1269$, $c1270$query_interpretation$c1270$, $c1271$intermediate$c1271$, $c1272$Tipos y ordenamiento$c1272$, $c1273$Una columna `precio_txt` de tipo `text` contiene '1000', '200' y '35'. ¿Qué devuelve esta consulta?$c1273$, $c1274$```sql
 SELECT precio_txt
 FROM precios
 ORDER BY precio_txt;
-```$c1062$, $c1063$El texto se ordena carácter a carácter. Para ordenar como número hay que convertir (`precio_txt::numeric`) o, mejor, guardar la columna con el tipo correcto.$c1063$, null, null, array[$c1064$tipos$c1064$,$c1065$orden$c1065$]::text[], 60, true)
+```$c1274$, $c1275$El texto se ordena carácter a carácter. Para ordenar como número hay que convertir (`precio_txt::numeric`) o, mejor, guardar la columna con el tipo correcto.$c1275$, null, null, array[$c1276$tipos$c1276$,$c1277$orden$c1277$]::text[], 60, true)
 on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
 
-delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1066$tablas-q05-orden-texto$c1066$);
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1278$tablas-q05-orden-texto$c1278$);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1066$tablas-q05-orden-texto$c1066$), $c1067$a$c1067$, $c1068$'1000', '200', '35' (orden alfabético).$c1068$, true, null, 0);
+values ((select id from public.theory_questions where slug = $c1278$tablas-q05-orden-texto$c1278$), $c1279$a$c1279$, $c1280$'1000', '200', '35' (orden alfabético).$c1280$, true, null, 0);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1066$tablas-q05-orden-texto$c1066$), $c1069$b$c1069$, $c1070$'35', '200', '1000' (orden numérico).$c1070$, false, $c1071$Al ser texto, se compara carácter a carácter: '1' < '2' < '3'.$c1071$, 1);
+values ((select id from public.theory_questions where slug = $c1278$tablas-q05-orden-texto$c1278$), $c1281$b$c1281$, $c1282$'35', '200', '1000' (orden numérico).$c1282$, false, $c1283$Al ser texto, se compara carácter a carácter: '1' < '2' < '3'.$c1283$, 1);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1066$tablas-q05-orden-texto$c1066$), $c1072$c$c1072$, $c1073$Un error, porque no se puede ordenar texto.$c1073$, false, $c1074$El texto sí se ordena, pero alfabéticamente, que es justamente el problema.$c1074$, 2);
+values ((select id from public.theory_questions where slug = $c1278$tablas-q05-orden-texto$c1278$), $c1284$c$c1284$, $c1285$Un error, porque no se puede ordenar texto.$c1285$, false, $c1286$El texto sí se ordena, pero alfabéticamente, que es justamente el problema.$c1286$, 2);
 
 insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
-values ((select id from public.sections where slug = $c1075$tablas-filas-columnas-tipos$c1075$), (select id from public.lessons where slug = $c1076$tipos-de-datos$c1076$), $c1077$tablas-q06-timestamptz$c1077$, $c1078$true_false$c1078$, $c1079$intermediate$c1079$, $c1080$Fechas y zonas horarias$c1080$, $c1081$Un valor `timestamptz` representa un instante absoluto y puede mostrarse con fecha distinta según la zona horaria de la sesión.$c1081$, null, $c1082$Por eso los cortes por día deben hacerse en la zona horaria del negocio, tema que se profundiza en la sección de fechas.$c1082$, null, null, array[$c1083$tipos$c1083$,$c1084$fechas$c1084$]::text[], 35, true)
+values ((select id from public.sections where slug = $c1287$tablas-filas-columnas-tipos$c1287$), (select id from public.lessons where slug = $c1288$tipos-de-datos$c1288$), $c1289$tablas-q06-timestamptz$c1289$, $c1290$true_false$c1290$, $c1291$intermediate$c1291$, $c1292$Fechas y zonas horarias$c1292$, $c1293$Un valor `timestamptz` representa un instante absoluto y puede mostrarse con fecha distinta según la zona horaria de la sesión.$c1293$, null, $c1294$Por eso los cortes por día deben hacerse en la zona horaria del negocio, tema que se profundiza en la sección de fechas.$c1294$, null, null, array[$c1295$tipos$c1295$,$c1296$fechas$c1296$]::text[], 35, true)
 on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
 
-delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1085$tablas-q06-timestamptz$c1085$);
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1297$tablas-q06-timestamptz$c1297$);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1085$tablas-q06-timestamptz$c1085$), $c1086$a$c1086$, $c1087$Verdadero$c1087$, true, null, 0);
+values ((select id from public.theory_questions where slug = $c1297$tablas-q06-timestamptz$c1297$), $c1298$a$c1298$, $c1299$Verdadero$c1299$, true, null, 0);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1085$tablas-q06-timestamptz$c1085$), $c1088$b$c1088$, $c1089$Falso$c1089$, false, $c1090$Un pedido de las 23:30 en Buenos Aires aparece al día siguiente si se muestra en UTC; el instante es el mismo, la representación cambia.$c1090$, 1);
+values ((select id from public.theory_questions where slug = $c1297$tablas-q06-timestamptz$c1297$), $c1300$b$c1300$, $c1301$Falso$c1301$, false, $c1302$Un pedido de las 23:30 en Buenos Aires aparece al día siguiente si se muestra en UTC; el instante es el mismo, la representación cambia.$c1302$, 1);
 
 insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
-values ((select id from public.sections where slug = $c1091$tablas-filas-columnas-tipos$c1091$), (select id from public.lessons where slug = $c1092$tipos-de-datos$c1092$), $c1093$tablas-q07-literal-texto$c1093$, $c1094$error_diagnosis$c1094$, $c1095$easy$c1095$, $c1096$Literales$c1096$, $c1097$Esta consulta falla con `column "MX" does not exist`. ¿Por qué?$c1097$, $c1098$```sql
+values ((select id from public.sections where slug = $c1303$tablas-filas-columnas-tipos$c1303$), (select id from public.lessons where slug = $c1304$tipos-de-datos$c1304$), $c1305$tablas-q07-literal-texto$c1305$, $c1306$error_diagnosis$c1306$, $c1307$easy$c1307$, $c1308$Literales$c1308$, $c1309$Esta consulta falla con `column "MX" does not exist`. ¿Por qué?$c1309$, $c1310$```sql
 SELECT full_name
 FROM customers
 WHERE country = "MX";
-```$c1098$, $c1099$En PostgreSQL las comillas dobles delimitan identificadores (nombres) y las simples delimitan literales de texto.$c1099$, null, null, array[$c1100$tipos$c1100$,$c1101$sintaxis$c1101$]::text[], 45, true)
+```$c1310$, $c1311$En PostgreSQL las comillas dobles delimitan identificadores (nombres) y las simples delimitan literales de texto.$c1311$, null, null, array[$c1312$tipos$c1312$,$c1313$sintaxis$c1313$]::text[], 45, true)
 on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
 
-delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1102$tablas-q07-literal-texto$c1102$);
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1314$tablas-q07-literal-texto$c1314$);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1102$tablas-q07-literal-texto$c1102$), $c1103$a$c1103$, $c1104$Las comillas dobles indican un nombre de columna; el texto va con comillas simples: `'MX'`.$c1104$, true, null, 0);
+values ((select id from public.theory_questions where slug = $c1314$tablas-q07-literal-texto$c1314$), $c1315$a$c1315$, $c1316$Las comillas dobles indican un nombre de columna; el texto va con comillas simples: `'MX'`.$c1316$, true, null, 0);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1102$tablas-q07-literal-texto$c1102$), $c1105$b$c1105$, $c1106$`country` no existe en `customers`.$c1106$, false, $c1107$La columna existe; el error menciona `MX`, que fue interpretado como identificador.$c1107$, 1);
+values ((select id from public.theory_questions where slug = $c1314$tablas-q07-literal-texto$c1314$), $c1317$b$c1317$, $c1318$`country` no existe en `customers`.$c1318$, false, $c1319$La columna existe; el error menciona `MX`, que fue interpretado como identificador.$c1319$, 1);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1102$tablas-q07-literal-texto$c1102$), $c1108$c$c1108$, $c1109$Falta un `LIMIT`.$c1109$, false, $c1110$`LIMIT` es opcional y no tiene relación con el error.$c1110$, 2);
+values ((select id from public.theory_questions where slug = $c1314$tablas-q07-literal-texto$c1314$), $c1320$c$c1320$, $c1321$Falta un `LIMIT`.$c1321$, false, $c1322$`LIMIT` es opcional y no tiene relación con el error.$c1322$, 2);
 
 insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
-values ((select id from public.sections where slug = $c1111$tablas-filas-columnas-tipos$c1111$), (select id from public.lessons where slug = $c1112$tipos-de-datos$c1112$), $c1113$tablas-q08-fecha-iso$c1113$, $c1114$single$c1114$, $c1115$easy$c1115$, $c1116$Formato de fechas$c1116$, $c1117$¿Cuál es la forma recomendada de escribir la fecha 2 de marzo de 2025 en SQL?$c1117$, null, $c1118$El formato ISO 8601 (AAAA-MM-DD) es inequívoco y es el estándar en SQL.$c1118$, null, null, array[$c1119$fechas$c1119$]::text[], 35, true)
+values ((select id from public.sections where slug = $c1323$tablas-filas-columnas-tipos$c1323$), (select id from public.lessons where slug = $c1324$tipos-de-datos$c1324$), $c1325$tablas-q08-fecha-iso$c1325$, $c1326$single$c1326$, $c1327$easy$c1327$, $c1328$Formato de fechas$c1328$, $c1329$¿Cuál es la forma recomendada de escribir la fecha 2 de marzo de 2025 en SQL?$c1329$, null, $c1330$El formato ISO 8601 (AAAA-MM-DD) es inequívoco y es el estándar en SQL.$c1330$, null, null, array[$c1331$fechas$c1331$]::text[], 35, true)
 on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
 
-delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1120$tablas-q08-fecha-iso$c1120$);
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1332$tablas-q08-fecha-iso$c1332$);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1120$tablas-q08-fecha-iso$c1120$), $c1121$a$c1121$, $c1122$`DATE '2025-03-02'`$c1122$, true, null, 0);
+values ((select id from public.theory_questions where slug = $c1332$tablas-q08-fecha-iso$c1332$), $c1333$a$c1333$, $c1334$`DATE '2025-03-02'`$c1334$, true, null, 0);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1120$tablas-q08-fecha-iso$c1120$), $c1123$b$c1123$, $c1124$`'02/03/2025'`$c1124$, false, $c1125$Es ambiguo: puede leerse como 2 de marzo o 3 de febrero según la configuración.$c1125$, 1);
+values ((select id from public.theory_questions where slug = $c1332$tablas-q08-fecha-iso$c1332$), $c1335$b$c1335$, $c1336$`'02/03/2025'`$c1336$, false, $c1337$Es ambiguo: puede leerse como 2 de marzo o 3 de febrero según la configuración.$c1337$, 1);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1120$tablas-q08-fecha-iso$c1120$), $c1126$c$c1126$, $c1127$`'2 de marzo de 2025'`$c1127$, false, $c1128$El motor no interpreta texto en lenguaje natural.$c1128$, 2);
+values ((select id from public.theory_questions where slug = $c1332$tablas-q08-fecha-iso$c1332$), $c1338$c$c1338$, $c1339$`'2 de marzo de 2025'`$c1339$, false, $c1340$El motor no interpreta texto en lenguaje natural.$c1340$, 2);
 
 insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
-values ((select id from public.sections where slug = $c1129$tablas-filas-columnas-tipos$c1129$), (select id from public.lessons where slug = $c1130$tipos-de-datos$c1130$), $c1131$tablas-q09-tipos-matching$c1131$, $c1132$matching$c1132$, $c1133$easy$c1133$, $c1134$Tipos de datos$c1134$, $c1135$Relaciona cada columna de TiendaViva con el tipo de dato más adecuado.$c1135$, null, $c1136$Importes en `numeric`, banderas en `boolean`, instantes en `timestamptz` y conteos en `integer`.$c1136$, null, $c1137$[{"left":"orders.total_amount","right":"numeric(12,2)"},{"left":"products.is_active","right":"boolean"},{"left":"orders.created_at","right":"timestamptz"},{"left":"order_items.quantity","right":"integer"}]$c1137$::jsonb, array[$c1138$tipos$c1138$]::text[], 60, true)
+values ((select id from public.sections where slug = $c1341$tablas-filas-columnas-tipos$c1341$), (select id from public.lessons where slug = $c1342$tipos-de-datos$c1342$), $c1343$tablas-q09-tipos-matching$c1343$, $c1344$matching$c1344$, $c1345$easy$c1345$, $c1346$Tipos de datos$c1346$, $c1347$Relaciona cada columna de TiendaViva con el tipo de dato más adecuado.$c1347$, null, $c1348$Importes en `numeric`, banderas en `boolean`, instantes en `timestamptz` y conteos en `integer`.$c1348$, null, $c1349$[{"left":"orders.total_amount","right":"numeric(12,2)"},{"left":"products.is_active","right":"boolean"},{"left":"orders.created_at","right":"timestamptz"},{"left":"order_items.quantity","right":"integer"}]$c1349$::jsonb, array[$c1350$tipos$c1350$]::text[], 60, true)
 on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
 
-delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1139$tablas-q09-tipos-matching$c1139$);
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1351$tablas-q09-tipos-matching$c1351$);
 
 insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
-values ((select id from public.sections where slug = $c1140$tablas-filas-columnas-tipos$c1140$), (select id from public.lessons where slug = $c1141$anatomia-de-una-tabla$c1141$), $c1142$tablas-q10-null-pk$c1142$, $c1143$single$c1143$, $c1144$intermediate$c1144$, $c1145$Integridad$c1145$, $c1146$Esta consulta sobre `customers` devuelve 0 filas. ¿Qué confirma?$c1146$, $c1147$```sql
+values ((select id from public.sections where slug = $c1352$tablas-filas-columnas-tipos$c1352$), (select id from public.lessons where slug = $c1353$anatomia-de-una-tabla$c1353$), $c1354$tablas-q10-null-pk$c1354$, $c1355$single$c1355$, $c1356$intermediate$c1356$, $c1357$Integridad$c1357$, $c1358$Esta consulta sobre `customers` devuelve 0 filas. ¿Qué confirma?$c1358$, $c1359$```sql
 SELECT id, COUNT(*)
 FROM customers
 GROUP BY id
 HAVING COUNT(*) > 1;
-```$c1147$, $c1148$Agrupar por la clave y quedarse con grupos de más de una fila es la forma clásica de auditar unicidad.$c1148$, null, null, array[$c1149$claves$c1149$,$c1150$calidad$c1150$]::text[], 50, true)
+```$c1359$, $c1360$Agrupar por la clave y quedarse con grupos de más de una fila es la forma clásica de auditar unicidad.$c1360$, null, null, array[$c1361$claves$c1361$,$c1362$calidad$c1362$]::text[], 50, true)
 on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
 
-delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1151$tablas-q10-null-pk$c1151$);
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1363$tablas-q10-null-pk$c1363$);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1151$tablas-q10-null-pk$c1151$), $c1152$a$c1152$, $c1153$Que ningún `id` se repite: la clave primaria se cumple.$c1153$, true, null, 0);
+values ((select id from public.theory_questions where slug = $c1363$tablas-q10-null-pk$c1363$), $c1364$a$c1364$, $c1365$Que ningún `id` se repite: la clave primaria se cumple.$c1365$, true, null, 0);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1151$tablas-q10-null-pk$c1151$), $c1154$b$c1154$, $c1155$Que la tabla está vacía.$c1155$, false, $c1156$Una tabla con filas únicas también devuelve 0 filas aquí; la consulta solo busca repetidos.$c1156$, 1);
+values ((select id from public.theory_questions where slug = $c1363$tablas-q10-null-pk$c1363$), $c1366$b$c1366$, $c1367$Que la tabla está vacía.$c1367$, false, $c1368$Una tabla con filas únicas también devuelve 0 filas aquí; la consulta solo busca repetidos.$c1368$, 1);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1151$tablas-q10-null-pk$c1151$), $c1157$c$c1157$, $c1158$Que todos los clientes tienen un solo pedido.$c1158$, false, $c1159$La consulta no mira pedidos; cuenta repeticiones de `id` dentro de `customers`.$c1159$, 2);
+values ((select id from public.theory_questions where slug = $c1363$tablas-q10-null-pk$c1363$), $c1369$c$c1369$, $c1370$Que todos los clientes tienen un solo pedido.$c1370$, false, $c1371$La consulta no mira pedidos; cuenta repeticiones de `id` dentro de `customers`.$c1371$, 2);
 
 insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
-values ((select id from public.sections where slug = $c1160$select$c1160$), (select id from public.lessons where slug = $c1161$select-columnas$c1161$), $c1162$select-q01-basico$c1162$, $c1163$single$c1163$, $c1164$very_easy$c1164$, $c1165$Sintaxis de SELECT$c1165$, $c1166$¿Qué devuelve `SELECT full_name, country FROM customers;`?$c1166$, null, $c1167$`SELECT` define las columnas; `FROM` la tabla. Sin `WHERE` participan todas las filas.$c1167$, null, null, array[$c1168$select$c1168$]::text[], 30, true)
+values ((select id from public.sections where slug = $c1372$select$c1372$), (select id from public.lessons where slug = $c1373$select-columnas$c1373$), $c1374$select-q01-basico$c1374$, $c1375$single$c1375$, $c1376$very_easy$c1376$, $c1377$Sintaxis de SELECT$c1377$, $c1378$¿Qué devuelve `SELECT full_name, country FROM customers;`?$c1378$, null, $c1379$`SELECT` define las columnas; `FROM` la tabla. Sin `WHERE` participan todas las filas.$c1379$, null, null, array[$c1380$select$c1380$]::text[], 30, true)
 on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
 
-delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1169$select-q01-basico$c1169$);
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1381$select-q01-basico$c1381$);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1169$select-q01-basico$c1169$), $c1170$a$c1170$, $c1171$Las columnas `full_name` y `country` de todas las filas de `customers`.$c1171$, true, null, 0);
+values ((select id from public.theory_questions where slug = $c1381$select-q01-basico$c1381$), $c1382$a$c1382$, $c1383$Las columnas `full_name` y `country` de todas las filas de `customers`.$c1383$, true, null, 0);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1169$select-q01-basico$c1169$), $c1172$b$c1172$, $c1173$Solo la primera fila de `customers`.$c1173$, false, $c1174$Sin `LIMIT` ni filtro, se devuelven todas las filas.$c1174$, 1);
+values ((select id from public.theory_questions where slug = $c1381$select-q01-basico$c1381$), $c1384$b$c1384$, $c1385$Solo la primera fila de `customers`.$c1385$, false, $c1386$Sin `LIMIT` ni filtro, se devuelven todas las filas.$c1386$, 1);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1169$select-q01-basico$c1169$), $c1175$c$c1175$, $c1176$Todas las columnas de `customers`.$c1176$, false, $c1177$Se devuelven únicamente las columnas listadas después de `SELECT`.$c1177$, 2);
+values ((select id from public.theory_questions where slug = $c1381$select-q01-basico$c1381$), $c1387$c$c1387$, $c1388$Todas las columnas de `customers`.$c1388$, false, $c1389$Se devuelven únicamente las columnas listadas después de `SELECT`.$c1389$, 2);
 
 insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
-values ((select id from public.sections where slug = $c1178$select$c1178$), (select id from public.lessons where slug = $c1179$select-columnas$c1179$), $c1180$select-q02-coma-final$c1180$, $c1181$error_diagnosis$c1181$, $c1182$easy$c1182$, $c1183$Errores de sintaxis$c1183$, $c1184$Esta consulta produce `syntax error at or near "FROM"`. ¿Cuál es la causa?$c1184$, $c1185$```sql
+values ((select id from public.sections where slug = $c1390$select$c1390$), (select id from public.lessons where slug = $c1391$select-columnas$c1391$), $c1392$select-q02-coma-final$c1392$, $c1393$error_diagnosis$c1393$, $c1394$easy$c1394$, $c1395$Errores de sintaxis$c1395$, $c1396$Esta consulta produce `syntax error at or near "FROM"`. ¿Cuál es la causa?$c1396$, $c1397$```sql
 SELECT id, full_name,
 FROM customers;
-```$c1185$, $c1186$La lista de columnas se separa con comas, pero no lleva coma final antes de `FROM`. Es uno de los errores más frecuentes al editar consultas.$c1186$, null, null, array[$c1187$select$c1187$,$c1188$sintaxis$c1188$]::text[], 40, true)
+```$c1397$, $c1398$La lista de columnas se separa con comas, pero no lleva coma final antes de `FROM`. Es uno de los errores más frecuentes al editar consultas.$c1398$, null, null, array[$c1399$select$c1399$,$c1400$sintaxis$c1400$]::text[], 40, true)
 on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
 
-delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1189$select-q02-coma-final$c1189$);
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1401$select-q02-coma-final$c1401$);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1189$select-q02-coma-final$c1189$), $c1190$a$c1190$, $c1191$Hay una coma sobrante después de `full_name`.$c1191$, true, null, 0);
+values ((select id from public.theory_questions where slug = $c1401$select-q02-coma-final$c1401$), $c1402$a$c1402$, $c1403$Hay una coma sobrante después de `full_name`.$c1403$, true, null, 0);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1189$select-q02-coma-final$c1189$), $c1192$b$c1192$, $c1193$Falta un punto y coma.$c1193$, false, $c1194$El punto y coma está presente; el problema es la coma antes de `FROM`.$c1194$, 1);
+values ((select id from public.theory_questions where slug = $c1401$select-q02-coma-final$c1401$), $c1404$b$c1404$, $c1405$Falta un punto y coma.$c1405$, false, $c1406$El punto y coma está presente; el problema es la coma antes de `FROM`.$c1406$, 1);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1189$select-q02-coma-final$c1189$), $c1195$c$c1195$, $c1196$`FROM` debe ir antes de `SELECT`.$c1196$, false, $c1197$El orden `SELECT ... FROM ...` es correcto.$c1197$, 2);
+values ((select id from public.theory_questions where slug = $c1401$select-q02-coma-final$c1401$), $c1407$c$c1407$, $c1408$`FROM` debe ir antes de `SELECT`.$c1408$, false, $c1409$El orden `SELECT ... FROM ...` es correcto.$c1409$, 2);
 
 insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
-values ((select id from public.sections where slug = $c1198$select$c1198$), (select id from public.lessons where slug = $c1199$select-columnas$c1199$), $c1200$select-q03-orden-columnas$c1200$, $c1201$true_false$c1201$, $c1202$very_easy$c1202$, $c1203$Resultado de SELECT$c1203$, $c1204$El orden de las columnas en el resultado es el mismo en que se escriben después de `SELECT`.$c1204$, null, $c1205$Tú controlas el orden de las columnas; el de las filas solo se garantiza con `ORDER BY`.$c1205$, null, null, array[$c1206$select$c1206$]::text[], 30, true)
+values ((select id from public.sections where slug = $c1410$select$c1410$), (select id from public.lessons where slug = $c1411$select-columnas$c1411$), $c1412$select-q03-orden-columnas$c1412$, $c1413$true_false$c1413$, $c1414$very_easy$c1414$, $c1415$Resultado de SELECT$c1415$, $c1416$El orden de las columnas en el resultado es el mismo en que se escriben después de `SELECT`.$c1416$, null, $c1417$Tú controlas el orden de las columnas; el de las filas solo se garantiza con `ORDER BY`.$c1417$, null, null, array[$c1418$select$c1418$]::text[], 30, true)
 on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
 
-delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1207$select-q03-orden-columnas$c1207$);
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1419$select-q03-orden-columnas$c1419$);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1207$select-q03-orden-columnas$c1207$), $c1208$a$c1208$, $c1209$Verdadero$c1209$, true, null, 0);
+values ((select id from public.theory_questions where slug = $c1419$select-q03-orden-columnas$c1419$), $c1420$a$c1420$, $c1421$Verdadero$c1421$, true, null, 0);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1207$select-q03-orden-columnas$c1207$), $c1210$b$c1210$, $c1211$Falso$c1211$, false, $c1212$Las columnas salen en el orden en que las listas; el orden de las *filas* es el que no está garantizado sin `ORDER BY`.$c1212$, 1);
+values ((select id from public.theory_questions where slug = $c1419$select-q03-orden-columnas$c1419$), $c1422$b$c1422$, $c1423$Falso$c1423$, false, $c1424$Las columnas salen en el orden en que las listas; el orden de las *filas* es el que no está garantizado sin `ORDER BY`.$c1424$, 1);
 
 insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
-values ((select id from public.sections where slug = $c1213$select$c1213$), (select id from public.lessons where slug = $c1214$select-columnas$c1214$), $c1215$select-q04-select-star$c1215$, $c1216$single$c1216$, $c1217$easy$c1217$, $c1218$SELECT *$c1218$, $c1219$¿Cuándo es razonable usar `SELECT *`?$c1219$, null, $c1220$`SELECT *` es útil para conocer una tabla; para entregar resultados conviene nombrar las columnas.$c1220$, null, null, array[$c1221$select$c1221$,$c1222$buenas-practicas$c1222$]::text[], 40, true)
+values ((select id from public.sections where slug = $c1425$select$c1425$), (select id from public.lessons where slug = $c1426$select-columnas$c1426$), $c1427$select-q04-select-star$c1427$, $c1428$single$c1428$, $c1429$easy$c1429$, $c1430$SELECT *$c1430$, $c1431$¿Cuándo es razonable usar `SELECT *`?$c1431$, null, $c1432$`SELECT *` es útil para conocer una tabla; para entregar resultados conviene nombrar las columnas.$c1432$, null, null, array[$c1433$select$c1433$,$c1434$buenas-practicas$c1434$]::text[], 40, true)
 on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
 
-delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1223$select-q04-select-star$c1223$);
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1435$select-q04-select-star$c1435$);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1223$select-q04-select-star$c1223$), $c1224$a$c1224$, $c1225$Al explorar una tabla desconocida, normalmente con `LIMIT`.$c1225$, true, null, 0);
+values ((select id from public.theory_questions where slug = $c1435$select-q04-select-star$c1435$), $c1436$a$c1436$, $c1437$Al explorar una tabla desconocida, normalmente con `LIMIT`.$c1437$, true, null, 0);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1223$select-q04-select-star$c1223$), $c1226$b$c1226$, $c1227$En un reporte mensual que otras personas consumen.$c1227$, false, $c1228$Un reporte debe listar columnas: es más claro y no cambia si la tabla gana columnas.$c1228$, 1);
+values ((select id from public.theory_questions where slug = $c1435$select-q04-select-star$c1435$), $c1438$b$c1438$, $c1439$En un reporte mensual que otras personas consumen.$c1439$, false, $c1440$Un reporte debe listar columnas: es más claro y no cambia si la tabla gana columnas.$c1440$, 1);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1223$select-q04-select-star$c1223$), $c1229$c$c1229$, $c1230$Nunca; está prohibido en SQL.$c1230$, false, $c1231$No está prohibido; es una herramienta de exploración, no de entrega.$c1231$, 2);
+values ((select id from public.theory_questions where slug = $c1435$select-q04-select-star$c1435$), $c1441$c$c1441$, $c1442$Nunca; está prohibido en SQL.$c1442$, false, $c1443$No está prohibido; es una herramienta de exploración, no de entrega.$c1443$, 2);
 
 insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
-values ((select id from public.sections where slug = $c1232$select$c1232$), (select id from public.lessons where slug = $c1233$select-columnas$c1233$), $c1234$select-q05-columna-inexistente$c1234$, $c1235$error_diagnosis$c1235$, $c1236$easy$c1236$, $c1237$Errores comunes$c1237$, $c1238$¿Qué error devuelve esta consulta sobre TiendaViva?$c1238$, $c1239$```sql
+values ((select id from public.sections where slug = $c1444$select$c1444$), (select id from public.lessons where slug = $c1445$select-columnas$c1445$), $c1446$select-q05-columna-inexistente$c1446$, $c1447$error_diagnosis$c1447$, $c1448$easy$c1448$, $c1449$Errores comunes$c1449$, $c1450$¿Qué error devuelve esta consulta sobre TiendaViva?$c1450$, $c1451$```sql
 SELECT nombre
 FROM customers;
-```$c1239$, $c1240$Los nombres de columnas deben coincidir con el esquema. El panel de esquema del ejercicio es tu referencia.$c1240$, null, null, array[$c1241$select$c1241$,$c1242$esquema$c1242$]::text[], 40, true)
+```$c1451$, $c1452$Los nombres de columnas deben coincidir con el esquema. El panel de esquema del ejercicio es tu referencia.$c1452$, null, null, array[$c1453$select$c1453$,$c1454$esquema$c1454$]::text[], 40, true)
 on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
 
-delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1243$select-q05-columna-inexistente$c1243$);
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1455$select-q05-columna-inexistente$c1455$);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1243$select-q05-columna-inexistente$c1243$), $c1244$a$c1244$, $c1245$`column "nombre" does not exist`: la columna se llama `full_name`.$c1245$, true, null, 0);
+values ((select id from public.theory_questions where slug = $c1455$select-q05-columna-inexistente$c1455$), $c1456$a$c1456$, $c1457$`column "nombre" does not exist`: la columna se llama `full_name`.$c1457$, true, null, 0);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1243$select-q05-columna-inexistente$c1243$), $c1246$b$c1246$, $c1247$Ningún error; devuelve los nombres.$c1247$, false, $c1248$SQL no traduce nombres; hay que usar el nombre exacto del esquema.$c1248$, 1);
+values ((select id from public.theory_questions where slug = $c1455$select-q05-columna-inexistente$c1455$), $c1458$b$c1458$, $c1459$Ningún error; devuelve los nombres.$c1459$, false, $c1460$SQL no traduce nombres; hay que usar el nombre exacto del esquema.$c1460$, 1);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1243$select-q05-columna-inexistente$c1243$), $c1249$c$c1249$, $c1250$`relation "customers" does not exist`.$c1250$, false, $c1251$La tabla existe; lo que no existe es la columna `nombre`.$c1251$, 2);
+values ((select id from public.theory_questions where slug = $c1455$select-q05-columna-inexistente$c1455$), $c1461$c$c1461$, $c1462$`relation "customers" does not exist`.$c1462$, false, $c1463$La tabla existe; lo que no existe es la columna `nombre`.$c1463$, 2);
 
 insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
-values ((select id from public.sections where slug = $c1252$select$c1252$), (select id from public.lessons where slug = $c1253$select-columnas$c1253$), $c1254$select-q06-orden-filas$c1254$, $c1255$true_false$c1255$, $c1256$easy$c1256$, $c1257$Orden de filas$c1257$, $c1258$Sin `ORDER BY`, PostgreSQL garantiza que las filas se devuelven en el orden en que fueron insertadas.$c1258$, null, $c1259$El orden de las filas solo está garantizado cuando lo pides explícitamente con `ORDER BY` (sección 13).$c1259$, null, null, array[$c1260$select$c1260$,$c1261$orden$c1261$]::text[], 30, true)
+values ((select id from public.sections where slug = $c1464$select$c1464$), (select id from public.lessons where slug = $c1465$select-columnas$c1465$), $c1466$select-q06-orden-filas$c1466$, $c1467$true_false$c1467$, $c1468$easy$c1468$, $c1469$Orden de filas$c1469$, $c1470$Sin `ORDER BY`, PostgreSQL garantiza que las filas se devuelven en el orden en que fueron insertadas.$c1470$, null, $c1471$El orden de las filas solo está garantizado cuando lo pides explícitamente con `ORDER BY` (sección 13).$c1471$, null, null, array[$c1472$select$c1472$,$c1473$orden$c1473$]::text[], 30, true)
 on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
 
-delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1262$select-q06-orden-filas$c1262$);
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1474$select-q06-orden-filas$c1474$);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1262$select-q06-orden-filas$c1262$), $c1263$a$c1263$, $c1264$Verdadero$c1264$, false, $c1265$Sin `ORDER BY` el orden es indeterminado; puede coincidir con la inserción por casualidad, pero no está garantizado.$c1265$, 0);
+values ((select id from public.theory_questions where slug = $c1474$select-q06-orden-filas$c1474$), $c1475$a$c1475$, $c1476$Verdadero$c1476$, false, $c1477$Sin `ORDER BY` el orden es indeterminado; puede coincidir con la inserción por casualidad, pero no está garantizado.$c1477$, 0);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1262$select-q06-orden-filas$c1262$), $c1266$b$c1266$, $c1267$Falso$c1267$, true, null, 1);
+values ((select id from public.theory_questions where slug = $c1474$select-q06-orden-filas$c1474$), $c1478$b$c1478$, $c1479$Falso$c1479$, true, null, 1);
 
 insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
-values ((select id from public.sections where slug = $c1268$select$c1268$), (select id from public.lessons where slug = $c1269$select-buenas-practicas$c1269$), $c1270$select-q07-comillas$c1270$, $c1271$single$c1271$, $c1272$easy$c1272$, $c1273$Comillas$c1273$, $c1274$¿Qué diferencia hay entre `'MX'` y `"MX"` en PostgreSQL?$c1274$, null, $c1275$Usar comillas dobles para texto es una fuente frecuente de errores `column does not exist`.$c1275$, null, null, array[$c1276$sintaxis$c1276$]::text[], 40, true)
+values ((select id from public.sections where slug = $c1480$select$c1480$), (select id from public.lessons where slug = $c1481$select-buenas-practicas$c1481$), $c1482$select-q07-comillas$c1482$, $c1483$single$c1483$, $c1484$easy$c1484$, $c1485$Comillas$c1485$, $c1486$¿Qué diferencia hay entre `'MX'` y `"MX"` en PostgreSQL?$c1486$, null, $c1487$Usar comillas dobles para texto es una fuente frecuente de errores `column does not exist`.$c1487$, null, null, array[$c1488$sintaxis$c1488$]::text[], 40, true)
 on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
 
-delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1277$select-q07-comillas$c1277$);
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1489$select-q07-comillas$c1489$);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1277$select-q07-comillas$c1277$), $c1278$a$c1278$, $c1279$`'MX'` es un literal de texto; `"MX"` es un identificador (nombre de columna o tabla).$c1279$, true, null, 0);
+values ((select id from public.theory_questions where slug = $c1489$select-q07-comillas$c1489$), $c1490$a$c1490$, $c1491$`'MX'` es un literal de texto; `"MX"` es un identificador (nombre de columna o tabla).$c1491$, true, null, 0);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1277$select-q07-comillas$c1277$), $c1280$b$c1280$, $c1281$Son equivalentes.$c1281$, false, $c1282$No lo son: las comillas dobles delimitan identificadores y las simples, texto.$c1282$, 1);
+values ((select id from public.theory_questions where slug = $c1489$select-q07-comillas$c1489$), $c1492$b$c1492$, $c1493$Son equivalentes.$c1493$, false, $c1494$No lo son: las comillas dobles delimitan identificadores y las simples, texto.$c1494$, 1);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1277$select-q07-comillas$c1277$), $c1283$c$c1283$, $c1284$`"MX"` es texto en mayúsculas y `'MX'` en minúsculas.$c1284$, false, $c1285$Las comillas no cambian mayúsculas; cambian el significado (texto vs. nombre).$c1285$, 2);
+values ((select id from public.theory_questions where slug = $c1489$select-q07-comillas$c1489$), $c1495$c$c1495$, $c1496$`"MX"` es texto en mayúsculas y `'MX'` en minúsculas.$c1496$, false, $c1497$Las comillas no cambian mayúsculas; cambian el significado (texto vs. nombre).$c1497$, 2);
 
 insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
-values ((select id from public.sections where slug = $c1286$select$c1286$), (select id from public.lessons where slug = $c1287$select-buenas-practicas$c1287$), $c1288$select-q08-comentarios$c1288$, $c1289$fill_blank$c1289$, $c1290$very_easy$c1290$, $c1291$Comentarios$c1291$, $c1292$En SQL, un comentario de una sola línea empieza con ________.$c1292$, null, $c1293$`-- texto` comenta hasta el final de la línea; `/* ... */` comenta un bloque.$c1293$, $c1294${"accepted":["--"],"case_sensitive":false}$c1294$::jsonb, null, array[$c1295$sintaxis$c1295$,$c1296$buenas-practicas$c1296$]::text[], 30, true)
+values ((select id from public.sections where slug = $c1498$select$c1498$), (select id from public.lessons where slug = $c1499$select-buenas-practicas$c1499$), $c1500$select-q08-comentarios$c1500$, $c1501$fill_blank$c1501$, $c1502$very_easy$c1502$, $c1503$Comentarios$c1503$, $c1504$En SQL, un comentario de una sola línea empieza con ________.$c1504$, null, $c1505$`-- texto` comenta hasta el final de la línea; `/* ... */` comenta un bloque.$c1505$, $c1506${"accepted":["--"],"case_sensitive":false}$c1506$::jsonb, null, array[$c1507$sintaxis$c1507$,$c1508$buenas-practicas$c1508$]::text[], 30, true)
 on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
 
-delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1297$select-q08-comentarios$c1297$);
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1509$select-q08-comentarios$c1509$);
 
 insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
-values ((select id from public.sections where slug = $c1298$select$c1298$), (select id from public.lessons where slug = $c1299$select-buenas-practicas$c1299$), $c1300$select-q09-legibilidad$c1300$, $c1301$multiple$c1301$, $c1302$easy$c1302$, $c1303$Legibilidad$c1303$, $c1304$¿Cuáles de estas prácticas mejoran la legibilidad de una consulta? Selecciona todas las correctas.$c1304$, null, $c1305$Las consultas se leen muchas más veces de las que se escriben; el formato consistente es parte del trabajo profesional.$c1305$, null, null, array[$c1306$buenas-practicas$c1306$]::text[], 50, true)
+values ((select id from public.sections where slug = $c1510$select$c1510$), (select id from public.lessons where slug = $c1511$select-buenas-practicas$c1511$), $c1512$select-q09-legibilidad$c1512$, $c1513$multiple$c1513$, $c1514$easy$c1514$, $c1515$Legibilidad$c1515$, $c1516$¿Cuáles de estas prácticas mejoran la legibilidad de una consulta? Selecciona todas las correctas.$c1516$, null, $c1517$Las consultas se leen muchas más veces de las que se escriben; el formato consistente es parte del trabajo profesional.$c1517$, null, null, array[$c1518$buenas-practicas$c1518$]::text[], 50, true)
 on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
 
-delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1307$select-q09-legibilidad$c1307$);
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1519$select-q09-legibilidad$c1519$);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1307$select-q09-legibilidad$c1307$), $c1308$a$c1308$, $c1309$Palabras clave en mayúsculas y una cláusula por línea.$c1309$, true, null, 0);
+values ((select id from public.theory_questions where slug = $c1519$select-q09-legibilidad$c1519$), $c1520$a$c1520$, $c1521$Palabras clave en mayúsculas y una cláusula por línea.$c1521$, true, null, 0);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1307$select-q09-legibilidad$c1307$), $c1310$b$c1310$, $c1311$Listar las columnas en lugar de `SELECT *` en reportes.$c1311$, true, null, 1);
+values ((select id from public.theory_questions where slug = $c1519$select-q09-legibilidad$c1519$), $c1522$b$c1522$, $c1523$Listar las columnas en lugar de `SELECT *` en reportes.$c1523$, true, null, 1);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1307$select-q09-legibilidad$c1307$), $c1312$c$c1312$, $c1313$Comentar el porqué de las reglas de negocio.$c1313$, true, null, 2);
+values ((select id from public.theory_questions where slug = $c1519$select-q09-legibilidad$c1519$), $c1524$c$c1524$, $c1525$Comentar el porqué de las reglas de negocio.$c1525$, true, null, 2);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1307$select-q09-legibilidad$c1307$), $c1314$d$c1314$, $c1315$Escribir toda la consulta en una sola línea para ahorrar espacio.$c1315$, false, $c1316$Las líneas largas dificultan la lectura y la revisión de cambios.$c1316$, 3);
+values ((select id from public.theory_questions where slug = $c1519$select-q09-legibilidad$c1519$), $c1526$d$c1526$, $c1527$Escribir toda la consulta en una sola línea para ahorrar espacio.$c1527$, false, $c1528$Las líneas largas dificultan la lectura y la revisión de cambios.$c1528$, 3);
 
 insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
-values ((select id from public.sections where slug = $c1317$select$c1317$), (select id from public.lessons where slug = $c1318$select-buenas-practicas$c1318$), $c1319$select-q10-mayusculas-nombres$c1319$, $c1320$query_interpretation$c1320$, $c1321$intermediate$c1321$, $c1322$Identificadores$c1322$, $c1323$¿Funciona esta consulta en PostgreSQL sobre la tabla `customers` con columna `full_name`?$c1323$, $c1324$```sql
+values ((select id from public.sections where slug = $c1529$select$c1529$), (select id from public.lessons where slug = $c1530$select-buenas-practicas$c1530$), $c1531$select-q10-mayusculas-nombres$c1531$, $c1532$query_interpretation$c1532$, $c1533$intermediate$c1533$, $c1534$Identificadores$c1534$, $c1535$¿Funciona esta consulta en PostgreSQL sobre la tabla `customers` con columna `full_name`?$c1535$, $c1536$```sql
 select FULL_NAME from Customers;
-```$c1324$, $c1325$Funciona, pero mezclar estilos dificulta la lectura. La convención del curso es palabras clave en mayúsculas y nombres en minúsculas.$c1325$, null, null, array[$c1326$sintaxis$c1326$]::text[], 50, true)
+```$c1536$, $c1537$Funciona, pero mezclar estilos dificulta la lectura. La convención del curso es palabras clave en mayúsculas y nombres en minúsculas.$c1537$, null, null, array[$c1538$sintaxis$c1538$]::text[], 50, true)
 on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
 
-delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1327$select-q10-mayusculas-nombres$c1327$);
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1539$select-q10-mayusculas-nombres$c1539$);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1327$select-q10-mayusculas-nombres$c1327$), $c1328$a$c1328$, $c1329$Sí: los identificadores sin comillas se convierten a minúsculas, así que equivale a `select full_name from customers`.$c1329$, true, null, 0);
+values ((select id from public.theory_questions where slug = $c1539$select-q10-mayusculas-nombres$c1539$), $c1540$a$c1540$, $c1541$Sí: los identificadores sin comillas se convierten a minúsculas, así que equivale a `select full_name from customers`.$c1541$, true, null, 0);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1327$select-q10-mayusculas-nombres$c1327$), $c1330$b$c1330$, $c1331$No: `FULL_NAME` y `Customers` no existen con esas mayúsculas.$c1331$, false, $c1332$Sin comillas dobles, PostgreSQL normaliza los identificadores a minúsculas.$c1332$, 1);
+values ((select id from public.theory_questions where slug = $c1539$select-q10-mayusculas-nombres$c1539$), $c1542$b$c1542$, $c1543$No: `FULL_NAME` y `Customers` no existen con esas mayúsculas.$c1543$, false, $c1544$Sin comillas dobles, PostgreSQL normaliza los identificadores a minúsculas.$c1544$, 1);
 
 insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
-values ((select id from public.theory_questions where slug = $c1327$select-q10-mayusculas-nombres$c1327$), $c1333$c$c1333$, $c1334$No: `select` debe ir en mayúsculas.$c1334$, false, $c1335$Las palabras clave no distinguen mayúsculas; usarlas en mayúsculas es convención, no requisito.$c1335$, 2);
+values ((select id from public.theory_questions where slug = $c1539$select-q10-mayusculas-nombres$c1539$), $c1545$c$c1545$, $c1546$No: `select` debe ir en mayúsculas.$c1546$, false, $c1547$Las palabras clave no distinguen mayúsculas; usarlas en mayúsculas es convención, no requisito.$c1547$, 2);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c1548$alias-y-expresiones$c1548$), (select id from public.lessons where slug = $c1549$alias-y-expresiones-basico$c1549$), $c1550$alias-q01-nombre-columna$c1550$, $c1551$single$c1551$, $c1552$very_easy$c1552$, $c1553$Alias de columna$c1553$, $c1554$¿Cómo se llama la segunda columna del resultado?$c1554$, $c1555$```sql
+SELECT id, subtotal - discount AS neto
+FROM orders;
+```$c1555$, $c1556$`AS` asigna el nombre con el que la columna aparece en el resultado. Sin alias, PostgreSQL muestra `?column?` para expresiones.$c1556$, null, null, array[$c1557$alias$c1557$]::text[], 30, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1558$alias-q01-nombre-columna$c1558$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1558$alias-q01-nombre-columna$c1558$), $c1559$a$c1559$, $c1560$`neto`$c1560$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1558$alias-q01-nombre-columna$c1558$), $c1561$b$c1561$, $c1562$`subtotal - discount`$c1562$, false, $c1563$El alias reemplaza la expresión como nombre de la columna.$c1563$, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1558$alias-q01-nombre-columna$c1558$), $c1564$c$c1564$, $c1565$`?column?`$c1565$, false, $c1566$Ese es el nombre que aparece cuando **no** hay alias.$c1566$, 2);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c1567$alias-y-expresiones$c1567$), (select id from public.lessons where slug = $c1568$alias-y-expresiones-basico$c1568$), $c1569$alias-q02-division-entera$c1569$, $c1570$single$c1570$, $c1571$easy$c1571$, $c1572$Aritmética$c1572$, $c1573$¿Qué devuelve `SELECT 7 / 2;` en PostgreSQL?$c1573$, null, $c1574$La división entre dos enteros descarta decimales. Convierte uno de los operandos (`7 / 2.0` o `7::numeric / 2`) cuando necesites el resultado exacto.$c1574$, null, null, array[$c1575$alias$c1575$,$c1576$aritmetica$c1576$]::text[], 40, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1577$alias-q02-division-entera$c1577$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1577$alias-q02-division-entera$c1577$), $c1578$a$c1578$, $c1579$`3`$c1579$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1577$alias-q02-division-entera$c1577$), $c1580$b$c1580$, $c1581$`3.5`$c1581$, false, $c1582$Ambos operandos son enteros, así que la división es entera. Para `3.5` escribe `7 / 2.0`.$c1582$, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1577$alias-q02-division-entera$c1577$), $c1583$c$c1583$, $c1584$Un error de tipos.$c1584$, false, $c1585$Dividir enteros es válido; simplemente descarta la parte decimal.$c1585$, 2);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c1586$alias-y-expresiones$c1586$), (select id from public.lessons where slug = $c1587$alias-y-expresiones-basico$c1587$), $c1588$alias-q03-alias-en-where$c1588$, $c1589$error_diagnosis$c1589$, $c1590$easy$c1590$, $c1591$Orden de evaluación$c1591$, $c1592$Esta consulta falla con `column "neto" does not exist`. ¿Por qué?$c1592$, $c1593$```sql
+SELECT id, subtotal - discount AS neto
+FROM orders
+WHERE neto > 100000;
+```$c1593$, $c1594$En `WHERE` repite la expresión: `WHERE subtotal - discount > 100000`. Los alias sí se pueden usar en `ORDER BY`.$c1594$, null, null, array[$c1595$alias$c1595$,$c1596$where$c1596$]::text[], 45, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1597$alias-q03-alias-en-where$c1597$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1597$alias-q03-alias-en-where$c1597$), $c1598$a$c1598$, $c1599$El `WHERE` se evalúa antes que la lista del `SELECT`, así que el alias todavía no existe.$c1599$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1597$alias-q03-alias-en-where$c1597$), $c1600$b$c1600$, $c1601$Falta poner el alias entre comillas dobles.$c1601$, false, $c1602$Las comillas no cambian el orden de evaluación; el alias seguiría sin existir en `WHERE`.$c1602$, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1597$alias-q03-alias-en-where$c1597$), $c1603$c$c1603$, $c1604$`neto` es una palabra reservada.$c1604$, false, $c1605$No lo es; el problema es dónde se usa el alias.$c1605$, 2);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c1606$alias-y-expresiones$c1606$), (select id from public.lessons where slug = $c1607$alias-y-expresiones-basico$c1607$), $c1608$alias-q04-concatenar$c1608$, $c1609$fill_blank$c1609$, $c1610$easy$c1610$, $c1611$Texto$c1611$, $c1612$Completa el operador que une textos en PostgreSQL: `SELECT 'CAT-' ___ id AS codigo FROM categories;`$c1612$, null, $c1613$`||` concatena. `+` no funciona con textos en PostgreSQL.$c1613$, $c1614${"accepted":["||"],"case_sensitive":false}$c1614$::jsonb, null, array[$c1615$alias$c1615$,$c1616$texto$c1616$]::text[], 30, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1617$alias-q04-concatenar$c1617$);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c1618$alias-y-expresiones$c1618$), (select id from public.lessons where slug = $c1619$alias-y-expresiones-basico$c1619$), $c1620$alias-q05-precedencia$c1620$, $c1621$query_interpretation$c1621$, $c1622$intermediate$c1622$, $c1623$Precedencia$c1623$, $c1624$Con `subtotal = 100`, `discount = 20` y una tasa de 0.21, ¿qué valor devuelve `impuesto`?$c1624$, $c1625$```sql
+SELECT subtotal - discount * 0.21 AS impuesto
+FROM orders;
+```$c1625$, $c1626$`*` tiene prioridad sobre `-`: `100 - (20 * 0.21) = 95.80`. Si querías el impuesto sobre el neto, escribe `(subtotal - discount) * 0.21`.$c1626$, null, null, array[$c1627$alias$c1627$,$c1628$aritmetica$c1628$]::text[], 50, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1629$alias-q05-precedencia$c1629$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1629$alias-q05-precedencia$c1629$), $c1630$a$c1630$, $c1631$`95.80`$c1631$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1629$alias-q05-precedencia$c1629$), $c1632$b$c1632$, $c1633$`16.80`$c1633$, false, $c1634$Eso sería `(subtotal - discount) * 0.21`. Sin paréntesis, la multiplicación se resuelve primero.$c1634$, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1629$alias-q05-precedencia$c1629$), $c1635$c$c1635$, $c1636$`80`$c1636$, false, $c1637$Ignora la multiplicación; la expresión sí multiplica `discount` por 0.21.$c1637$, 2);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c1638$alias-y-expresiones$c1638$), (select id from public.lessons where slug = $c1639$alias-y-expresiones-basico$c1639$), $c1640$alias-q06-round$c1640$, $c1641$single$c1641$, $c1642$easy$c1642$, $c1643$Redondeo$c1643$, $c1644$¿Qué devuelve `SELECT ROUND(2.4567, 2);`?$c1644$, null, $c1645$`ROUND(valor, n)` conserva `n` decimales redondeando al más cercano.$c1645$, null, null, array[$c1646$alias$c1646$,$c1647$numeric_functions$c1647$]::text[], 30, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1648$alias-q06-round$c1648$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1648$alias-q06-round$c1648$), $c1649$a$c1649$, $c1650$`2.46`$c1650$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1648$alias-q06-round$c1648$), $c1651$b$c1651$, $c1652$`2.45`$c1652$, false, $c1653$El tercer decimal es 6, así que se redondea hacia arriba.$c1653$, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1648$alias-q06-round$c1648$), $c1654$c$c1654$, $c1655$`2`$c1655$, false, $c1656$El segundo argumento indica cuántos decimales conservar.$c1656$, 2);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c1657$alias-y-expresiones$c1657$), (select id from public.lessons where slug = $c1658$alias-y-expresiones-basico$c1658$), $c1659$alias-q07-comillas-simples$c1659$, $c1660$true_false$c1660$, $c1661$easy$c1661$, $c1662$Alias de columna$c1662$, $c1663$Verdadero o falso: `SELECT subtotal AS 'monto' FROM orders;` crea una columna llamada `monto`.$c1663$, null, $c1664$Los alias son identificadores: sin comillas (`AS monto`) o con comillas dobles si necesitas mayúsculas o espacios.$c1664$, null, null, array[$c1665$alias$c1665$,$c1666$sintaxis$c1666$]::text[], 25, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1667$alias-q07-comillas-simples$c1667$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1667$alias-q07-comillas-simples$c1667$), $c1668$a$c1668$, $c1669$Verdadero$c1669$, false, $c1670$Las comillas simples delimitan textos, no identificadores. PostgreSQL devuelve un error de sintaxis.$c1670$, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1667$alias-q07-comillas-simples$c1667$), $c1671$b$c1671$, $c1672$Falso$c1672$, true, null, 1);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c1673$alias-y-expresiones$c1673$), (select id from public.lessons where slug = $c1674$alias-y-expresiones-basico$c1674$), $c1675$alias-q08-escenario-reporte$c1675$, $c1676$scenario$c1676$, $c1677$intermediate$c1677$, $c1678$Alias legibles$c1678$, $c1679$Finanzas te pide un reporte con el neto de cada pedido para pegarlo en una planilla que luego consumirá otra consulta. ¿Qué alias conviene?$c1679$, null, $c1680$Un alias en `snake_case`, sin espacios ni acentos, es legible para personas y estable para las consultas que reutilizan el resultado.$c1680$, null, null, array[$c1681$alias$c1681$,$c1682$readability$c1682$]::text[], 50, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1683$alias-q08-escenario-reporte$c1683$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1683$alias-q08-escenario-reporte$c1683$), $c1684$a$c1684$, $c1685$`AS neto_pedido`$c1685$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1683$alias-q08-escenario-reporte$c1683$), $c1686$b$c1686$, $c1687$`AS "Neto del pedido"`$c1687$, false, $c1688$Funciona, pero obliga a usar comillas dobles en cada consulta posterior y suele romper herramientas.$c1688$, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1683$alias-q08-escenario-reporte$c1683$), $c1689$c$c1689$, $c1690$Sin alias; la planilla ya tiene encabezados.$c1690$, false, $c1691$La columna se llamaría `?column?` y la consulta posterior no podría referenciarla con claridad.$c1691$, 2);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c1692$distinct$c1692$), (select id from public.lessons where slug = $c1693$distinct-valores-unicos$c1693$), $c1694$distinct-q01-fila-completa$c1694$, $c1695$single$c1695$, $c1696$easy$c1696$, $c1697$Alcance de DISTINCT$c1697$, $c1698$¿Qué filas elimina esta consulta?$c1698$, $c1699$```sql
+SELECT DISTINCT carrier, destination_city
+FROM shipments;
+```$c1699$, $c1700$`DISTINCT` se aplica a todas las columnas listadas: dos filas son duplicadas solo si coinciden en todas.$c1700$, null, null, array[$c1701$distinct$c1701$]::text[], 40, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1702$distinct-q01-fila-completa$c1702$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1702$distinct-q01-fila-completa$c1702$), $c1703$a$c1703$, $c1704$Las que repiten la **misma combinación** de transportista y ciudad.$c1704$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1702$distinct-q01-fila-completa$c1702$), $c1705$b$c1705$, $c1706$Las que repiten el transportista, sin importar la ciudad.$c1706$, false, $c1707$`DISTINCT` compara la fila completa del resultado, no solo la primera columna.$c1707$, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1702$distinct-q01-fila-completa$c1702$), $c1708$c$c1708$, $c1709$Ninguna; `DISTINCT` solo funciona con una columna.$c1709$, false, $c1710$`DISTINCT` acepta cualquier cantidad de columnas.$c1710$, 2);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c1711$distinct$c1711$), (select id from public.lessons where slug = $c1712$distinct-valores-unicos$c1712$), $c1713$distinct-q02-null$c1713$, $c1714$single$c1714$, $c1715$easy$c1715$, $c1716$DISTINCT y NULL$c1716$, $c1717$En `categories`, 6 categorías tienen `parent_id` NULL y las demás apuntan a 6 padres distintos. ¿Cuántas filas devuelve `SELECT DISTINCT parent_id FROM categories;`?$c1717$, null, $c1718$6 padres distintos + 1 fila NULL = 7. Para `DISTINCT` (y para `GROUP BY`), los NULL se agrupan entre sí.$c1718$, null, null, array[$c1719$distinct$c1719$,$c1720$null_handling$c1720$]::text[], 40, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1721$distinct-q02-null$c1721$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1721$distinct-q02-null$c1721$), $c1722$a$c1722$, $c1723$7$c1723$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1721$distinct-q02-null$c1721$), $c1724$b$c1724$, $c1725$6$c1725$, false, $c1726$Los NULL también aparecen en el resultado, agrupados en una sola fila.$c1726$, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1721$distinct-q02-null$c1721$), $c1727$c$c1727$, $c1728$12$c1728$, false, $c1729$`DISTINCT` considera iguales a todos los NULL: aparece una única fila NULL.$c1729$, 2);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c1730$distinct$c1730$), (select id from public.lessons where slug = $c1731$distinct-valores-unicos$c1731$), $c1732$distinct-q03-posicion$c1732$, $c1733$error_diagnosis$c1733$, $c1734$very_easy$c1734$, $c1735$Sintaxis$c1735$, $c1736$Esta consulta produce un error de sintaxis. ¿Cuál es la causa?$c1736$, $c1737$```sql
+SELECT country DISTINCT
+FROM customers;
+```$c1737$, $c1738$La forma correcta es `SELECT DISTINCT country FROM customers;`.$c1738$, null, null, array[$c1739$distinct$c1739$,$c1740$sintaxis$c1740$]::text[], 30, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1741$distinct-q03-posicion$c1741$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1741$distinct-q03-posicion$c1741$), $c1742$a$c1742$, $c1743$`DISTINCT` debe ir inmediatamente después de `SELECT`.$c1743$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1741$distinct-q03-posicion$c1741$), $c1744$b$c1744$, $c1745$Falta un alias para `country`.$c1745$, false, $c1746$Los alias son opcionales; el problema es la posición de `DISTINCT`.$c1746$, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1741$distinct-q03-posicion$c1741$), $c1747$c$c1747$, $c1748$`DISTINCT` requiere paréntesis.$c1748$, false, $c1749$No lleva paréntesis: `SELECT DISTINCT country`.$c1749$, 2);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c1750$distinct$c1750$), (select id from public.lessons where slug = $c1751$distinct-valores-unicos$c1751$), $c1752$distinct-q04-cuando-usar$c1752$, $c1753$scenario$c1753$, $c1754$intermediate$c1754$, $c1755$Criterio de uso$c1755$, $c1756$Una consulta que lista pedidos con su pago devuelve más filas que pedidos existen. Alguien propone agregar `DISTINCT`. ¿Qué conviene hacer primero?$c1756$, null, $c1757$Filas de más suelen indicar una relación uno-a-muchos en un `JOIN`. Entender la causa evita reportes incorrectos.$c1757$, null, null, array[$c1758$distinct$c1758$,$c1759$readability$c1759$]::text[], 50, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1760$distinct-q04-cuando-usar$c1760$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1760$distinct-q04-cuando-usar$c1760$), $c1761$a$c1761$, $c1762$Investigar por qué se multiplican las filas (por ejemplo, pedidos con más de un pago).$c1762$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1760$distinct-q04-cuando-usar$c1760$), $c1763$b$c1763$, $c1764$Agregar `DISTINCT`: el resultado quedará correcto.$c1764$, false, $c1765$Esconde el síntoma. Si un pedido tiene dos pagos con montos distintos, `DISTINCT` no los une y además puedes perder información relevante.$c1765$, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1760$distinct-q04-cuando-usar$c1760$), $c1766$c$c1766$, $c1767$Agregar `LIMIT` para que coincida con la cantidad de pedidos.$c1767$, false, $c1768$`LIMIT` corta filas arbitrariamente; no corrige la lógica.$c1768$, 2);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c1769$distinct$c1769$), (select id from public.lessons where slug = $c1770$distinct-valores-unicos$c1770$), $c1771$distinct-q05-order-by$c1771$, $c1772$true_false$c1772$, $c1773$easy$c1773$, $c1774$DISTINCT con ORDER BY$c1774$, $c1775$Verdadero o falso: `SELECT DISTINCT currency FROM products ORDER BY currency;` devuelve las monedas sin repetir y ordenadas.$c1775$, null, $c1776$El orden lógico es: `FROM` → `SELECT DISTINCT` → `ORDER BY`. Primero se eliminan duplicados, luego se ordena.$c1776$, null, null, array[$c1777$distinct$c1777$,$c1778$order_by$c1778$]::text[], 30, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1779$distinct-q05-order-by$c1779$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1779$distinct-q05-order-by$c1779$), $c1780$a$c1780$, $c1781$Verdadero$c1781$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1779$distinct-q05-order-by$c1779$), $c1782$b$c1782$, $c1783$Falso$c1783$, false, $c1784$`ORDER BY` se aplica sobre el resultado ya sin duplicados; ambas cláusulas conviven sin problema.$c1784$, 1);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c1785$distinct$c1785$), (select id from public.lessons where slug = $c1786$distinct-valores-unicos$c1786$), $c1787$distinct-q06-filas$c1787$, $c1788$fill_blank$c1788$, $c1789$easy$c1789$, $c1790$Alcance de DISTINCT$c1790$, $c1791$`orders` tiene 6 valores distintos de `status` y 3 de `channel`, y todas las combinaciones aparecen al menos una vez. ¿Cuántas filas devuelve `SELECT DISTINCT status, channel FROM orders;`? Escribe solo el número.$c1791$, null, $c1792$Una fila por combinación existente: 6 × 3 = 18.$c1792$, $c1793${"accepted":["18"],"case_sensitive":false}$c1793$::jsonb, null, array[$c1794$distinct$c1794$]::text[], 40, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1795$distinct-q06-filas$c1795$);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c1796$distinct$c1796$), (select id from public.lessons where slug = $c1797$distinct-valores-unicos$c1797$), $c1798$distinct-q07-costo$c1798$, $c1799$multiple$c1799$, $c1800$intermediate$c1800$, $c1801$Criterio de uso$c1801$, $c1802$¿Cuáles de estas afirmaciones sobre `DISTINCT` son correctas? Selecciona todas las que apliquen.$c1802$, null, $c1803$`DISTINCT` tiene un costo proporcional al tamaño del resultado y es la herramienta adecuada para listar valores únicos; no modifica valores ni descarta NULL.$c1803$, null, null, array[$c1804$distinct$c1804$,$c1805$performance$c1805$]::text[], 50, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1806$distinct-q07-costo$c1806$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1806$distinct-q07-costo$c1806$), $c1807$a$c1807$, $c1808$Obliga al motor a comparar todas las filas del resultado para eliminar repetidas.$c1808$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1806$distinct-q07-costo$c1806$), $c1809$b$c1809$, $c1810$Es la forma correcta de responder «qué valores existen en una columna».$c1810$, true, null, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1806$distinct-q07-costo$c1806$), $c1811$c$c1811$, $c1812$Cambia los valores de las filas que devuelve.$c1812$, false, $c1813$Solo elimina repeticiones; nunca modifica valores.$c1813$, 2);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1806$distinct-q07-costo$c1806$), $c1814$d$c1814$, $c1815$Ignora las filas con NULL.$c1815$, false, $c1816$Los NULL se conservan, agrupados en una única fila.$c1816$, 3);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c1817$distinct$c1817$), (select id from public.lessons where slug = $c1818$distinct-valores-unicos$c1818$), $c1819$distinct-q08-interpretar$c1819$, $c1820$query_interpretation$c1820$, $c1821$easy$c1821$, $c1822$Lectura de consultas$c1822$, $c1823$¿Qué pregunta de negocio responde esta consulta?$c1823$, $c1824$```sql
+SELECT DISTINCT customer_id
+FROM orders;
+```$c1824$, $c1825$Listar `customer_id` únicos de `orders` equivale a «clientes con al menos un pedido».$c1825$, null, null, array[$c1826$distinct$c1826$]::text[], 40, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1827$distinct-q08-interpretar$c1827$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1827$distinct-q08-interpretar$c1827$), $c1828$a$c1828$, $c1829$Qué clientes hicieron al menos un pedido.$c1829$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1827$distinct-q08-interpretar$c1827$), $c1830$b$c1830$, $c1831$Cuántos pedidos hizo cada cliente.$c1831$, false, $c1832$Eso requiere contar por cliente (`GROUP BY`, sección 15); aquí solo se listan ids únicos.$c1832$, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1827$distinct-q08-interpretar$c1827$), $c1833$c$c1833$, $c1834$Todos los clientes registrados.$c1834$, false, $c1835$Solo aparecen los clientes presentes en `orders`; quienes nunca compraron no están.$c1835$, 2);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c1836$where$c1836$), (select id from public.lessons where slug = $c1837$where-filtros-basicos$c1837$), $c1838$where-q01-comillas$c1838$, $c1839$error_diagnosis$c1839$, $c1840$very_easy$c1840$, $c1841$Literales de texto$c1841$, $c1842$Esta consulta falla con `column "uy" does not exist`. ¿Por qué?$c1842$, $c1843$```sql
+SELECT id FROM customers
+WHERE country = UY;
+```$c1843$, $c1844$Los literales de texto siempre van entre comillas simples: `WHERE country = 'UY'`.$c1844$, null, null, array[$c1845$where$c1845$,$c1846$sintaxis$c1846$]::text[], 35, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1847$where-q01-comillas$c1847$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1847$where-q01-comillas$c1847$), $c1848$a$c1848$, $c1849$El texto `UY` debe ir entre comillas simples; sin ellas se interpreta como nombre de columna.$c1849$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1847$where-q01-comillas$c1847$), $c1850$b$c1850$, $c1851$`country` es una palabra reservada.$c1851$, false, $c1852$No lo es; el error menciona `uy`, el valor sin comillas.$c1852$, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1847$where-q01-comillas$c1847$), $c1853$c$c1853$, $c1854$Falta `AND`.$c1854$, false, $c1855$Hay una sola condición; no hace falta `AND`.$c1855$, 2);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c1856$where$c1856$), (select id from public.lessons where slug = $c1857$where-filtros-basicos$c1857$), $c1858$where-q02-mayusculas$c1858$, $c1859$true_false$c1859$, $c1860$easy$c1860$, $c1861$Comparación de texto$c1861$, $c1862$Verdadero o falso: `WHERE status = 'Delivered'` devuelve los pedidos cuyo `status` es `'delivered'`.$c1862$, null, $c1863$Con `=` el texto debe coincidir exactamente. Si no conoces la capitalización, usa `lower(status) = 'delivered'` o `ILIKE`.$c1863$, null, null, array[$c1864$where$c1864$]::text[], 30, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1865$where-q02-mayusculas$c1865$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1865$where-q02-mayusculas$c1865$), $c1866$a$c1866$, $c1867$Verdadero$c1867$, false, $c1868$La comparación con `=` distingue mayúsculas: `'Delivered'` y `'delivered'` son textos distintos.$c1868$, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1865$where-q02-mayusculas$c1865$), $c1869$b$c1869$, $c1870$Falso$c1870$, true, null, 1);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c1871$where$c1871$), (select id from public.lessons where slug = $c1872$where-filtros-basicos$c1872$), $c1873$where-q03-booleano$c1873$, $c1874$single$c1874$, $c1875$easy$c1875$, $c1876$Booleanos$c1876$, $c1877$¿Cuál de estas condiciones **no** es equivalente a las otras dos?$c1877$, null, $c1878$PostgreSQL acepta `'yes'` como literal booleano, pero es una forma poco clara y no portable; las opciones b y c son las recomendadas. La opción a es la que se aparta de la convención.$c1878$, null, null, array[$c1879$where$c1879$]::text[], 30, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1880$where-q03-booleano$c1880$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1880$where-q03-booleano$c1880$), $c1881$a$c1881$, $c1882$`WHERE is_active = 'yes'`$c1882$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1880$where-q03-booleano$c1880$), $c1883$b$c1883$, $c1884$`WHERE is_active = TRUE`$c1884$, false, $c1885$Es la forma explícita de filtrar verdaderos.$c1885$, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1880$where-q03-booleano$c1880$), $c1886$c$c1886$, $c1887$`WHERE is_active`$c1887$, false, $c1888$Una columna booleana ya es una condición válida por sí misma.$c1888$, 2);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c1889$where$c1889$), (select id from public.lessons where slug = $c1890$where-filtros-basicos$c1890$), $c1891$where-q04-alias$c1891$, $c1892$single$c1892$, $c1893$easy$c1893$, $c1894$Orden de evaluación$c1894$, $c1895$Quieres los pedidos con neto mayor a 100 000. ¿Cuál consulta funciona?$c1895$, null, $c1896$En `WHERE` se repite la expresión; los alias solo están disponibles en `ORDER BY`.$c1896$, null, null, array[$c1897$where$c1897$,$c1898$alias$c1898$]::text[], 40, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1899$where-q04-alias$c1899$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1899$where-q04-alias$c1899$), $c1900$a$c1900$, $c1901$```sql
+SELECT id, subtotal - discount AS neto
+FROM orders
+WHERE subtotal - discount > 100000;
+```$c1901$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1899$where-q04-alias$c1899$), $c1902$b$c1902$, $c1903$```sql
+SELECT id, subtotal - discount AS neto
+FROM orders
+WHERE neto > 100000;
+```$c1903$, false, $c1904$El alias `neto` no existe cuando se evalúa `WHERE`.$c1904$, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1899$where-q04-alias$c1899$), $c1905$c$c1905$, $c1906$```sql
+SELECT id, subtotal - discount AS neto
+WHERE subtotal - discount > 100000
+FROM orders;
+```$c1906$, false, $c1907$`WHERE` va después de `FROM`, no antes.$c1907$, 2);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c1908$where$c1908$), (select id from public.lessons where slug = $c1909$where-texto-y-fechas$c1909$), $c1910$where-q05-like-porcentaje$c1910$, $c1911$single$c1911$, $c1912$easy$c1912$, $c1913$Patrones$c1913$, $c1914$¿Qué tiendas devuelve `WHERE store_name LIKE 'Bazar%'`?$c1914$, null, $c1915$`%` al final significa «lo que sea después». `LIKE` es sensible a mayúsculas; `ILIKE` no.$c1915$, null, null, array[$c1916$where$c1916$,$c1917$like$c1917$]::text[], 35, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1918$where-q05-like-porcentaje$c1918$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1918$where-q05-like-porcentaje$c1918$), $c1919$a$c1919$, $c1920$Las que **empiezan** con `Bazar` (respetando mayúsculas).$c1920$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1918$where-q05-like-porcentaje$c1918$), $c1921$b$c1921$, $c1922$Las que contienen `Bazar` en cualquier posición.$c1922$, false, $c1923$Para cualquier posición necesitas `%` a ambos lados: `'%Bazar%'`.$c1923$, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1918$where-q05-like-porcentaje$c1918$), $c1924$c$c1924$, $c1925$Las que empiezan con `bazar` o `Bazar`.$c1925$, false, $c1926$`LIKE` distingue mayúsculas; para ignorarlas usa `ILIKE`.$c1926$, 2);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c1927$where$c1927$), (select id from public.lessons where slug = $c1928$where-texto-y-fechas$c1928$), $c1929$where-q06-guion-bajo$c1929$, $c1930$fill_blank$c1930$, $c1931$intermediate$c1931$, $c1932$Patrones$c1932$, $c1933$¿Qué carácter comodín de `LIKE` representa **exactamente un** carácter? Escribe solo el carácter.$c1933$, null, $c1934$`_` equivale a un carácter cualquiera; `%` a cero o más.$c1934$, $c1935${"accepted":["_"],"case_sensitive":false}$c1935$::jsonb, null, array[$c1936$where$c1936$,$c1937$like$c1937$]::text[], 40, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1938$where-q06-guion-bajo$c1938$);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c1939$where$c1939$), (select id from public.lessons where slug = $c1940$where-texto-y-fechas$c1940$), $c1941$where-q07-between-timestamp$c1941$, $c1942$error_diagnosis$c1942$, $c1943$intermediate$c1943$, $c1944$Bordes de fecha$c1944$, $c1945$El reporte de marzo muestra menos pedidos que el panel oficial. La consulta no da error. ¿Qué está pasando?$c1945$, $c1946$```sql
+SELECT count(*)
+FROM orders
+WHERE created_at BETWEEN '2025-03-01' AND '2025-03-31';
+```$c1946$, $c1947$Con `timestamptz`, usa un rango semiabierto: `created_at >= '2025-03-01' AND created_at < '2025-04-01'`.$c1947$, null, null, array[$c1948$where$c1948$,$c1949$date_boundary$c1949$]::text[], 60, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1950$where-q07-between-timestamp$c1950$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1950$where-q07-between-timestamp$c1950$), $c1951$a$c1951$, $c1952$`'2025-03-31'` equivale a las 00:00 del 31; los pedidos de ese día con hora posterior quedan afuera.$c1952$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1950$where-q07-between-timestamp$c1950$), $c1953$b$c1953$, $c1954$`BETWEEN` excluye ambos extremos.$c1954$, false, $c1955$`BETWEEN` es inclusivo en ambos extremos; el problema es la hora implícita.$c1955$, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1950$where-q07-between-timestamp$c1950$), $c1956$c$c1956$, $c1957$Falta convertir las fechas con `to_date`.$c1957$, false, $c1958$PostgreSQL convierte el literal automáticamente; la conversión no cambia el borde.$c1958$, 2);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c1959$where$c1959$), (select id from public.lessons where slug = $c1960$where-texto-y-fechas$c1960$), $c1961$where-q08-rango-semiabierto$c1961$, $c1962$single$c1962$, $c1963$easy$c1963$, $c1964$Bordes de fecha$c1964$, $c1965$¿Cuál condición incluye **todo** el 15 de marzo de 2025 y nada más, para una columna `timestamptz`?$c1965$, null, $c1966$Inicio inclusivo, fin exclusivo: `>= día AND < día siguiente`.$c1966$, null, null, array[$c1967$where$c1967$,$c1968$date_boundary$c1968$]::text[], 40, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1969$where-q08-rango-semiabierto$c1969$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1969$where-q08-rango-semiabierto$c1969$), $c1970$a$c1970$, $c1971$`created_at >= '2025-03-15' AND created_at < '2025-03-16'`$c1971$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1969$where-q08-rango-semiabierto$c1969$), $c1972$b$c1972$, $c1973$`created_at = '2025-03-15'`$c1973$, false, $c1974$Solo coincide con el instante exacto de las 00:00:00.$c1974$, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1969$where-q08-rango-semiabierto$c1969$), $c1975$c$c1975$, $c1976$`created_at BETWEEN '2025-03-15' AND '2025-03-15 23:59:59'`$c1976$, false, $c1977$Funciona casi siempre, pero excluye los milisegundos finales del día y es frágil; el rango semiabierto es la forma recomendada.$c1977$, 2);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c1978$where$c1978$), (select id from public.lessons where slug = $c1979$where-filtros-basicos$c1979$), $c1980$where-q09-interpretar$c1980$, $c1981$query_interpretation$c1981$, $c1982$easy$c1982$, $c1983$Lectura de consultas$c1983$, $c1984$¿Qué devuelve esta consulta?$c1984$, $c1985$```sql
+SELECT id, name
+FROM products
+WHERE currency = 'MXN'
+  AND stock > 0
+  AND NOT is_active;
+```$c1985$, $c1986$Tres condiciones unidas por `AND`; `NOT is_active` selecciona los productos desactivados. Es un caso típico de «stock inmovilizado».$c1986$, null, null, array[$c1987$where$c1987$]::text[], 40, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c1988$where-q09-interpretar$c1988$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1988$where-q09-interpretar$c1988$), $c1989$a$c1989$, $c1990$Productos en pesos mexicanos, con stock, pero **inactivos**.$c1990$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1988$where-q09-interpretar$c1988$), $c1991$b$c1991$, $c1992$Productos en pesos mexicanos activos con stock.$c1992$, false, $c1993$`NOT is_active` invierte la condición: pide los inactivos.$c1993$, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c1988$where-q09-interpretar$c1988$), $c1994$c$c1994$, $c1995$Productos que cumplen al menos una de las tres condiciones.$c1995$, false, $c1996$Con `AND` deben cumplirse las tres.$c1996$, 2);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c1997$where$c1997$), (select id from public.lessons where slug = $c1998$where-texto-y-fechas$c1998$), $c1999$where-q10-escenario-indice$c1999$, $c2000$scenario$c2000$, $c2001$intermediate$c2001$, $c2002$Rendimiento$c2002$, $c2003$La tabla `orders` tiene un índice en `created_at`. Necesitas los pedidos de abril de 2025 y la consulta debe ser rápida. ¿Qué condición conviene?$c2003$, null, $c2004$Comparar la columna «desnuda» contra constantes permite usar el índice. Es la forma recomendada para rangos de fechas.$c2004$, null, null, array[$c2005$where$c2005$,$c2006$performance$c2006$]::text[], 50, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c2007$where-q10-escenario-indice$c2007$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2007$where-q10-escenario-indice$c2007$), $c2008$a$c2008$, $c2009$`created_at >= '2025-04-01' AND created_at < '2025-05-01'`$c2009$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2007$where-q10-escenario-indice$c2007$), $c2010$b$c2010$, $c2011$`extract(month from created_at) = 4 AND extract(year from created_at) = 2025`$c2011$, false, $c2012$Aplicar funciones a la columna impide usar el índice: el motor recorre toda la tabla.$c2012$, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2007$where-q10-escenario-indice$c2007$), $c2013$c$c2013$, $c2014$`to_char(created_at, 'YYYY-MM') = '2025-04'`$c2014$, false, $c2015$Mismo problema: la función sobre la columna anula el índice.$c2015$, 2);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c2016$operadores-comparacion-logicos$c2016$), (select id from public.lessons where slug = $c2017$operadores-precedencia-in-between$c2017$), $c2018$oper-q01-precedencia$c2018$, $c2019$query_interpretation$c2019$, $c2020$intermediate$c2020$, $c2021$Precedencia$c2021$, $c2022$¿Qué clientes devuelve esta consulta?$c2022$, $c2023$```sql
+SELECT id
+FROM customers
+WHERE country = 'AR' OR country = 'UY' AND marketing_opt_in;
+```$c2023$, $c2024$`AND` tiene prioridad sobre `OR`: la condición se lee como `country = 'AR' OR (country = 'UY' AND marketing_opt_in)`.$c2024$, null, null, array[$c2025$where$c2025$,$c2026$precedencia$c2026$]::text[], 60, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c2027$oper-q01-precedencia$c2027$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2027$oper-q01-precedencia$c2027$), $c2028$a$c2028$, $c2029$Todos los de Argentina, más los de Uruguay que aceptaron marketing.$c2029$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2027$oper-q01-precedencia$c2027$), $c2030$b$c2030$, $c2031$Los de Argentina o Uruguay que aceptaron marketing.$c2031$, false, $c2032$Eso requiere paréntesis: `(country = 'AR' OR country = 'UY') AND marketing_opt_in`.$c2032$, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2027$oper-q01-precedencia$c2027$), $c2033$c$c2033$, $c2034$Los de Argentina que aceptaron marketing, más todos los de Uruguay.$c2034$, false, $c2035$`AND` se agrupa con la condición de Uruguay, no con la de Argentina.$c2035$, 2);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c2036$operadores-comparacion-logicos$c2036$), (select id from public.lessons where slug = $c2037$operadores-precedencia-in-between$c2037$), $c2038$oper-q02-in-equivalente$c2038$, $c2039$single$c2039$, $c2040$easy$c2040$, $c2041$Operador IN$c2041$, $c2042$¿A qué equivale `status IN ('paid', 'shipped')`?$c2042$, null, $c2043$`IN` es la forma compacta de varias igualdades unidas por `OR`.$c2043$, null, null, array[$c2044$where$c2044$,$c2045$in$c2045$]::text[], 35, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c2046$oper-q02-in-equivalente$c2046$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2046$oper-q02-in-equivalente$c2046$), $c2047$a$c2047$, $c2048$`status = 'paid' OR status = 'shipped'`$c2048$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2046$oper-q02-in-equivalente$c2046$), $c2049$b$c2049$, $c2050$`status = 'paid' AND status = 'shipped'`$c2050$, false, $c2051$Una fila no puede tener dos estados a la vez; con `AND` no devolvería nada.$c2051$, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2046$oper-q02-in-equivalente$c2046$), $c2052$c$c2052$, $c2053$`status LIKE 'paid%shipped%'`$c2053$, false, $c2054$`LIKE` compara patrones de texto; `IN` compara pertenencia a una lista.$c2054$, 2);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c2055$operadores-comparacion-logicos$c2055$), (select id from public.lessons where slug = $c2056$operadores-precedencia-in-between$c2056$), $c2057$oper-q03-between-inclusivo$c2057$, $c2058$true_false$c2058$, $c2059$easy$c2059$, $c2060$BETWEEN$c2060$, $c2061$Verdadero o falso: `stock BETWEEN 1 AND 5` incluye los productos con `stock` igual a 5.$c2061$, null, $c2062$`BETWEEN a AND b` es inclusivo en `a` y en `b`.$c2062$, null, null, array[$c2063$where$c2063$,$c2064$between$c2064$]::text[], 30, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c2065$oper-q03-between-inclusivo$c2065$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2065$oper-q03-between-inclusivo$c2065$), $c2066$a$c2066$, $c2067$Verdadero$c2067$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2065$oper-q03-between-inclusivo$c2065$), $c2068$b$c2068$, $c2069$Falso$c2069$, false, $c2070$`BETWEEN` incluye ambos extremos: equivale a `stock >= 1 AND stock <= 5`.$c2070$, 1);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c2071$operadores-comparacion-logicos$c2071$), (select id from public.lessons where slug = $c2072$operadores-precedencia-in-between$c2072$), $c2073$oper-q04-not-in$c2073$, $c2074$fill_blank$c2074$, $c2075$easy$c2075$, $c2076$NOT$c2076$, $c2077$Reescribe `NOT (channel IN ('app', 'web'))` en su forma más legible usando un solo operador de dos palabras. Escribe solo el operador.$c2077$, null, $c2078$`channel NOT IN ('app', 'web')` es equivalente y se lee mejor.$c2078$, $c2079${"accepted":["NOT IN"],"case_sensitive":false}$c2079$::jsonb, null, array[$c2080$where$c2080$,$c2081$not$c2081$]::text[], 35, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c2082$oper-q04-not-in$c2082$);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c2083$operadores-comparacion-logicos$c2083$), (select id from public.lessons where slug = $c2084$operadores-precedencia-in-between$c2084$), $c2085$oper-q05-de-morgan$c2085$, $c2086$single$c2086$, $c2087$intermediate$c2087$, $c2088$NOT$c2088$, $c2089$¿Cuál condición es equivalente a `NOT (is_active AND stock > 0)`?$c2089$, null, $c2090$`NOT (a AND b)` ≡ `NOT a OR NOT b`. La negación de `stock > 0` es `stock <= 0`.$c2090$, null, null, array[$c2091$where$c2091$,$c2092$not$c2092$]::text[], 50, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c2093$oper-q05-de-morgan$c2093$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2093$oper-q05-de-morgan$c2093$), $c2094$a$c2094$, $c2095$`NOT is_active OR stock <= 0`$c2095$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2093$oper-q05-de-morgan$c2093$), $c2096$b$c2096$, $c2097$`NOT is_active AND stock <= 0`$c2097$, false, $c2098$Al negar un `AND`, el conector se convierte en `OR` (ley de De Morgan).$c2098$, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2093$oper-q05-de-morgan$c2093$), $c2099$c$c2099$, $c2100$`is_active OR stock > 0`$c2100$, false, $c2101$Esa es la condición sin negar y con `OR`; no es equivalente.$c2101$, 2);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c2102$operadores-comparacion-logicos$c2102$), (select id from public.lessons where slug = $c2103$operadores-precedencia-in-between$c2103$), $c2104$oper-q06-legibilidad$c2104$, $c2105$scenario$c2105$, $c2106$easy$c2106$, $c2107$Legibilidad$c2107$, $c2108$Necesitas los pedidos con estado `cancelled`, `returned` o `pending`. ¿Cuál forma conviene?$c2108$, null, $c2109$`IN` expresa la lista de valores de forma directa y segura.$c2109$, null, null, array[$c2110$where$c2110$,$c2111$readability$c2111$]::text[], 40, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c2112$oper-q06-legibilidad$c2112$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2112$oper-q06-legibilidad$c2112$), $c2113$a$c2113$, $c2114$`status IN ('cancelled', 'returned', 'pending')`$c2114$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2112$oper-q06-legibilidad$c2112$), $c2115$b$c2115$, $c2116$`status = 'cancelled' OR status = 'returned' OR status = 'pending'`$c2116$, false, $c2117$Es equivalente, pero más larga y propensa a errores de precedencia si se combina con `AND`.$c2117$, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2112$oper-q06-legibilidad$c2112$), $c2118$c$c2118$, $c2119$`status LIKE '%e%'`$c2119$, false, $c2120$Coincide con otros estados (`delivered`, `shipped`) y no expresa la intención.$c2120$, 2);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c2121$operadores-comparacion-logicos$c2121$), (select id from public.lessons where slug = $c2122$operadores-precedencia-in-between$c2122$), $c2123$oper-q07-diagnostico$c2123$, $c2124$error_diagnosis$c2124$, $c2125$intermediate$c2125$, $c2126$Diagnóstico de filtros$c2126$, $c2127$Se esperaban ~230 pedidos cancelados o devueltos del canal `marketplace_partner`, pero la consulta devuelve más de 2000. ¿Cuál es la causa?$c2127$, $c2128$```sql
+SELECT id
+FROM orders
+WHERE status = 'cancelled' OR status = 'returned'
+  AND channel = 'marketplace_partner';
+```$c2128$, $c2129$Corrige con `status IN ('cancelled', 'returned') AND channel = 'marketplace_partner'` o con paréntesis alrededor del `OR`.$c2129$, null, null, array[$c2130$where$c2130$,$c2131$precedencia$c2131$]::text[], 60, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c2132$oper-q07-diagnostico$c2132$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2132$oper-q07-diagnostico$c2132$), $c2133$a$c2133$, $c2134$Sin paréntesis, `AND` se aplica solo a `returned`; todos los cancelados entran sin filtrar por canal.$c2134$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2132$oper-q07-diagnostico$c2132$), $c2135$b$c2135$, $c2136$`marketplace_partner` debería ir sin comillas.$c2136$, false, $c2137$Es un texto; sin comillas daría error de columna inexistente.$c2137$, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2132$oper-q07-diagnostico$c2132$), $c2138$c$c2138$, $c2139$Falta `DISTINCT`.$c2139$, false, $c2140$No hay duplicados: cada pedido aparece una vez. El exceso viene de la lógica del filtro.$c2140$, 2);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c2141$operadores-comparacion-logicos$c2141$), (select id from public.lessons where slug = $c2142$operadores-precedencia-in-between$c2142$), $c2143$oper-q08-multiple$c2143$, $c2144$multiple$c2144$, $c2145$intermediate$c2145$, $c2146$Equivalencias$c2146$, $c2147$¿Cuáles condiciones son equivalentes a `installments >= 3 AND installments <= 6`? Selecciona todas las que apliquen.$c2147$, null, $c2148$Para enteros, `BETWEEN 3 AND 6`, la lista explícita y la negación del complemento describen el mismo conjunto {3, 4, 5, 6}.$c2148$, null, null, array[$c2149$where$c2149$,$c2150$between$c2150$,$c2151$in$c2151$]::text[], 60, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c2152$oper-q08-multiple$c2152$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2152$oper-q08-multiple$c2152$), $c2153$a$c2153$, $c2154$`installments BETWEEN 3 AND 6`$c2154$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2152$oper-q08-multiple$c2152$), $c2155$b$c2155$, $c2156$`installments IN (3, 4, 5, 6)`$c2156$, true, null, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2152$oper-q08-multiple$c2152$), $c2157$c$c2157$, $c2158$`installments > 3 AND installments < 6`$c2158$, false, $c2159$Excluye 3 y 6.$c2159$, 2);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2152$oper-q08-multiple$c2152$), $c2160$d$c2160$, $c2161$`NOT (installments < 3 OR installments > 6)`$c2161$, true, null, 3);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c2162$null$c2162$), (select id from public.lessons where slug = $c2163$null-logica-de-tres-valores$c2163$), $c2164$null-q01-igual-null$c2164$, $c2165$single$c2165$, $c2166$easy$c2166$, $c2167$Comparar con NULL$c2167$, $c2168$¿Cuántas filas devuelve `SELECT id FROM sellers WHERE rating = NULL;` si 28 vendedores no tienen calificación?$c2168$, null, $c2169$Cualquier comparación con NULL es UNKNOWN y `WHERE` la descarta. Usa `rating IS NULL`.$c2169$, null, null, array[$c2170$null_handling$c2170$]::text[], 35, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c2171$null-q01-igual-null$c2171$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2171$null-q01-igual-null$c2171$), $c2172$a$c2172$, $c2173$0$c2173$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2171$null-q01-igual-null$c2171$), $c2174$b$c2174$, $c2175$28$c2175$, false, $c2176$`= NULL` nunca es verdadero; para eso existe `IS NULL`.$c2176$, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2171$null-q01-igual-null$c2171$), $c2177$c$c2177$, $c2178$Da error de sintaxis.$c2178$, false, $c2179$Es sintácticamente válido; simplemente evalúa UNKNOWN en todas las filas.$c2179$, 2);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c2180$null$c2180$), (select id from public.lessons where slug = $c2181$null-logica-de-tres-valores$c2181$), $c2182$null-q02-distinto$c2182$, $c2183$single$c2183$, $c2184$intermediate$c2184$, $c2185$Lógica de tres valores$c2185$, $c2186$`sellers` tiene 180 filas; 28 tienen `rating` NULL y 1 tiene exactamente 4.5. ¿Cuántas devuelve `WHERE rating <> 4.5`?$c2186$, null, $c2187$`<>` tampoco «ve» los NULL. Si debes incluirlos: `rating <> 4.5 OR rating IS NULL`.$c2187$, null, null, array[$c2188$null_handling$c2188$]::text[], 50, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c2189$null-q02-distinto$c2189$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2189$null-q02-distinto$c2189$), $c2190$a$c2190$, $c2191$151$c2191$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2189$null-q02-distinto$c2189$), $c2192$b$c2192$, $c2193$179$c2193$, false, $c2194$Los 28 NULL no pasan el filtro: `NULL <> 4.5` es UNKNOWN.$c2194$, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2189$null-q02-distinto$c2189$), $c2195$c$c2195$, $c2196$152$c2196$, false, $c2197$180 − 28 (NULL) − 1 (igual a 4.5) = 151.$c2197$, 2);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c2198$null$c2198$), (select id from public.lessons where slug = $c2199$null-logica-de-tres-valores$c2199$), $c2200$null-q03-is-null$c2200$, $c2201$fill_blank$c2201$, $c2202$very_easy$c2202$, $c2203$Operador IS NULL$c2203$, $c2204$Completa: `SELECT id FROM shipments WHERE delivered_at ___ NULL;` para obtener los envíos no entregados. Escribe solo la palabra clave.$c2204$, null, $c2205$`IS NULL` es el único operador correcto para detectar NULL.$c2205$, $c2206${"accepted":["IS"],"case_sensitive":false}$c2206$::jsonb, null, array[$c2207$null_handling$c2207$]::text[], 25, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c2208$null-q03-is-null$c2208$);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c2209$null$c2209$), (select id from public.lessons where slug = $c2210$null-logica-de-tres-valores$c2210$), $c2211$null-q04-not-in$c2211$, $c2212$error_diagnosis$c2212$, $c2213$advanced$c2213$, $c2214$NOT IN con NULL$c2214$, $c2215$Esta consulta debería listar categorías que no son padre de ninguna otra, pero devuelve 0 filas aunque existen 24 subcategorías. ¿Por qué?$c2215$, $c2216$```sql
+SELECT id, name
+FROM categories
+WHERE id NOT IN (SELECT parent_id FROM categories);
+```$c2216$, $c2217$Agrega `WHERE parent_id IS NOT NULL` en la subconsulta o usa `NOT EXISTS`. Es uno de los errores silenciosos más frecuentes en SQL.$c2217$, null, null, array[$c2218$null_handling$c2218$,$c2219$subquery$c2219$]::text[], 70, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c2220$null-q04-not-in$c2220$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2220$null-q04-not-in$c2220$), $c2221$a$c2221$, $c2222$La subconsulta incluye un NULL (las raíces), y `NOT IN` con un NULL en la lista es UNKNOWN para todas las filas.$c2222$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2220$null-q04-not-in$c2220$), $c2223$b$c2223$, $c2224$`NOT IN` no acepta subconsultas.$c2224$, false, $c2225$Sí las acepta; el problema es el NULL dentro del resultado de la subconsulta.$c2225$, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2220$null-q04-not-in$c2220$), $c2226$c$c2226$, $c2227$Falta `DISTINCT` en la subconsulta.$c2227$, false, $c2228$Los duplicados no afectan a `IN`/`NOT IN`; el NULL sí.$c2228$, 2);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c2229$null$c2229$), (select id from public.lessons where slug = $c2230$null-coalesce-y-nullif$c2230$), $c2231$null-q05-coalesce$c2231$, $c2232$single$c2232$, $c2233$easy$c2233$, $c2234$COALESCE$c2234$, $c2235$¿Qué devuelve `SELECT COALESCE(NULL, NULL, 'b', 'c');`?$c2235$, null, $c2236$`COALESCE` recorre los argumentos en orden y se detiene en el primero que no es NULL.$c2236$, null, null, array[$c2237$null_handling$c2237$,$c2238$coalesce$c2238$]::text[], 35, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c2239$null-q05-coalesce$c2239$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2239$null-q05-coalesce$c2239$), $c2240$a$c2240$, $c2241$`'b'`$c2241$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2239$null-q05-coalesce$c2239$), $c2242$b$c2242$, $c2243$`NULL`$c2243$, false, $c2244$`COALESCE` devuelve el **primer** argumento no nulo, que es `'b'`.$c2244$, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2239$null-q05-coalesce$c2239$), $c2245$c$c2245$, $c2246$`'c'`$c2246$, false, $c2247$`'b'` aparece antes y no es NULL.$c2247$, 2);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c2248$null$c2248$), (select id from public.lessons where slug = $c2249$null-coalesce-y-nullif$c2249$), $c2250$null-q06-nullif$c2250$, $c2251$query_interpretation$c2251$, $c2252$intermediate$c2252$, $c2253$NULLIF$c2253$, $c2254$¿Para qué sirve `NULLIF(quantity, 0)` en esta expresión?$c2254$, $c2255$```sql
+SELECT unit_price * quantity / NULLIF(quantity, 0) AS check_price
+FROM order_items;
+```$c2255$, $c2256$`NULLIF(a, b)` devuelve NULL cuando `a = b`. Es el patrón estándar para divisiones seguras.$c2256$, null, null, array[$c2257$null_handling$c2257$,$c2258$nullif$c2258$]::text[], 50, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c2259$null-q06-nullif$c2259$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2259$null-q06-nullif$c2259$), $c2260$a$c2260$, $c2261$Evita el error de división por cero: si `quantity` es 0, el divisor pasa a ser NULL y el resultado es NULL.$c2261$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2259$null-q06-nullif$c2259$), $c2262$b$c2262$, $c2263$Reemplaza los NULL de `quantity` por 0.$c2263$, false, $c2264$Eso lo haría `COALESCE(quantity, 0)`. `NULLIF` hace lo contrario: produce NULL.$c2264$, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2259$null-q06-nullif$c2259$), $c2265$c$c2265$, $c2266$Filtra las filas con `quantity` igual a 0.$c2266$, false, $c2267$No filtra filas; solo cambia el valor del divisor.$c2267$, 2);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c2268$null$c2268$), (select id from public.lessons where slug = $c2269$null-coalesce-y-nullif$c2269$), $c2270$null-q07-aritmetica$c2270$, $c2271$true_false$c2271$, $c2272$easy$c2272$, $c2273$NULL en operaciones$c2273$, $c2274$Verdadero o falso: si `discount` es NULL, `subtotal - discount` devuelve el valor de `subtotal`.$c2274$, null, $c2275$NULL «contagia» las operaciones. Protege los cálculos con `COALESCE` cuando 0 sea el valor de negocio correcto.$c2275$, null, null, array[$c2276$null_handling$c2276$]::text[], 30, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c2277$null-q07-aritmetica$c2277$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2277$null-q07-aritmetica$c2277$), $c2278$a$c2278$, $c2279$Verdadero$c2279$, false, $c2280$Cualquier operación aritmética con NULL da NULL. Usa `subtotal - COALESCE(discount, 0)`.$c2280$, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2277$null-q07-aritmetica$c2277$), $c2281$b$c2281$, $c2282$Falso$c2282$, true, null, 1);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c2283$null$c2283$), (select id from public.lessons where slug = $c2284$null-coalesce-y-nullif$c2284$), $c2285$null-q08-orden$c2285$, $c2286$single$c2286$, $c2287$easy$c2287$, $c2288$NULL en ORDER BY$c2288$, $c2289$En PostgreSQL, `ORDER BY rating DESC` coloca a los vendedores sin calificación…$c2289$, null, $c2290$Por defecto, PostgreSQL trata NULL como el valor más alto. Usa `NULLS LAST` para enviarlos al final en `DESC`.$c2290$, null, null, array[$c2291$null_handling$c2291$,$c2292$order_by$c2292$]::text[], 35, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c2293$null-q08-orden$c2293$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2293$null-q08-orden$c2293$), $c2294$a$c2294$, $c2295$Al principio del resultado.$c2295$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2293$null-q08-orden$c2293$), $c2296$b$c2296$, $c2297$Al final del resultado.$c2297$, false, $c2298$En descendente los NULL se consideran «mayores» y quedan primero; en ascendente, al final.$c2298$, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2293$null-q08-orden$c2293$), $c2299$c$c2299$, $c2300$Los excluye.$c2300$, false, $c2301$`ORDER BY` nunca elimina filas.$c2301$, 2);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c2302$null$c2302$), (select id from public.lessons where slug = $c2303$null-coalesce-y-nullif$c2303$), $c2304$null-q09-count$c2304$, $c2305$single$c2305$, $c2306$intermediate$c2306$, $c2307$NULL en agregaciones$c2307$, $c2308$`reviews` tiene 3985 filas y 1391 tienen `comment` NULL. ¿Qué devuelve `SELECT count(comment) FROM reviews;`?$c2308$, null, $c2309$`count(columna)` cuenta valores no nulos: 3985 − 1391 = 2594. `count(*)` cuenta filas.$c2309$, null, null, array[$c2310$null_handling$c2310$,$c2311$aggregate$c2311$]::text[], 45, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c2312$null-q09-count$c2312$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2312$null-q09-count$c2312$), $c2313$a$c2313$, $c2314$2594$c2314$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2312$null-q09-count$c2312$), $c2315$b$c2315$, $c2316$3985$c2316$, false, $c2317$Eso devuelve `count(*)`. `count(columna)` ignora los NULL.$c2317$, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2312$null-q09-count$c2312$), $c2318$c$c2318$, $c2319$1391$c2319$, false, $c2320$Ese es el número de NULL, que `count(comment)` precisamente no cuenta.$c2320$, 2);
+
+insert into public.theory_questions (section_id, lesson_id, slug, type, difficulty, topic, prompt_md, code_md, explanation_md, answer, pairs, tags, estimated_seconds, is_published)
+values ((select id from public.sections where slug = $c2321$null$c2321$), (select id from public.lessons where slug = $c2322$null-coalesce-y-nullif$c2322$), $c2323$null-q10-escenario$c2323$, $c2324$scenario$c2324$, $c2325$intermediate$c2325$, $c2326$Criterio de negocio$c2326$, $c2327$Vas a calcular la calificación promedio de los vendedores para un ranking. 28 no tienen calificación. ¿Qué conviene?$c2327$, null, $c2328$NULL significa «no sabemos». Las agregaciones lo ignoran por diseño; inventar un valor cambia el significado del resultado.$c2328$, null, null, array[$c2329$null_handling$c2329$,$c2330$coalesce$c2330$]::text[], 55, true)
+on conflict (slug) do update set section_id = excluded.section_id, lesson_id = excluded.lesson_id, type = excluded.type, difficulty = excluded.difficulty, topic = excluded.topic, prompt_md = excluded.prompt_md, code_md = excluded.code_md, explanation_md = excluded.explanation_md, answer = excluded.answer, pairs = excluded.pairs, tags = excluded.tags, estimated_seconds = excluded.estimated_seconds, is_published = excluded.is_published;
+
+delete from public.question_options where question_id = (select id from public.theory_questions where slug = $c2331$null-q10-escenario$c2331$);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2331$null-q10-escenario$c2331$), $c2332$a$c2332$, $c2333$Dejar los NULL como están: `avg(rating)` los ignora y el promedio refleja solo a los calificados.$c2333$, true, null, 0);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2331$null-q10-escenario$c2331$), $c2334$b$c2334$, $c2335$Reemplazarlos con `COALESCE(rating, 0)` antes de promediar.$c2335$, false, $c2336$Un 0 inventado hunde el promedio: «sin calificación» no significa «pésimo».$c2336$, 1);
+
+insert into public.question_options (question_id, key, body_md, is_correct, why_incorrect_md, sort_order)
+values ((select id from public.theory_questions where slug = $c2331$null-q10-escenario$c2331$), $c2337$c$c2337$, $c2338$Reemplazarlos con el promedio general.$c2338$, false, $c2339$Es una técnica de imputación válida en ciencia de datos, pero para un ranking simple oculta que faltan datos.$c2339$, 2);
 
 insert into public.exercises (lesson_id, section_id, slug, title, scenario_md, business_question_md, learning_objective, difficulty, estimated_minutes, concepts, tables_used, dataset_id, dataset_version, theory_ref_slug, allowed_statements, expected_columns, validation_rules, common_mistakes, expert_explanation_md, improvement_feedback, reward_config, solution_unlock, is_published)
-values ((select id from public.lessons where kind in ('exercise','challenge') and ref_slug = $c1336$explorar-clientes$c1336$), (select id from public.sections where slug = $c1337$tablas-filas-columnas-tipos$c1337$), $c1338$explorar-clientes$c1338$, $c1339$Explorar la tabla de clientes$c1339$, $c1340$Es tu primer día en el equipo de datos de **TiendaViva**. Antes de responder cualquier pregunta quieres conocer la tabla `customers`: qué columnas tiene y cómo se ven sus filas.$c1340$, $c1341$Muestra las columnas `id`, `full_name` y `country` de los **10 primeros clientes según su `id`** (de menor a mayor).$c1341$, $c1342$Leer el esquema de una tabla y seleccionar columnas concretas en un orden definido.$c1342$, $c1343$very_easy$c1343$, 3, array[$c1344$select$c1344$,$c1345$order_by$c1345$,$c1346$limit$c1346$]::text[], array[$c1347$customers$c1347$]::text[], (select id from public.datasets where slug = $c1348$tiendaviva$c1348$), 1, $c1349$anatomia-de-una-tabla$c1349$, array[$c1350$select$c1350$]::text[], $c1351$[{"name":"id","type":"integer"},{"name":"full_name","type":"text"},{"name":"country","type":"text"}]$c1351$::jsonb, $c1352${"order_matters":true,"numeric_tolerance":0.01,"allow_extra_columns":false,"dedupe":false,"required_concepts":[],"prohibited_patterns":[],"max_execution_ms":3000}$c1352$::jsonb, $c1353$[{"category":"wrong_columns","description_md":"Usar `SELECT *` devuelve todas las columnas; la consigna pide exactamente tres."},{"category":"wrong_order","description_md":"Sin `ORDER BY id`, las 10 filas que devuelve `LIMIT` no están garantizadas."},{"category":"row_count","description_md":"Olvidar `LIMIT 10` devuelve los 3000 clientes."}]$c1353$::jsonb, $c1354$1. `SELECT id, full_name, country` elige las tres columnas pedidas, en ese orden.
+values ((select id from public.lessons where kind in ('exercise','challenge') and ref_slug = $c2340$explorar-clientes$c2340$), (select id from public.sections where slug = $c2341$tablas-filas-columnas-tipos$c2341$), $c2342$explorar-clientes$c2342$, $c2343$Explorar la tabla de clientes$c2343$, $c2344$Es tu primer día en el equipo de datos de **TiendaViva**. Antes de responder cualquier pregunta quieres conocer la tabla `customers`: qué columnas tiene y cómo se ven sus filas.$c2344$, $c2345$Muestra las columnas `id`, `full_name` y `country` de los **10 primeros clientes según su `id`** (de menor a mayor).$c2345$, $c2346$Leer el esquema de una tabla y seleccionar columnas concretas en un orden definido.$c2346$, $c2347$very_easy$c2347$, 3, array[$c2348$select$c2348$,$c2349$order_by$c2349$,$c2350$limit$c2350$]::text[], array[$c2351$customers$c2351$]::text[], (select id from public.datasets where slug = $c2352$tiendaviva$c2352$), 1, $c2353$anatomia-de-una-tabla$c2353$, array[$c2354$select$c2354$]::text[], $c2355$[{"name":"id","type":"integer"},{"name":"full_name","type":"text"},{"name":"country","type":"text"}]$c2355$::jsonb, $c2356${"order_matters":true,"numeric_tolerance":0.01,"allow_extra_columns":false,"dedupe":false,"required_concepts":[],"prohibited_patterns":[],"max_execution_ms":3000}$c2356$::jsonb, $c2357$[{"category":"wrong_columns","description_md":"Usar `SELECT *` devuelve todas las columnas; la consigna pide exactamente tres."},{"category":"wrong_order","description_md":"Sin `ORDER BY id`, las 10 filas que devuelve `LIMIT` no están garantizadas."},{"category":"row_count","description_md":"Olvidar `LIMIT 10` devuelve los 3000 clientes."}]$c2357$::jsonb, $c2358$1. `SELECT id, full_name, country` elige las tres columnas pedidas, en ese orden.
 2. `FROM customers` indica la tabla.
 3. `ORDER BY id` garantiza el orden ascendente (es el valor por defecto; `ASC` es opcional).
 4. `LIMIT 10` corta el resultado.
 
-**Por qué importa el orden:** `LIMIT` sin `ORDER BY` devuelve *alguna* selección de 10 filas, no necesariamente las de menor `id`. Combinar ambas cláusulas es el patrón estándar para «los primeros N».$c1354$, $c1355$[]$c1355$::jsonb, $c1356${"xp":10,"coins":2,"solution_reveal_xp_percent":25}$c1356$::jsonb, $c1357${"min_attempts":3,"min_hints":2,"min_minutes":10,"allow_explicit":true}$c1357$::jsonb, true)
+**Por qué importa el orden:** `LIMIT` sin `ORDER BY` devuelve *alguna* selección de 10 filas, no necesariamente las de menor `id`. Combinar ambas cláusulas es el patrón estándar para «los primeros N».$c2358$, $c2359$[]$c2359$::jsonb, $c2360${"xp":10,"coins":2,"solution_reveal_xp_percent":25}$c2360$::jsonb, $c2361${"min_attempts":3,"min_hints":2,"min_minutes":10,"allow_explicit":true}$c2361$::jsonb, true)
 on conflict (slug) do update set lesson_id = excluded.lesson_id, section_id = excluded.section_id, title = excluded.title, scenario_md = excluded.scenario_md, business_question_md = excluded.business_question_md, learning_objective = excluded.learning_objective, difficulty = excluded.difficulty, estimated_minutes = excluded.estimated_minutes, concepts = excluded.concepts, tables_used = excluded.tables_used, dataset_id = excluded.dataset_id, dataset_version = excluded.dataset_version, theory_ref_slug = excluded.theory_ref_slug, allowed_statements = excluded.allowed_statements, expected_columns = excluded.expected_columns, validation_rules = excluded.validation_rules, common_mistakes = excluded.common_mistakes, expert_explanation_md = excluded.expert_explanation_md, improvement_feedback = excluded.improvement_feedback, reward_config = excluded.reward_config, solution_unlock = excluded.solution_unlock, is_published = excluded.is_published;
 
-delete from public.exercise_solutions where exercise_id = (select id from public.exercises where slug = $c1358$explorar-clientes$c1358$);
+delete from public.exercise_solutions where exercise_id = (select id from public.exercises where slug = $c2362$explorar-clientes$c2362$);
 
-insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c1359$explorar-clientes$c1359$), $c1360$SELECT id, full_name, country
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c2363$explorar-clientes$c2363$), $c2364$SELECT id, full_name, country
 FROM customers
 ORDER BY id
-LIMIT 10;$c1360$, true, 'reference', 0);
+LIMIT 10;$c2364$, true, 'reference', 0);
 
-insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c1361$explorar-clientes$c1361$), $c1362$SELECT id, full_name, country FROM customers ORDER BY id ASC LIMIT 10$c1362$, false, $c1363$ASC explícito$c1363$, 1);
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c2365$explorar-clientes$c2365$), $c2366$SELECT id, full_name, country FROM customers ORDER BY id ASC LIMIT 10$c2366$, false, $c2367$ASC explícito$c2367$, 1);
 
 insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
-values ((select id from public.exercises where slug = $c1364$explorar-clientes$c1364$), 1, $c1365$Necesitas tres columnas de una sola tabla, en un orden concreto y solo las primeras filas. Piensa en qué cláusulas controlan el orden y la cantidad.$c1365$, 0, 10)
+values ((select id from public.exercises where slug = $c2368$explorar-clientes$c2368$), 1, $c2369$Necesitas tres columnas de una sola tabla, en un orden concreto y solo las primeras filas. Piensa en qué cláusulas controlan el orden y la cantidad.$c2369$, 0, 10)
 on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
 
 insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
-values ((select id from public.exercises where slug = $c1366$explorar-clientes$c1366$), 2, $c1367$La tabla es `customers`. Ordena con `ORDER BY id` y limita con `LIMIT 10`. Las columnas van después de `SELECT`, separadas por comas.$c1367$, 1, 10)
+values ((select id from public.exercises where slug = $c2370$explorar-clientes$c2370$), 2, $c2371$La tabla es `customers`. Ordena con `ORDER BY id` y limita con `LIMIT 10`. Las columnas van después de `SELECT`, separadas por comas.$c2371$, 1, 10)
 on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
 
 insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
-values ((select id from public.exercises where slug = $c1368$explorar-clientes$c1368$), 3, $c1369$```sql
+values ((select id from public.exercises where slug = $c2372$explorar-clientes$c2372$), 3, $c2373$```sql
 SELECT id, ___, ___
 FROM customers
 ORDER BY ___
 LIMIT ___;
-```$c1369$, 2, 10)
+```$c2373$, 2, 10)
 on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
 
-delete from public.exercise_prerequisites where exercise_id = (select id from public.exercises where slug = $c1370$explorar-clientes$c1370$);
+delete from public.exercise_prerequisites where exercise_id = (select id from public.exercises where slug = $c2374$explorar-clientes$c2374$);
 
 insert into public.exercises (lesson_id, section_id, slug, title, scenario_md, business_question_md, learning_objective, difficulty, estimated_minutes, concepts, tables_used, dataset_id, dataset_version, theory_ref_slug, allowed_statements, expected_columns, validation_rules, common_mistakes, expert_explanation_md, improvement_feedback, reward_config, solution_unlock, is_published)
-values ((select id from public.lessons where kind in ('exercise','challenge') and ref_slug = $c1371$tipos-en-pedidos$c1371$), (select id from public.sections where slug = $c1372$tablas-filas-columnas-tipos$c1372$), $c1373$tipos-en-pedidos$c1373$, $c1374$Tipos de datos en los pedidos$c1374$, $c1375$Finanzas te pregunta si `total_amount` es un número «de verdad» o un texto, y si `created_at` guarda la hora. La forma más rápida de comprobarlo es mirar algunas filas y observar los tipos que muestra el resultado.$c1375$, $c1376$Muestra `id`, `status`, `total_amount` y `created_at` de los pedidos con `id` menor o igual a **5**, ordenados por `id`.$c1376$, $c1377$Observar tipos de datos reales (numérico, texto, timestamp) en el resultado de una consulta.$c1377$, $c1378$very_easy$c1378$, 4, array[$c1379$select$c1379$,$c1380$where$c1380$,$c1381$order_by$c1381$]::text[], array[$c1382$orders$c1382$]::text[], (select id from public.datasets where slug = $c1383$tiendaviva$c1383$), 1, $c1384$tipos-de-datos$c1384$, array[$c1385$select$c1385$]::text[], $c1386$[{"name":"id","type":"integer"},{"name":"status","type":"text"},{"name":"total_amount","type":"numeric"},{"name":"created_at","type":"timestamp"}]$c1386$::jsonb, $c1387${"order_matters":true,"numeric_tolerance":0.01,"allow_extra_columns":false,"dedupe":false,"required_concepts":["where"],"prohibited_patterns":[],"max_execution_ms":3000}$c1387$::jsonb, $c1388$[{"category":"missing_filter","description_md":"Usar `LIMIT 5` en lugar de `WHERE id <= 5`: devuelve cinco filas, pero no necesariamente las de `id` 1 a 5."},{"category":"wrong_columns","description_md":"Olvidar `created_at`, que es justamente la columna cuyo tipo queríamos ver."},{"category":"wrong_order","description_md":"Omitir `ORDER BY id` deja el orden sin garantía."}]$c1388$::jsonb, $c1389$`WHERE id <= 5` selecciona por contenido (los pedidos cuyo identificador es 1 a 5), mientras que `LIMIT 5` selecciona por cantidad. En este caso coinciden solo si además ordenas por `id`, pero la consigna pide un filtro.
+values ((select id from public.lessons where kind in ('exercise','challenge') and ref_slug = $c2375$tipos-en-pedidos$c2375$), (select id from public.sections where slug = $c2376$tablas-filas-columnas-tipos$c2376$), $c2377$tipos-en-pedidos$c2377$, $c2378$Tipos de datos en los pedidos$c2378$, $c2379$Finanzas te pregunta si `total_amount` es un número «de verdad» o un texto, y si `created_at` guarda la hora. La forma más rápida de comprobarlo es mirar algunas filas y observar los tipos que muestra el resultado.$c2379$, $c2380$Muestra `id`, `status`, `total_amount` y `created_at` de los pedidos con `id` menor o igual a **5**, ordenados por `id`.$c2380$, $c2381$Observar tipos de datos reales (numérico, texto, timestamp) en el resultado de una consulta.$c2381$, $c2382$very_easy$c2382$, 4, array[$c2383$select$c2383$,$c2384$where$c2384$,$c2385$order_by$c2385$]::text[], array[$c2386$orders$c2386$]::text[], (select id from public.datasets where slug = $c2387$tiendaviva$c2387$), 1, $c2388$tipos-de-datos$c2388$, array[$c2389$select$c2389$]::text[], $c2390$[{"name":"id","type":"integer"},{"name":"status","type":"text"},{"name":"total_amount","type":"numeric"},{"name":"created_at","type":"timestamp"}]$c2390$::jsonb, $c2391${"order_matters":true,"numeric_tolerance":0.01,"allow_extra_columns":false,"dedupe":false,"required_concepts":["where"],"prohibited_patterns":[],"max_execution_ms":3000}$c2391$::jsonb, $c2392$[{"category":"missing_filter","description_md":"Usar `LIMIT 5` en lugar de `WHERE id <= 5`: devuelve cinco filas, pero no necesariamente las de `id` 1 a 5."},{"category":"wrong_columns","description_md":"Olvidar `created_at`, que es justamente la columna cuyo tipo queríamos ver."},{"category":"wrong_order","description_md":"Omitir `ORDER BY id` deja el orden sin garantía."}]$c2392$::jsonb, $c2393$`WHERE id <= 5` selecciona por contenido (los pedidos cuyo identificador es 1 a 5), mientras que `LIMIT 5` selecciona por cantidad. En este caso coinciden solo si además ordenas por `id`, pero la consigna pide un filtro.
 
-En el resultado observa los tipos: `total_amount` es `numeric` (decimales exactos, ideal para dinero) y `created_at` es `timestamptz` (instante con zona horaria). `status` es texto.$c1389$, $c1390$[]$c1390$::jsonb, $c1391${"xp":10,"coins":2,"solution_reveal_xp_percent":25}$c1391$::jsonb, $c1392${"min_attempts":3,"min_hints":2,"min_minutes":10,"allow_explicit":true}$c1392$::jsonb, true)
+En el resultado observa los tipos: `total_amount` es `numeric` (decimales exactos, ideal para dinero) y `created_at` es `timestamptz` (instante con zona horaria). `status` es texto.$c2393$, $c2394$[]$c2394$::jsonb, $c2395${"xp":10,"coins":2,"solution_reveal_xp_percent":25}$c2395$::jsonb, $c2396${"min_attempts":3,"min_hints":2,"min_minutes":10,"allow_explicit":true}$c2396$::jsonb, true)
 on conflict (slug) do update set lesson_id = excluded.lesson_id, section_id = excluded.section_id, title = excluded.title, scenario_md = excluded.scenario_md, business_question_md = excluded.business_question_md, learning_objective = excluded.learning_objective, difficulty = excluded.difficulty, estimated_minutes = excluded.estimated_minutes, concepts = excluded.concepts, tables_used = excluded.tables_used, dataset_id = excluded.dataset_id, dataset_version = excluded.dataset_version, theory_ref_slug = excluded.theory_ref_slug, allowed_statements = excluded.allowed_statements, expected_columns = excluded.expected_columns, validation_rules = excluded.validation_rules, common_mistakes = excluded.common_mistakes, expert_explanation_md = excluded.expert_explanation_md, improvement_feedback = excluded.improvement_feedback, reward_config = excluded.reward_config, solution_unlock = excluded.solution_unlock, is_published = excluded.is_published;
 
-delete from public.exercise_solutions where exercise_id = (select id from public.exercises where slug = $c1393$tipos-en-pedidos$c1393$);
+delete from public.exercise_solutions where exercise_id = (select id from public.exercises where slug = $c2397$tipos-en-pedidos$c2397$);
 
-insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c1394$tipos-en-pedidos$c1394$), $c1395$SELECT id, status, total_amount, created_at
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c2398$tipos-en-pedidos$c2398$), $c2399$SELECT id, status, total_amount, created_at
 FROM orders
 WHERE id <= 5
-ORDER BY id;$c1395$, true, 'reference', 0);
+ORDER BY id;$c2399$, true, 'reference', 0);
 
-insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c1396$tipos-en-pedidos$c1396$), $c1397$SELECT id, status, total_amount, created_at FROM orders WHERE id BETWEEN 1 AND 5 ORDER BY id$c1397$, false, $c1398$Con BETWEEN$c1398$, 1);
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c2400$tipos-en-pedidos$c2400$), $c2401$SELECT id, status, total_amount, created_at FROM orders WHERE id BETWEEN 1 AND 5 ORDER BY id$c2401$, false, $c2402$Con BETWEEN$c2402$, 1);
 
 insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
-values ((select id from public.exercises where slug = $c1399$tipos-en-pedidos$c1399$), 1, $c1400$Quieres pocas filas concretas (las de `id` 1 a 5): eso es un filtro sobre filas, no un límite de cantidad.$c1400$, 0, 10)
+values ((select id from public.exercises where slug = $c2403$tipos-en-pedidos$c2403$), 1, $c2404$Quieres pocas filas concretas (las de `id` 1 a 5): eso es un filtro sobre filas, no un límite de cantidad.$c2404$, 0, 10)
 on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
 
 insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
-values ((select id from public.exercises where slug = $c1401$tipos-en-pedidos$c1401$), 2, $c1402$Filtra con `WHERE id <= 5` en la tabla `orders` y ordena por `id`. Fíjate en el tipo que el resultado muestra para `total_amount` y `created_at`.$c1402$, 1, 10)
+values ((select id from public.exercises where slug = $c2405$tipos-en-pedidos$c2405$), 2, $c2406$Filtra con `WHERE id <= 5` en la tabla `orders` y ordena por `id`. Fíjate en el tipo que el resultado muestra para `total_amount` y `created_at`.$c2406$, 1, 10)
 on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
 
 insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
-values ((select id from public.exercises where slug = $c1403$tipos-en-pedidos$c1403$), 3, $c1404$```sql
+values ((select id from public.exercises where slug = $c2407$tipos-en-pedidos$c2407$), 3, $c2408$```sql
 SELECT id, status, ___, ___
 FROM orders
 WHERE id ___ 5
 ORDER BY id;
-```$c1404$, 2, 10)
+```$c2408$, 2, 10)
 on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
 
-delete from public.exercise_prerequisites where exercise_id = (select id from public.exercises where slug = $c1405$tipos-en-pedidos$c1405$);
+delete from public.exercise_prerequisites where exercise_id = (select id from public.exercises where slug = $c2409$tipos-en-pedidos$c2409$);
 
 insert into public.exercises (lesson_id, section_id, slug, title, scenario_md, business_question_md, learning_objective, difficulty, estimated_minutes, concepts, tables_used, dataset_id, dataset_version, theory_ref_slug, allowed_statements, expected_columns, validation_rules, common_mistakes, expert_explanation_md, improvement_feedback, reward_config, solution_unlock, is_published)
-values ((select id from public.lessons where kind in ('exercise','challenge') and ref_slug = $c1406$catalogo-de-categorias$c1406$), (select id from public.sections where slug = $c1407$select$c1407$), $c1408$catalogo-de-categorias$c1408$, $c1409$El catálogo de categorías$c1409$, $c1410$El equipo de catálogo de **TiendaViva** quiere revisar cómo están organizadas las categorías de productos (tienen dos niveles: categorías raíz y subcategorías).$c1410$, $c1411$Muestra `id`, `name` y `parent_id` de **todas** las categorías. El orden de las filas no importa.$c1411$, $c1412$Escribir una consulta SELECT básica con columnas explícitas.$c1412$, $c1413$very_easy$c1413$, 3, array[$c1414$select$c1414$]::text[], array[$c1415$categories$c1415$]::text[], (select id from public.datasets where slug = $c1416$tiendaviva$c1416$), 1, $c1417$select-columnas$c1417$, array[$c1418$select$c1418$]::text[], $c1419$[{"name":"id","type":"integer"},{"name":"name","type":"text"},{"name":"parent_id","type":"integer"}]$c1419$::jsonb, $c1420${"order_matters":false,"numeric_tolerance":0.01,"allow_extra_columns":false,"dedupe":false,"required_concepts":[],"prohibited_patterns":[],"max_execution_ms":3000}$c1420$::jsonb, $c1421$[{"category":"wrong_columns","description_md":"Escribir `SELECT *`: devuelve las mismas tres columnas aquí, pero la consigna pide nombrarlas; en tablas más anchas devolvería de más."},{"category":"syntax","description_md":"Dejar una coma después de la última columna (`parent_id, FROM`) produce un error de sintaxis."},{"category":"wrong_columns","description_md":"Escribir `parent` en lugar de `parent_id`: el nombre debe coincidir con el esquema."}]$c1421$::jsonb, $c1422$`SELECT id, name, parent_id FROM categories` devuelve las 30 categorías. Las seis con `parent_id` **NULL** son las raíces (Tecnología, Hogar, …); el resto apunta a su categoría padre.
+values ((select id from public.lessons where kind in ('exercise','challenge') and ref_slug = $c2410$catalogo-de-categorias$c2410$), (select id from public.sections where slug = $c2411$select$c2411$), $c2412$catalogo-de-categorias$c2412$, $c2413$El catálogo de categorías$c2413$, $c2414$El equipo de catálogo de **TiendaViva** quiere revisar cómo están organizadas las categorías de productos (tienen dos niveles: categorías raíz y subcategorías).$c2414$, $c2415$Muestra `id`, `name` y `parent_id` de **todas** las categorías. El orden de las filas no importa.$c2415$, $c2416$Escribir una consulta SELECT básica con columnas explícitas.$c2416$, $c2417$very_easy$c2417$, 3, array[$c2418$select$c2418$]::text[], array[$c2419$categories$c2419$]::text[], (select id from public.datasets where slug = $c2420$tiendaviva$c2420$), 1, $c2421$select-columnas$c2421$, array[$c2422$select$c2422$]::text[], $c2423$[{"name":"id","type":"integer"},{"name":"name","type":"text"},{"name":"parent_id","type":"integer"}]$c2423$::jsonb, $c2424${"order_matters":false,"numeric_tolerance":0.01,"allow_extra_columns":false,"dedupe":false,"required_concepts":[],"prohibited_patterns":[],"max_execution_ms":3000}$c2424$::jsonb, $c2425$[{"category":"wrong_columns","description_md":"Escribir `SELECT *`: devuelve las mismas tres columnas aquí, pero la consigna pide nombrarlas; en tablas más anchas devolvería de más."},{"category":"syntax","description_md":"Dejar una coma después de la última columna (`parent_id, FROM`) produce un error de sintaxis."},{"category":"wrong_columns","description_md":"Escribir `parent` en lugar de `parent_id`: el nombre debe coincidir con el esquema."}]$c2425$::jsonb, $c2426$`SELECT id, name, parent_id FROM categories` devuelve las 30 categorías. Las seis con `parent_id` **NULL** son las raíces (Tecnología, Hogar, …); el resto apunta a su categoría padre.
 
-Fíjate en cómo se muestra NULL en el resultado: no es cero ni texto vacío, es «desconocido/no aplica». Lo estudiarás a fondo en la sección 8.$c1422$, $c1423$[]$c1423$::jsonb, $c1424${"xp":10,"coins":2,"solution_reveal_xp_percent":25}$c1424$::jsonb, $c1425${"min_attempts":3,"min_hints":2,"min_minutes":10,"allow_explicit":true}$c1425$::jsonb, true)
+Fíjate en cómo se muestra NULL en el resultado: no es cero ni texto vacío, es «desconocido/no aplica». Lo estudiarás a fondo en la sección 8.$c2426$, $c2427$[]$c2427$::jsonb, $c2428${"xp":10,"coins":2,"solution_reveal_xp_percent":25}$c2428$::jsonb, $c2429${"min_attempts":3,"min_hints":2,"min_minutes":10,"allow_explicit":true}$c2429$::jsonb, true)
 on conflict (slug) do update set lesson_id = excluded.lesson_id, section_id = excluded.section_id, title = excluded.title, scenario_md = excluded.scenario_md, business_question_md = excluded.business_question_md, learning_objective = excluded.learning_objective, difficulty = excluded.difficulty, estimated_minutes = excluded.estimated_minutes, concepts = excluded.concepts, tables_used = excluded.tables_used, dataset_id = excluded.dataset_id, dataset_version = excluded.dataset_version, theory_ref_slug = excluded.theory_ref_slug, allowed_statements = excluded.allowed_statements, expected_columns = excluded.expected_columns, validation_rules = excluded.validation_rules, common_mistakes = excluded.common_mistakes, expert_explanation_md = excluded.expert_explanation_md, improvement_feedback = excluded.improvement_feedback, reward_config = excluded.reward_config, solution_unlock = excluded.solution_unlock, is_published = excluded.is_published;
 
-delete from public.exercise_solutions where exercise_id = (select id from public.exercises where slug = $c1426$catalogo-de-categorias$c1426$);
+delete from public.exercise_solutions where exercise_id = (select id from public.exercises where slug = $c2430$catalogo-de-categorias$c2430$);
 
-insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c1427$catalogo-de-categorias$c1427$), $c1428$SELECT id, name, parent_id
-FROM categories;$c1428$, true, 'reference', 0);
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c2431$catalogo-de-categorias$c2431$), $c2432$SELECT id, name, parent_id
+FROM categories;$c2432$, true, 'reference', 0);
 
 insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
-values ((select id from public.exercises where slug = $c1429$catalogo-de-categorias$c1429$), 1, $c1430$Es la forma más simple de consulta: elegir columnas de una tabla, sin filtros.$c1430$, 0, 10)
+values ((select id from public.exercises where slug = $c2433$catalogo-de-categorias$c2433$), 1, $c2434$Es la forma más simple de consulta: elegir columnas de una tabla, sin filtros.$c2434$, 0, 10)
 on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
 
 insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
-values ((select id from public.exercises where slug = $c1431$catalogo-de-categorias$c1431$), 2, $c1432$La tabla es `categories`. Lista las tres columnas después de `SELECT`, separadas por comas, y cierra con `FROM categories`.$c1432$, 1, 10)
+values ((select id from public.exercises where slug = $c2435$catalogo-de-categorias$c2435$), 2, $c2436$La tabla es `categories`. Lista las tres columnas después de `SELECT`, separadas por comas, y cierra con `FROM categories`.$c2436$, 1, 10)
 on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
 
 insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
-values ((select id from public.exercises where slug = $c1433$catalogo-de-categorias$c1433$), 3, $c1434$```sql
+values ((select id from public.exercises where slug = $c2437$catalogo-de-categorias$c2437$), 3, $c2438$```sql
 SELECT ___, ___, ___
 FROM ___;
-```$c1434$, 2, 10)
+```$c2438$, 2, 10)
 on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
 
-delete from public.exercise_prerequisites where exercise_id = (select id from public.exercises where slug = $c1435$catalogo-de-categorias$c1435$);
+delete from public.exercise_prerequisites where exercise_id = (select id from public.exercises where slug = $c2439$catalogo-de-categorias$c2439$);
 
 insert into public.exercises (lesson_id, section_id, slug, title, scenario_md, business_question_md, learning_objective, difficulty, estimated_minutes, concepts, tables_used, dataset_id, dataset_version, theory_ref_slug, allowed_statements, expected_columns, validation_rules, common_mistakes, expert_explanation_md, improvement_feedback, reward_config, solution_unlock, is_published)
-values ((select id from public.lessons where kind in ('exercise','challenge') and ref_slug = $c1436$vendedores-basico$c1436$), (select id from public.sections where slug = $c1437$select$c1437$), $c1438$vendedores-basico$c1438$, $c1439$Lista de vendedores$c1439$, $c1440$El área comercial prepara una campaña y necesita una lista simple de las tiendas del marketplace con su país y su calificación.$c1440$, $c1441$Muestra `store_name`, `country` y `rating` de todos los vendedores. El orden no importa.$c1441$, $c1442$Seleccionar columnas de una tabla y reconocer valores NULL en el resultado.$c1442$, $c1443$very_easy$c1443$, 3, array[$c1444$select$c1444$]::text[], array[$c1445$sellers$c1445$]::text[], (select id from public.datasets where slug = $c1446$tiendaviva$c1446$), 1, $c1447$select-columnas$c1447$, array[$c1448$select$c1448$]::text[], $c1449$[{"name":"store_name","type":"text"},{"name":"country","type":"text"},{"name":"rating","type":"numeric"}]$c1449$::jsonb, $c1450${"order_matters":false,"numeric_tolerance":0.01,"allow_extra_columns":false,"dedupe":false,"required_concepts":[],"prohibited_patterns":[],"max_execution_ms":3000}$c1450$::jsonb, $c1451$[{"category":"wrong_columns","description_md":"Consultar `customers` (clientes) en lugar de `sellers` (vendedores)."},{"category":"wrong_columns","description_md":"Pedir `name` en vez de `store_name`; el esquema manda."},{"category":"null_handling","description_md":"Sorprenderse por los `rating` en NULL: son vendedores sin reseñas todavía, no un error."}]$c1451$::jsonb, $c1452$Consulta directa sobre `sellers`. Observa que unos 15 % de los vendedores tienen `rating` NULL: todavía no recibieron reseñas. Un reporte serio debería explicar ese NULL (o reemplazarlo con `COALESCE`, que verás más adelante) en lugar de mostrarlo como si fuera un cero.$c1452$, $c1453$[]$c1453$::jsonb, $c1454${"xp":10,"coins":2,"solution_reveal_xp_percent":25}$c1454$::jsonb, $c1455${"min_attempts":3,"min_hints":2,"min_minutes":10,"allow_explicit":true}$c1455$::jsonb, true)
+values ((select id from public.lessons where kind in ('exercise','challenge') and ref_slug = $c2440$vendedores-basico$c2440$), (select id from public.sections where slug = $c2441$select$c2441$), $c2442$vendedores-basico$c2442$, $c2443$Lista de vendedores$c2443$, $c2444$El área comercial prepara una campaña y necesita una lista simple de las tiendas del marketplace con su país y su calificación.$c2444$, $c2445$Muestra `store_name`, `country` y `rating` de todos los vendedores. El orden no importa.$c2445$, $c2446$Seleccionar columnas de una tabla y reconocer valores NULL en el resultado.$c2446$, $c2447$very_easy$c2447$, 3, array[$c2448$select$c2448$]::text[], array[$c2449$sellers$c2449$]::text[], (select id from public.datasets where slug = $c2450$tiendaviva$c2450$), 1, $c2451$select-columnas$c2451$, array[$c2452$select$c2452$]::text[], $c2453$[{"name":"store_name","type":"text"},{"name":"country","type":"text"},{"name":"rating","type":"numeric"}]$c2453$::jsonb, $c2454${"order_matters":false,"numeric_tolerance":0.01,"allow_extra_columns":false,"dedupe":false,"required_concepts":[],"prohibited_patterns":[],"max_execution_ms":3000}$c2454$::jsonb, $c2455$[{"category":"wrong_columns","description_md":"Consultar `customers` (clientes) en lugar de `sellers` (vendedores)."},{"category":"wrong_columns","description_md":"Pedir `name` en vez de `store_name`; el esquema manda."},{"category":"null_handling","description_md":"Sorprenderse por los `rating` en NULL: son vendedores sin reseñas todavía, no un error."}]$c2455$::jsonb, $c2456$Consulta directa sobre `sellers`. Observa que unos 15 % de los vendedores tienen `rating` NULL: todavía no recibieron reseñas. Un reporte serio debería explicar ese NULL (o reemplazarlo con `COALESCE`, que verás más adelante) en lugar de mostrarlo como si fuera un cero.$c2456$, $c2457$[]$c2457$::jsonb, $c2458${"xp":10,"coins":2,"solution_reveal_xp_percent":25}$c2458$::jsonb, $c2459${"min_attempts":3,"min_hints":2,"min_minutes":10,"allow_explicit":true}$c2459$::jsonb, true)
 on conflict (slug) do update set lesson_id = excluded.lesson_id, section_id = excluded.section_id, title = excluded.title, scenario_md = excluded.scenario_md, business_question_md = excluded.business_question_md, learning_objective = excluded.learning_objective, difficulty = excluded.difficulty, estimated_minutes = excluded.estimated_minutes, concepts = excluded.concepts, tables_used = excluded.tables_used, dataset_id = excluded.dataset_id, dataset_version = excluded.dataset_version, theory_ref_slug = excluded.theory_ref_slug, allowed_statements = excluded.allowed_statements, expected_columns = excluded.expected_columns, validation_rules = excluded.validation_rules, common_mistakes = excluded.common_mistakes, expert_explanation_md = excluded.expert_explanation_md, improvement_feedback = excluded.improvement_feedback, reward_config = excluded.reward_config, solution_unlock = excluded.solution_unlock, is_published = excluded.is_published;
 
-delete from public.exercise_solutions where exercise_id = (select id from public.exercises where slug = $c1456$vendedores-basico$c1456$);
+delete from public.exercise_solutions where exercise_id = (select id from public.exercises where slug = $c2460$vendedores-basico$c2460$);
 
-insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c1457$vendedores-basico$c1457$), $c1458$SELECT store_name, country, rating
-FROM sellers;$c1458$, true, 'reference', 0);
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c2461$vendedores-basico$c2461$), $c2462$SELECT store_name, country, rating
+FROM sellers;$c2462$, true, 'reference', 0);
 
 insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
-values ((select id from public.exercises where slug = $c1459$vendedores-basico$c1459$), 1, $c1460$Misma estructura que el ejercicio anterior: columnas concretas de una sola tabla.$c1460$, 0, 10)
+values ((select id from public.exercises where slug = $c2463$vendedores-basico$c2463$), 1, $c2464$Misma estructura que el ejercicio anterior: columnas concretas de una sola tabla.$c2464$, 0, 10)
 on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
 
 insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
-values ((select id from public.exercises where slug = $c1461$vendedores-basico$c1461$), 2, $c1462$La tabla se llama `sellers` (vendedores). Las columnas pedidas son exactamente `store_name`, `country` y `rating`.$c1462$, 1, 10)
+values ((select id from public.exercises where slug = $c2465$vendedores-basico$c2465$), 2, $c2466$La tabla se llama `sellers` (vendedores). Las columnas pedidas son exactamente `store_name`, `country` y `rating`.$c2466$, 1, 10)
 on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
 
 insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
-values ((select id from public.exercises where slug = $c1463$vendedores-basico$c1463$), 3, $c1464$```sql
+values ((select id from public.exercises where slug = $c2467$vendedores-basico$c2467$), 3, $c2468$```sql
 SELECT store_name, ___, ___
 FROM ___;
-```$c1464$, 2, 10)
+```$c2468$, 2, 10)
 on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
 
-delete from public.exercise_prerequisites where exercise_id = (select id from public.exercises where slug = $c1465$vendedores-basico$c1465$);
+delete from public.exercise_prerequisites where exercise_id = (select id from public.exercises where slug = $c2469$vendedores-basico$c2469$);
 
 insert into public.exercises (lesson_id, section_id, slug, title, scenario_md, business_question_md, learning_objective, difficulty, estimated_minutes, concepts, tables_used, dataset_id, dataset_version, theory_ref_slug, allowed_statements, expected_columns, validation_rules, common_mistakes, expert_explanation_md, improvement_feedback, reward_config, solution_unlock, is_published)
-values ((select id from public.lessons where kind in ('exercise','challenge') and ref_slug = $c1466$columnas-en-orden$c1466$), (select id from public.sections where slug = $c1467$select$c1467$), $c1468$columnas-en-orden$c1468$, $c1469$Columnas en el orden que pide el negocio$c1469$, $c1470$Operaciones va a pegar tu resultado en una plantilla que espera las columnas en un orden fijo: primero el país, luego el nombre de la tienda y por último si está verificada.$c1470$, $c1471$Muestra, **en este orden de columnas**, `country`, `store_name` e `is_verified` de todos los vendedores.$c1471$, $c1472$Controlar el orden de las columnas del resultado desde la lista de SELECT.$c1472$, $c1473$easy$c1473$, 4, array[$c1474$select$c1474$]::text[], array[$c1475$sellers$c1475$]::text[], (select id from public.datasets where slug = $c1476$tiendaviva$c1476$), 1, $c1477$select-columnas$c1477$, array[$c1478$select$c1478$]::text[], $c1479$[{"name":"country","type":"text"},{"name":"store_name","type":"text"},{"name":"is_verified","type":"boolean"}]$c1479$::jsonb, $c1480${"order_matters":false,"numeric_tolerance":0.01,"allow_extra_columns":false,"dedupe":false,"required_concepts":[],"prohibited_patterns":[],"max_execution_ms":3000}$c1480$::jsonb, $c1481$[{"category":"wrong_column_order","description_md":"Escribir las columnas en el orden de la tabla (`store_name, country, …`) en lugar del orden pedido."},{"category":"wrong_columns","description_md":"Usar `SELECT *`: devuelve columnas extra y en el orden físico de la tabla."},{"category":"wrong_columns","description_md":"Olvidar `is_verified`."}]$c1481$::jsonb, $c1482$La lista de `SELECT` define las columnas **y su orden**. Esto importa cuando otro sistema consume el resultado por posición (plantillas, cargas masivas, hojas de cálculo). Un `SELECT *` te haría depender del orden físico de la tabla, que puede cambiar si alguien agrega columnas.$c1482$, $c1483$[]$c1483$::jsonb, $c1484${"xp":20,"coins":4,"solution_reveal_xp_percent":25}$c1484$::jsonb, $c1485${"min_attempts":3,"min_hints":2,"min_minutes":10,"allow_explicit":true}$c1485$::jsonb, true)
+values ((select id from public.lessons where kind in ('exercise','challenge') and ref_slug = $c2470$columnas-en-orden$c2470$), (select id from public.sections where slug = $c2471$select$c2471$), $c2472$columnas-en-orden$c2472$, $c2473$Columnas en el orden que pide el negocio$c2473$, $c2474$Operaciones va a pegar tu resultado en una plantilla que espera las columnas en un orden fijo: primero el país, luego el nombre de la tienda y por último si está verificada.$c2474$, $c2475$Muestra, **en este orden de columnas**, `country`, `store_name` e `is_verified` de todos los vendedores.$c2475$, $c2476$Controlar el orden de las columnas del resultado desde la lista de SELECT.$c2476$, $c2477$easy$c2477$, 4, array[$c2478$select$c2478$]::text[], array[$c2479$sellers$c2479$]::text[], (select id from public.datasets where slug = $c2480$tiendaviva$c2480$), 1, $c2481$select-columnas$c2481$, array[$c2482$select$c2482$]::text[], $c2483$[{"name":"country","type":"text"},{"name":"store_name","type":"text"},{"name":"is_verified","type":"boolean"}]$c2483$::jsonb, $c2484${"order_matters":false,"numeric_tolerance":0.01,"allow_extra_columns":false,"dedupe":false,"required_concepts":[],"prohibited_patterns":[],"max_execution_ms":3000}$c2484$::jsonb, $c2485$[{"category":"wrong_column_order","description_md":"Escribir las columnas en el orden de la tabla (`store_name, country, …`) en lugar del orden pedido."},{"category":"wrong_columns","description_md":"Usar `SELECT *`: devuelve columnas extra y en el orden físico de la tabla."},{"category":"wrong_columns","description_md":"Olvidar `is_verified`."}]$c2485$::jsonb, $c2486$La lista de `SELECT` define las columnas **y su orden**. Esto importa cuando otro sistema consume el resultado por posición (plantillas, cargas masivas, hojas de cálculo). Un `SELECT *` te haría depender del orden físico de la tabla, que puede cambiar si alguien agrega columnas.$c2486$, $c2487$[]$c2487$::jsonb, $c2488${"xp":20,"coins":4,"solution_reveal_xp_percent":25}$c2488$::jsonb, $c2489${"min_attempts":3,"min_hints":2,"min_minutes":10,"allow_explicit":true}$c2489$::jsonb, true)
 on conflict (slug) do update set lesson_id = excluded.lesson_id, section_id = excluded.section_id, title = excluded.title, scenario_md = excluded.scenario_md, business_question_md = excluded.business_question_md, learning_objective = excluded.learning_objective, difficulty = excluded.difficulty, estimated_minutes = excluded.estimated_minutes, concepts = excluded.concepts, tables_used = excluded.tables_used, dataset_id = excluded.dataset_id, dataset_version = excluded.dataset_version, theory_ref_slug = excluded.theory_ref_slug, allowed_statements = excluded.allowed_statements, expected_columns = excluded.expected_columns, validation_rules = excluded.validation_rules, common_mistakes = excluded.common_mistakes, expert_explanation_md = excluded.expert_explanation_md, improvement_feedback = excluded.improvement_feedback, reward_config = excluded.reward_config, solution_unlock = excluded.solution_unlock, is_published = excluded.is_published;
 
-delete from public.exercise_solutions where exercise_id = (select id from public.exercises where slug = $c1486$columnas-en-orden$c1486$);
+delete from public.exercise_solutions where exercise_id = (select id from public.exercises where slug = $c2490$columnas-en-orden$c2490$);
 
-insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c1487$columnas-en-orden$c1487$), $c1488$SELECT country, store_name, is_verified
-FROM sellers;$c1488$, true, 'reference', 0);
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c2491$columnas-en-orden$c2491$), $c2492$SELECT country, store_name, is_verified
+FROM sellers;$c2492$, true, 'reference', 0);
 
 insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
-values ((select id from public.exercises where slug = $c1489$columnas-en-orden$c1489$), 1, $c1490$El orden de las columnas en el resultado es el orden en que las escribes después de `SELECT`.$c1490$, 0, 10)
+values ((select id from public.exercises where slug = $c2493$columnas-en-orden$c2493$), 1, $c2494$El orden de las columnas en el resultado es el orden en que las escribes después de `SELECT`.$c2494$, 0, 10)
 on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
 
 insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
-values ((select id from public.exercises where slug = $c1491$columnas-en-orden$c1491$), 2, $c1492$Escribe primero `country`, después `store_name` y al final `is_verified`, todas de `sellers`.$c1492$, 1, 10)
+values ((select id from public.exercises where slug = $c2495$columnas-en-orden$c2495$), 2, $c2496$Escribe primero `country`, después `store_name` y al final `is_verified`, todas de `sellers`.$c2496$, 1, 10)
 on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
 
 insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
-values ((select id from public.exercises where slug = $c1493$columnas-en-orden$c1493$), 3, $c1494$```sql
+values ((select id from public.exercises where slug = $c2497$columnas-en-orden$c2497$), 3, $c2498$```sql
 SELECT ___, store_name, ___
 FROM sellers;
-```$c1494$, 2, 10)
+```$c2498$, 2, 10)
 on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
 
-delete from public.exercise_prerequisites where exercise_id = (select id from public.exercises where slug = $c1495$columnas-en-orden$c1495$);
+delete from public.exercise_prerequisites where exercise_id = (select id from public.exercises where slug = $c2499$columnas-en-orden$c2499$);
 
 insert into public.exercises (lesson_id, section_id, slug, title, scenario_md, business_question_md, learning_objective, difficulty, estimated_minutes, concepts, tables_used, dataset_id, dataset_version, theory_ref_slug, allowed_statements, expected_columns, validation_rules, common_mistakes, expert_explanation_md, improvement_feedback, reward_config, solution_unlock, is_published)
-values ((select id from public.lessons where kind in ('exercise','challenge') and ref_slug = $c1496$explorar-productos$c1496$), (select id from public.sections where slug = $c1497$select$c1497$), $c1498$explorar-productos$c1498$, $c1499$Explorar el catálogo de productos$c1499$, $c1500$Marketing quiere ver una muestra del catálogo para entender cómo se llaman los productos y en qué moneda están sus precios antes de diseñar una campaña regional.$c1500$, $c1501$Muestra `id`, `name`, `list_price` y `currency` de los **20 productos con menor `id`**, ordenados por `id` ascendente.$c1501$, $c1502$Combinar SELECT con ORDER BY y LIMIT para obtener una muestra determinista.$c1502$, $c1503$easy$c1503$, 4, array[$c1504$select$c1504$,$c1505$order_by$c1505$,$c1506$limit$c1506$]::text[], array[$c1507$products$c1507$]::text[], (select id from public.datasets where slug = $c1508$tiendaviva$c1508$), 1, $c1509$select-columnas$c1509$, array[$c1510$select$c1510$]::text[], $c1511$[{"name":"id","type":"integer"},{"name":"name","type":"text"},{"name":"list_price","type":"numeric"},{"name":"currency","type":"text"}]$c1511$::jsonb, $c1512${"order_matters":true,"numeric_tolerance":0.01,"allow_extra_columns":false,"dedupe":false,"required_concepts":[],"prohibited_patterns":[],"max_execution_ms":3000}$c1512$::jsonb, $c1513$[{"category":"wrong_order","description_md":"`LIMIT 20` sin `ORDER BY id` devuelve 20 productos cualesquiera."},{"category":"row_count","description_md":"Olvidar `LIMIT` devuelve los 1500 productos."},{"category":"wrong_columns","description_md":"Incluir `stock` o `seller_id`, que no fueron pedidos."}]$c1513$::jsonb, $c1514$`ORDER BY id LIMIT 20` es el patrón canónico para una muestra reproducible: siempre devuelve las mismas 20 filas. Observa que `currency` varía por producto (ARS, MXN, COP…): un análisis de precios entre países necesitará convertir monedas, tema de secciones posteriores.$c1514$, $c1515$[]$c1515$::jsonb, $c1516${"xp":20,"coins":4,"solution_reveal_xp_percent":25}$c1516$::jsonb, $c1517${"min_attempts":3,"min_hints":2,"min_minutes":10,"allow_explicit":true}$c1517$::jsonb, true)
+values ((select id from public.lessons where kind in ('exercise','challenge') and ref_slug = $c2500$explorar-productos$c2500$), (select id from public.sections where slug = $c2501$select$c2501$), $c2502$explorar-productos$c2502$, $c2503$Explorar el catálogo de productos$c2503$, $c2504$Marketing quiere ver una muestra del catálogo para entender cómo se llaman los productos y en qué moneda están sus precios antes de diseñar una campaña regional.$c2504$, $c2505$Muestra `id`, `name`, `list_price` y `currency` de los **20 productos con menor `id`**, ordenados por `id` ascendente.$c2505$, $c2506$Combinar SELECT con ORDER BY y LIMIT para obtener una muestra determinista.$c2506$, $c2507$easy$c2507$, 4, array[$c2508$select$c2508$,$c2509$order_by$c2509$,$c2510$limit$c2510$]::text[], array[$c2511$products$c2511$]::text[], (select id from public.datasets where slug = $c2512$tiendaviva$c2512$), 1, $c2513$select-columnas$c2513$, array[$c2514$select$c2514$]::text[], $c2515$[{"name":"id","type":"integer"},{"name":"name","type":"text"},{"name":"list_price","type":"numeric"},{"name":"currency","type":"text"}]$c2515$::jsonb, $c2516${"order_matters":true,"numeric_tolerance":0.01,"allow_extra_columns":false,"dedupe":false,"required_concepts":[],"prohibited_patterns":[],"max_execution_ms":3000}$c2516$::jsonb, $c2517$[{"category":"wrong_order","description_md":"`LIMIT 20` sin `ORDER BY id` devuelve 20 productos cualesquiera."},{"category":"row_count","description_md":"Olvidar `LIMIT` devuelve los 1500 productos."},{"category":"wrong_columns","description_md":"Incluir `stock` o `seller_id`, que no fueron pedidos."}]$c2517$::jsonb, $c2518$`ORDER BY id LIMIT 20` es el patrón canónico para una muestra reproducible: siempre devuelve las mismas 20 filas. Observa que `currency` varía por producto (ARS, MXN, COP…): un análisis de precios entre países necesitará convertir monedas, tema de secciones posteriores.$c2518$, $c2519$[]$c2519$::jsonb, $c2520${"xp":20,"coins":4,"solution_reveal_xp_percent":25}$c2520$::jsonb, $c2521${"min_attempts":3,"min_hints":2,"min_minutes":10,"allow_explicit":true}$c2521$::jsonb, true)
 on conflict (slug) do update set lesson_id = excluded.lesson_id, section_id = excluded.section_id, title = excluded.title, scenario_md = excluded.scenario_md, business_question_md = excluded.business_question_md, learning_objective = excluded.learning_objective, difficulty = excluded.difficulty, estimated_minutes = excluded.estimated_minutes, concepts = excluded.concepts, tables_used = excluded.tables_used, dataset_id = excluded.dataset_id, dataset_version = excluded.dataset_version, theory_ref_slug = excluded.theory_ref_slug, allowed_statements = excluded.allowed_statements, expected_columns = excluded.expected_columns, validation_rules = excluded.validation_rules, common_mistakes = excluded.common_mistakes, expert_explanation_md = excluded.expert_explanation_md, improvement_feedback = excluded.improvement_feedback, reward_config = excluded.reward_config, solution_unlock = excluded.solution_unlock, is_published = excluded.is_published;
 
-delete from public.exercise_solutions where exercise_id = (select id from public.exercises where slug = $c1518$explorar-productos$c1518$);
+delete from public.exercise_solutions where exercise_id = (select id from public.exercises where slug = $c2522$explorar-productos$c2522$);
 
-insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c1519$explorar-productos$c1519$), $c1520$SELECT id, name, list_price, currency
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c2523$explorar-productos$c2523$), $c2524$SELECT id, name, list_price, currency
 FROM products
 ORDER BY id
-LIMIT 20;$c1520$, true, 'reference', 0);
+LIMIT 20;$c2524$, true, 'reference', 0);
 
 insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
-values ((select id from public.exercises where slug = $c1521$explorar-productos$c1521$), 1, $c1522$«Los 20 con menor id» = ordenar por `id` y quedarte con las primeras 20 filas.$c1522$, 0, 10)
+values ((select id from public.exercises where slug = $c2525$explorar-productos$c2525$), 1, $c2526$«Los 20 con menor id» = ordenar por `id` y quedarte con las primeras 20 filas.$c2526$, 0, 10)
 on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
 
 insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
-values ((select id from public.exercises where slug = $c1523$explorar-productos$c1523$), 2, $c1524$En `products`: `ORDER BY id` seguido de `LIMIT 20`. Recuerda listar las cuatro columnas en el orden pedido.$c1524$, 1, 10)
+values ((select id from public.exercises where slug = $c2527$explorar-productos$c2527$), 2, $c2528$En `products`: `ORDER BY id` seguido de `LIMIT 20`. Recuerda listar las cuatro columnas en el orden pedido.$c2528$, 1, 10)
 on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
 
 insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
-values ((select id from public.exercises where slug = $c1525$explorar-productos$c1525$), 3, $c1526$```sql
+values ((select id from public.exercises where slug = $c2529$explorar-productos$c2529$), 3, $c2530$```sql
 SELECT id, name, ___, ___
 FROM products
 ORDER BY ___
 LIMIT ___;
-```$c1526$, 2, 10)
+```$c2530$, 2, 10)
 on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
 
-delete from public.exercise_prerequisites where exercise_id = (select id from public.exercises where slug = $c1527$explorar-productos$c1527$);
+delete from public.exercise_prerequisites where exercise_id = (select id from public.exercises where slug = $c2531$explorar-productos$c2531$);
 
 insert into public.exercises (lesson_id, section_id, slug, title, scenario_md, business_question_md, learning_objective, difficulty, estimated_minutes, concepts, tables_used, dataset_id, dataset_version, theory_ref_slug, allowed_statements, expected_columns, validation_rules, common_mistakes, expert_explanation_md, improvement_feedback, reward_config, solution_unlock, is_published)
-values ((select id from public.lessons where kind in ('exercise','challenge') and ref_slug = $c1528$reto-vendedores-antiguos$c1528$), (select id from public.sections where slug = $c1529$select$c1529$), $c1530$reto-vendedores-antiguos$c1530$, $c1531$Desafío: los vendedores más antiguos$c1531$, $c1532$La dirección quiere reconocer a las tiendas que llevan más tiempo en **TiendaViva** con un programa de fidelidad. Te piden la lista de los vendedores con mayor antigüedad.$c1532$, $c1533$Muestra `store_name`, `country` y `joined_at` de los **15 vendedores más antiguos** (fecha de alta más temprana primero). En caso de empate en la fecha, ordena por `id` ascendente.$c1533$, $c1534$Ordenar por varias columnas con criterio de desempate y limitar el resultado.$c1534$, $c1535$intermediate$c1535$, 6, array[$c1536$select$c1536$,$c1537$order_by$c1537$,$c1538$limit$c1538$]::text[], array[$c1539$sellers$c1539$]::text[], (select id from public.datasets where slug = $c1540$tiendaviva$c1540$), 1, $c1541$select-buenas-practicas$c1541$, array[$c1542$select$c1542$]::text[], $c1543$[{"name":"store_name","type":"text"},{"name":"country","type":"text"},{"name":"joined_at","type":"date"}]$c1543$::jsonb, $c1544${"order_matters":true,"numeric_tolerance":0.01,"allow_extra_columns":false,"dedupe":false,"required_concepts":[],"prohibited_patterns":[],"max_execution_ms":3000}$c1544$::jsonb, $c1545$[{"category":"wrong_order","description_md":"Ordenar `DESC`: eso da los más nuevos, no los más antiguos."},{"category":"wrong_order","description_md":"Omitir el desempate por `id`: con fechas repetidas el orden de esas filas no está garantizado."},{"category":"wrong_columns","description_md":"Incluir `id` en el resultado: se usa para ordenar, pero la consigna no lo pide como columna."}]$c1545$::jsonb, $c1546$1. `ORDER BY joined_at` pone primero las fechas más tempranas (ascendente es el valor por defecto).
+values ((select id from public.lessons where kind in ('exercise','challenge') and ref_slug = $c2532$reto-vendedores-antiguos$c2532$), (select id from public.sections where slug = $c2533$select$c2533$), $c2534$reto-vendedores-antiguos$c2534$, $c2535$Desafío: los vendedores más antiguos$c2535$, $c2536$La dirección quiere reconocer a las tiendas que llevan más tiempo en **TiendaViva** con un programa de fidelidad. Te piden la lista de los vendedores con mayor antigüedad.$c2536$, $c2537$Muestra `store_name`, `country` y `joined_at` de los **15 vendedores más antiguos** (fecha de alta más temprana primero). En caso de empate en la fecha, ordena por `id` ascendente.$c2537$, $c2538$Ordenar por varias columnas con criterio de desempate y limitar el resultado.$c2538$, $c2539$intermediate$c2539$, 6, array[$c2540$select$c2540$,$c2541$order_by$c2541$,$c2542$limit$c2542$]::text[], array[$c2543$sellers$c2543$]::text[], (select id from public.datasets where slug = $c2544$tiendaviva$c2544$), 1, $c2545$select-buenas-practicas$c2545$, array[$c2546$select$c2546$]::text[], $c2547$[{"name":"store_name","type":"text"},{"name":"country","type":"text"},{"name":"joined_at","type":"date"}]$c2547$::jsonb, $c2548${"order_matters":true,"numeric_tolerance":0.01,"allow_extra_columns":false,"dedupe":false,"required_concepts":[],"prohibited_patterns":[],"max_execution_ms":3000}$c2548$::jsonb, $c2549$[{"category":"wrong_order","description_md":"Ordenar `DESC`: eso da los más nuevos, no los más antiguos."},{"category":"wrong_order","description_md":"Omitir el desempate por `id`: con fechas repetidas el orden de esas filas no está garantizado."},{"category":"wrong_columns","description_md":"Incluir `id` en el resultado: se usa para ordenar, pero la consigna no lo pide como columna."}]$c2549$::jsonb, $c2550$1. `ORDER BY joined_at` pone primero las fechas más tempranas (ascendente es el valor por defecto).
 2. `, id` desempata de forma determinista cuando dos tiendas se dieron de alta el mismo día.
 3. `LIMIT 15` corta la lista.
 
-Puedes ordenar por columnas que no aparecen en `SELECT`. Definir siempre un desempate hace que el reporte sea reproducible, algo que agradecerás cuando alguien pregunte «¿por qué cambió la lista?».$c1546$, $c1547$[]$c1547$::jsonb, $c1548${"xp":40,"coins":8,"solution_reveal_xp_percent":25}$c1548$::jsonb, $c1549${"min_attempts":3,"min_hints":2,"min_minutes":10,"allow_explicit":true}$c1549$::jsonb, true)
+Puedes ordenar por columnas que no aparecen en `SELECT`. Definir siempre un desempate hace que el reporte sea reproducible, algo que agradecerás cuando alguien pregunte «¿por qué cambió la lista?».$c2550$, $c2551$[]$c2551$::jsonb, $c2552${"xp":40,"coins":8,"solution_reveal_xp_percent":25}$c2552$::jsonb, $c2553${"min_attempts":3,"min_hints":2,"min_minutes":10,"allow_explicit":true}$c2553$::jsonb, true)
 on conflict (slug) do update set lesson_id = excluded.lesson_id, section_id = excluded.section_id, title = excluded.title, scenario_md = excluded.scenario_md, business_question_md = excluded.business_question_md, learning_objective = excluded.learning_objective, difficulty = excluded.difficulty, estimated_minutes = excluded.estimated_minutes, concepts = excluded.concepts, tables_used = excluded.tables_used, dataset_id = excluded.dataset_id, dataset_version = excluded.dataset_version, theory_ref_slug = excluded.theory_ref_slug, allowed_statements = excluded.allowed_statements, expected_columns = excluded.expected_columns, validation_rules = excluded.validation_rules, common_mistakes = excluded.common_mistakes, expert_explanation_md = excluded.expert_explanation_md, improvement_feedback = excluded.improvement_feedback, reward_config = excluded.reward_config, solution_unlock = excluded.solution_unlock, is_published = excluded.is_published;
 
-delete from public.exercise_solutions where exercise_id = (select id from public.exercises where slug = $c1550$reto-vendedores-antiguos$c1550$);
+delete from public.exercise_solutions where exercise_id = (select id from public.exercises where slug = $c2554$reto-vendedores-antiguos$c2554$);
 
-insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c1551$reto-vendedores-antiguos$c1551$), $c1552$SELECT store_name, country, joined_at
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c2555$reto-vendedores-antiguos$c2555$), $c2556$SELECT store_name, country, joined_at
 FROM sellers
 ORDER BY joined_at, id
-LIMIT 15;$c1552$, true, 'reference', 0);
+LIMIT 15;$c2556$, true, 'reference', 0);
 
-insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c1553$reto-vendedores-antiguos$c1553$), $c1554$SELECT store_name, country, joined_at FROM sellers ORDER BY joined_at ASC, id ASC LIMIT 15$c1554$, false, $c1555$ASC explícito$c1555$, 1);
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c2557$reto-vendedores-antiguos$c2557$), $c2558$SELECT store_name, country, joined_at FROM sellers ORDER BY joined_at ASC, id ASC LIMIT 15$c2558$, false, $c2559$ASC explícito$c2559$, 1);
 
 insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
-values ((select id from public.exercises where slug = $c1556$reto-vendedores-antiguos$c1556$), 1, $c1557$«Más antiguos» significa fecha de alta más pequeña: orden ascendente por esa fecha. El desempate es un segundo criterio de orden.$c1557$, 0, 10)
+values ((select id from public.exercises where slug = $c2560$reto-vendedores-antiguos$c2560$), 1, $c2561$«Más antiguos» significa fecha de alta más pequeña: orden ascendente por esa fecha. El desempate es un segundo criterio de orden.$c2561$, 0, 10)
 on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
 
 insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
-values ((select id from public.exercises where slug = $c1558$reto-vendedores-antiguos$c1558$), 2, $c1559$`ORDER BY joined_at, id` ordena primero por fecha y, dentro de la misma fecha, por `id`. Luego `LIMIT 15`. Puedes ordenar por `id` aunque no lo muestres.$c1559$, 1, 10)
+values ((select id from public.exercises where slug = $c2562$reto-vendedores-antiguos$c2562$), 2, $c2563$`ORDER BY joined_at, id` ordena primero por fecha y, dentro de la misma fecha, por `id`. Luego `LIMIT 15`. Puedes ordenar por `id` aunque no lo muestres.$c2563$, 1, 10)
 on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
 
 insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
-values ((select id from public.exercises where slug = $c1560$reto-vendedores-antiguos$c1560$), 3, $c1561$```sql
+values ((select id from public.exercises where slug = $c2564$reto-vendedores-antiguos$c2564$), 3, $c2565$```sql
 SELECT store_name, country, joined_at
 FROM sellers
 ORDER BY ___, ___
 LIMIT ___;
-```$c1561$, 2, 10)
+```$c2565$, 2, 10)
 on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
 
-delete from public.exercise_prerequisites where exercise_id = (select id from public.exercises where slug = $c1562$reto-vendedores-antiguos$c1562$);
+delete from public.exercise_prerequisites where exercise_id = (select id from public.exercises where slug = $c2566$reto-vendedores-antiguos$c2566$);
+
+insert into public.exercises (lesson_id, section_id, slug, title, scenario_md, business_question_md, learning_objective, difficulty, estimated_minutes, concepts, tables_used, dataset_id, dataset_version, theory_ref_slug, allowed_statements, expected_columns, validation_rules, common_mistakes, expert_explanation_md, improvement_feedback, reward_config, solution_unlock, is_published)
+values ((select id from public.lessons where kind in ('exercise','challenge') and ref_slug = $c2567$tiendas-en-espanol$c2567$), (select id from public.sections where slug = $c2568$alias-y-expresiones$c2568$), $c2569$tiendas-en-espanol$c2569$, $c2570$Encabezados en español$c2570$, $c2571$El equipo comercial de **TiendaViva** exporta la lista de vendedores a una planilla y quiere encabezados en español.$c2571$, $c2572$Muestra `id`, el nombre de la tienda como `tienda` y el país como `pais` para **todos** los vendedores. El orden no importa.$c2572$, $c2573$Renombrar columnas con alias sin cambiar su contenido.$c2573$, $c2574$very_easy$c2574$, 3, array[$c2575$select$c2575$,$c2576$alias$c2576$]::text[], array[$c2577$sellers$c2577$]::text[], (select id from public.datasets where slug = $c2578$tiendaviva$c2578$), 1, $c2579$alias-y-expresiones-basico$c2579$, array[$c2580$select$c2580$]::text[], $c2581$[{"name":"id","type":"integer"},{"name":"tienda","type":"text"},{"name":"pais","type":"text"}]$c2581$::jsonb, $c2582${"order_matters":false,"numeric_tolerance":0.01,"allow_extra_columns":false,"dedupe":false,"required_concepts":["alias"],"prohibited_patterns":[],"max_execution_ms":3000}$c2582$::jsonb, $c2583$[{"category":"wrong_columns","description_md":"Devolver `store_name` y `country` sin alias: el contenido es correcto, pero los encabezados no son los pedidos."},{"category":"syntax","description_md":"Escribir el alias entre comillas simples (`AS 'tienda'`): eso es un texto, no un nombre."},{"category":"wrong_columns","description_md":"Poner acentos en el alias (`país`): funciona con comillas dobles, pero la consigna pide `pais`."}]$c2583$::jsonb, $c2584$Los 180 vendedores aparecen con encabezados `id`, `tienda`, `pais`. El alias solo afecta al nombre del resultado; los datos son idénticos.
+
+En reportes reales conviene fijar alias en `snake_case` desde el principio: las herramientas de visualización y las consultas posteriores dependen de esos nombres.$c2584$, $c2585$[]$c2585$::jsonb, $c2586${"xp":10,"coins":2,"solution_reveal_xp_percent":25}$c2586$::jsonb, $c2587${"min_attempts":3,"min_hints":2,"min_minutes":10,"allow_explicit":true}$c2587$::jsonb, true)
+on conflict (slug) do update set lesson_id = excluded.lesson_id, section_id = excluded.section_id, title = excluded.title, scenario_md = excluded.scenario_md, business_question_md = excluded.business_question_md, learning_objective = excluded.learning_objective, difficulty = excluded.difficulty, estimated_minutes = excluded.estimated_minutes, concepts = excluded.concepts, tables_used = excluded.tables_used, dataset_id = excluded.dataset_id, dataset_version = excluded.dataset_version, theory_ref_slug = excluded.theory_ref_slug, allowed_statements = excluded.allowed_statements, expected_columns = excluded.expected_columns, validation_rules = excluded.validation_rules, common_mistakes = excluded.common_mistakes, expert_explanation_md = excluded.expert_explanation_md, improvement_feedback = excluded.improvement_feedback, reward_config = excluded.reward_config, solution_unlock = excluded.solution_unlock, is_published = excluded.is_published;
+
+delete from public.exercise_solutions where exercise_id = (select id from public.exercises where slug = $c2588$tiendas-en-espanol$c2588$);
+
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c2589$tiendas-en-espanol$c2589$), $c2590$SELECT id, store_name AS tienda, country AS pais
+FROM sellers;$c2590$, true, 'reference', 0);
+
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c2591$tiendas-en-espanol$c2591$), $c2592$SELECT id, store_name tienda, country pais FROM sellers;$c2592$, false, $c2593$Sin AS$c2593$, 1);
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2594$tiendas-en-espanol$c2594$), 1, $c2595$Un alias cambia el nombre de la columna en el resultado: `columna AS nuevo_nombre`.$c2595$, 0, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2596$tiendas-en-espanol$c2596$), 2, $c2597$Las columnas originales son `store_name` y `country`, en la tabla `sellers`. Solo `id` conserva su nombre.$c2597$, 1, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2598$tiendas-en-espanol$c2598$), 3, $c2599$```sql
+SELECT id, store_name AS ___, ___ AS pais
+FROM ___;
+```$c2599$, 2, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+delete from public.exercise_prerequisites where exercise_id = (select id from public.exercises where slug = $c2600$tiendas-en-espanol$c2600$);
+
+insert into public.exercises (lesson_id, section_id, slug, title, scenario_md, business_question_md, learning_objective, difficulty, estimated_minutes, concepts, tables_used, dataset_id, dataset_version, theory_ref_slug, allowed_statements, expected_columns, validation_rules, common_mistakes, expert_explanation_md, improvement_feedback, reward_config, solution_unlock, is_published)
+values ((select id from public.lessons where kind in ('exercise','challenge') and ref_slug = $c2601$codigos-de-categoria$c2601$), (select id from public.sections where slug = $c2602$alias-y-expresiones$c2602$), $c2603$codigos-de-categoria$c2603$, $c2604$Códigos de categoría$c2604$, $c2605$El equipo de catálogo quiere imprimir etiquetas con un código legible por categoría, con el formato `CAT-<id>` (por ejemplo, `CAT-7`).$c2605$, $c2606$Devuelve, para **todas** las categorías, el código como `codigo` (texto `CAT-` seguido del `id`) y el nombre como `nombre`. El orden no importa.$c2606$, $c2607$Concatenar texto y números con `||` y nombrar la columna resultante.$c2607$, $c2608$easy$c2608$, 5, array[$c2609$select$c2609$,$c2610$alias$c2610$,$c2611$text_functions$c2611$]::text[], array[$c2612$categories$c2612$]::text[], (select id from public.datasets where slug = $c2613$tiendaviva$c2613$), 1, $c2614$alias-y-expresiones-basico$c2614$, array[$c2615$select$c2615$]::text[], $c2616$[{"name":"codigo","type":"text"},{"name":"nombre","type":"text"}]$c2616$::jsonb, $c2617${"order_matters":false,"numeric_tolerance":0.01,"allow_extra_columns":false,"dedupe":false,"required_concepts":["alias"],"prohibited_patterns":[],"max_execution_ms":3000}$c2617$::jsonb, $c2618$[{"category":"syntax","description_md":"Usar `+` para unir textos: en PostgreSQL produce un error de operador."},{"category":"cell_values","description_md":"Escribir `'CAT-' || ' ' || id` agrega un espacio que la consigna no pide."},{"category":"wrong_columns","description_md":"Olvidar renombrar `name` como `nombre`."}]$c2618$::jsonb, $c2619$30 filas, con códigos `CAT-1` a `CAT-30`. PostgreSQL convierte `id` a texto al concatenarlo con `||`; en otros motores necesitarías `CAST(id AS varchar)`.
+
+`concat()` es una alternativa que además ignora los NULL (los trata como texto vacío), algo que `||` no hace: `'A' || NULL` es NULL.$c2619$, $c2620$[]$c2620$::jsonb, $c2621${"xp":20,"coins":4,"solution_reveal_xp_percent":25}$c2621$::jsonb, $c2622${"min_attempts":3,"min_hints":2,"min_minutes":10,"allow_explicit":true}$c2622$::jsonb, true)
+on conflict (slug) do update set lesson_id = excluded.lesson_id, section_id = excluded.section_id, title = excluded.title, scenario_md = excluded.scenario_md, business_question_md = excluded.business_question_md, learning_objective = excluded.learning_objective, difficulty = excluded.difficulty, estimated_minutes = excluded.estimated_minutes, concepts = excluded.concepts, tables_used = excluded.tables_used, dataset_id = excluded.dataset_id, dataset_version = excluded.dataset_version, theory_ref_slug = excluded.theory_ref_slug, allowed_statements = excluded.allowed_statements, expected_columns = excluded.expected_columns, validation_rules = excluded.validation_rules, common_mistakes = excluded.common_mistakes, expert_explanation_md = excluded.expert_explanation_md, improvement_feedback = excluded.improvement_feedback, reward_config = excluded.reward_config, solution_unlock = excluded.solution_unlock, is_published = excluded.is_published;
+
+delete from public.exercise_solutions where exercise_id = (select id from public.exercises where slug = $c2623$codigos-de-categoria$c2623$);
+
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c2624$codigos-de-categoria$c2624$), $c2625$SELECT 'CAT-' || id AS codigo, name AS nombre
+FROM categories;$c2625$, true, 'reference', 0);
+
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c2626$codigos-de-categoria$c2626$), $c2627$SELECT 'CAT-' || id::text AS codigo, name AS nombre FROM categories;$c2627$, false, $c2628$Con conversión explícita$c2628$, 1);
+
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c2629$codigos-de-categoria$c2629$), $c2630$SELECT concat('CAT-', id) AS codigo, name AS nombre FROM categories;$c2630$, false, $c2631$Con concat()$c2631$, 2);
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2632$codigos-de-categoria$c2632$), 1, $c2633$El operador `||` une textos; un número a un lado se convierte a texto automáticamente.$c2633$, 0, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2634$codigos-de-categoria$c2634$), 2, $c2635$El texto fijo va entre comillas simples: `'CAT-'`. Luego `|| id`. No olvides el alias `codigo` y renombrar `name`.$c2635$, 1, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2636$codigos-de-categoria$c2636$), 3, $c2637$```sql
+SELECT 'CAT-' || ___ AS codigo, ___ AS nombre
+FROM categories;
+```$c2637$, 2, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+delete from public.exercise_prerequisites where exercise_id = (select id from public.exercises where slug = $c2638$codigos-de-categoria$c2638$);
+
+insert into public.exercises (lesson_id, section_id, slug, title, scenario_md, business_question_md, learning_objective, difficulty, estimated_minutes, concepts, tables_used, dataset_id, dataset_version, theory_ref_slug, allowed_statements, expected_columns, validation_rules, common_mistakes, expert_explanation_md, improvement_feedback, reward_config, solution_unlock, is_published)
+values ((select id from public.lessons where kind in ('exercise','challenge') and ref_slug = $c2639$neto-y-porcentaje-de-envio$c2639$), (select id from public.sections where slug = $c2640$alias-y-expresiones$c2640$), $c2641$neto-y-porcentaje-de-envio$c2641$, $c2642$Neto y peso del envío$c2642$, $c2643$Finanzas revisa los pedidos más grandes para entender cuánto pesa el costo de envío. En `orders`, `subtotal` es la suma de productos, `discount` el descuento aplicado, `shipping_fee` el envío y `total_amount` el total cobrado.$c2643$, $c2644$Para los **20 pedidos con mayor `total_amount`**, muestra `id`, el neto como `neto` (`subtotal - discount`) y el porcentaje que representa el envío sobre el total como `envio_pct`, redondeado a **1 decimal**. Ordena de mayor a menor `total_amount`.$c2644$, $c2645$Combinar expresiones aritméticas, `ROUND` y alias en un reporte ordenado.$c2645$, $c2646$easy$c2646$, 7, array[$c2647$select$c2647$,$c2648$alias$c2648$,$c2649$numeric_functions$c2649$,$c2650$order_by$c2650$,$c2651$limit$c2651$]::text[], array[$c2652$orders$c2652$]::text[], (select id from public.datasets where slug = $c2653$tiendaviva$c2653$), 1, $c2654$alias-y-expresiones-basico$c2654$, array[$c2655$select$c2655$]::text[], $c2656$[{"name":"id","type":"integer"},{"name":"neto","type":"numeric"},{"name":"envio_pct","type":"numeric"}]$c2656$::jsonb, $c2657${"order_matters":true,"numeric_tolerance":0.01,"allow_extra_columns":false,"dedupe":false,"required_concepts":["alias","order_by","limit"],"prohibited_patterns":[],"max_execution_ms":3000}$c2657$::jsonb, $c2658$[{"category":"cell_values","description_md":"Redondear a 2 decimales o no redondear: los valores no coinciden con lo pedido (1 decimal)."},{"category":"wrong_order","description_md":"Ordenar por `neto` o por `id` en vez de por `total_amount` descendente."},{"category":"cell_values","description_md":"Calcular el porcentaje sobre `subtotal` en lugar de `total_amount`."},{"category":"row_count","description_md":"Olvidar `LIMIT 20` y devolver los 18 000 pedidos."}]$c2658$::jsonb, $c2659$Las columnas monetarias son `numeric`, así que la división conserva decimales sin conversiones. `ROUND(x, 1)` produce valores como `5.3`.
+
+Observa que en los pedidos más grandes el envío pesa poco (pocos puntos porcentuales): el costo de envío crece menos que el subtotal. Ese tipo de lectura es lo que Finanzas espera junto con la tabla.$c2659$, $c2660$[]$c2660$::jsonb, $c2661${"xp":20,"coins":4,"solution_reveal_xp_percent":25}$c2661$::jsonb, $c2662${"min_attempts":3,"min_hints":2,"min_minutes":10,"allow_explicit":true}$c2662$::jsonb, true)
+on conflict (slug) do update set lesson_id = excluded.lesson_id, section_id = excluded.section_id, title = excluded.title, scenario_md = excluded.scenario_md, business_question_md = excluded.business_question_md, learning_objective = excluded.learning_objective, difficulty = excluded.difficulty, estimated_minutes = excluded.estimated_minutes, concepts = excluded.concepts, tables_used = excluded.tables_used, dataset_id = excluded.dataset_id, dataset_version = excluded.dataset_version, theory_ref_slug = excluded.theory_ref_slug, allowed_statements = excluded.allowed_statements, expected_columns = excluded.expected_columns, validation_rules = excluded.validation_rules, common_mistakes = excluded.common_mistakes, expert_explanation_md = excluded.expert_explanation_md, improvement_feedback = excluded.improvement_feedback, reward_config = excluded.reward_config, solution_unlock = excluded.solution_unlock, is_published = excluded.is_published;
+
+delete from public.exercise_solutions where exercise_id = (select id from public.exercises where slug = $c2663$neto-y-porcentaje-de-envio$c2663$);
+
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c2664$neto-y-porcentaje-de-envio$c2664$), $c2665$SELECT
+  id,
+  subtotal - discount AS neto,
+  ROUND(shipping_fee / total_amount * 100, 1) AS envio_pct
+FROM orders
+ORDER BY total_amount DESC
+LIMIT 20;$c2665$, true, 'reference', 0);
+
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c2666$neto-y-porcentaje-de-envio$c2666$), $c2667$SELECT id, (subtotal - discount) AS neto, ROUND((shipping_fee * 100) / total_amount, 1) AS envio_pct FROM orders ORDER BY total_amount DESC LIMIT 20;$c2667$, false, $c2668$Porcentaje con paréntesis$c2668$, 1);
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2669$neto-y-porcentaje-de-envio$c2669$), 1, $c2670$Son tres columnas: una directa, una resta y una división multiplicada por 100 y redondeada. `ORDER BY` puede usar una columna que no está en el `SELECT`.$c2670$, 0, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2671$neto-y-porcentaje-de-envio$c2671$), 2, $c2672$`ROUND(expresion, 1)` deja un decimal. El porcentaje es `shipping_fee / total_amount * 100`. Ordena por `total_amount DESC` y limita a 20.$c2672$, 1, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2673$neto-y-porcentaje-de-envio$c2673$), 3, $c2674$```sql
+SELECT id,
+       subtotal - ___ AS neto,
+       ROUND(___ / total_amount * 100, 1) AS envio_pct
+FROM orders
+ORDER BY ___ DESC
+LIMIT ___;
+```$c2674$, 2, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+delete from public.exercise_prerequisites where exercise_id = (select id from public.exercises where slug = $c2675$neto-y-porcentaje-de-envio$c2675$);
+
+insert into public.exercises (lesson_id, section_id, slug, title, scenario_md, business_question_md, learning_objective, difficulty, estimated_minutes, concepts, tables_used, dataset_id, dataset_version, theory_ref_slug, allowed_statements, expected_columns, validation_rules, common_mistakes, expert_explanation_md, improvement_feedback, reward_config, solution_unlock, is_published)
+values ((select id from public.lessons where kind in ('exercise','challenge') and ref_slug = $c2676$paises-con-clientes$c2676$), (select id from public.sections where slug = $c2677$distinct$c2677$), $c2678$paises-con-clientes$c2678$, $c2679$¿En qué países tenemos clientes?$c2679$, $c2680$Marketing prepara campañas por país y necesita saber en qué países hay clientes registrados en **TiendaViva**.$c2680$, $c2681$Devuelve la lista de países (`country`) que aparecen en `customers`, **sin repeticiones**. El orden no importa.$c2681$, $c2682$Obtener los valores únicos de una columna con DISTINCT.$c2682$, $c2683$very_easy$c2683$, 3, array[$c2684$select$c2684$,$c2685$distinct$c2685$]::text[], array[$c2686$customers$c2686$]::text[], (select id from public.datasets where slug = $c2687$tiendaviva$c2687$), 1, $c2688$distinct-valores-unicos$c2688$, array[$c2689$select$c2689$]::text[], $c2690$[{"name":"country","type":"text"}]$c2690$::jsonb, $c2691${"order_matters":false,"numeric_tolerance":0.01,"allow_extra_columns":false,"dedupe":false,"required_concepts":["distinct"],"prohibited_patterns":[],"max_execution_ms":3000}$c2691$::jsonb, $c2692$[{"category":"duplicates","description_md":"Olvidar `DISTINCT`: la consulta devuelve una fila por cliente."},{"category":"wrong_columns","description_md":"Agregar `city` u otra columna: entonces las combinaciones país–ciudad ya no son «países únicos»."},{"category":"syntax","description_md":"Escribir `SELECT country DISTINCT`: `DISTINCT` debe ir antes de la columna."}]$c2692$::jsonb, $c2693$Seis filas: AR, CL, CO, MX, PE y UY. Con 3000 clientes, el motor compara los valores y conserva uno por país.
+
+Es la consulta de exploración más útil que existe: antes de filtrar por una columna de texto, mira qué valores tiene realmente (mayúsculas, abreviaturas, errores de carga).$c2693$, $c2694$[]$c2694$::jsonb, $c2695${"xp":10,"coins":2,"solution_reveal_xp_percent":25}$c2695$::jsonb, $c2696${"min_attempts":3,"min_hints":2,"min_minutes":10,"allow_explicit":true}$c2696$::jsonb, true)
+on conflict (slug) do update set lesson_id = excluded.lesson_id, section_id = excluded.section_id, title = excluded.title, scenario_md = excluded.scenario_md, business_question_md = excluded.business_question_md, learning_objective = excluded.learning_objective, difficulty = excluded.difficulty, estimated_minutes = excluded.estimated_minutes, concepts = excluded.concepts, tables_used = excluded.tables_used, dataset_id = excluded.dataset_id, dataset_version = excluded.dataset_version, theory_ref_slug = excluded.theory_ref_slug, allowed_statements = excluded.allowed_statements, expected_columns = excluded.expected_columns, validation_rules = excluded.validation_rules, common_mistakes = excluded.common_mistakes, expert_explanation_md = excluded.expert_explanation_md, improvement_feedback = excluded.improvement_feedback, reward_config = excluded.reward_config, solution_unlock = excluded.solution_unlock, is_published = excluded.is_published;
+
+delete from public.exercise_solutions where exercise_id = (select id from public.exercises where slug = $c2697$paises-con-clientes$c2697$);
+
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c2698$paises-con-clientes$c2698$), $c2699$SELECT DISTINCT country
+FROM customers;$c2699$, true, 'reference', 0);
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2700$paises-con-clientes$c2700$), 1, $c2701$Sin `DISTINCT` obtendrías 3000 filas (una por cliente). Necesitas eliminar repeticiones.$c2701$, 0, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2702$paises-con-clientes$c2702$), 2, $c2703$`DISTINCT` va justo después de `SELECT`, antes del nombre de la columna.$c2703$, 1, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2704$paises-con-clientes$c2704$), 3, $c2705$```sql
+SELECT DISTINCT ___
+FROM ___;
+```$c2705$, 2, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+delete from public.exercise_prerequisites where exercise_id = (select id from public.exercises where slug = $c2706$paises-con-clientes$c2706$);
+
+insert into public.exercises (lesson_id, section_id, slug, title, scenario_md, business_question_md, learning_objective, difficulty, estimated_minutes, concepts, tables_used, dataset_id, dataset_version, theory_ref_slug, allowed_statements, expected_columns, validation_rules, common_mistakes, expert_explanation_md, improvement_feedback, reward_config, solution_unlock, is_published)
+values ((select id from public.lessons where kind in ('exercise','challenge') and ref_slug = $c2707$cobertura-de-transportistas$c2707$), (select id from public.sections where slug = $c2708$distinct$c2708$), $c2709$cobertura-de-transportistas$c2709$, $c2710$Cobertura de transportistas$c2710$, $c2711$Logística negocia tarifas con cada transportista y quiere saber a qué ciudades entregó cada uno alguna vez.$c2711$, $c2712$Devuelve las combinaciones **únicas** de `carrier` y `destination_city` presentes en `shipments`. El orden no importa.$c2712$, $c2713$Aplicar DISTINCT a varias columnas y entender que actúa sobre la fila completa.$c2713$, $c2714$easy$c2714$, 5, array[$c2715$select$c2715$,$c2716$distinct$c2716$]::text[], array[$c2717$shipments$c2717$]::text[], (select id from public.datasets where slug = $c2718$tiendaviva$c2718$), 1, $c2719$distinct-valores-unicos$c2719$, array[$c2720$select$c2720$]::text[], $c2721$[{"name":"carrier","type":"text"},{"name":"destination_city","type":"text"}]$c2721$::jsonb, $c2722${"order_matters":false,"numeric_tolerance":0.01,"allow_extra_columns":false,"dedupe":false,"required_concepts":["distinct"],"prohibited_patterns":[],"max_execution_ms":3000}$c2722$::jsonb, $c2723$[{"category":"duplicates","description_md":"Sin `DISTINCT` devuelves 15 000 envíos."},{"category":"wrong_columns","description_md":"Incluir `id` o `order_id`: cada envío es único y `DISTINCT` no elimina nada."},{"category":"wrong_columns","description_md":"Devolver solo `carrier`: pierdes la cobertura por ciudad que pide Logística."}]$c2723$::jsonb, $c2724$170 combinaciones: 5 transportistas × 34 ciudades, y en este dataset todos cubren todas las ciudades. En un dataset real esa matriz tendría huecos, y justamente esos huecos serían la información valiosa para negociar.$c2724$, $c2725$[]$c2725$::jsonb, $c2726${"xp":20,"coins":4,"solution_reveal_xp_percent":25}$c2726$::jsonb, $c2727${"min_attempts":3,"min_hints":2,"min_minutes":10,"allow_explicit":true}$c2727$::jsonb, true)
+on conflict (slug) do update set lesson_id = excluded.lesson_id, section_id = excluded.section_id, title = excluded.title, scenario_md = excluded.scenario_md, business_question_md = excluded.business_question_md, learning_objective = excluded.learning_objective, difficulty = excluded.difficulty, estimated_minutes = excluded.estimated_minutes, concepts = excluded.concepts, tables_used = excluded.tables_used, dataset_id = excluded.dataset_id, dataset_version = excluded.dataset_version, theory_ref_slug = excluded.theory_ref_slug, allowed_statements = excluded.allowed_statements, expected_columns = excluded.expected_columns, validation_rules = excluded.validation_rules, common_mistakes = excluded.common_mistakes, expert_explanation_md = excluded.expert_explanation_md, improvement_feedback = excluded.improvement_feedback, reward_config = excluded.reward_config, solution_unlock = excluded.solution_unlock, is_published = excluded.is_published;
+
+delete from public.exercise_solutions where exercise_id = (select id from public.exercises where slug = $c2728$cobertura-de-transportistas$c2728$);
+
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c2729$cobertura-de-transportistas$c2729$), $c2730$SELECT DISTINCT carrier, destination_city
+FROM shipments;$c2730$, true, 'reference', 0);
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2731$cobertura-de-transportistas$c2731$), 1, $c2732$`DISTINCT` puede aplicarse a dos columnas a la vez: elimina las filas donde **ambas** se repiten.$c2732$, 0, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2733$cobertura-de-transportistas$c2733$), 2, $c2734$Lista las dos columnas después de `SELECT DISTINCT`, separadas por coma, desde `shipments`.$c2734$, 1, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2735$cobertura-de-transportistas$c2735$), 3, $c2736$```sql
+SELECT DISTINCT ___, ___
+FROM shipments;
+```$c2736$, 2, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+delete from public.exercise_prerequisites where exercise_id = (select id from public.exercises where slug = $c2737$cobertura-de-transportistas$c2737$);
+
+insert into public.exercises (lesson_id, section_id, slug, title, scenario_md, business_question_md, learning_objective, difficulty, estimated_minutes, concepts, tables_used, dataset_id, dataset_version, theory_ref_slug, allowed_statements, expected_columns, validation_rules, common_mistakes, expert_explanation_md, improvement_feedback, reward_config, solution_unlock, is_published)
+values ((select id from public.lessons where kind in ('exercise','challenge') and ref_slug = $c2738$categorias-padre$c2738$), (select id from public.sections where slug = $c2739$distinct$c2739$), $c2740$categorias-padre$c2740$, $c2741$Categorías que son padre$c2741$, $c2742$El árbol de categorías tiene dos niveles. Catálogo quiere ver qué valores toma `parent_id`, incluido el caso de las categorías raíz (sin padre).$c2742$, $c2743$Devuelve los valores **únicos** de `parent_id` en `categories`, ordenados de menor a mayor. Recuerda que las raíces tienen `parent_id` NULL y también deben aparecer.$c2743$, $c2744$Observar cómo DISTINCT y ORDER BY tratan a NULL.$c2744$, $c2745$easy$c2745$, 5, array[$c2746$select$c2746$,$c2747$distinct$c2747$,$c2748$order_by$c2748$]::text[], array[$c2749$categories$c2749$]::text[], (select id from public.datasets where slug = $c2750$tiendaviva$c2750$), 1, $c2751$distinct-valores-unicos$c2751$, array[$c2752$select$c2752$]::text[], $c2753$[{"name":"parent_id","type":"integer"}]$c2753$::jsonb, $c2754${"order_matters":true,"numeric_tolerance":0.01,"allow_extra_columns":false,"dedupe":false,"required_concepts":["distinct","order_by"],"prohibited_patterns":[],"max_execution_ms":3000}$c2754$::jsonb, $c2755$[{"category":"null_handling","description_md":"Filtrar `parent_id IS NOT NULL`: la consigna pide incluir a las raíces."},{"category":"wrong_order","description_md":"Omitir `ORDER BY`: el resultado debe estar ordenado."},{"category":"duplicates","description_md":"Sin `DISTINCT` aparecen 30 filas, una por categoría."}]$c2755$::jsonb, $c2756$Siete filas: los ids 1 a 6 (las raíces, que son padre de las subcategorías) y una fila NULL al final. PostgreSQL ordena los NULL **después** de los valores en `ASC` (y antes en `DESC`); puedes forzarlo con `NULLS FIRST` / `NULLS LAST`.
+
+Que `DISTINCT` agrupe los NULL es una de las pocas situaciones en que NULL «se compara» con NULL; en `WHERE` no ocurre, como verás en la sección 8.$c2756$, $c2757$[]$c2757$::jsonb, $c2758${"xp":20,"coins":4,"solution_reveal_xp_percent":25}$c2758$::jsonb, $c2759${"min_attempts":3,"min_hints":2,"min_minutes":10,"allow_explicit":true}$c2759$::jsonb, true)
+on conflict (slug) do update set lesson_id = excluded.lesson_id, section_id = excluded.section_id, title = excluded.title, scenario_md = excluded.scenario_md, business_question_md = excluded.business_question_md, learning_objective = excluded.learning_objective, difficulty = excluded.difficulty, estimated_minutes = excluded.estimated_minutes, concepts = excluded.concepts, tables_used = excluded.tables_used, dataset_id = excluded.dataset_id, dataset_version = excluded.dataset_version, theory_ref_slug = excluded.theory_ref_slug, allowed_statements = excluded.allowed_statements, expected_columns = excluded.expected_columns, validation_rules = excluded.validation_rules, common_mistakes = excluded.common_mistakes, expert_explanation_md = excluded.expert_explanation_md, improvement_feedback = excluded.improvement_feedback, reward_config = excluded.reward_config, solution_unlock = excluded.solution_unlock, is_published = excluded.is_published;
+
+delete from public.exercise_solutions where exercise_id = (select id from public.exercises where slug = $c2760$categorias-padre$c2760$);
+
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c2761$categorias-padre$c2761$), $c2762$SELECT DISTINCT parent_id
+FROM categories
+ORDER BY parent_id;$c2762$, true, 'reference', 0);
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2763$categorias-padre$c2763$), 1, $c2764$No necesitas filtrar nada: `DISTINCT` conserva una fila NULL por sí solo.$c2764$, 0, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2765$categorias-padre$c2765$), 2, $c2766$Agrega `ORDER BY parent_id` al final; en PostgreSQL los NULL quedan últimos en orden ascendente.$c2766$, 1, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2767$categorias-padre$c2767$), 3, $c2768$```sql
+SELECT DISTINCT ___
+FROM categories
+ORDER BY ___;
+```$c2768$, 2, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+delete from public.exercise_prerequisites where exercise_id = (select id from public.exercises where slug = $c2769$categorias-padre$c2769$);
+
+insert into public.exercises (lesson_id, section_id, slug, title, scenario_md, business_question_md, learning_objective, difficulty, estimated_minutes, concepts, tables_used, dataset_id, dataset_version, theory_ref_slug, allowed_statements, expected_columns, validation_rules, common_mistakes, expert_explanation_md, improvement_feedback, reward_config, solution_unlock, is_published)
+values ((select id from public.lessons where kind in ('exercise','challenge') and ref_slug = $c2770$clientes-de-uruguay$c2770$), (select id from public.sections where slug = $c2771$where$c2771$), $c2772$clientes-de-uruguay$c2772$, $c2773$Clientes de Uruguay$c2773$, $c2774$El equipo de **TiendaViva** abre un centro de distribución en Montevideo y quiere contactar a los clientes de Uruguay.$c2774$, $c2775$Muestra `id`, `full_name` y `city` de los clientes cuyo país (`country`) es `'UY'`. El orden no importa.$c2775$, $c2776$Filtrar filas por igualdad de texto con WHERE.$c2776$, $c2777$very_easy$c2777$, 3, array[$c2778$select$c2778$,$c2779$where$c2779$]::text[], array[$c2780$customers$c2780$]::text[], (select id from public.datasets where slug = $c2781$tiendaviva$c2781$), 1, $c2782$where-filtros-basicos$c2782$, array[$c2783$select$c2783$]::text[], $c2784$[{"name":"id","type":"integer"},{"name":"full_name","type":"text"},{"name":"city","type":"text"}]$c2784$::jsonb, $c2785${"order_matters":false,"numeric_tolerance":0.01,"allow_extra_columns":false,"dedupe":false,"required_concepts":["where"],"prohibited_patterns":[],"max_execution_ms":3000}$c2785$::jsonb, $c2786$[{"category":"missing_filter","description_md":"Olvidar el `WHERE`: devuelve los 3000 clientes."},{"category":"syntax","description_md":"Escribir `country = UY` sin comillas o con comillas dobles."},{"category":"row_count","description_md":"Usar `'uy'` en minúsculas: la comparación distingue mayúsculas y devuelve 0 filas."}]$c2786$::jsonb, $c2787$123 clientes. La condición `country = 'UY'` se evalúa fila por fila y solo pasan las verdaderas.
+
+Si no estás seguro de cómo están escritos los valores, primero explora con `SELECT DISTINCT country FROM customers` (sección 5).$c2787$, $c2788$[]$c2788$::jsonb, $c2789${"xp":10,"coins":2,"solution_reveal_xp_percent":25}$c2789$::jsonb, $c2790${"min_attempts":3,"min_hints":2,"min_minutes":10,"allow_explicit":true}$c2790$::jsonb, true)
+on conflict (slug) do update set lesson_id = excluded.lesson_id, section_id = excluded.section_id, title = excluded.title, scenario_md = excluded.scenario_md, business_question_md = excluded.business_question_md, learning_objective = excluded.learning_objective, difficulty = excluded.difficulty, estimated_minutes = excluded.estimated_minutes, concepts = excluded.concepts, tables_used = excluded.tables_used, dataset_id = excluded.dataset_id, dataset_version = excluded.dataset_version, theory_ref_slug = excluded.theory_ref_slug, allowed_statements = excluded.allowed_statements, expected_columns = excluded.expected_columns, validation_rules = excluded.validation_rules, common_mistakes = excluded.common_mistakes, expert_explanation_md = excluded.expert_explanation_md, improvement_feedback = excluded.improvement_feedback, reward_config = excluded.reward_config, solution_unlock = excluded.solution_unlock, is_published = excluded.is_published;
+
+delete from public.exercise_solutions where exercise_id = (select id from public.exercises where slug = $c2791$clientes-de-uruguay$c2791$);
+
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c2792$clientes-de-uruguay$c2792$), $c2793$SELECT id, full_name, city
+FROM customers
+WHERE country = 'UY';$c2793$, true, 'reference', 0);
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2794$clientes-de-uruguay$c2794$), 1, $c2795$`WHERE` va después de `FROM` y contiene la condición que cada fila debe cumplir.$c2795$, 0, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2796$clientes-de-uruguay$c2796$), 2, $c2797$El país es un texto: compáralo con `'UY'` entre comillas simples y en mayúsculas.$c2797$, 1, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2798$clientes-de-uruguay$c2798$), 3, $c2799$```sql
+SELECT id, full_name, city
+FROM customers
+WHERE ___ = '___';
+```$c2799$, 2, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+delete from public.exercise_prerequisites where exercise_id = (select id from public.exercises where slug = $c2800$clientes-de-uruguay$c2800$);
+
+insert into public.exercises (lesson_id, section_id, slug, title, scenario_md, business_question_md, learning_objective, difficulty, estimated_minutes, concepts, tables_used, dataset_id, dataset_version, theory_ref_slug, allowed_statements, expected_columns, validation_rules, common_mistakes, expert_explanation_md, improvement_feedback, reward_config, solution_unlock, is_published)
+values ((select id from public.lessons where kind in ('exercise','challenge') and ref_slug = $c2801$productos-agotados-activos$c2801$), (select id from public.sections where slug = $c2802$where$c2802$), $c2803$productos-agotados-activos$c2803$, $c2804$Agotados pero publicados$c2804$, $c2805$Un producto activo sin stock genera visitas que terminan en frustración. Catálogo quiere avisar a los vendedores.$c2805$, $c2806$Devuelve `id`, `seller_id` y `name` de los productos con `stock` igual a 0 **y** `is_active` verdadero. El orden no importa.$c2806$, $c2807$Combinar una condición numérica y una booleana con AND.$c2807$, $c2808$easy$c2808$, 5, array[$c2809$select$c2809$,$c2810$where$c2810$]::text[], array[$c2811$products$c2811$]::text[], (select id from public.datasets where slug = $c2812$tiendaviva$c2812$), 1, $c2813$where-filtros-basicos$c2813$, array[$c2814$select$c2814$]::text[], $c2815$[{"name":"id","type":"integer"},{"name":"seller_id","type":"integer"},{"name":"name","type":"text"}]$c2815$::jsonb, $c2816${"order_matters":false,"numeric_tolerance":0.01,"allow_extra_columns":false,"dedupe":false,"required_concepts":["where"],"prohibited_patterns":[],"max_execution_ms":3000}$c2816$::jsonb, $c2817$[{"category":"row_count","description_md":"Usar `OR` en lugar de `AND`: devuelve todos los activos más todos los agotados."},{"category":"syntax","description_md":"Escribir `stock = '0'`: funciona por conversión implícita, pero los números no llevan comillas."},{"category":"missing_filter","description_md":"Filtrar solo por `stock = 0` e ignorar `is_active`."}]$c2817$::jsonb, $c2818$89 productos activos sin stock. `is_active` ya es una condición booleana; escribir `= TRUE` es opcional pero explícito.
+
+En un marketplace real, esta lista alimentaría una alerta automática a cada vendedor: SQL suele ser el primer paso de un proceso operativo.$c2818$, $c2819$[]$c2819$::jsonb, $c2820${"xp":20,"coins":4,"solution_reveal_xp_percent":25}$c2820$::jsonb, $c2821${"min_attempts":3,"min_hints":2,"min_minutes":10,"allow_explicit":true}$c2821$::jsonb, true)
+on conflict (slug) do update set lesson_id = excluded.lesson_id, section_id = excluded.section_id, title = excluded.title, scenario_md = excluded.scenario_md, business_question_md = excluded.business_question_md, learning_objective = excluded.learning_objective, difficulty = excluded.difficulty, estimated_minutes = excluded.estimated_minutes, concepts = excluded.concepts, tables_used = excluded.tables_used, dataset_id = excluded.dataset_id, dataset_version = excluded.dataset_version, theory_ref_slug = excluded.theory_ref_slug, allowed_statements = excluded.allowed_statements, expected_columns = excluded.expected_columns, validation_rules = excluded.validation_rules, common_mistakes = excluded.common_mistakes, expert_explanation_md = excluded.expert_explanation_md, improvement_feedback = excluded.improvement_feedback, reward_config = excluded.reward_config, solution_unlock = excluded.solution_unlock, is_published = excluded.is_published;
+
+delete from public.exercise_solutions where exercise_id = (select id from public.exercises where slug = $c2822$productos-agotados-activos$c2822$);
+
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c2823$productos-agotados-activos$c2823$), $c2824$SELECT id, seller_id, name
+FROM products
+WHERE stock = 0
+  AND is_active;$c2824$, true, 'reference', 0);
+
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c2825$productos-agotados-activos$c2825$), $c2826$SELECT id, seller_id, name FROM products WHERE stock = 0 AND is_active = TRUE;$c2826$, false, $c2827$Booleano explícito$c2827$, 1);
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2828$productos-agotados-activos$c2828$), 1, $c2829$Son dos condiciones que deben cumplirse a la vez: únelas con `AND`.$c2829$, 0, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2830$productos-agotados-activos$c2830$), 2, $c2831$`stock = 0` es numérica (sin comillas). `is_active` es booleana: puedes escribirla sola o como `is_active = TRUE`.$c2831$, 1, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2832$productos-agotados-activos$c2832$), 3, $c2833$```sql
+SELECT id, seller_id, name
+FROM products
+WHERE stock = ___
+  AND ___;
+```$c2833$, 2, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+delete from public.exercise_prerequisites where exercise_id = (select id from public.exercises where slug = $c2834$productos-agotados-activos$c2834$);
+
+insert into public.exercises (lesson_id, section_id, slug, title, scenario_md, business_question_md, learning_objective, difficulty, estimated_minutes, concepts, tables_used, dataset_id, dataset_version, theory_ref_slug, allowed_statements, expected_columns, validation_rules, common_mistakes, expert_explanation_md, improvement_feedback, reward_config, solution_unlock, is_published)
+values ((select id from public.lessons where kind in ('exercise','challenge') and ref_slug = $c2835$tiendas-bazar$c2835$), (select id from public.sections where slug = $c2836$where$c2836$), $c2837$tiendas-bazar$c2837$, $c2838$Las tiendas «Bazar»$c2838$, $c2839$Comercial arma un programa de fidelización para las tiendas cuyo nombre comienza con «Bazar», una familia de vendedores con estilo propio.$c2839$, $c2840$Devuelve `id` y `store_name` de los vendedores cuyo nombre **empieza** con `Bazar`, ordenados por `id` ascendente.$c2840$, $c2841$Filtrar texto por patrón con LIKE y el comodín %.$c2841$, $c2842$easy$c2842$, 5, array[$c2843$select$c2843$,$c2844$where$c2844$,$c2845$order_by$c2845$]::text[], array[$c2846$sellers$c2846$]::text[], (select id from public.datasets where slug = $c2847$tiendaviva$c2847$), 1, $c2848$where-texto-y-fechas$c2848$, array[$c2849$select$c2849$]::text[], $c2850$[{"name":"id","type":"integer"},{"name":"store_name","type":"text"}]$c2850$::jsonb, $c2851${"order_matters":true,"numeric_tolerance":0.01,"allow_extra_columns":false,"dedupe":false,"required_concepts":["where","order_by"],"prohibited_patterns":[],"max_execution_ms":3000}$c2851$::jsonb, $c2852$[{"category":"row_count","description_md":"Usar `'%Bazar%'`: aquí da lo mismo, pero en general incluye nombres que contienen la palabra en el medio."},{"category":"row_count","description_md":"Escribir `LIKE 'bazar%'` en minúsculas: `LIKE` distingue mayúsculas y devuelve 0 filas."},{"category":"wrong_order","description_md":"Omitir `ORDER BY id`."}]$c2852$::jsonb, $c2853$20 tiendas. `LIKE 'Bazar%'` compara desde el inicio del texto, lo que además permite usar índices; `'%Bazar%'` obliga a recorrer todas las filas.
+
+`ILIKE` es cómodo cuando los datos vienen con capitalización inconsistente, algo frecuente en campos cargados a mano.$c2853$, $c2854$[]$c2854$::jsonb, $c2855${"xp":20,"coins":4,"solution_reveal_xp_percent":25}$c2855$::jsonb, $c2856${"min_attempts":3,"min_hints":2,"min_minutes":10,"allow_explicit":true}$c2856$::jsonb, true)
+on conflict (slug) do update set lesson_id = excluded.lesson_id, section_id = excluded.section_id, title = excluded.title, scenario_md = excluded.scenario_md, business_question_md = excluded.business_question_md, learning_objective = excluded.learning_objective, difficulty = excluded.difficulty, estimated_minutes = excluded.estimated_minutes, concepts = excluded.concepts, tables_used = excluded.tables_used, dataset_id = excluded.dataset_id, dataset_version = excluded.dataset_version, theory_ref_slug = excluded.theory_ref_slug, allowed_statements = excluded.allowed_statements, expected_columns = excluded.expected_columns, validation_rules = excluded.validation_rules, common_mistakes = excluded.common_mistakes, expert_explanation_md = excluded.expert_explanation_md, improvement_feedback = excluded.improvement_feedback, reward_config = excluded.reward_config, solution_unlock = excluded.solution_unlock, is_published = excluded.is_published;
+
+delete from public.exercise_solutions where exercise_id = (select id from public.exercises where slug = $c2857$tiendas-bazar$c2857$);
+
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c2858$tiendas-bazar$c2858$), $c2859$SELECT id, store_name
+FROM sellers
+WHERE store_name LIKE 'Bazar%'
+ORDER BY id;$c2859$, true, 'reference', 0);
+
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c2860$tiendas-bazar$c2860$), $c2861$SELECT id, store_name FROM sellers WHERE store_name ILIKE 'bazar%' ORDER BY id;$c2861$, false, $c2862$Con ILIKE$c2862$, 1);
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2863$tiendas-bazar$c2863$), 1, $c2864$«Empieza con» se expresa con `LIKE` y un patrón que termina en `%`.$c2864$, 0, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2865$tiendas-bazar$c2865$), 2, $c2866$El patrón es `'Bazar%'` (con B mayúscula si usas `LIKE`). No olvides el `ORDER BY`.$c2866$, 1, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2867$tiendas-bazar$c2867$), 3, $c2868$```sql
+SELECT id, store_name
+FROM sellers
+WHERE store_name LIKE '___%'
+ORDER BY ___;
+```$c2868$, 2, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+delete from public.exercise_prerequisites where exercise_id = (select id from public.exercises where slug = $c2869$tiendas-bazar$c2869$);
+
+insert into public.exercises (lesson_id, section_id, slug, title, scenario_md, business_question_md, learning_objective, difficulty, estimated_minutes, concepts, tables_used, dataset_id, dataset_version, theory_ref_slug, allowed_statements, expected_columns, validation_rules, common_mistakes, expert_explanation_md, improvement_feedback, reward_config, solution_unlock, is_published)
+values ((select id from public.lessons where kind in ('exercise','challenge') and ref_slug = $c2870$pedidos-primera-quincena-marzo$c2870$), (select id from public.sections where slug = $c2871$where$c2871$), $c2872$pedidos-primera-quincena-marzo$c2872$, $c2873$Primera quincena de marzo$c2873$, $c2874$Finanzas cierra la primera quincena de marzo de 2025 y necesita todos los pedidos creados entre el **1 y el 15 de marzo inclusive**, sin importar la hora. `created_at` es un `timestamptz`.$c2874$, $c2875$Devuelve `id`, `created_at` y `total_amount` de los pedidos creados desde el 2025-03-01 hasta el 2025-03-15 **inclusive** (todo el día 15). El orden no importa.$c2875$, $c2876$Filtrar rangos de fecha sobre timestamps sin perder los registros del último día.$c2876$, $c2877$intermediate$c2877$, 8, array[$c2878$select$c2878$,$c2879$where$c2879$,$c2880$date_functions$c2880$]::text[], array[$c2881$orders$c2881$]::text[], (select id from public.datasets where slug = $c2882$tiendaviva$c2882$), 1, $c2883$where-texto-y-fechas$c2883$, array[$c2884$select$c2884$]::text[], $c2885$[{"name":"id","type":"integer"},{"name":"created_at","type":"timestamp"},{"name":"total_amount","type":"numeric"}]$c2885$::jsonb, $c2886${"order_matters":false,"numeric_tolerance":0.01,"allow_extra_columns":false,"dedupe":false,"required_concepts":["where"],"prohibited_patterns":[],"max_execution_ms":3000}$c2886$::jsonb, $c2887$[{"category":"date_boundary","description_md":"`BETWEEN '2025-03-01' AND '2025-03-15'` deja afuera casi todo el día 15 (solo incluye las 00:00:00)."},{"category":"date_boundary","description_md":"`created_at <= '2025-03-16'` incluye el instante exacto de las 00:00 del 16."},{"category":"date_boundary","description_md":"`created_at < '2025-03-15'` excluye el día 15 completo."}]$c2887$::jsonb, $c2888$510 pedidos. Con `BETWEEN` hasta el 15 obtendrías 479: los 31 pedidos del 15 de marzo con hora posterior a las 00:00 desaparecen sin ningún error.
+
+La alternativa `created_at::date BETWEEN ...` es correcta y legible, pero al aplicar una conversión a la columna el índice de `created_at` no se usa. En tablas grandes prefiere el rango semiabierto.$c2888$, $c2889$[]$c2889$::jsonb, $c2890${"xp":40,"coins":8,"solution_reveal_xp_percent":25}$c2890$::jsonb, $c2891${"min_attempts":3,"min_hints":2,"min_minutes":10,"allow_explicit":true}$c2891$::jsonb, true)
+on conflict (slug) do update set lesson_id = excluded.lesson_id, section_id = excluded.section_id, title = excluded.title, scenario_md = excluded.scenario_md, business_question_md = excluded.business_question_md, learning_objective = excluded.learning_objective, difficulty = excluded.difficulty, estimated_minutes = excluded.estimated_minutes, concepts = excluded.concepts, tables_used = excluded.tables_used, dataset_id = excluded.dataset_id, dataset_version = excluded.dataset_version, theory_ref_slug = excluded.theory_ref_slug, allowed_statements = excluded.allowed_statements, expected_columns = excluded.expected_columns, validation_rules = excluded.validation_rules, common_mistakes = excluded.common_mistakes, expert_explanation_md = excluded.expert_explanation_md, improvement_feedback = excluded.improvement_feedback, reward_config = excluded.reward_config, solution_unlock = excluded.solution_unlock, is_published = excluded.is_published;
+
+delete from public.exercise_solutions where exercise_id = (select id from public.exercises where slug = $c2892$pedidos-primera-quincena-marzo$c2892$);
+
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c2893$pedidos-primera-quincena-marzo$c2893$), $c2894$SELECT id, created_at, total_amount
+FROM orders
+WHERE created_at >= '2025-03-01'
+  AND created_at < '2025-03-16';$c2894$, true, 'reference', 0);
+
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c2895$pedidos-primera-quincena-marzo$c2895$), $c2896$SELECT id, created_at, total_amount FROM orders WHERE created_at::date BETWEEN '2025-03-01' AND '2025-03-15';$c2896$, false, $c2897$Convertir a fecha$c2897$, 1);
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2898$pedidos-primera-quincena-marzo$c2898$), 1, $c2899$`created_at` incluye la hora. Compararlo con `'2025-03-15'` equivale a las 00:00 de ese día.$c2899$, 0, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2900$pedidos-primera-quincena-marzo$c2900$), 2, $c2901$Usa un rango semiabierto: mayor o igual al 1 de marzo y **menor** que el 16 de marzo.$c2901$, 1, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2902$pedidos-primera-quincena-marzo$c2902$), 3, $c2903$```sql
+SELECT id, created_at, total_amount
+FROM orders
+WHERE created_at >= '2025-03-01'
+  AND created_at < '___';
+```$c2903$, 2, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+delete from public.exercise_prerequisites where exercise_id = (select id from public.exercises where slug = $c2904$pedidos-primera-quincena-marzo$c2904$);
+
+insert into public.exercises (lesson_id, section_id, slug, title, scenario_md, business_question_md, learning_objective, difficulty, estimated_minutes, concepts, tables_used, dataset_id, dataset_version, theory_ref_slug, allowed_statements, expected_columns, validation_rules, common_mistakes, expert_explanation_md, improvement_feedback, reward_config, solution_unlock, is_published)
+values ((select id from public.lessons where kind in ('exercise','challenge') and ref_slug = $c2905$pedidos-problematicos-del-partner$c2905$), (select id from public.sections where slug = $c2906$operadores-comparacion-logicos$c2906$), $c2907$pedidos-problematicos-del-partner$c2907$, $c2908$Pedidos problemáticos del partner$c2908$, $c2909$**TiendaViva** vende también a través de un marketplace asociado (`channel = 'marketplace_partner'`). Operaciones quiere revisar los pedidos de ese canal que terminaron cancelados o devueltos.$c2909$, $c2910$Devuelve `id`, `status` y `channel` de los pedidos cuyo `status` es `'cancelled'` **o** `'returned'` **y** cuyo `channel` es `'marketplace_partner'`. El orden no importa.$c2910$, $c2911$Combinar IN (o un OR entre paréntesis) con AND sin errores de precedencia.$c2911$, $c2912$easy$c2912$, 5, array[$c2913$select$c2913$,$c2914$where$c2914$]::text[], array[$c2915$orders$c2915$]::text[], (select id from public.datasets where slug = $c2916$tiendaviva$c2916$), 1, $c2917$operadores-precedencia-in-between$c2917$, array[$c2918$select$c2918$]::text[], $c2919$[{"name":"id","type":"integer"},{"name":"status","type":"text"},{"name":"channel","type":"text"}]$c2919$::jsonb, $c2920${"order_matters":false,"numeric_tolerance":0.01,"allow_extra_columns":false,"dedupe":false,"required_concepts":["where"],"prohibited_patterns":[],"max_execution_ms":3000}$c2920$::jsonb, $c2921$[{"category":"row_count","description_md":"`status = 'cancelled' OR status = 'returned' AND channel = ...` sin paréntesis: devuelve más de 2000 filas."},{"category":"missing_filter","description_md":"Olvidar la condición de canal."},{"category":"syntax","description_md":"Escribir `IN 'cancelled', 'returned'` sin paréntesis alrededor de la lista."}]$c2921$::jsonb, $c2922$227 pedidos. `IN` evita el problema de precedencia; con `OR` sin paréntesis obtendrías 2393 filas (todos los cancelados de cualquier canal más los devueltos del partner) y ningún error que te avise.
+
+Cuando un número te sorprende, ejecuta cada condición por separado y compara.$c2922$, $c2923$[]$c2923$::jsonb, $c2924${"xp":20,"coins":4,"solution_reveal_xp_percent":25}$c2924$::jsonb, $c2925${"min_attempts":3,"min_hints":2,"min_minutes":10,"allow_explicit":true}$c2925$::jsonb, true)
+on conflict (slug) do update set lesson_id = excluded.lesson_id, section_id = excluded.section_id, title = excluded.title, scenario_md = excluded.scenario_md, business_question_md = excluded.business_question_md, learning_objective = excluded.learning_objective, difficulty = excluded.difficulty, estimated_minutes = excluded.estimated_minutes, concepts = excluded.concepts, tables_used = excluded.tables_used, dataset_id = excluded.dataset_id, dataset_version = excluded.dataset_version, theory_ref_slug = excluded.theory_ref_slug, allowed_statements = excluded.allowed_statements, expected_columns = excluded.expected_columns, validation_rules = excluded.validation_rules, common_mistakes = excluded.common_mistakes, expert_explanation_md = excluded.expert_explanation_md, improvement_feedback = excluded.improvement_feedback, reward_config = excluded.reward_config, solution_unlock = excluded.solution_unlock, is_published = excluded.is_published;
+
+delete from public.exercise_solutions where exercise_id = (select id from public.exercises where slug = $c2926$pedidos-problematicos-del-partner$c2926$);
+
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c2927$pedidos-problematicos-del-partner$c2927$), $c2928$SELECT id, status, channel
+FROM orders
+WHERE status IN ('cancelled', 'returned')
+  AND channel = 'marketplace_partner';$c2928$, true, 'reference', 0);
+
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c2929$pedidos-problematicos-del-partner$c2929$), $c2930$SELECT id, status, channel FROM orders WHERE (status = 'cancelled' OR status = 'returned') AND channel = 'marketplace_partner';$c2930$, false, $c2931$OR con paréntesis$c2931$, 1);
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2932$pedidos-problematicos-del-partner$c2932$), 1, $c2933$Hay una condición de «uno de dos estados» y otra de canal. `IN` expresa la primera sin ambigüedad.$c2933$, 0, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2934$pedidos-problematicos-del-partner$c2934$), 2, $c2935$Si usas `OR`, enciérralo entre paréntesis antes del `AND`; si no, el `AND` solo se aplica a la segunda igualdad.$c2935$, 1, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2936$pedidos-problematicos-del-partner$c2936$), 3, $c2937$```sql
+SELECT id, status, channel
+FROM orders
+WHERE status IN ('___', '___')
+  AND channel = '___';
+```$c2937$, 2, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+delete from public.exercise_prerequisites where exercise_id = (select id from public.exercises where slug = $c2938$pedidos-problematicos-del-partner$c2938$);
+
+insert into public.exercises (lesson_id, section_id, slug, title, scenario_md, business_question_md, learning_objective, difficulty, estimated_minutes, concepts, tables_used, dataset_id, dataset_version, theory_ref_slug, allowed_statements, expected_columns, validation_rules, common_mistakes, expert_explanation_md, improvement_feedback, reward_config, solution_unlock, is_published)
+values ((select id from public.lessons where kind in ('exercise','challenge') and ref_slug = $c2939$cuotas-largas-rechazadas$c2939$), (select id from public.sections where slug = $c2940$operadores-comparacion-logicos$c2940$), $c2941$cuotas-largas-rechazadas$c2941$, $c2942$Cuotas largas rechazadas$c2942$, $c2943$Riesgo sospecha que los pagos en muchas cuotas se rechazan más. Quiere ver los pagos rechazados de 6 cuotas o más.$c2943$, $c2944$Devuelve `id`, `order_id`, `installments` y `amount` de los pagos con `installments` **entre 6 y 12 inclusive** y `status` igual a `'rejected'`, ordenados por `amount` de mayor a menor.$c2944$, $c2945$Usar BETWEEN para rangos numéricos inclusivos combinado con otra condición.$c2945$, $c2946$easy$c2946$, 5, array[$c2947$select$c2947$,$c2948$where$c2948$,$c2949$order_by$c2949$]::text[], array[$c2950$payments$c2950$]::text[], (select id from public.datasets where slug = $c2951$tiendaviva$c2951$), 1, $c2952$operadores-precedencia-in-between$c2952$, array[$c2953$select$c2953$]::text[], $c2954$[{"name":"id","type":"integer"},{"name":"order_id","type":"integer"},{"name":"installments","type":"integer"},{"name":"amount","type":"numeric"}]$c2954$::jsonb, $c2955${"order_matters":true,"numeric_tolerance":0.01,"allow_extra_columns":false,"dedupe":false,"required_concepts":["where","order_by"],"prohibited_patterns":[],"max_execution_ms":3000}$c2955$::jsonb, $c2956$[{"category":"row_count","description_md":"`installments > 6` excluye los pagos de exactamente 6 cuotas."},{"category":"wrong_order","description_md":"Ordenar ascendente o por `installments`."},{"category":"missing_filter","description_md":"Omitir `status = 'rejected'` y devolver también aprobados y reembolsados."}]$c2956$::jsonb, $c2957$296 pagos. En este dataset las cuotas solo toman los valores 1, 3, 6 y 12, por eso `IN (6, 12)` da el mismo resultado; `BETWEEN` es la forma correcta cuando el rango puede contener cualquier valor intermedio.
+
+La tasa de rechazo por cuotas es un análisis típico de Riesgo; lo completarás con agregaciones en la sección 14.$c2957$, $c2958$[]$c2958$::jsonb, $c2959${"xp":20,"coins":4,"solution_reveal_xp_percent":25}$c2959$::jsonb, $c2960${"min_attempts":3,"min_hints":2,"min_minutes":10,"allow_explicit":true}$c2960$::jsonb, true)
+on conflict (slug) do update set lesson_id = excluded.lesson_id, section_id = excluded.section_id, title = excluded.title, scenario_md = excluded.scenario_md, business_question_md = excluded.business_question_md, learning_objective = excluded.learning_objective, difficulty = excluded.difficulty, estimated_minutes = excluded.estimated_minutes, concepts = excluded.concepts, tables_used = excluded.tables_used, dataset_id = excluded.dataset_id, dataset_version = excluded.dataset_version, theory_ref_slug = excluded.theory_ref_slug, allowed_statements = excluded.allowed_statements, expected_columns = excluded.expected_columns, validation_rules = excluded.validation_rules, common_mistakes = excluded.common_mistakes, expert_explanation_md = excluded.expert_explanation_md, improvement_feedback = excluded.improvement_feedback, reward_config = excluded.reward_config, solution_unlock = excluded.solution_unlock, is_published = excluded.is_published;
+
+delete from public.exercise_solutions where exercise_id = (select id from public.exercises where slug = $c2961$cuotas-largas-rechazadas$c2961$);
+
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c2962$cuotas-largas-rechazadas$c2962$), $c2963$SELECT id, order_id, installments, amount
+FROM payments
+WHERE installments BETWEEN 6 AND 12
+  AND status = 'rejected'
+ORDER BY amount DESC;$c2963$, true, 'reference', 0);
+
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c2964$cuotas-largas-rechazadas$c2964$), $c2965$SELECT id, order_id, installments, amount FROM payments WHERE installments >= 6 AND installments <= 12 AND status = 'rejected' ORDER BY amount DESC;$c2965$, false, $c2966$Comparaciones explícitas$c2966$, 1);
+
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c2967$cuotas-largas-rechazadas$c2967$), $c2968$SELECT id, order_id, installments, amount FROM payments WHERE installments IN (6, 12) AND status = 'rejected' ORDER BY amount DESC;$c2968$, false, $c2969$Lista de valores$c2969$, 2);
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2970$cuotas-largas-rechazadas$c2970$), 1, $c2971$«Entre 6 y 12 inclusive» es exactamente lo que expresa `BETWEEN`.$c2971$, 0, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2972$cuotas-largas-rechazadas$c2972$), 2, $c2973$Combina `installments BETWEEN 6 AND 12` con `status = 'rejected'` usando `AND`, y ordena por `amount DESC`.$c2973$, 1, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c2974$cuotas-largas-rechazadas$c2974$), 3, $c2975$```sql
+SELECT id, order_id, installments, amount
+FROM payments
+WHERE installments BETWEEN ___ AND ___
+  AND status = '___'
+ORDER BY amount ___;
+```$c2975$, 2, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+delete from public.exercise_prerequisites where exercise_id = (select id from public.exercises where slug = $c2976$cuotas-largas-rechazadas$c2976$);
+
+insert into public.exercises (lesson_id, section_id, slug, title, scenario_md, business_question_md, learning_objective, difficulty, estimated_minutes, concepts, tables_used, dataset_id, dataset_version, theory_ref_slug, allowed_statements, expected_columns, validation_rules, common_mistakes, expert_explanation_md, improvement_feedback, reward_config, solution_unlock, is_published)
+values ((select id from public.lessons where kind in ('exercise','challenge') and ref_slug = $c2977$campana-rio-de-la-plata$c2977$), (select id from public.sections where slug = $c2978$operadores-comparacion-logicos$c2978$), $c2979$campana-rio-de-la-plata$c2979$, $c2980$Campaña Río de la Plata$c2980$, $c2981$Marketing lanza una campaña para Argentina y Uruguay. Por normativa solo puede contactar a quienes aceptaron comunicaciones (`marketing_opt_in`).$c2981$, $c2982$Devuelve `id`, `full_name` y `country` de los clientes de `'AR'` **o** `'UY'` que tengan `marketing_opt_in` verdadero. El orden no importa.$c2982$, $c2983$Escribir correctamente una condición OR combinada con AND.$c2983$, $c2984$intermediate$c2984$, 7, array[$c2985$select$c2985$,$c2986$where$c2986$]::text[], array[$c2987$customers$c2987$]::text[], (select id from public.datasets where slug = $c2988$tiendaviva$c2988$), 1, $c2989$operadores-precedencia-in-between$c2989$, array[$c2990$select$c2990$]::text[], $c2991$[{"name":"id","type":"integer"},{"name":"full_name","type":"text"},{"name":"country","type":"text"}]$c2991$::jsonb, $c2992${"order_matters":false,"numeric_tolerance":0.01,"allow_extra_columns":false,"dedupe":false,"required_concepts":["where"],"prohibited_patterns":[],"max_execution_ms":3000}$c2992$::jsonb, $c2993$[{"category":"row_count","description_md":"`country = 'AR' OR country = 'UY' AND marketing_opt_in` sin paréntesis: incluye a todos los argentinos, con o sin consentimiento (952 filas)."},{"category":"row_count","description_md":"Usar `AND` entre los países: ningún cliente tiene dos países, devuelve 0 filas."},{"category":"missing_filter","description_md":"Olvidar `marketing_opt_in`: contactar sin consentimiento es un problema legal, no solo un error de SQL."}]$c2993$::jsonb, $c2994$561 clientes. Sin paréntesis (o sin `IN`) obtendrías 952: la campaña llegaría a ~390 personas que no dieron consentimiento.
+
+Este es el ejemplo clásico de por qué la precedencia importa: el error no rompe la consulta, rompe la confianza en el reporte.$c2994$, $c2995$[]$c2995$::jsonb, $c2996${"xp":40,"coins":8,"solution_reveal_xp_percent":25}$c2996$::jsonb, $c2997${"min_attempts":3,"min_hints":2,"min_minutes":10,"allow_explicit":true}$c2997$::jsonb, true)
+on conflict (slug) do update set lesson_id = excluded.lesson_id, section_id = excluded.section_id, title = excluded.title, scenario_md = excluded.scenario_md, business_question_md = excluded.business_question_md, learning_objective = excluded.learning_objective, difficulty = excluded.difficulty, estimated_minutes = excluded.estimated_minutes, concepts = excluded.concepts, tables_used = excluded.tables_used, dataset_id = excluded.dataset_id, dataset_version = excluded.dataset_version, theory_ref_slug = excluded.theory_ref_slug, allowed_statements = excluded.allowed_statements, expected_columns = excluded.expected_columns, validation_rules = excluded.validation_rules, common_mistakes = excluded.common_mistakes, expert_explanation_md = excluded.expert_explanation_md, improvement_feedback = excluded.improvement_feedback, reward_config = excluded.reward_config, solution_unlock = excluded.solution_unlock, is_published = excluded.is_published;
+
+delete from public.exercise_solutions where exercise_id = (select id from public.exercises where slug = $c2998$campana-rio-de-la-plata$c2998$);
+
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c2999$campana-rio-de-la-plata$c2999$), $c3000$SELECT id, full_name, country
+FROM customers
+WHERE country IN ('AR', 'UY')
+  AND marketing_opt_in;$c3000$, true, 'reference', 0);
+
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c3001$campana-rio-de-la-plata$c3001$), $c3002$SELECT id, full_name, country FROM customers WHERE (country = 'AR' OR country = 'UY') AND marketing_opt_in = TRUE;$c3002$, false, $c3003$OR con paréntesis$c3003$, 1);
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c3004$campana-rio-de-la-plata$c3004$), 1, $c3005$La condición de país tiene dos valores posibles; la de marketing debe cumplirse siempre. Piensa en cómo agruparlas.$c3005$, 0, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c3006$campana-rio-de-la-plata$c3006$), 2, $c3007$`country IN ('AR', 'UY')` resuelve el «o». Luego `AND marketing_opt_in`.$c3007$, 1, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c3008$campana-rio-de-la-plata$c3008$), 3, $c3009$```sql
+SELECT id, full_name, country
+FROM customers
+WHERE country IN ('___', '___')
+  AND ___;
+```$c3009$, 2, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+delete from public.exercise_prerequisites where exercise_id = (select id from public.exercises where slug = $c3010$campana-rio-de-la-plata$c3010$);
+
+insert into public.exercises (lesson_id, section_id, slug, title, scenario_md, business_question_md, learning_objective, difficulty, estimated_minutes, concepts, tables_used, dataset_id, dataset_version, theory_ref_slug, allowed_statements, expected_columns, validation_rules, common_mistakes, expert_explanation_md, improvement_feedback, reward_config, solution_unlock, is_published)
+values ((select id from public.lessons where kind in ('exercise','challenge') and ref_slug = $c3011$vendedores-sin-calificacion$c3011$), (select id from public.sections where slug = $c3012$null$c3012$), $c3013$vendedores-sin-calificacion$c3013$, $c3014$Vendedores sin calificación$c3014$, $c3015$Comercial quiere invitar a los vendedores que todavía no recibieron ninguna calificación a un programa de primeras ventas.$c3015$, $c3016$Devuelve `id` y `store_name` de los vendedores cuyo `rating` es NULL. El orden no importa.$c3016$, $c3017$Detectar valores NULL con IS NULL.$c3017$, $c3018$very_easy$c3018$, 3, array[$c3019$select$c3019$,$c3020$where$c3020$,$c3021$null_handling$c3021$]::text[], array[$c3022$sellers$c3022$]::text[], (select id from public.datasets where slug = $c3023$tiendaviva$c3023$), 1, $c3024$null-logica-de-tres-valores$c3024$, array[$c3025$select$c3025$]::text[], $c3026$[{"name":"id","type":"integer"},{"name":"store_name","type":"text"}]$c3026$::jsonb, $c3027${"order_matters":false,"numeric_tolerance":0.01,"allow_extra_columns":false,"dedupe":false,"required_concepts":["null_handling"],"prohibited_patterns":[],"max_execution_ms":3000}$c3027$::jsonb, $c3028$[{"category":"null_handling","description_md":"`WHERE rating = NULL` devuelve 0 filas sin error."},{"category":"null_handling","description_md":"`WHERE rating = 0`: los vendedores sin calificación no tienen 0, tienen NULL."},{"category":"syntax","description_md":"`WHERE rating IS 'NULL'` compara con un texto y produce error."}]$c3028$::jsonb, $c3029$28 vendedores. `IS NULL` es una prueba, no una comparación: no participa de la lógica de tres valores.
+
+En datos reales, «sin calificación» suele mezclarse con «calificación 0» por errores de carga; conviene acordar con el negocio qué significa cada caso.$c3029$, $c3030$[]$c3030$::jsonb, $c3031${"xp":10,"coins":2,"solution_reveal_xp_percent":25}$c3031$::jsonb, $c3032${"min_attempts":3,"min_hints":2,"min_minutes":10,"allow_explicit":true}$c3032$::jsonb, true)
+on conflict (slug) do update set lesson_id = excluded.lesson_id, section_id = excluded.section_id, title = excluded.title, scenario_md = excluded.scenario_md, business_question_md = excluded.business_question_md, learning_objective = excluded.learning_objective, difficulty = excluded.difficulty, estimated_minutes = excluded.estimated_minutes, concepts = excluded.concepts, tables_used = excluded.tables_used, dataset_id = excluded.dataset_id, dataset_version = excluded.dataset_version, theory_ref_slug = excluded.theory_ref_slug, allowed_statements = excluded.allowed_statements, expected_columns = excluded.expected_columns, validation_rules = excluded.validation_rules, common_mistakes = excluded.common_mistakes, expert_explanation_md = excluded.expert_explanation_md, improvement_feedback = excluded.improvement_feedback, reward_config = excluded.reward_config, solution_unlock = excluded.solution_unlock, is_published = excluded.is_published;
+
+delete from public.exercise_solutions where exercise_id = (select id from public.exercises where slug = $c3033$vendedores-sin-calificacion$c3033$);
+
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c3034$vendedores-sin-calificacion$c3034$), $c3035$SELECT id, store_name
+FROM sellers
+WHERE rating IS NULL;$c3035$, true, 'reference', 0);
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c3036$vendedores-sin-calificacion$c3036$), 1, $c3037$`rating = NULL` no funciona: ninguna comparación con NULL es verdadera.$c3037$, 0, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c3038$vendedores-sin-calificacion$c3038$), 2, $c3039$Existe un operador específico para preguntar si un valor es NULL: `IS NULL`.$c3039$, 1, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c3040$vendedores-sin-calificacion$c3040$), 3, $c3041$```sql
+SELECT id, store_name
+FROM sellers
+WHERE rating ___ ___;
+```$c3041$, 2, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+delete from public.exercise_prerequisites where exercise_id = (select id from public.exercises where slug = $c3042$vendedores-sin-calificacion$c3042$);
+
+insert into public.exercises (lesson_id, section_id, slug, title, scenario_md, business_question_md, learning_objective, difficulty, estimated_minutes, concepts, tables_used, dataset_id, dataset_version, theory_ref_slug, allowed_statements, expected_columns, validation_rules, common_mistakes, expert_explanation_md, improvement_feedback, reward_config, solution_unlock, is_published)
+values ((select id from public.lessons where kind in ('exercise','challenge') and ref_slug = $c3043$envios-pendientes-latampost$c3043$), (select id from public.sections where slug = $c3044$null$c3044$), $c3045$envios-pendientes-latampost$c3045$, $c3046$Envíos pendientes de LatamPost$c3046$, $c3047$Logística reclama a **LatamPost** por los envíos despachados que aún no tienen fecha de entrega (`delivered_at` NULL).$c3047$, $c3048$Devuelve `id`, `order_id` y `shipped_at` de los envíos con `carrier` igual a `'LatamPost'` y `delivered_at` NULL, ordenados por `shipped_at` ascendente (los más antiguos primero).$c3048$, $c3049$Combinar IS NULL con otra condición y ordenar el resultado.$c3049$, $c3050$easy$c3050$, 5, array[$c3051$select$c3051$,$c3052$where$c3052$,$c3053$null_handling$c3053$,$c3054$order_by$c3054$]::text[], array[$c3055$shipments$c3055$]::text[], (select id from public.datasets where slug = $c3056$tiendaviva$c3056$), 1, $c3057$null-logica-de-tres-valores$c3057$, array[$c3058$select$c3058$]::text[], $c3059$[{"name":"id","type":"integer"},{"name":"order_id","type":"integer"},{"name":"shipped_at","type":"timestamp"}]$c3059$::jsonb, $c3060${"order_matters":true,"numeric_tolerance":0.01,"allow_extra_columns":false,"dedupe":false,"required_concepts":["null_handling","order_by"],"prohibited_patterns":[],"max_execution_ms":3000}$c3060$::jsonb, $c3061$[{"category":"null_handling","description_md":"`delivered_at = NULL` o `delivered_at = ''`: 0 filas o error de tipo."},{"category":"wrong_order","description_md":"Ordenar descendente: la consigna pide los más antiguos primero."},{"category":"row_count","description_md":"Escribir `'Latampost'` con otra capitalización: 0 filas."}]$c3061$::jsonb, $c3062$194 envíos. Un `delivered_at` NULL puede significar «en camino» o «perdido»; la antigüedad de `shipped_at` es lo que distingue ambos casos, por eso el orden ascendente.
+
+Este tipo de lista es la base de un reporte de SLA que construirás con funciones de fecha en la sección 11.$c3062$, $c3063$[]$c3063$::jsonb, $c3064${"xp":20,"coins":4,"solution_reveal_xp_percent":25}$c3064$::jsonb, $c3065${"min_attempts":3,"min_hints":2,"min_minutes":10,"allow_explicit":true}$c3065$::jsonb, true)
+on conflict (slug) do update set lesson_id = excluded.lesson_id, section_id = excluded.section_id, title = excluded.title, scenario_md = excluded.scenario_md, business_question_md = excluded.business_question_md, learning_objective = excluded.learning_objective, difficulty = excluded.difficulty, estimated_minutes = excluded.estimated_minutes, concepts = excluded.concepts, tables_used = excluded.tables_used, dataset_id = excluded.dataset_id, dataset_version = excluded.dataset_version, theory_ref_slug = excluded.theory_ref_slug, allowed_statements = excluded.allowed_statements, expected_columns = excluded.expected_columns, validation_rules = excluded.validation_rules, common_mistakes = excluded.common_mistakes, expert_explanation_md = excluded.expert_explanation_md, improvement_feedback = excluded.improvement_feedback, reward_config = excluded.reward_config, solution_unlock = excluded.solution_unlock, is_published = excluded.is_published;
+
+delete from public.exercise_solutions where exercise_id = (select id from public.exercises where slug = $c3066$envios-pendientes-latampost$c3066$);
+
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c3067$envios-pendientes-latampost$c3067$), $c3068$SELECT id, order_id, shipped_at
+FROM shipments
+WHERE carrier = 'LatamPost'
+  AND delivered_at IS NULL
+ORDER BY shipped_at;$c3068$, true, 'reference', 0);
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c3069$envios-pendientes-latampost$c3069$), 1, $c3070$Dos condiciones con `AND`: una igualdad de texto y una prueba de NULL.$c3070$, 0, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c3071$envios-pendientes-latampost$c3071$), 2, $c3072$`delivered_at IS NULL` identifica los no entregados. Ordena con `ORDER BY shipped_at` (ascendente es el valor por defecto).$c3072$, 1, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c3073$envios-pendientes-latampost$c3073$), 3, $c3074$```sql
+SELECT id, order_id, shipped_at
+FROM shipments
+WHERE carrier = '___'
+  AND delivered_at ___ ___
+ORDER BY ___;
+```$c3074$, 2, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+delete from public.exercise_prerequisites where exercise_id = (select id from public.exercises where slug = $c3075$envios-pendientes-latampost$c3075$);
+
+insert into public.exercises (lesson_id, section_id, slug, title, scenario_md, business_question_md, learning_objective, difficulty, estimated_minutes, concepts, tables_used, dataset_id, dataset_version, theory_ref_slug, allowed_statements, expected_columns, validation_rules, common_mistakes, expert_explanation_md, improvement_feedback, reward_config, solution_unlock, is_published)
+values ((select id from public.lessons where kind in ('exercise','challenge') and ref_slug = $c3076$calificacion-o-cero$c3076$), (select id from public.sections where slug = $c3077$null$c3077$), $c3078$calificacion-o-cero$c3078$, $c3079$Calificación o cero$c3079$, $c3080$El panel de vendedores no puede mostrar celdas vacías. Producto pide que los vendedores sin calificación aparezcan con 0.$c3080$, $c3081$Devuelve `id`, `store_name` y la calificación como `rating_o_cero` (el `rating`, o `0` cuando es NULL) de **todos** los vendedores, ordenados por `rating_o_cero` descendente y luego por `id` ascendente.$c3081$, $c3082$Reemplazar NULL por un valor de negocio con COALESCE.$c3082$, $c3083$easy$c3083$, 6, array[$c3084$select$c3084$,$c3085$alias$c3085$,$c3086$null_handling$c3086$,$c3087$order_by$c3087$]::text[], array[$c3088$sellers$c3088$]::text[], (select id from public.datasets where slug = $c3089$tiendaviva$c3089$), 1, $c3090$null-coalesce-y-nullif$c3090$, array[$c3091$select$c3091$]::text[], $c3092$[{"name":"id","type":"integer"},{"name":"store_name","type":"text"},{"name":"rating_o_cero","type":"numeric"}]$c3092$::jsonb, $c3093${"order_matters":true,"numeric_tolerance":0.01,"allow_extra_columns":false,"dedupe":false,"required_concepts":["null_handling","alias"],"prohibited_patterns":[],"max_execution_ms":3000}$c3093$::jsonb, $c3094$[{"category":"null_handling","description_md":"Ordenar por `rating DESC` en vez de por la columna con `COALESCE`: los NULL quedarían primero."},{"category":"wrong_order","description_md":"Omitir `id` como segundo criterio: el orden entre vendedores con la misma calificación queda indefinido."},{"category":"wrong_columns","description_md":"Olvidar el alias `rating_o_cero`."}]$c3094$::jsonb, $c3095$180 filas; los 28 vendedores sin calificación quedan al final con 0. Sin `COALESCE`, `ORDER BY rating DESC` los habría puesto **primero**, porque PostgreSQL trata NULL como el mayor valor en orden descendente.
+
+El segundo criterio de orden es una buena práctica siempre que haya empates: hace el resultado reproducible.$c3095$, $c3096$[]$c3096$::jsonb, $c3097${"xp":20,"coins":4,"solution_reveal_xp_percent":25}$c3097$::jsonb, $c3098${"min_attempts":3,"min_hints":2,"min_minutes":10,"allow_explicit":true}$c3098$::jsonb, true)
+on conflict (slug) do update set lesson_id = excluded.lesson_id, section_id = excluded.section_id, title = excluded.title, scenario_md = excluded.scenario_md, business_question_md = excluded.business_question_md, learning_objective = excluded.learning_objective, difficulty = excluded.difficulty, estimated_minutes = excluded.estimated_minutes, concepts = excluded.concepts, tables_used = excluded.tables_used, dataset_id = excluded.dataset_id, dataset_version = excluded.dataset_version, theory_ref_slug = excluded.theory_ref_slug, allowed_statements = excluded.allowed_statements, expected_columns = excluded.expected_columns, validation_rules = excluded.validation_rules, common_mistakes = excluded.common_mistakes, expert_explanation_md = excluded.expert_explanation_md, improvement_feedback = excluded.improvement_feedback, reward_config = excluded.reward_config, solution_unlock = excluded.solution_unlock, is_published = excluded.is_published;
+
+delete from public.exercise_solutions where exercise_id = (select id from public.exercises where slug = $c3099$calificacion-o-cero$c3099$);
+
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c3100$calificacion-o-cero$c3100$), $c3101$SELECT id, store_name, COALESCE(rating, 0) AS rating_o_cero
+FROM sellers
+ORDER BY rating_o_cero DESC, id;$c3101$, true, 'reference', 0);
+
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c3102$calificacion-o-cero$c3102$), $c3103$SELECT id, store_name, COALESCE(rating, 0) AS rating_o_cero FROM sellers ORDER BY COALESCE(rating, 0) DESC, id ASC;$c3103$, false, $c3104$Expresión repetida en ORDER BY$c3104$, 1);
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c3105$calificacion-o-cero$c3105$), 1, $c3106$`COALESCE(a, b)` devuelve `a` si no es NULL y `b` en caso contrario.$c3106$, 0, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c3107$calificacion-o-cero$c3107$), 2, $c3108$El alias del `SELECT` sí puede usarse en `ORDER BY`. Agrega `id` como segundo criterio para los empates.$c3108$, 1, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c3109$calificacion-o-cero$c3109$), 3, $c3110$```sql
+SELECT id, store_name, COALESCE(___, 0) AS rating_o_cero
+FROM sellers
+ORDER BY rating_o_cero ___, id;
+```$c3110$, 2, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+delete from public.exercise_prerequisites where exercise_id = (select id from public.exercises where slug = $c3111$calificacion-o-cero$c3111$);
+
+insert into public.exercises (lesson_id, section_id, slug, title, scenario_md, business_question_md, learning_objective, difficulty, estimated_minutes, concepts, tables_used, dataset_id, dataset_version, theory_ref_slug, allowed_statements, expected_columns, validation_rules, common_mistakes, expert_explanation_md, improvement_feedback, reward_config, solution_unlock, is_published)
+values ((select id from public.lessons where kind in ('exercise','challenge') and ref_slug = $c3112$resenas-negativas-sin-comentario$c3112$), (select id from public.sections where slug = $c3113$null$c3113$), $c3114$resenas-negativas-sin-comentario$c3114$, $c3115$Reseñas negativas sin comentario$c3115$, $c3116$Atención al cliente contacta a quienes dejaron 1 o 2 estrellas sin explicar por qué. Para el reporte, las reseñas sin texto deben mostrar `(sin comentario)`.$c3116$, $c3117$Devuelve `id`, `customer_id`, `rating` y el comentario como `comentario` (el texto original, o `(sin comentario)` cuando es NULL) de las reseñas con `rating` menor o igual a 2 **y** `comment` NULL. El orden no importa.$c3117$, $c3118$Filtrar por NULL y a la vez presentar un valor legible con COALESCE.$c3118$, $c3119$intermediate$c3119$, 7, array[$c3120$select$c3120$,$c3121$where$c3121$,$c3122$null_handling$c3122$,$c3123$alias$c3123$]::text[], array[$c3124$reviews$c3124$]::text[], (select id from public.datasets where slug = $c3125$tiendaviva$c3125$), 1, $c3126$null-coalesce-y-nullif$c3126$, array[$c3127$select$c3127$]::text[], $c3128$[{"name":"id","type":"integer"},{"name":"customer_id","type":"integer"},{"name":"rating","type":"integer"},{"name":"comentario","type":"text"}]$c3128$::jsonb, $c3129${"order_matters":false,"numeric_tolerance":0.01,"allow_extra_columns":false,"dedupe":false,"required_concepts":["null_handling","where"],"prohibited_patterns":[],"max_execution_ms":3000}$c3129$::jsonb, $c3130$[{"category":"null_handling","description_md":"Filtrar con `comment = ''`: los comentarios ausentes son NULL, no cadenas vacías."},{"category":"wrong_columns","description_md":"Devolver `comment` sin `COALESCE`: la columna mostraría NULL y no el texto pedido."},{"category":"row_count","description_md":"`rating < 2` deja afuera las reseñas de 2 estrellas."}]$c3130$::jsonb, $c3131$225 reseñas. Como el filtro exige `comment IS NULL`, la columna `comentario` vale `(sin comentario)` en todas las filas: `COALESCE` está ahí por el formato del reporte, no por la lógica.
+
+Separa siempre las dos preguntas: qué filas quiero (WHERE) y cómo las muestro (SELECT).$c3131$, $c3132$[]$c3132$::jsonb, $c3133${"xp":40,"coins":8,"solution_reveal_xp_percent":25}$c3133$::jsonb, $c3134${"min_attempts":3,"min_hints":2,"min_minutes":10,"allow_explicit":true}$c3134$::jsonb, true)
+on conflict (slug) do update set lesson_id = excluded.lesson_id, section_id = excluded.section_id, title = excluded.title, scenario_md = excluded.scenario_md, business_question_md = excluded.business_question_md, learning_objective = excluded.learning_objective, difficulty = excluded.difficulty, estimated_minutes = excluded.estimated_minutes, concepts = excluded.concepts, tables_used = excluded.tables_used, dataset_id = excluded.dataset_id, dataset_version = excluded.dataset_version, theory_ref_slug = excluded.theory_ref_slug, allowed_statements = excluded.allowed_statements, expected_columns = excluded.expected_columns, validation_rules = excluded.validation_rules, common_mistakes = excluded.common_mistakes, expert_explanation_md = excluded.expert_explanation_md, improvement_feedback = excluded.improvement_feedback, reward_config = excluded.reward_config, solution_unlock = excluded.solution_unlock, is_published = excluded.is_published;
+
+delete from public.exercise_solutions where exercise_id = (select id from public.exercises where slug = $c3135$resenas-negativas-sin-comentario$c3135$);
+
+insert into public.exercise_solutions (exercise_id, sql, is_reference, approach_label, sort_order) values ((select id from public.exercises where slug = $c3136$resenas-negativas-sin-comentario$c3136$), $c3137$SELECT id, customer_id, rating, COALESCE(comment, '(sin comentario)') AS comentario
+FROM reviews
+WHERE rating <= 2
+  AND comment IS NULL;$c3137$, true, 'reference', 0);
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c3138$resenas-negativas-sin-comentario$c3138$), 1, $c3139$Son dos tareas: filtrar (`WHERE`) las reseñas sin comentario y mostrar (`SELECT`) un texto en lugar del NULL.$c3139$, 0, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c3140$resenas-negativas-sin-comentario$c3140$), 2, $c3141$En el filtro usa `comment IS NULL`; en la lista de columnas, `COALESCE(comment, '(sin comentario)')` con alias.$c3141$, 1, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+insert into public.exercise_hints (exercise_id, level, body_md, coin_cost, xp_penalty_percent)
+values ((select id from public.exercises where slug = $c3142$resenas-negativas-sin-comentario$c3142$), 3, $c3143$```sql
+SELECT id, customer_id, rating, COALESCE(___, '(sin comentario)') AS comentario
+FROM reviews
+WHERE rating <= ___
+  AND comment ___ ___;
+```$c3143$, 2, 10)
+on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_cost = excluded.coin_cost, xp_penalty_percent = excluded.xp_penalty_percent;
+
+delete from public.exercise_prerequisites where exercise_id = (select id from public.exercises where slug = $c3144$resenas-negativas-sin-comentario$c3144$);
 
 insert into public.products (slug, kind, title, description, access_days, is_active)
-values ($c1563$full-lifetime$c1563$, $c1564$lifetime$c1564$, $c1565$Acceso completo de por vida$c1565$, $c1566$Todo el currículo, ejercicios, quizzes y certificados, sin vencimiento.$c1566$, null, true)
+values ($c3145$full-lifetime$c3145$, $c3146$lifetime$c3146$, $c3147$Acceso completo de por vida$c3147$, $c3148$Todo el currículo, ejercicios, quizzes y certificados, sin vencimiento.$c3148$, null, true)
 on conflict (slug) do update set kind = excluded.kind, title = excluded.title, description = excluded.description, access_days = excluded.access_days, is_active = excluded.is_active;
 
 insert into public.prices (product_id, provider, currency, amount_minor, country, interval, is_active)
-values ((select id from public.products where slug = $c1567$full-lifetime$c1567$), $c1568$manual$c1568$, $c1569$USD$c1569$, 2000, null, $c1570$one_time$c1570$, true)
+values ((select id from public.products where slug = $c3149$full-lifetime$c3149$), $c3150$manual$c3150$, $c3151$USD$c3151$, 2000, null, $c3152$one_time$c3152$, true)
 on conflict (product_id, provider, currency, country) do update set amount_minor = excluded.amount_minor, interval = excluded.interval, is_active = true;
 
 insert into public.prices (product_id, provider, currency, amount_minor, country, interval, is_active)
-values ((select id from public.products where slug = $c1571$full-lifetime$c1571$), $c1572$manual$c1572$, $c1573$ARS$c1573$, 0, $c1574$AR$c1574$, $c1575$one_time$c1575$, true)
+values ((select id from public.products where slug = $c3153$full-lifetime$c3153$), $c3154$manual$c3154$, $c3155$ARS$c3155$, 0, $c3156$AR$c3156$, $c3157$one_time$c3157$, true)
 on conflict (product_id, provider, currency, country) do update set amount_minor = excluded.amount_minor, interval = excluded.interval, is_active = true;
 
 insert into public.prices (product_id, provider, currency, amount_minor, country, interval, is_active)
-values ((select id from public.products where slug = $c1576$full-lifetime$c1576$), $c1577$hotmart$c1577$, $c1578$USD$c1578$, 2000, null, $c1579$one_time$c1579$, true)
+values ((select id from public.products where slug = $c3158$full-lifetime$c3158$), $c3159$hotmart$c3159$, $c3160$USD$c3160$, 2000, null, $c3161$one_time$c3161$, true)
 on conflict (product_id, provider, currency, country) do update set amount_minor = excluded.amount_minor, interval = excluded.interval, is_active = true;
 
 insert into public.products (slug, kind, title, description, access_days, is_active)
-values ($c1580$full-monthly$c1580$, $c1581$subscription$c1581$, $c1582$Suscripción mensual$c1582$, $c1583$Modelada para el futuro; no se vende en el MVP.$c1583$, 30, false)
+values ($c3162$full-monthly$c3162$, $c3163$subscription$c3163$, $c3164$Suscripción mensual$c3164$, $c3165$Modelada para el futuro; no se vende en el MVP.$c3165$, 30, false)
 on conflict (slug) do update set kind = excluded.kind, title = excluded.title, description = excluded.description, access_days = excluded.access_days, is_active = excluded.is_active;
 
 insert into public.products (slug, kind, title, description, access_days, is_active)
-values ($c1584$full-annual$c1584$, $c1585$subscription$c1585$, $c1586$Suscripción anual$c1586$, $c1587$Modelada para el futuro; no se vende en el MVP.$c1587$, 365, false)
+values ($c3166$full-annual$c3166$, $c3167$subscription$c3167$, $c3168$Suscripción anual$c3168$, $c3169$Modelada para el futuro; no se vende en el MVP.$c3169$, 365, false)
 on conflict (slug) do update set kind = excluded.kind, title = excluded.title, description = excluded.description, access_days = excluded.access_days, is_active = excluded.is_active;
 
 commit;
