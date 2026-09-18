@@ -297,7 +297,7 @@ const outlines: Outline[] = [
       "Detectar joins que multiplican filas por error",
     ],
     is_free_theory: false,
-    is_published: false,
+    is_published: true,
     certificate: null,
   },
   {

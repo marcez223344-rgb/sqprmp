@@ -32,7 +32,7 @@ npx vercel --prod          # BLOCKED by hook unless owner approval recorded in t
 
 ## 4. CI/CD (GitHub Actions)
 
-`ci.yml`: quality gate job (format, lint, typecheck, unit, db:validate, content, datasets, build, audit) + `db-tests` job (Supabase CLI + pgTAP) + `e2e` job (Playwright Chromium). `nightly.yml`: `npm audit --audit-level=moderate` + optional Supabase keep-alive (enable with repository variable `SUPABASE_KEEPALIVE=true` and secrets `SUPABASE_DEV_URL`, `SUPABASE_DEV_PUBLISHABLE_KEY`). Dependabot: weekly npm (grouped minor/patch), monthly actions. Deployments are performed by Vercel's Git integration (preview on PR, production on merge to `main`), never by the assistant.
+`ci.yml`: quality gate job (format, lint, typecheck, unit, db:validate, content, datasets, build, audit) + `db-tests` job (Supabase CLI + pgTAP) + `e2e` job (Playwright Chromium). `nightly.yml`: `npm audit --audit-level=moderate` + optional Supabase keep-alive (enable with repository variable `SUPABASE_KEEPALIVE=true` and secrets `SUPABASE_DEV_URL`, `SUPABASE_DEV_PUBLISHABLE_KEY`). Dependabot: weekly npm (grouped minor/patch), monthly actions. Dataset snapshots (`public/datasets/**`) are git-ignored and regenerated deterministically by the `prebuild` hook (`assets:pglite` + `datasets:build`, ~2 s), so Vercel builds always ship the exact snapshot recorded in `src/datasets/manifest.json`. Deployments are performed by Vercel's Git integration (preview on PR, production on merge to `main`), never by the assistant.
 
 ## 5. Release checklist
 

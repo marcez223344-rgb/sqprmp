@@ -14,5 +14,35 @@
       "reviews": 3985,
       "returns": 1073
     }
+  },
+  "bolsillo": {
+    "version": 1,
+    "contentHash": "4abee080cc7c89efeefe87a4fe503690766f6f4e186599b93c717ca0b2c62b8d",
+    "rows": {
+      "users": 4000,
+      "accounts": 4462,
+      "merchants": 300,
+      "cards": 3043,
+      "transactions": 32243,
+      "transfers": 4625,
+      "kyc_events": 7449,
+      "fx_rates": 3744
+    }
+  },
+  "pidelo": {
+    "version": 1,
+    "contentHash": "68fd2da9704fca39723a1af09a677d50cdf3fd900c56be591b8d45f57e79e503",
+    "rows": {
+      "cities": 8,
+      "restaurants": 400,
+      "menu_items": 2989,
+      "customers": 5000,
+      "couriers": 600,
+      "promotions": 6,
+      "orders": 14437,
+      "order_items": 35589,
+      "order_events": 69724,
+      "ratings": 7353
+    }
   }
 }
