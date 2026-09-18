@@ -25,26 +25,26 @@ Adults ~25–35 in LATAM: first job in data, junior analysts, career changers, b
 
 ## 4. Functional requirements (MVP scope = "Must")
 
-| Area | Requirement | MVP |
-|---|---|---|
-| Public site | Landing, curriculum, how it works, pricing, about (company + founder), FAQ, terms, privacy, login, certificate verification | Must |
-| Auth | Supabase Auth + Google OAuth; architecture ready for magic-link email | Must |
-| Onboarding | Form above; unique moderated alias; curated avatars; consent recorded with timestamp/version | Must |
-| Curriculum | Courses → sections → lessons/exercises/quizzes; prerequisites; 39-section path defined, ~8 sections fully authored at launch | Must |
-| Sandbox | Safe SQL execution (see [SQL_SANDBOX.md](SQL_SANDBOX.md)); results table; timing; row count; sanitized errors | Must |
-| Validation | Structured result comparison (columns, types, rows, tolerance, optional order, duplicates, required/prohibited concepts) | Must |
-| Feedback | Categorized diagnostics beyond correct/incorrect | Must |
-| Hints | 3 progressive hints + gated solution reveal with step-by-step explanation | Must |
-| Gamification | XP, coins, levels, streaks + freeze, daily/weekly goals, badges; server-side, idempotent | Must (leaderboards: Later) |
-| Monetization | Free limit, paywall, one product (lifetime access), test-mode checkout, verified idempotent webhook, entitlements, admin grant/revoke, promo/scholarship codes | Must (subscriptions: Later) |
-| Assessments | Theory question bank (8 types), quizzes, review-from-mistakes | Must |
-| Certificates | Server-generated, unique ID, verification page, PDF, revocation | Must (1 path) |
-| Admin | Entitlement management, content publish toggle, audit log, payment event review; everything else via Supabase Studio | Must (minimal) |
-| Analytics | First-party event table with documented spec | Must |
-| Accessibility | WCAG 2.2 AA target, keyboard, focus, reduced motion, no color-only meaning | Must |
-| i18n | `es-419` only, but all UI strings in message catalogs | Must |
-| Testing | Unit (Vitest), integration (Supabase local), E2E (Playwright) for the 12 critical journeys | Must |
-| Deployment | Vercel + Supabase, GitHub Actions quality gate, documented setup | Must |
+| Area          | Requirement                                                                                                                                                    | MVP                         |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- |
+| Public site   | Landing, curriculum, how it works, pricing, about (company + founder), FAQ, terms, privacy, login, certificate verification                                    | Must                        |
+| Auth          | Supabase Auth + Google OAuth; architecture ready for magic-link email                                                                                          | Must                        |
+| Onboarding    | Form above; unique moderated alias; curated avatars; consent recorded with timestamp/version                                                                   | Must                        |
+| Curriculum    | Courses → sections → lessons/exercises/quizzes; prerequisites; 39-section path defined, ~8 sections fully authored at launch                                   | Must                        |
+| Sandbox       | Safe SQL execution (see [SQL_SANDBOX.md](SQL_SANDBOX.md)); results table; timing; row count; sanitized errors                                                  | Must                        |
+| Validation    | Structured result comparison (columns, types, rows, tolerance, optional order, duplicates, required/prohibited concepts)                                       | Must                        |
+| Feedback      | Categorized diagnostics beyond correct/incorrect                                                                                                               | Must                        |
+| Hints         | 3 progressive hints + gated solution reveal with step-by-step explanation                                                                                      | Must                        |
+| Gamification  | XP, coins, levels, streaks + freeze, daily/weekly goals, badges; server-side, idempotent                                                                       | Must (leaderboards: Later)  |
+| Monetization  | Free limit, paywall, one product (lifetime access), test-mode checkout, verified idempotent webhook, entitlements, admin grant/revoke, promo/scholarship codes | Must (subscriptions: Later) |
+| Assessments   | Theory question bank (8 types), quizzes, review-from-mistakes                                                                                                  | Must                        |
+| Certificates  | Server-generated, unique ID, verification page, PDF, revocation                                                                                                | Must (1 path)               |
+| Admin         | Entitlement management, content publish toggle, audit log, payment event review; everything else via Supabase Studio                                           | Must (minimal)              |
+| Analytics     | First-party event table with documented spec                                                                                                                   | Must                        |
+| Accessibility | WCAG 2.2 AA target, keyboard, focus, reduced motion, no color-only meaning                                                                                     | Must                        |
+| i18n          | `es-419` only, but all UI strings in message catalogs                                                                                                          | Must                        |
+| Testing       | Unit (Vitest), integration (Supabase local), E2E (Playwright) for the 12 critical journeys                                                                     | Must                        |
+| Deployment    | Vercel + Supabase, GitHub Actions quality gate, documented setup                                                                                               | Must                        |
 
 ## 5. Non-functional requirements
 
@@ -57,12 +57,12 @@ Adults ~25–35 in LATAM: first job in data, junior analysts, career changers, b
 
 ## 6. Contradictions found in the brief (resolved by decisions)
 
-| # | Contradiction | Resolution |
-|---|---|---|
-| C-1 | Free limit stated as **three** (sections 3, 23, 27) and **five** (section 9) | Config `FREE_EXERCISE_LIMIT` = **5** (owner decision D-01) |
-| C-2 | "Server-side execution only" vs. "browser-based SQL engine" listed as acceptable alternative | Hybrid: browser engine for *Run* (preview), server engine for *Submit* (graded). Rewards and validation are server-side only (D-03) |
-| C-3 | "Monthly and annual subscriptions" vs. "recommend the simplest MVP" | MVP sells **lifetime access** only; subscriptions modeled in schema, not launched (D-05) |
-| C-4 | E2E test list says "completes three free exercises" then "fourth premium exercise is locked" | Journeys use 5 free + 6th locked |
+| #   | Contradiction                                                                                | Resolution                                                                                                                          |
+| --- | -------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| C-1 | Free limit stated as **three** (sections 3, 23, 27) and **five** (section 9)                 | Config `FREE_EXERCISE_LIMIT` = **5** (owner decision D-01)                                                                          |
+| C-2 | "Server-side execution only" vs. "browser-based SQL engine" listed as acceptable alternative | Hybrid: browser engine for _Run_ (preview), server engine for _Submit_ (graded). Rewards and validation are server-side only (D-03) |
+| C-3 | "Monthly and annual subscriptions" vs. "recommend the simplest MVP"                          | MVP sells **lifetime access** only; subscriptions modeled in schema, not launched (D-05)                                            |
+| C-4 | E2E test list says "completes three free exercises" then "fourth premium exercise is locked" | Journeys use 5 free + 6th locked                                                                                                    |
 
 ## 7. Out of scope for MVP
 

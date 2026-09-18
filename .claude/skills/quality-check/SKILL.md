@@ -6,9 +6,11 @@ allowed-tools: Read Bash(npm run *) Bash(npx playwright *) Bash(git status*) Bas
 ---
 
 ## Purpose
+
 Prove the repository is in a passing state. Never summarize as "passed" without output.
 
 ## Procedure
+
 1. `git status --short` to list what will be checked.
 2. `npm run quality` (runs: `prettier --check` → `eslint` → `tsc --noEmit` → `vitest run` → `content:verify` → `datasets:verify` → `next build`). If the script does not exist yet (pre-Phase 1), say so and stop.
 3. If `$ARGUMENTS` contains `--e2e`, run `npm run test:e2e`.
@@ -16,7 +18,9 @@ Prove the repository is in a passing state. Never summarize as "passed" without 
 5. Report each step: command, exit status, key output lines (counts, first failures).
 
 ## Output
+
 A table: step → result → notes; overall PASS/FAIL; list of files changed since last commit.
 
 ## Failure / rollback
+
 On failure, do not commit; hand failures to the owning agent with the exact output. Do not disable rules or tests to pass.

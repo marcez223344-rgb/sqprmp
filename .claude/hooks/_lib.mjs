@@ -36,7 +36,10 @@ export function context(event, additionalContext) {
 // Secret patterns: matched against text content, never printed back in full.
 export const SECRET_PATTERNS = [
   { name: "Supabase secret key", re: /sb_secret_[A-Za-z0-9_-]{10,}/ },
-  { name: "JWT (service role / access token)", re: /eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{10,}/ },
+  {
+    name: "JWT (service role / access token)",
+    re: /eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{10,}/,
+  },
   { name: "Mercado Pago production token", re: /APP_USR-\d{6,}-\d{6}-[a-f0-9]{16,}/i },
   { name: "Stripe live secret", re: /sk_live_[A-Za-z0-9]{16,}/ },
   { name: "Stripe webhook secret", re: /whsec_[A-Za-z0-9]{16,}/ },

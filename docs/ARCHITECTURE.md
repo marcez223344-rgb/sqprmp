@@ -28,26 +28,26 @@ Three trust zones:
 
 ## 2. Technology stack (D-02)
 
-| Concern | Choice | Why |
-|---|---|---|
-| Framework | Next.js 16 (App Router, Active LTS), React 19 | Server components, route handlers, Vercel-native |
-| Language | TypeScript `strict`, `noUncheckedIndexedAccess` | Correctness |
-| Styling | Tailwind CSS 4 + design tokens in CSS variables | Fast, themeable |
-| Components | shadcn/ui (Radix primitives, copied into repo) | Accessible, owned code, no runtime lock-in |
-| Forms/validation | React Hook Form + Zod (shared schemas client/server) | One schema, two uses |
-| Data | Supabase Postgres, `@supabase/ssr` for cookie sessions, generated DB types | RLS-first |
-| Auth | Supabase Auth, Google OAuth; magic link ready | Requirement |
-| SQL editor | CodeMirror 6 + `@codemirror/lang-sql` | Lighter than Monaco, good mobile behavior, accessible |
-| SQL engine | PGlite (browser Run + server Submit); see [SQL_SANDBOX.md](SQL_SANDBOX.md) | Isolation without extra infra |
-| SQL gate | `pgsql-ast-parser` | Pure TS parser for statement allowlisting |
-| i18n | `next-intl` with `es-419` catalog | No hardcoded strings |
-| PDF | `@react-pdf/renderer` (server) | Certificates |
-| Tests | Vitest + React Testing Library; Playwright; Supabase CLI local DB for integration | Requirement |
-| Quality | ESLint (flat config) + Prettier + `tsc --noEmit`; GitHub Actions | Requirement |
-| Analytics | First-party `analytics_events` table (D-08); optional PostHog later | Privacy |
-| Rate limiting | Postgres token bucket RPC (no Redis in MVP) | Fewer moving parts |
+| Concern          | Choice                                                                                                                                                                      | Why                                                                                                  |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Framework        | Next.js 16.3 (App Router, Active LTS), React 19.2                                                                                                                           | Server components, route handlers, Vercel-native. Note: `middleware.ts` is `src/proxy.ts` in Next 16 |
+| Language         | TypeScript `strict`, `noUncheckedIndexedAccess`                                                                                                                             | Correctness                                                                                          |
+| Styling          | Tailwind CSS 4 + design tokens in CSS variables                                                                                                                             | Fast, themeable                                                                                      |
+| Components       | shadcn/ui (Radix primitives, copied into repo)                                                                                                                              | Accessible, owned code, no runtime lock-in                                                           |
+| Forms/validation | React Hook Form + Zod (shared schemas client/server)                                                                                                                        | One schema, two uses                                                                                 |
+| Data             | Supabase Postgres, `@supabase/ssr` for cookie sessions, generated DB types                                                                                                  | RLS-first                                                                                            |
+| Auth             | Supabase Auth, Google OAuth; magic link ready                                                                                                                               | Requirement                                                                                          |
+| SQL editor       | CodeMirror 6 + `@codemirror/lang-sql`                                                                                                                                       | Lighter than Monaco, good mobile behavior, accessible                                                |
+| SQL engine       | PGlite (browser Run + server Submit); see [SQL_SANDBOX.md](SQL_SANDBOX.md)                                                                                                  | Isolation without extra infra                                                                        |
+| SQL gate         | `pgsql-ast-parser`                                                                                                                                                          | Pure TS parser for statement allowlisting                                                            |
+| i18n             | `next-intl` with `es-419` catalog                                                                                                                                           | No hardcoded strings                                                                                 |
+| PDF              | `@react-pdf/renderer` (server)                                                                                                                                              | Certificates                                                                                         |
+| Tests            | Vitest 5 + React Testing Library; Playwright (Chromium desktop + Pixel 7 emulation); Supabase CLI local DB for pgTAP; PGlite-based `db:validate` when Docker is unavailable | Requirement                                                                                          |
+| Quality          | ESLint (flat config) + Prettier + `tsc --noEmit`; GitHub Actions                                                                                                            | Requirement                                                                                          |
+| Analytics        | First-party `analytics_events` table (D-08); optional PostHog later                                                                                                         | Privacy                                                                                              |
+| Rate limiting    | Postgres token bucket RPC (no Redis in MVP)                                                                                                                                 | Fewer moving parts                                                                                   |
 
-Versions are pinned at Phase 1 after checking each library's current release; no library is added without an entry in DECISIONS.md if it affects security, cost or architecture.
+Versions were pinned in Phase 1 (see `package.json`; Vitest 5 chosen over 3 to clear a dev-only advisory); no library is added without an entry in DECISIONS.md if it affects security, cost or architecture.
 
 ## 3. Repository structure (target)
 
@@ -81,36 +81,49 @@ docs/                       # this folder
 
 ## 4. Key runtime flows
 
+### 4.0 Request pipeline
+
+`src/proxy.ts` runs on every non-static request: generates a CSP nonce (`src/lib/security/csp.ts`), refreshes the Supabase session cookies (`getClaims()`), and optimistically redirects unauthenticated requests to protected prefixes to `/ingresar?next=…`. Pages re-verify with `getUser()`. All pages are therefore dynamically rendered.
+
 ### 4.1 Authentication
+
 Google OAuth via Supabase → `/auth/callback` route exchanges the code → cookie session (`@supabase/ssr`) → middleware refreshes tokens → `profiles` row created by a DB trigger on `auth.users` insert → if `onboarding_completed_at IS NULL` redirect to `/onboarding`.
 
 ### 4.2 Authorization
+
 Single entry point `authorize(ctx, action, resource)` on the server. Rules: `role` (learner/admin), `entitlement` (active lifetime/subscription/promo), `free-limit` (count of distinct completed premium-gated exercises vs `FREE_EXERCISE_LIMIT`), `content published`. RLS mirrors these for direct reads; server code is authoritative for mutations.
 
 ### 4.3 Exercise submission
+
 Client posts `{exerciseId, sql}` → server: authorize → rate limit → gate → execute (ephemeral PGlite) → compare with `exercise_expected_results` → generate structured feedback → insert `attempts` row → if first correct completion: RPC `award_exercise_completion` (idempotent by `(user_id, exercise_id)`) → return result/feedback/rewards. Hints and solution reveal follow the same authorize-then-serve pattern and are logged.
 
 ### 4.4 Payments
+
 Client → server action `createCheckout(productId)` → provider creates preference/session → redirect. Provider webhook → route handler verifies signature → upsert `payment_events` (unique provider event id → idempotent) → on approved: insert `purchases`, insert/extend `entitlements` inside one transaction (RPC). Entitlement checks read `entitlements` only.
 
 ### 4.5 Certificates
+
 Server verifies `certificate_requirements` for the section/path → inserts `certificates` (id = ULID, `verification_code` random) → PDF rendered on demand and cached in Supabase Storage (private bucket, signed URL) → public page `/verificar/[code]` shows name, title, date, status only.
 
 ## 5. Configuration-driven identity
+
 `src/config/brand.ts` (name, tagline, logo paths, colors), `founder.ts`, `pricing.ts` (products, currencies, durations), `limits.ts` (free limit, hint thresholds, timeouts, reward caps), `social.ts`, `features.ts` (feature flags with DB override). Components never hardcode these values; a lint rule flags literal "Data Minds" outside `src/config`.
 
 ## 6. Environments
+
 `local` (Supabase CLI in Docker, PGlite, sandbox payments) → `preview` (Vercel preview + Supabase branch or a dedicated dev project) → `production` (Vercel prod + Supabase Pro project). See [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ## 7. Cost model (owner-facing)
+
 Development: US$0 (Supabase Free + Vercel Hobby). Launch: Supabase Pro US$25/mo (no pausing, backups), Vercel Pro US$20/mo (commercial use requires Pro), domain ~US$15/yr, payment fees 4–7 % per sale. Optional later: PostHog free tier, Resend for email.
 
 ## 8. Risks and mitigations (Phase 0)
-| Risk | Impact | Mitigation |
-|---|---|---|
-| PGlite cold start / memory on Vercel | Slow submits | Measure in Phase 4; fallback B documented |
-| Supabase Free pausing | Dev DB offline | Weekly keep-alive cron in CI; Pro before launch |
-| Payment provider coverage per country | Lost sales | Provider abstraction; decision D-05 |
-| Content quality vs. volume | Weak learning | Content schemas + educational review skill; 8 deep sections first |
-| Reward abuse | Fake progress | Server-side, idempotent, capped rewards; audit log |
-| Solo maintainer bandwidth | Delays | Phased roadmap, quality gate automation |
+
+| Risk                                  | Impact         | Mitigation                                                        |
+| ------------------------------------- | -------------- | ----------------------------------------------------------------- |
+| PGlite cold start / memory on Vercel  | Slow submits   | Measure in Phase 4; fallback B documented                         |
+| Supabase Free pausing                 | Dev DB offline | Weekly keep-alive cron in CI; Pro before launch                   |
+| Payment provider coverage per country | Lost sales     | Provider abstraction; decision D-05                               |
+| Content quality vs. volume            | Weak learning  | Content schemas + educational review skill; 8 deep sections first |
+| Reward abuse                          | Fake progress  | Server-side, idempotent, capped rewards; audit log                |
+| Solo maintainer bandwidth             | Delays         | Phased roadmap, quality gate automation                           |

@@ -6,9 +6,11 @@ arguments: [section, count]
 ---
 
 ## Purpose
+
 Author `$count` questions for `$section` into `src/content/questions/$section/*.json` following `.claude/templates/question.md`.
 
 ## Procedure
+
 1. Read the section outline objectives and lesson MDX; map each objective to ≥ 1 question.
 2. Mix types: single, multiple, true/false, fill-blank, query interpretation, error diagnosis, matching, scenario. At least 4 types per section.
 3. For each: topic, difficulty, prompt (with code block when relevant), options (2–6, logical order), correct answer(s), explanation, `why_incorrect_md` per distractor grounded in a real misconception, lesson link, tags, estimated seconds.
@@ -16,10 +18,12 @@ Author `$count` questions for `$section` into `src/content/questions/$section/*.
 5. Run `npm run content:validate`.
 
 ## Validation checklist
+
 - [ ] No question answerable without the concept (avoid trivia)
 - [ ] Distractors plausible and explained
 - [ ] Correct answers never in browser-readable fields (schema enforces server-only fields)
 - [ ] Estimated total time ≤ 10 min per quiz
 
 ## Output
+
 Question files, validation output, coverage table (objective → questions).

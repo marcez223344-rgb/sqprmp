@@ -1,0 +1,11 @@
+node_modules
+.next
+out
+coverage
+playwright-report
+test-results
+public/datasets
+package-lock.json
+supabase/.temp
+src/types/database.ts
+.claude/templates/lesson.md

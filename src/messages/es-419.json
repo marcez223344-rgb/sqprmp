@@ -1,0 +1,110 @@
+{
+  "common": {
+    "skipToContent": "Ir al contenido principal",
+    "loading": "Cargando…",
+    "error": "Algo salió mal. Intenta de nuevo.",
+    "retry": "Reintentar",
+    "back": "Volver",
+    "next": "Siguiente",
+    "close": "Cerrar",
+    "toggleTheme": "Cambiar tema",
+    "themeLight": "Tema claro",
+    "themeDark": "Tema oscuro",
+    "themeSystem": "Tema del sistema",
+    "comingSoon": "Próximamente",
+    "free": "Gratis",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú"
+  },
+  "nav": {
+    "curriculum": "Currículo",
+    "howItWorks": "Cómo funciona",
+    "pricing": "Precios",
+    "about": "Nosotros",
+    "faq": "Preguntas frecuentes",
+    "login": "Ingresar",
+    "startFree": "Empieza gratis",
+    "dashboard": "Mi aprendizaje"
+  },
+  "footer": {
+    "terms": "Términos",
+    "privacy": "Privacidad",
+    "verify": "Verificar certificado",
+    "rights": "Todos los derechos reservados.",
+    "madeIn": "Hecho en América Latina para toda la región."
+  },
+  "landing": {
+    "metaTitle": "Aprende SQL con datos reales de negocio",
+    "metaDescription": "Ejercicios prácticos con datos de empresas latinoamericanas, retroalimentación inmediata, pistas progresivas y certificados verificables.",
+    "hero": {
+      "eyebrow": "SQL para tu carrera en datos",
+      "title": "Aprende SQL resolviendo problemas reales de negocio",
+      "subtitle": "Practica con datos de e-commerce, fintech y delivery de América Latina. Ejecuta consultas en el navegador, recibe retroalimentación útil y consigue certificados verificables.",
+      "ctaPrimary": "Empieza gratis con Google",
+      "ctaSecondary": "Ver el currículo",
+      "note": "{count} ejercicios gratis, sin tarjeta."
+    },
+    "benefits": {
+      "title": "Diseñado para personas que trabajan con datos",
+      "items": {
+        "practice": {
+          "title": "Práctica realista",
+          "body": "Cada ejercicio parte de una pregunta de negocio con datos ficticios pero creíbles: pedidos, pagos, clientes, cohortes."
+        },
+        "feedback": {
+          "title": "Retroalimentación que enseña",
+          "body": "No solo «correcto» o «incorrecto»: te decimos qué filtro falta, qué join falla o por qué el nivel de agregación es otro."
+        },
+        "hints": {
+          "title": "Pistas progresivas",
+          "body": "Tres niveles de ayuda antes de ver la solución explicada paso a paso, para que aprendas sin frustrarte."
+        },
+        "certificates": {
+          "title": "Certificados verificables",
+          "body": "Al completar cada nivel obtienes un certificado con enlace público de verificación para tu perfil profesional."
+        }
+      }
+    },
+    "howItWorks": {
+      "title": "Cómo funciona",
+      "steps": {
+        "one": {
+          "title": "Ingresa con Google",
+          "body": "Sin contraseñas. Cuéntanos tu nivel y tu meta semanal."
+        },
+        "two": {
+          "title": "Resuelve ejercicios",
+          "body": "Escribe SQL en el editor, ejecuta al instante y envía tu respuesta para validarla."
+        },
+        "three": {
+          "title": "Avanza y certifícate",
+          "body": "Suma XP, mantén tu racha y obtén certificados por nivel."
+        }
+      }
+    },
+    "curriculum": {
+      "title": "Un camino de principiante a analista profesional",
+      "subtitle": "6 niveles y 39 secciones: desde SELECT hasta funciones de ventana, cohortes y desafíos de entrevista.",
+      "cta": "Explorar el currículo completo"
+    },
+    "pricing": {
+      "title": "Un solo pago, acceso para siempre",
+      "body": "Prueba gratis los primeros ejercicios. Cuando quieras seguir, desbloquea todo el currículo con un pago único.",
+      "cta": "Ver precios"
+    },
+    "founder": {
+      "title": "Quién está detrás",
+      "cta": "Conoce a {name}"
+    },
+    "finalCta": {
+      "title": "Tu próximo paso en datos empieza con una consulta",
+      "cta": "Crear mi cuenta gratis"
+    }
+  },
+  "pages": {
+    "placeholder": {
+      "title": "{page}",
+      "body": "Esta sección se construye en las próximas fases. Mientras tanto puedes explorar la página principal."
+    }
+  }
+}

@@ -7,9 +7,11 @@ allowed-tools: Read Grep Glob Write Edit Bash(npm run datasets:*) Bash(npm run c
 ---
 
 ## Purpose
+
 Create `src/datasets/$slug/` for domain "$domain".
 
 ## Procedure
+
 1. Read `.claude/rules/dataset-generation.md`, `docs/CONTENT_GUIDELINES.md` §7, `.claude/templates/dataset.md`, and the sections that will use the dataset (`docs/CURRICULUM.md`).
 2. Write `README.md` first: business context, countries/currencies, ERD (mermaid), tables/columns/types/keys, business definitions, intentional data-quality issues with target counts, generation rules, row volumes, reset procedure.
 3. Write `schema.sql` (tables, PK/FK, checks, comments) plus the `learner` role grants and denied-function revokes.
@@ -19,6 +21,7 @@ Create `src/datasets/$slug/` for domain "$domain".
 7. Update `docs/CURRICULUM.md` §4.
 
 ## Validation checklist
+
 - [ ] Deterministic (two builds → same hash)
 - [ ] All README issues reproduced with counts
 - [ ] FKs resolve except documented
@@ -26,7 +29,9 @@ Create `src/datasets/$slug/` for domain "$domain".
 - [ ] `learner` role cannot write or call denied functions (sandbox test)
 
 ## Output
+
 Dataset folder, manifest update, verify report, README.
 
 ## Failure / rollback
+
 A failing verify blocks the version; do not commit a manifest hash for a failing build.

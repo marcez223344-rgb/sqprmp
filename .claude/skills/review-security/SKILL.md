@@ -6,14 +6,17 @@ allowed-tools: Read Grep Glob Bash(git *) Bash(npm audit*) Bash(npm run *) Bash(
 ---
 
 ## Purpose
+
 Review "$ARGUMENTS" (default: uncommitted + last commit) against `docs/SECURITY.md`, `.claude/rules/security.md`, `.claude/rules/sql-execution.md` and the RLS matrix.
 
 ## Context
+
 ```!
 git diff --stat HEAD 2>/dev/null | tail -20
 ```
 
 ## Procedure
+
 1. Enumerate new/changed server actions, route handlers, RPCs, policies, env vars, dependencies.
 2. Check each endpoint: Zod parse → `authorize()` → rate limit → audit log; identity via `getUser()`; redirects allowlisted; errors sanitized.
 3. Check data exposure: page props and API responses never contain hints, solutions, expected results, `is_correct`, secrets; public views limited to documented columns.
@@ -25,7 +28,9 @@ git diff --stat HEAD 2>/dev/null | tail -20
 9. Write `docs/reviews/<date>-security.md` from `.claude/templates/security-review.md`.
 
 ## Output
+
 Report with findings (Critical/High/Medium/Low, file:line, scenario, fix) and a go/no-go for the phase.
 
 ## Validation checklist
+
 - [ ] Commands executed and quoted · [ ] No fixes applied by this skill · [ ] Pending decisions noted

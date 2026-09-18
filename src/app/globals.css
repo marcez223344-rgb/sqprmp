@@ -1,0 +1,121 @@
+@import "tailwindcss";
+
+/* Dark mode: `.dark` on <html> (set by ThemeScript); falls back to system preference. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Design tokens — docs/DESIGN_SYSTEM.md §2 */
+:root {
+  --bg: #f7f8fb;
+  --surface: #ffffff;
+  --surface-2: #eef1f7;
+  --border: #d9dee8;
+  --text: #151a24;
+  --text-muted: #5b6474;
+  --primary: #2b4fe0;
+  --primary-fg: #ffffff;
+  --primary-hover: #2342c4;
+  --accent: #f2652e;
+  --accent-fg: #ffffff;
+  --success: #1c8a5a;
+  --warning: #b7791f;
+  --danger: #c53a3a;
+  --info: #2e6f9e;
+  --ring: #2b4fe0;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #0e1117;
+  --surface: #161b25;
+  --surface-2: #1e2533;
+  --border: #2a3242;
+  --text: #e8ecf3;
+  --text-muted: #a3acbd;
+  --primary: #7c93ff;
+  --primary-fg: #0e1117;
+  --primary-hover: #93a6ff;
+  --accent: #ff8a5b;
+  --accent-fg: #0e1117;
+  --success: #4cc38a;
+  --warning: #f0b35a;
+  --danger: #f27474;
+  --info: #6fb6e8;
+  --ring: #7c93ff;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-muted: var(--text-muted);
+  --color-primary: var(--primary);
+  --color-primary-fg: var(--primary-fg);
+  --color-primary-hover: var(--primary-hover);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+  --color-ring: var(--ring);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-manrope), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--primary) 25%, transparent);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer utilities {
+  .container-page {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
+  }
+}

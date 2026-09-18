@@ -1,4 +1,5 @@
 ### D-nn · <Title>
+
 Status: Proposed · <YYYY-MM-DD> · Author: <agent>
 
 **Context.** What forces this decision (requirement, constraint, cost, security, free-tier limit).

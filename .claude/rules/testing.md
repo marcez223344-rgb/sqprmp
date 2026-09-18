@@ -5,7 +5,7 @@ paths:
   - "src/**/*.test.tsx"
   - "supabase/tests/**"
   - "playwright.config.ts"
-  - "vitest.config.ts"
+  - "vitest.config.mts"
 ---
 
 # Testing rules

@@ -3,6 +3,7 @@
 Authoritative rules for lessons, exercises, hints, solutions, questions and datasets. Machine checks live in `src/content/schemas/*` (Phase 3); this document explains the intent.
 
 ## 1. Voice and language
+
 - Spanish, Latin American neutral (`es-419`). Use "tú" consistently. No voseo, no "vosotros", no Spain-only terms (ordenador → computadora, fichero → archivo, coger → tomar).
 - Professional and warm; never childish or corporate-stiff. Second person, short sentences, concrete business framing.
 - SQL keywords in English uppercase (`SELECT`, `GROUP BY`); explain the concept in Spanish; avoid untranslated jargon when a natural Spanish term exists (tabla, fila, columna, consulta, unión/join is acceptable as "join" because it is the SQL keyword).
@@ -10,11 +11,13 @@ Authoritative rules for lessons, exercises, hints, solutions, questions and data
 - Numbers and dates in the learner's locale in UI; in SQL examples use ISO dates.
 
 ## 2. Theory lessons
+
 - ≤ 900 words per lesson; one idea per lesson; every claim has a runnable example on an MVP dataset.
 - Structure: por qué importa → concepto → ejemplo ejecutable → variantes → errores comunes → resumen de 3 líneas.
 - Never state that only one SQL style is valid when equivalents exist; show alternatives when they matter (`JOIN ... USING` vs `ON`, `CASE` vs `FILTER`, CTE vs subquery).
 
 ## 3. Exercises
+
 - Scenario reads like a real request from a colleague (marketing, finance, operations, product) with a clear business question and expected output columns.
 - One exercise = one primary skill (+ at most two supporting ones). Difficulty must match section level.
 - Expected output columns are explicit in the statement (names in `snake_case`, Spanish or English consistently per dataset — datasets use English column names as in most LATAM companies; explanations in Spanish).
@@ -25,34 +28,39 @@ Authoritative rules for lessons, exercises, hints, solutions, questions and data
 - Rewards follow [Gamification](#6-rewards) defaults; deviations need a reason.
 
 ## 4. Hints and solutions
+
 - Hint 1: conceptual (which concept, no table names). Hint 2: specific (tables, columns, filter, grouping, sequence). Hint 3: skeleton with blanks.
 - Hints never contain the full solution. Hint 3 must leave at least the key expression blank.
 - Solution reveal text: query → step-by-step → why it works → alternatives → likely misconception → invitation to retry. No shaming language.
 - Unlock defaults: 3 genuine attempts OR 2 hints OR 10 minutes OR explicit request after warning (config in `limits.ts`).
 
 ## 5. Theory questions
+
 - Types: single, multiple, true/false, fill-blank, query interpretation, error diagnosis, matching, scenario.
 - Each: topic, difficulty, prompt, options (2–6), correct answer, explanation, why each distractor is wrong, lesson link, tags, estimated seconds.
 - Distractors reflect real misconceptions (e.g. `WHERE` vs `HAVING`, `COUNT(*)` vs `COUNT(col)`, NULL comparisons).
 - Options are shuffled server-side; correct answers never leave the server before submission.
 
 ## 6. Rewards (defaults)
-| Difficulty | XP | Coins |
-|---|---|---|
-| Muy fácil | 10 | 2 |
-| Fácil | 20 | 4 |
-| Intermedio | 40 | 8 |
-| Avanzado | 70 | 14 |
-| Experto | 120 | 25 |
-Hint penalty: −10 % XP per hint (max −30 %); solution reveal: 25 % XP, 0 coins, exercise still counts as completed after a correct retry. Quiz: 5 XP per correct answer, +20 XP for ≥ 80 %. Daily cap: 600 XP. Repeating a completed exercise: 0 XP (personal best tracked instead).
+
+| Difficulty                                                                                                                                                                                                                                                                           | XP  | Coins |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --- | ----- |
+| Muy fácil                                                                                                                                                                                                                                                                            | 10  | 2     |
+| Fácil                                                                                                                                                                                                                                                                                | 20  | 4     |
+| Intermedio                                                                                                                                                                                                                                                                           | 40  | 8     |
+| Avanzado                                                                                                                                                                                                                                                                             | 70  | 14    |
+| Experto                                                                                                                                                                                                                                                                              | 120 | 25    |
+| Hint penalty: −10 % XP per hint (max −30 %); solution reveal: 25 % XP, 0 coins, exercise still counts as completed after a correct retry. Quiz: 5 XP per correct answer, +20 XP for ≥ 80 %. Daily cap: 600 XP. Repeating a completed exercise: 0 XP (personal best tracked instead). |
 
 ## 7. Datasets
+
 - Synthetic only, deterministic (seeded PRNG, fixed seed per dataset version). Fictional companies, people, addresses, tax IDs, emails (`@ejemplo.lat` domain), phones (reserved-looking ranges).
 - Document per dataset: business context, ERD, tables/columns/types, keys, business definitions, known data-quality issues (intentional, listed), generation rules, row volumes, reset procedure.
 - Internal consistency checks run in `npm run datasets:verify`: order totals = sum(items) − discounts + shipping; refunds ≤ payments; timestamps chronological; status transitions valid; FKs resolve except documented exceptions; currency matches country.
 - Realistic distributions: power-law sellers, weekly/seasonal patterns, weekend peaks for delivery, monthly salary cycles for wallet top-ups.
 
 ## 8. Review checklist (used by `review-sql-accuracy` skill)
+
 - [ ] Runs on Postgres 17 (PGlite) with the exact dataset version
 - [ ] Business question unambiguous or ambiguity intentional and explained in solution
 - [ ] Output columns and order rule explicit

@@ -1,0 +1,28 @@
+name: Nightly
+
+on:
+  schedule:
+    - cron: "0 6 * * *"
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm audit --audit-level=moderate
+
+  # Keeps the Supabase Free dev project from pausing (7 idle days). Requires the
+  # SUPABASE_DEV_URL and SUPABASE_DEV_PUBLISHABLE_KEY repository secrets (names only here).
+  keepalive:
+    runs-on: ubuntu-latest
+    if: ${{ vars.SUPABASE_KEEPALIVE == 'true' }}
+    steps:
+      - run: |
+          curl -fsS "${{ secrets.SUPABASE_DEV_URL }}/rest/v1/feature_flags?select=key&limit=1" \
+            -H "apikey: ${{ secrets.SUPABASE_DEV_PUBLISHABLE_KEY }}" > /dev/null

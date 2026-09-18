@@ -2,7 +2,7 @@
 
 Validated by `src/content/schemas/exercise.ts`. All fields required unless marked optional.
 
-```json
+````json
 {
   "slug": "ventas-por-pais-2025",
   "section": "group-by",
@@ -32,17 +32,44 @@ Validated by `src/content/schemas/exercise.ts`. All fields required unless marke
   },
   "reference_solution": "SELECT c.country, SUM(o.total_amount) AS total_sales FROM orders o JOIN customers c ON c.id = o.customer_id WHERE o.status = 'delivered' AND o.created_at >= DATE '2025-01-01' AND o.created_at < DATE '2026-01-01' GROUP BY c.country;",
   "alternative_solutions": [
-    { "label": "Con EXTRACT", "sql": "SELECT c.country, SUM(o.total_amount) AS total_sales FROM orders o JOIN customers c USING (id) ... " }
+    {
+      "label": "Con EXTRACT",
+      "sql": "SELECT c.country, SUM(o.total_amount) AS total_sales FROM orders o JOIN customers c USING (id) ... "
+    }
   ],
   "hints": [
-    { "level": 1, "body_md": "Necesitas resumir importes por una categoría: piensa en agrupar.", "coin_cost": 0, "xp_penalty_percent": 10 },
-    { "level": 2, "body_md": "Une `orders` con `customers` para obtener `country`; filtra `status = 'delivered'` y el rango de fechas antes de agrupar.", "coin_cost": 1, "xp_penalty_percent": 10 },
-    { "level": 3, "body_md": "```sql\nSELECT c.country, SUM(___) AS total_sales\nFROM orders o JOIN customers c ON ___\nWHERE o.status = '___' AND o.created_at >= DATE '2025-01-01' AND o.created_at < DATE '___'\nGROUP BY ___;\n```", "coin_cost": 2, "xp_penalty_percent": 10 }
+    {
+      "level": 1,
+      "body_md": "Necesitas resumir importes por una categoría: piensa en agrupar.",
+      "coin_cost": 0,
+      "xp_penalty_percent": 10
+    },
+    {
+      "level": 2,
+      "body_md": "Une `orders` con `customers` para obtener `country`; filtra `status = 'delivered'` y el rango de fechas antes de agrupar.",
+      "coin_cost": 1,
+      "xp_penalty_percent": 10
+    },
+    {
+      "level": 3,
+      "body_md": "```sql\nSELECT c.country, SUM(___) AS total_sales\nFROM orders o JOIN customers c ON ___\nWHERE o.status = '___' AND o.created_at >= DATE '2025-01-01' AND o.created_at < DATE '___'\nGROUP BY ___;\n```",
+      "coin_cost": 2,
+      "xp_penalty_percent": 10
+    }
   ],
   "common_mistakes": [
-    { "category": "date_boundary", "description_md": "Usar `<= '2025-12-31'` deja fuera los pedidos del 31 de diciembre con hora." },
-    { "category": "missing_filter", "description_md": "Olvidar el filtro de estado incluye pedidos cancelados." },
-    { "category": "aggregation_level", "description_md": "Agrupar por ciudad en lugar de país cambia el nivel del resultado." }
+    {
+      "category": "date_boundary",
+      "description_md": "Usar `<= '2025-12-31'` deja fuera los pedidos del 31 de diciembre con hora."
+    },
+    {
+      "category": "missing_filter",
+      "description_md": "Olvidar el filtro de estado incluye pedidos cancelados."
+    },
+    {
+      "category": "aggregation_level",
+      "description_md": "Agrupar por ciudad en lugar de país cambia el nivel del resultado."
+    }
   ],
   "expert_explanation_md": "Paso a paso... Por qué funciona... Alternativas... Nota de rendimiento/legibilidad...",
   "improvement_feedback": [
@@ -50,9 +77,14 @@ Validated by `src/content/schemas/exercise.ts`. All fields required unless marke
     { "condition": "missing_alias_on_aggregate", "message_key": "feedback.improve.alias_aggregate" }
   ],
   "reward": { "xp": 40, "coins": 8, "solution_reveal_xp_percent": 25 },
-  "solution_unlock": { "min_attempts": 3, "min_hints": 2, "min_minutes": 10, "allow_explicit": true },
+  "solution_unlock": {
+    "min_attempts": 3,
+    "min_hints": 2,
+    "min_minutes": 10,
+    "allow_explicit": true
+  },
   "allowed_statements": ["select"],
   "is_published": false,
   "notes": "optional: authoring notes, deviations from defaults with reason"
 }
-```
+````
