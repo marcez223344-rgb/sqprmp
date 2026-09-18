@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Next.js
+.next/
+out/
+next-env.d.ts
+
+# Build / test artifacts
+coverage/
+playwright-report/
+test-results/
+*.tsbuildinfo
+
+# Environment and secrets (never commit)
+.env
+.env.*
+!.env.example
+CLAUDE.local.md
+.claude/settings.local.json
+
+# Supabase local
+supabase/.branches
+supabase/.temp
+supabase/.env
+
+# Vercel
+.vercel
+
+# Generated dataset snapshots (regenerate with `npm run datasets:build`)
+public/datasets/*.tar.gz
+public/datasets/*.tgz
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
