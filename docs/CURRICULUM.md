@@ -17,7 +17,7 @@ One course ("Ruta SQL para Analistas de Datos") organized in **6 levels** and **
 
 Prerequisites are linear inside a level; levels unlock when the previous level's section challenges are passed (mastery learning). Learners can *preview* any lesson's theory but not submit gated exercises.
 
-Free tier: the first `FREE_EXERCISE_LIMIT` practical exercises (sections 3–4) plus all theory of N1 are free; everything else requires an entitlement (D-01).
+Free tier: the first 5 practical exercises (`FREE_EXERCISE_LIMIT`, sections 2–3) plus all theory of N1 are free; everything else requires an entitlement (D-01).
 
 ## 2. Difficulty scale
 

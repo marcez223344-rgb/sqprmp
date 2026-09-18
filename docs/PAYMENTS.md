@@ -15,7 +15,34 @@ Payment options depend less on the buyer's country than on **where the seller's 
 | **Hotmart** (LATAM course-focused MoR) | Very strong in BR, MX, CO, AR, CL, PE (Pix, OXXO, boleto, cuotas) | Foreign vendor OK; payouts to AR possible | Excellent local methods | Handles local taxes and currencies | Yes | ~10 % + 1 (high) | Handled | Highest reach for digital courses in LATAM; higher fees, less control over checkout UX |
 | dLocal / EBANX | Full LATAM local methods | Enterprise contracts, minimum volumes | Excellent | Handles local | Yes | Negotiated | Handled | Not for an MVP |
 
-## 3. Recommendation
+## 2b. Deeper analysis requested by the owner (2026-09-18): manual transfer channels
+
+Owner input: entity in **Argentina**, sell to **all LATAM from day one**, price **≈ US$20** lifetime. At this price point, fixed per-transaction fees matter a lot (a US$0.50 fixed fee is 2.5 % of the ticket), and Lemon Squeezy is excluded (no payouts to Argentine sellers because it relies on Stripe payouts).
+
+| Channel | Who can pay | Cost to us | Learner effort | Automation | Taxes / invoicing | Risk | Notes |
+|---|---|---|---|---|---|---|---|
+| **Bank transfer in ARS (CBU/alias)** | Argentina only | ~0 % | Copy alias, transfer, report payment | Manual: admin verifies against bank statement and grants access | We invoice (ARCA) | Fake receipts (mitigated: access only after verification) | Ubiquitous in AR for courses; instant for the learner |
+| **Mercado Pago transfer (CVU/alias)** | Argentina only | ~0 % (personal) / small % (seller account) | Same as above, most Argentines already use MP | Manual, or semi-automatic by polling the MP account movements API | We invoice | Same | Zero-integration variant of Mercado Pago |
+| **Mercado Pago Checkout Pro (link)** | Argentina (per-country accounts) | ~4–6 % + IVA | Cards, cuotas, MP balance | Automatic (webhook) | We invoice | Chargebacks handled by MP | Best automated option for AR; needs the AR account only |
+| **Wallbit transfer (USD)** | Any LATAM learner **who has Wallbit** (AR, BR, CO, MX, CL, PE, DO, …) via Wallbit TAG; anyone with a US bank account via ACH/wire | 0 % Wallbit-to-Wallbit; ACH/wire withdrawals from ~1 % | Learner needs a Wallbit account (adoption is meaningful among tech/freelance audiences but not universal) | Manual (no merchant API yet; the owner checks the app) | We invoice (export of services; BCRA "A" 8417 allows individuals to collect exported services without forced pesification) | Same as transfers | Cheapest cross-border USD channel; good fit for the data/tech audience |
+| **Hotmart (MoR)** | All LATAM, local methods (Pix, boleto, OXXO, MP, cuotas) | ~10 % + fixed (≈ US$2.5–3 on a US$20 ticket) | Familiar course checkout in LATAM | Automatic (webhooks) | Hotmart invoices the buyer; we invoice Hotmart | Handled by Hotmart | Highest conversion for cards outside AR; most expensive |
+| **Paddle (MoR)** | Global cards/PayPal | ~5 % + US$0.50 (≈ 7.5 % on US$20) | Standard card checkout, USD | Automatic | Paddle handles | Handled | Cleaner UX, fewer local methods; Argentina payout via PayPal/wire to be confirmed |
+
+Observations:
+1. At US$20, **manual transfer channels are nearly free** and are culturally normal in LATAM for courses, but every sale costs the owner a manual verification (a few minutes) and delays access until verified.
+2. A **manual channel is easy to build safely**: it is just a `manual` provider in the same abstraction: pending purchase with a unique reference code → learner marks "ya pagué" (optional receipt upload later) → admin approves in the admin panel → entitlement granted → email. Access is never granted automatically, so fake receipts cannot unlock content.
+3. Automated card checkout is what scales and what non-Argentine, non-Wallbit learners need. Between MoRs, Hotmart wins on LATAM reach/local methods, Paddle on fees/UX.
+4. **Combining channels is cheap** because `PaymentProvider` isolates each one; the pricing page simply lists the methods available for the learner's country.
+
+## 3. Recommendation (revised)
+
+**Phase 6 MVP: launch with two channels behind the abstraction**
+- `manual` provider with three instruction sets: bank/Mercado Pago transfer in ARS (Argentina), Wallbit TAG in USD (LATAM), and international wire as fallback. Zero fees, zero external dependency, works day one; admin approval flow and audit log already in the data model.
+- **One automated MoR for cards**: **Hotmart** if LATAM local methods and conversion matter most (recommended for a course product), **Paddle** if lower fees and a cleaner embedded checkout matter more. Owner picks; eligibility for Argentine payouts is verified during Phase 6 before code is written.
+
+**Phase 6b:** Mercado Pago Checkout Pro for Argentine buyers who want cards/cuotas without leaving the flow (replaces part of the manual ARS volume). Subscriptions remain off.
+
+### Previous recommendation (superseded 2026-09-18)
 
 **MVP (Phase 6): Mercado Pago Checkout Pro, one product (lifetime access), one-time payment, sandbox mode**, in the seller's country currency, with a `PaymentProvider` abstraction so a second provider can be added without touching entitlement logic.
 

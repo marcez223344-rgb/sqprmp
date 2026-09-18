@@ -15,8 +15,8 @@ Learner ───────► │ Next.js 16 App Router (React 19, TypeScript
   ▼                       ▼                           ▼                  ▼
 static snapshots   ┌────────────────────────────────────────┐   ┌──────────────────┐
 /datasets/*.tar.gz │ Supabase: Postgres + Auth (Google) +   │   │ Payment provider │
-                   │ RLS + RPC + pg_cron (streaks, cleanup) │   │ (Mercado Pago;   │
-                   └────────────────────────────────────────┘   │  Stripe later)   │
+                   │ RLS + RPC + pg_cron (streaks, cleanup) │   │ (manual + MoR;   │
+                   └────────────────────────────────────────┘   │  MP Checkout 6b) │
                                                                 └──────────────────┘
 ```
 

@@ -3,7 +3,7 @@
 Status legend: ☐ not started · ◐ in progress · ☑ done. Each phase ends with: summary, files changed, test/build output, remaining risks, docs updated, approval request only when the next phase involves a material product/payment/security/deployment decision.
 
 ## Phase 0 — Discovery and decisions ◐ (this phase)
-☑ Directory inspection · ☑ Requirements summary · ☑ Contradictions, risks, free-tier limits · ☑ MVP definition · ☑ Architecture · ☑ SQL sandbox comparison · ☑ Payments comparison · ☑ Data model + RLS matrix · ☑ Curriculum + volume · ☑ Visual direction · ☑ Docs + CLAUDE.md + `.claude/` operating system · ☐ Owner approval of D-01…D-06
+☑ Directory inspection · ☑ Requirements summary · ☑ Contradictions, risks, free-tier limits · ☑ MVP definition · ☑ Architecture · ☑ SQL sandbox comparison · ☑ Payments comparison · ☑ Data model + RLS matrix · ☑ Curriculum + volume · ☑ Visual direction · ☑ Docs + CLAUDE.md + `.claude/` operating system · ☑ Owner decisions D-01, D-06, P-2 · ☐ D-05 payment channels
 
 ## Phase 1 — Foundation ☐
 Next.js 16 scaffold (TS strict, App Router), Tailwind 4 + tokens + dark mode, shadcn/ui base components, `src/config/*`, env validation, next-intl (`es-419`), Supabase clients (browser/server/admin), Supabase CLI project + first migration (profiles, avatars, feature_flags, audit_logs with RLS), Vitest/RTL/Playwright setup, ESLint/Prettier, GitHub Actions CI, README setup steps, landing page skeleton. Gate: `npm run quality` green, first commit pushed.
@@ -24,7 +24,7 @@ Reward ledger + RPCs, levels, streaks with freeze (pg_cron), goals, badges (firs
 
 ## Phase 6 — Monetization ☐
 Free limit + paywall (server), products/prices config, `PaymentProvider` + Mercado Pago sandbox, webhook handler, entitlements, promo codes, admin entitlement UI, access settings page. Gate: E2E 7–10 with sandbox payment.
-**Approval needed before Phase 6:** D-01, D-05, D-06. Production credentials never without explicit approval.
+**Approval needed before Phase 6:** D-05 (payment channels). Production credentials never without explicit approval.
 
 ## Phase 7 — Assessments and certificates ☐
 Question bank types (8), quiz UI, review sessions, section completion rules, certificate requirements, issuance RPC, PDF, verification page, revocation. Gate: E2E 11–12.

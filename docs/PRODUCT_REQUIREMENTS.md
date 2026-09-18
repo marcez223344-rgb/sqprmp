@@ -16,7 +16,7 @@ Adults ~25–35 in LATAM: first job in data, junior analysts, career changers, b
 
 1. Landing → curriculum/pricing/about → Google sign-in
 2. Onboarding (display name, unique alias, curated avatar, DOB, country, optional gender, SQL level, goal, weekly study goal, terms/privacy consent)
-3. Free tier: `FREE_EXERCISE_LIMIT` practical exercises (see decision D-01), enforced server-side
+3. Free tier: 5 practical exercises (`FREE_EXERCISE_LIMIT`, D-01), enforced server-side
 4. Exercise workspace: scenario → schema browser → SQL editor → Run (instant) → Submit (server-validated) → structured feedback → progressive hints (3 levels) → gated solution reveal → next
 5. Theory lessons and quizzes per section; review sessions from previous mistakes
 6. Progress dashboard: XP, coins, streak (with limited freeze), goals, badges, mastery per topic, attempt history, saved queries
@@ -59,10 +59,10 @@ Adults ~25–35 in LATAM: first job in data, junior analysts, career changers, b
 
 | # | Contradiction | Resolution |
 |---|---|---|
-| C-1 | Free limit stated as **three** (sections 3, 23, 27) and **five** (section 9) | Config `FREE_EXERCISE_LIMIT`; default **3**; owner confirms (D-01) |
+| C-1 | Free limit stated as **three** (sections 3, 23, 27) and **five** (section 9) | Config `FREE_EXERCISE_LIMIT` = **5** (owner decision D-01) |
 | C-2 | "Server-side execution only" vs. "browser-based SQL engine" listed as acceptable alternative | Hybrid: browser engine for *Run* (preview), server engine for *Submit* (graded). Rewards and validation are server-side only (D-03) |
 | C-3 | "Monthly and annual subscriptions" vs. "recommend the simplest MVP" | MVP sells **lifetime access** only; subscriptions modeled in schema, not launched (D-05) |
-| C-4 | E2E test list says "completes three free exercises" then "fourth premium exercise is locked" | Consistent with default 3 |
+| C-4 | E2E test list says "completes three free exercises" then "fourth premium exercise is locked" | Journeys use 5 free + 6th locked |
 
 ## 7. Out of scope for MVP
 
