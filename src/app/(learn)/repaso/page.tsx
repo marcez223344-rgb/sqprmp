@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { QuizRunner } from "@/components/quiz/quiz-runner";
 import { buttonVariants } from "@/components/ui/button";
 import { requireOnboardedProfile } from "@/lib/auth/session";
+import { track } from "@/lib/analytics/track";
 import { getReviewQuestions } from "@/lib/quizzes/service";
 import { cn } from "@/lib/utils/cn";
 
@@ -17,6 +18,11 @@ export default async function ReviewPage() {
     getReviewQuestions(profile),
     getTranslations("review"),
   ]);
+  await track(
+    "review_session_started",
+    { question_count: questions.length },
+    { userId: profile.id },
+  );
   return (
     <div className="container-page max-w-3xl space-y-6 py-10">
       <header className="space-y-1">

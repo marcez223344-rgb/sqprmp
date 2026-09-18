@@ -1,5 +1,6 @@
 import "server-only";
 import { limits } from "@/config/limits";
+import { track } from "@/lib/analytics/track";
 import { activityDateFor, rewardKeys } from "@/lib/rewards/rules";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -234,6 +235,13 @@ export async function gradeQuiz(
     const { data: badges } = await admin.rpc("evaluate_badges", { p_user_id: profile.id });
     newBadges = (badges as unknown as string[] | null) ?? [];
   }
+  await track(
+    "quiz_submitted",
+    { lesson_slug: lessonSlug, score, total, passed },
+    { userId: profile.id },
+  );
+  for (const badge of newBadges)
+    await track("badge_earned", { badge_slug: badge }, { userId: profile.id });
   return { score, total, passed, graded, reward, sectionCompleted, newBadges };
 }
 
@@ -258,7 +266,20 @@ export async function settleSectionCompletion(
     p_activity_date: activityDateFor(new Date(), profile.timezone),
     p_daily_xp_cap: limits.rewards.dailyXpCap,
   });
-  return Boolean(data?.[0]?.awarded);
+  const awarded = Boolean(data?.[0]?.awarded);
+  if (awarded) {
+    const { data: section } = await admin
+      .from("sections")
+      .select("slug")
+      .eq("id", sectionId)
+      .single();
+    await track(
+      "section_completed",
+      { section_slug: section?.slug ?? "unknown" },
+      { userId: profile.id },
+    );
+  }
+  return awarded;
 }
 
 /** Questions answered incorrectly in the learner's most recent answer, for review sessions. */

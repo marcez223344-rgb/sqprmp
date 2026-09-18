@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { track } from "@/lib/analytics/track";
 import { countries } from "@/config/countries";
 import { legal } from "@/config/legal";
 import { limits } from "@/config/limits";
@@ -97,6 +98,16 @@ export async function completeOnboarding(raw: unknown, next?: string): Promise<A
     }
     return { ok: false, error: "unknown" };
   }
+  await track(
+    "onboarding_completed",
+    {
+      sql_level: v.sql_level ?? null,
+      main_goal: v.main_goal ?? null,
+      weekly_goal_minutes: v.weekly_goal_minutes ?? null,
+      age_band: ageBand(v.birth_date),
+    },
+    { userId: user.id },
+  );
 
   redirect(safeNextPath(next));
 }
@@ -166,4 +177,16 @@ export async function cancelDataRequest(rawId: unknown): Promise<ActionResult> {
     .eq("status", "pending");
   if (error) return { ok: false, error: "unknown" };
   return { ok: true };
+}
+
+/** Coarse age band for analytics; the birth date itself is never sent. */
+function ageBand(birthDate: Date | string | null | undefined): string | null {
+  if (!birthDate) return null;
+  const d = birthDate instanceof Date ? birthDate : new Date(birthDate);
+  if (Number.isNaN(d.getTime())) return null;
+  const age = Math.floor((Date.now() - d.getTime()) / (365.25 * 24 * 3600 * 1000));
+  if (age < 25) return "18-24";
+  if (age < 35) return "25-34";
+  if (age < 45) return "35-44";
+  return "45+";
 }

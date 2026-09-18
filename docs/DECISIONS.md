@@ -66,6 +66,10 @@ Status: Proposed · Schema supports opt-in; UI not in MVP.
 
 Status: Proposed · 24 illustrated avatars; uploads require moderation + storage security, deferred.
 
+### D-15 · Analytics scope at launch
+
+Status: **Accepted (2026-09-18)**. First-party events only, written server-side after Zod validation (docs/ANALYTICS.md). Not emitted at launch: `page_viewed` (would need an anonymous cookie id and a per-request write from the proxy; deferred until there is traffic worth measuring), `signup_started/completed` (Google OAuth happens off-site; `onboarding_completed` is the practical signup signal), `query_run` (browser runs never reach the server by design), `streak_frozen` (SQL-side). Owner metrics are computed on request by `admin_metrics()`; a materialized view is planned only if the RPC exceeds ~1 s.
+
 ## Pending owner decisions (need an answer before the referenced phase)
 
 | #    | Question                                                                          | Needed by | Default if no answer                 |

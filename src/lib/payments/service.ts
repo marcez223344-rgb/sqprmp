@@ -1,6 +1,7 @@
 import "server-only";
 import { z } from "zod";
 import { limits } from "@/config/limits";
+import { track } from "@/lib/analytics/track";
 import { serverEnv } from "@/lib/env/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -105,7 +106,7 @@ export async function processWebhook(
   }
   const { data: price } = await admin
     .from("prices")
-    .select("id")
+    .select("id, products(slug)")
     .eq("provider", provider.id)
     .eq("is_active", true)
     .order("created_at")
@@ -125,7 +126,19 @@ export async function processWebhook(
     p_user_id: userId,
     p_price_id: price?.id ?? null,
   });
-  return (result as WebhookOutcome | null) ?? "ignored";
+  const outcome = (result as WebhookOutcome | null) ?? "ignored";
+  if (outcome === "processed" && status === "approved")
+    await track(
+      "purchase_completed",
+      {
+        product_slug: (price?.products as { slug: string } | null)?.slug ?? null,
+        provider: provider.id,
+        currency: currency ?? "USD",
+        amount_minor: amountMinor ?? 0,
+      },
+      { userId },
+    );
+  return outcome;
 }
 
 export interface AccessStatus {

@@ -16,6 +16,7 @@ import {
 import { buildFeedback, type FeedbackItem } from "@/lib/validation/feedback";
 import { awardExerciseCompletion, touchActivity, type AwardOutcome } from "@/lib/rewards/service";
 import { settleSectionCompletion } from "@/lib/quizzes/service";
+import { track } from "@/lib/analytics/track";
 import type { Database, Json, Profile } from "@/types/database";
 
 type ExercisePublic = Database["public"]["Views"]["exercises_public"]["Row"];
@@ -203,6 +204,15 @@ export interface SubmitResult {
   reward: AwardOutcome | null;
 }
 
+async function exerciseSlug(exerciseId: string): Promise<string> {
+  const { data } = await createAdminClient()
+    .from("exercises")
+    .select("slug")
+    .eq("id", exerciseId)
+    .single();
+  return data?.slug ?? "unknown";
+}
+
 async function consume(
   key: string,
   rule: { capacity: number; refillPerSecond: number },
@@ -241,7 +251,7 @@ export async function submitExercise(
     admin
       .from("exercises")
       .select(
-        "id, slug, dataset_id, dataset_version, allowed_statements, expected_columns, validation_rules, common_mistakes, improvement_feedback, reward_config, datasets(slug)",
+        "id, slug, section_id, dataset_id, dataset_version, allowed_statements, expected_columns, validation_rules, common_mistakes, improvement_feedback, reward_config, datasets(slug)",
       )
       .eq("id", exerciseId)
       .single(),
@@ -342,6 +352,16 @@ export async function submitExercise(
     .eq("exercise_id", exerciseId)
     .single();
   await touchActivity(profile);
+  await track(
+    "exercise_submitted",
+    {
+      exercise_slug: ex.slug,
+      status,
+      attempt_number: rec?.attempts_count ?? 1,
+      feedback_categories: feedback.map((f) => f.category),
+    },
+    { userId: profile.id },
+  );
 
   // Rewards are paid exactly once per exercise (ledger key), server-side, after persistence.
   let reward: AwardOutcome | null = null;
@@ -363,13 +383,21 @@ export async function submitExercise(
       progress.hints_used,
       Boolean(progress.solution_revealed_at),
     );
+    await track(
+      "exercise_completed",
+      {
+        exercise_slug: ex.slug,
+        attempts: progress.attempts_count,
+        hints_used: progress.hints_used,
+        solution_revealed: Boolean(progress.solution_revealed_at),
+        minutes: Math.round((Date.now() - Date.parse(progress.started_at)) / 60_000),
+      },
+      { userId: profile.id },
+    );
+    for (const badge of reward?.newBadges ?? [])
+      await track("badge_earned", { badge_slug: badge }, { userId: profile.id });
     // Section completion is evaluated after every first completion (idempotent reward).
-    const { data: exRow } = await admin
-      .from("exercises")
-      .select("section_id")
-      .eq("id", exerciseId)
-      .single();
-    if (exRow?.section_id) await settleSectionCompletion(profile, exRow.section_id);
+    if (ex.section_id) await settleSectionCompletion(profile, ex.section_id);
   }
 
   return {
@@ -422,6 +450,11 @@ export async function requestHint(
   if (error) return { error: error.details?.includes("hint_sequence") ? "sequence" : "not_found" };
   const row = data?.[0];
   if (!row) return { error: "not_found" };
+  await track(
+    "hint_requested",
+    { exercise_slug: await exerciseSlug(exerciseId), level },
+    { userId: profile.id },
+  );
   return { hint: { level, body_md: row.body_md } };
 }
 
@@ -468,5 +501,10 @@ export async function revealSolution(
   });
   const solution = await readSolution(exerciseId);
   if (!solution) return { error: "not_found" };
+  await track(
+    "solution_revealed",
+    { exercise_slug: await exerciseSlug(exerciseId), reason },
+    { userId: profile.id },
+  );
   return { solution };
 }

@@ -705,8 +705,20 @@
     "hub": {
       "title": "Administración",
       "intro": "Herramientas del equipo. Todas las acciones quedan en el registro de auditoría.",
-      "access": "Accesos y pagos",
-      "soon": "Más herramientas llegan en la fase de administración."
+      "access": "Accesos y transferencias",
+      "payments": "Eventos de pago",
+      "users": "Usuarios",
+      "certificates": "Certificados",
+      "promos": "Códigos de beca y descuento",
+      "flags": "Feature flags",
+      "audit": "Auditoría",
+      "metrics": "Métricas",
+      "stats": {
+        "signups7d": "Altas (7 días)",
+        "wau": "Activos (7 días)",
+        "entitled": "Con acceso completo",
+        "pending": "Pagos pendientes"
+      }
     },
     "access": {
       "title": "Accesos y pagos",
@@ -751,6 +763,227 @@
         "revokePrompt": "Motivo de la revocación:",
         "revokedDone": "Acceso revocado."
       }
+    },
+    "metrics": {
+      "title": "Métricas",
+      "unavailable": "No pudimos calcular las métricas.",
+      "generatedAt": "Calculadas el {time}.",
+      "groups": {
+        "signups": "Altas",
+        "learning": "Aprendizaje",
+        "engagement": "Actividad y retención",
+        "monetization": "Monetización"
+      },
+      "rows": {
+        "total": "Total de personas",
+        "last7d": "Altas últimos 7 días",
+        "last30d": "Altas últimos 30 días",
+        "onboarded": "Completaron el alta",
+        "startedExercise": "Empezaron un ejercicio",
+        "completedExercise": "Completaron un ejercicio",
+        "freeLimitReached": "Agotaron los gratuitos sin comprar",
+        "sectionsCompleted": "Secciones completadas",
+        "certificates": "Certificados emitidos",
+        "quizPassRate": "Tasa de aprobación de quizzes",
+        "wau": "Activos últimos 7 días",
+        "mau": "Activos últimos 30 días",
+        "d1": "Retención D1",
+        "d7": "Retención D7",
+        "d30": "Retención D30",
+        "entitled": "Con acceso completo",
+        "pending": "Pagos pendientes",
+        "approved": "Pagos aprobados",
+        "refunds": "Reembolsos y contracargos",
+        "unmatched": "Webhooks sin asignar",
+        "promos": "Códigos canjeados",
+        "revenue": "Ingresos ({currency})"
+      },
+      "hardest": {
+        "title": "Ejercicios más difíciles",
+        "empty": "Todavía no hay suficientes intentos.",
+        "exercise": "Ejercicio",
+        "attempts": "Intentos",
+        "solvers": "Resolvieron / intentaron"
+      },
+      "sqlstates": {
+        "title": "Errores SQL más frecuentes",
+        "empty": "Sin errores registrados."
+      },
+      "sections": {
+        "title": "Secciones completadas por persona"
+      }
+    },
+    "payments": {
+      "title": "Eventos de pago",
+      "intro": "Webhooks recibidos de los proveedores. Los pagos aprobados que no pudimos asociar a una cuenta se asignan acá.",
+      "unmatched": {
+        "title": "Pagos sin asignar ({count})",
+        "empty": "No hay pagos pendientes de asignación.",
+        "ref": "Ref."
+      },
+      "reconcile": {
+        "alias": "Alias de la persona",
+        "price": "Producto",
+        "reason": "Motivo / evidencia",
+        "submit": "Asignar y otorgar acceso",
+        "done": "Pago asignado y acceso otorgado.",
+        "errors": {
+          "unauthorized": "No autorizado.",
+          "validation": "Datos inválidos.",
+          "user_not_found": "No existe un usuario con ese alias.",
+          "not_reconcilable": "Este evento ya fue procesado.",
+          "unknown": "No pudimos asignar el pago."
+        }
+      },
+      "recent": {
+        "title": "Últimos 100 eventos",
+        "empty": "Todavía no llegaron webhooks.",
+        "caption": "Eventos de pago recibidos",
+        "date": "Fecha",
+        "provider": "Proveedor",
+        "event": "Evento",
+        "status": "Estado",
+        "amount": "Importe",
+        "outcome": "Resultado"
+      },
+      "outcome": {
+        "reconciled": "Asignado manualmente",
+        "invalidSignature": "Firma inválida",
+        "unmatched": "Sin asignar",
+        "processed": "Procesado",
+        "pending": "Pendiente"
+      }
+    },
+    "certificates": {
+      "title": "Certificados",
+      "intro": "Certificados emitidos. Revocar deja el código público marcado como inválido; queda en auditoría.",
+      "empty": "Todavía no se emitieron certificados.",
+      "caption": "Certificados emitidos",
+      "id": "ID",
+      "recipient": "Titular",
+      "path": "Ruta",
+      "issued": "Emisión",
+      "status": "Estado",
+      "revoked": "Revocado",
+      "revoke": "Revocar",
+      "revokePrompt": "Motivo de la revocación (queda en auditoría):",
+      "revokeDone": "Certificado revocado.",
+      "revokeFailed": "No pudimos revocar el certificado.",
+      "verifyLink": "Ir a la página pública de verificación"
+    },
+    "promos": {
+      "title": "Códigos de beca y descuento",
+      "intro": "Las becas otorgan acceso por N días al canjearse; los descuentos se aplican en el checkout.",
+      "create": "Crear código",
+      "list": "Códigos existentes",
+      "empty": "No hay códigos.",
+      "caption": "Códigos promocionales",
+      "cols": {
+        "code": "Código",
+        "kind": "Tipo",
+        "value": "Valor",
+        "uses": "Usos",
+        "expires": "Vence",
+        "status": "Estado"
+      },
+      "kinds": {
+        "scholarship": "Beca",
+        "discount": "Descuento"
+      },
+      "days": "{days} días",
+      "activate": "Activar",
+      "deactivate": "Desactivar",
+      "updated": "Código actualizado.",
+      "failed": "No pudimos actualizar el código.",
+      "form": {
+        "code": "Código",
+        "codeHint": "Letras, números y guiones.",
+        "kind": "Tipo",
+        "kinds": {
+          "scholarship": "Beca (acceso por días)",
+          "discount": "Descuento (%)"
+        },
+        "accessDays": "Días de acceso",
+        "accessDaysHint": "Cuántos días de acceso otorga la beca.",
+        "discountPercent": "Porcentaje de descuento",
+        "maxRedemptions": "Canjes máximos",
+        "maxHint": "Vacío = sin límite",
+        "expiresAt": "Vence el",
+        "expiresHint": "Vacío = no vence",
+        "note": "Nota interna",
+        "submit": "Crear",
+        "done": "Código creado.",
+        "errors": {
+          "unauthorized": "No autorizado.",
+          "validation": "Revisá los datos: el código debe tener 4–40 caracteres y el tipo su valor.",
+          "duplicate": "Ya existe un código con ese nombre.",
+          "unknown": "No pudimos crear el código."
+        }
+      }
+    },
+    "flags": {
+      "title": "Feature flags",
+      "intro": "Los valores guardados acá tienen prioridad sobre src/config/features.ts. paymentsLive solo se activa con aprobación explícita del equipo (D-05).",
+      "caption": "Flags de funcionalidad",
+      "cols": {
+        "key": "Clave",
+        "enabled": "Activo",
+        "public": "Público",
+        "source": "Origen",
+        "actions": "Acciones"
+      },
+      "enabledFor": "Activar {key}",
+      "publicFor": "Hacer público {key}",
+      "locked": "Bloqueado",
+      "fromDb": "Guardado en base",
+      "fromCode": "Valor por defecto",
+      "save": "Guardar",
+      "reasonPrompt": "Motivo del cambio (queda en auditoría):",
+      "saved": "Flag guardado.",
+      "failed": "No pudimos guardar el flag."
+    },
+    "audit": {
+      "title": "Registro de auditoría",
+      "intro": "Acciones privilegiadas y eventos del sistema (últimos 200). Filtrá por prefijo de acción o por id de objetivo.",
+      "filterAction": "Acción (prefijo)",
+      "filterTarget": "Objetivo (id)",
+      "apply": "Filtrar",
+      "empty": "Sin registros para ese filtro.",
+      "caption": "Registro de auditoría",
+      "cols": {
+        "date": "Fecha",
+        "actor": "Actor",
+        "action": "Acción",
+        "target": "Objetivo",
+        "detail": "Detalle"
+      }
+    },
+    "users": {
+      "title": "Usuarios",
+      "intro": "Buscá por alias, email o id. Los datos personales se muestran solo a administradores y no se exportan.",
+      "query": "Alias, email o id",
+      "search": "Buscar",
+      "noResults": "Sin resultados.",
+      "open": "Ver detalle",
+      "deleted": "eliminado",
+      "fields": {
+        "id": "ID",
+        "role": "Rol",
+        "country": "País",
+        "createdAt": "Alta",
+        "onboarded": "Completó el alta",
+        "progress": "Ejercicios",
+        "level": "Nivel",
+        "xp": "XP",
+        "coins": "Monedas"
+      },
+      "progressValue": "{completed} completados de {started} iniciados",
+      "entitlements": "Accesos",
+      "purchases": "Compras",
+      "certificates": "Certificados",
+      "none": "Ninguno.",
+      "revoked": "revocado",
+      "goAccess": "Otorgar o revocar acceso en Accesos"
     }
   },
   "quiz": {

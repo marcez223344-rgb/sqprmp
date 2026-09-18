@@ -185,6 +185,13 @@ Every migration that creates a table must: `enable row level security`, add poli
 - Review sessions (`/repaso`) grade the learner's most recent wrong answers without writing attempts or rewards.
 - PDFs are rendered on demand by `/certificados/[publicId]/pdf` (owner or admin, RLS) with `@react-pdf/renderer`; no Storage bucket yet (deferred until volume justifies caching).
 
+### 4i. Implementation notes (Phase 8, migration `20260918240000_admin_analytics.sql`)
+
+- `analytics_events` is written only by the server (`track()` in `src/lib/analytics/track.ts`, admin client) after Zod validation against the spec in `src/lib/analytics/events.ts`; admins read, learners and anon never. `anonymous_id` exists but is unused until `page_viewed` is implemented (D-15).
+- `payment_events` now stores the normalized `payment_ref/status/amount_minor/currency` so an approved webhook that could not be matched to an account can be assigned later by `reconcile_payment_event` (admin, audited, one-shot via `reconciled_at`).
+- Admin writes that used to be direct table access go through audited RPCs: `set_feature_flag`, `create_promo_code`, `set_promo_code_active`, `revoke_certificate`, `reconcile_payment_event`. `admin_find_user` joins `auth.users` for email lookup without exposing the auth schema to the client.
+- `admin_metrics(p_free_limit)` computes the owner dashboard in one JSON document (signups, learning funnel, WAU/MAU, D1/D7/D30 retention from `daily_activity`, monetization, hardest exercises, frequent SQLSTATEs, section completions). Service role only; computed on request (no materialized view until volume justifies it).
+
 ## 5. Indexes (initial)
 
 `attempts (user_id, exercise_id, created_at desc)`, `exercise_progress (user_id, status)`, `reward_ledger (user_id, created_at)`, `entitlements (user_id) WHERE revoked_at IS NULL`, `payment_events (provider, provider_event_id)`, `certificates (verification_code)`, `analytics_events (name, created_at)`, `lessons (section_id, sort_order)`, `daily_activity (user_id, activity_date desc)`.

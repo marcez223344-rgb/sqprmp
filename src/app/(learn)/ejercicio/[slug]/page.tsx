@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Lock } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { track } from "@/lib/analytics/track";
 import { ExerciseWorkspace } from "@/components/workspace/exercise-workspace";
 import { Card } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
@@ -27,6 +28,12 @@ export default async function ExercisePage({ params }: PageProps<"/ejercicio/[sl
   }
 
   const difficulty = data.exercise.difficulty ?? "easy";
+  if (data.access === "locked")
+    await track(
+      "paywall_viewed",
+      { trigger: "limit_reached", exercise_slug: data.exercise.slug },
+      { userId: profile.id },
+    );
 
   return (
     <div className="container-page space-y-6 py-8">

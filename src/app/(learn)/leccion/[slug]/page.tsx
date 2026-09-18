@@ -47,7 +47,7 @@ export default async function LessonPage({ params }: PageProps<"/leccion/[slug]"
   if (access === "ok") {
     body = lesson.is_free ? lesson.body_md_free : await getPremiumLessonBody(lesson.id);
     // Viewing records progress (idempotent); completion is an explicit learner action.
-    await recordLessonView(lesson.slug);
+    await recordLessonView(lesson.slug, lesson.kind ?? "theory", profile.id);
     const supabase = await createClient();
     const { data: progress } = await supabase
       .from("lesson_progress")

@@ -1,4 +1,5 @@
 import "server-only";
+import { track } from "@/lib/analytics/track";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile } from "@/types/database";
@@ -103,6 +104,12 @@ export async function issueCertificate(
   }
   const row = data?.[0];
   if (!row) return { ok: false, error: "unknown" };
+  if (!row.already_issued)
+    await track(
+      "certificate_issued",
+      { requirement_slug: requirementSlug },
+      { userId: profile.id },
+    );
   return {
     ok: true,
     publicId: row.public_id,

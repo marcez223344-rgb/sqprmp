@@ -4,6 +4,7 @@ import type { Route } from "next";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { track } from "@/lib/analytics/track";
 import { limits } from "@/config/limits";
 import { manualTransferChannels } from "@/config/pricing";
 import { clientEnv } from "@/lib/env/client";
@@ -58,6 +59,20 @@ export async function createManualPurchaseAction(
   }
   const row = data?.[0];
   if (!row) return { ok: false, error: "unknown" };
+  const { data: priceRow } = await supabase
+    .from("prices")
+    .select("currency, products(slug)")
+    .eq("id", parsed.data.priceId)
+    .maybeSingle();
+  await track(
+    "checkout_started",
+    {
+      product_slug: (priceRow?.products as { slug: string } | null)?.slug ?? "unknown",
+      provider: "manual",
+      currency: priceRow?.currency ?? "USD",
+    },
+    { userId: user.id },
+  );
   revalidatePath("/acceso");
   return { ok: true, data: { referenceCode: row.reference_code } };
 }
@@ -93,6 +108,7 @@ export async function redeemPromoAction(
     return { ok: false, error: known ?? "unknown" };
   }
   const row = data?.[0];
+  await track("promo_redeemed", { kind: row?.kind ?? "discount" }, { userId: user.id });
   revalidatePath("/acceso");
   return {
     ok: true,
@@ -123,7 +139,7 @@ export async function startHostedCheckoutAction(formData: FormData) {
   const supabase = await createClient();
   const { data: price } = await supabase
     .from("prices")
-    .select("id, amount_minor, currency")
+    .select("id, amount_minor, currency, products(slug)")
     .eq("id", parsed.data.priceId)
     .eq("provider", provider.id)
     .eq("is_active", true)
@@ -140,6 +156,15 @@ export async function startHostedCheckoutAction(formData: FormData) {
     cancelUrl: `${appUrl}/precios?checkout=cancel`,
   });
   if (!result.redirectUrl) redirect("/precios?error=provider_not_configured");
+  await track(
+    "checkout_started",
+    {
+      product_slug: (price.products as { slug: string } | null)?.slug ?? "unknown",
+      provider: provider.id,
+      currency: price.currency,
+    },
+    { userId: user.id },
+  );
   // External hosted checkout URL.
   redirect(result.redirectUrl as Route);
 }

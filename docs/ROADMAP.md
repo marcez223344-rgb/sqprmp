@@ -39,9 +39,11 @@ Question bank types (8), quiz UI, review sessions, section completion rules, cer
 
 Done: migration `20260918230000_assessments_certificates` (quiz_attempts/answers, section_progress, certificate_requirements seed of 4 paths, certificates; RPCs `record_quiz_attempt`, `check_section_completion`, `certificate_eligible`, `issue_certificate`, `revoke_certificate`, `verify_certificate`), pure grader for the 8 question types (`src/lib/quizzes/grading.ts`, 7 unit tests), quiz runner wired into `/leccion/[slug]` with rewards (`quiz_passed`, `section_completed`) and badge evaluation, `/repaso` review sessions, `/certificados` (requirement status, issue form, PDF), public `/verificar` + `/verificar/[code]`, pgTAP 0007 (RPC flow also smoke-tested on PGlite), E2E 07 (journeys 11–12). Deferred: admin revocation UI (Phase 8), PDF caching in Storage.
 
-## Phase 8 — Administration and analytics ☐
+## Phase 8 — Administration and analytics ☑ (2026-09-18)
 
 Admin pages (users/entitlements, payment events, certificates, flags, audit log), analytics event spec implemented, owner dashboard (SQL views in Supabase + minimal page).
+
+Done: migration `20260918240000_admin_analytics` (`analytics_events`, normalized payment event fields + `reconcile_payment_event`, audited RPCs for flags/promos, `admin_metrics`, `admin_find_user`), `src/lib/analytics` (Zod spec for the 22 events + server-only `track()`) wired into onboarding, lessons, exercises (submit/complete/hint/reveal), quizzes, sections, certificates, review, paywall, checkout, purchases, promos and badges; admin hub with `/admin/{metricas,pagos,usuarios,certificados,promos,flags,auditoria}`; pgTAP 0008 (RPC flow also smoke-tested on PGlite), unit tests for the event spec, E2E 08 (journey 13). Deferred: `page_viewed` + anonymous id (D-15), materialized metrics.
 
 ## Phase 9 — Quality and launch ☐
 

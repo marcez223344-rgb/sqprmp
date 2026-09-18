@@ -29,6 +29,41 @@ export type Database = {
         };
         Relationships: [];
       };
+      analytics_events: {
+        Row: {
+          id: number;
+          user_id: string | null;
+          anonymous_id: string | null;
+          name: string;
+          properties: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: never;
+          user_id?: string | null;
+          anonymous_id?: string | null;
+          name: string;
+          properties?: Json;
+          created_at?: string;
+        };
+        Update: {
+          id?: never;
+          user_id?: string | null;
+          anonymous_id?: string | null;
+          name?: string;
+          properties?: Json;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "analytics_events_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       attempts: {
         Row: {
           id: string;
@@ -1106,6 +1141,11 @@ export type Database = {
           processed_at: string | null;
           processing_error: string | null;
           received_at: string;
+          payment_ref: string | null;
+          status: string | null;
+          amount_minor: number | null;
+          currency: string | null;
+          reconciled_at: string | null;
         };
         Insert: {
           id?: string;
@@ -1117,6 +1157,11 @@ export type Database = {
           processed_at?: string | null;
           processing_error?: string | null;
           received_at?: string;
+          payment_ref?: string | null;
+          status?: string | null;
+          amount_minor?: number | null;
+          currency?: string | null;
+          reconciled_at?: string | null;
         };
         Update: {
           id?: string;
@@ -1128,6 +1173,11 @@ export type Database = {
           processed_at?: string | null;
           processing_error?: string | null;
           received_at?: string;
+          payment_ref?: string | null;
+          status?: string | null;
+          amount_minor?: number | null;
+          currency?: string | null;
+          reconciled_at?: string | null;
         };
         Relationships: [];
       };
@@ -2278,6 +2328,58 @@ export type Database = {
       };
     };
     Functions: {
+      admin_find_user: {
+        Args: { p_query: string };
+        Returns: {
+          id: string;
+          alias: string | null;
+          display_name: string | null;
+          email: string | null;
+          role: string;
+          country: string | null;
+          created_at: string;
+          onboarding_completed_at: string | null;
+          deleted_at: string | null;
+        }[];
+      };
+      admin_metrics: { Args: { p_free_limit: number }; Returns: Json };
+      create_promo_code: {
+        Args: {
+          p_code: string;
+          p_kind: string;
+          p_access_days: number | null;
+          p_discount_percent: number | null;
+          p_max_redemptions: number | null;
+          p_expires_at: string | null;
+          p_note: string | null;
+          p_actor: string;
+        };
+        Returns: string;
+      };
+      reconcile_payment_event: {
+        Args: {
+          p_event_id: string;
+          p_actor: string;
+          p_user_id: string;
+          p_price_id: string;
+          p_reason: string;
+        };
+        Returns: string;
+      };
+      set_feature_flag: {
+        Args: {
+          p_key: string;
+          p_enabled: boolean;
+          p_is_public: boolean;
+          p_actor: string;
+          p_reason: string;
+        };
+        Returns: undefined;
+      };
+      set_promo_code_active: {
+        Args: { p_id: string; p_active: boolean; p_actor: string };
+        Returns: undefined;
+      };
       apply_payment_event: {
         Args: {
           p_provider: string;
