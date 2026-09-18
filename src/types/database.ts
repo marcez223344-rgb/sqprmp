@@ -29,6 +29,60 @@ export type Database = {
         };
         Relationships: [];
       };
+      attempts: {
+        Row: {
+          id: string;
+          user_id: string;
+          exercise_id: string;
+          sql: string;
+          status: string;
+          feedback: Json;
+          execution_ms: number | null;
+          row_count: number | null;
+          is_genuine: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          exercise_id: string;
+          sql: string;
+          status: string;
+          feedback?: Json;
+          execution_ms?: number | null;
+          row_count?: number | null;
+          is_genuine?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          exercise_id?: string;
+          sql?: string;
+          status?: string;
+          feedback?: Json;
+          execution_ms?: number | null;
+          row_count?: number | null;
+          is_genuine?: boolean;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "attempts_exercise_id_fkey";
+            columns: ["exercise_id"];
+            isOneToOne: false;
+            referencedRelation: "exercises";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "attempts_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       audit_logs: {
         Row: {
           id: number;
@@ -387,6 +441,69 @@ export type Database = {
           },
         ];
       };
+      exercise_progress: {
+        Row: {
+          user_id: string;
+          exercise_id: string;
+          status: string;
+          started_at: string;
+          first_completed_at: string | null;
+          attempts_count: number;
+          genuine_attempts_count: number;
+          hints_used: number;
+          solution_revealed_at: string | null;
+          best_attempt_id: string | null;
+          draft_sql: string | null;
+          draft_saved_at: string | null;
+          last_activity_at: string;
+        };
+        Insert: {
+          user_id: string;
+          exercise_id: string;
+          status?: string;
+          started_at?: string;
+          first_completed_at?: string | null;
+          attempts_count?: number;
+          genuine_attempts_count?: number;
+          hints_used?: number;
+          solution_revealed_at?: string | null;
+          best_attempt_id?: string | null;
+          draft_sql?: string | null;
+          draft_saved_at?: string | null;
+          last_activity_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          exercise_id?: string;
+          status?: string;
+          started_at?: string;
+          first_completed_at?: string | null;
+          attempts_count?: number;
+          genuine_attempts_count?: number;
+          hints_used?: number;
+          solution_revealed_at?: string | null;
+          best_attempt_id?: string | null;
+          draft_sql?: string | null;
+          draft_saved_at?: string | null;
+          last_activity_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "exercise_progress_exercise_id_fkey";
+            columns: ["exercise_id"];
+            isOneToOne: false;
+            referencedRelation: "exercises";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "exercise_progress_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       exercise_solutions: {
         Row: {
           id: string;
@@ -560,6 +677,45 @@ export type Database = {
           {
             foreignKeyName: "feature_flags_updated_by_fkey";
             columns: ["updated_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      hint_usage: {
+        Row: {
+          id: string;
+          user_id: string;
+          exercise_id: string;
+          hint_level: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          exercise_id: string;
+          hint_level: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          exercise_id?: string;
+          hint_level?: number;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "hint_usage_exercise_id_fkey";
+            columns: ["exercise_id"];
+            isOneToOne: false;
+            referencedRelation: "exercises";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "hint_usage_user_id_fkey";
+            columns: ["user_id"];
             isOneToOne: false;
             referencedRelation: "profiles";
             referencedColumns: ["id"];
@@ -787,6 +943,63 @@ export type Database = {
           },
         ];
       };
+      query_executions: {
+        Row: {
+          id: number;
+          attempt_id: string | null;
+          user_id: string | null;
+          dataset_slug: string;
+          engine: string;
+          sql_sha256: string;
+          sql_length: number;
+          duration_ms: number | null;
+          status: string;
+          sqlstate: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: number;
+          attempt_id?: string | null;
+          user_id?: string | null;
+          dataset_slug: string;
+          engine: string;
+          sql_sha256: string;
+          sql_length: number;
+          duration_ms?: number | null;
+          status: string;
+          sqlstate?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: number;
+          attempt_id?: string | null;
+          user_id?: string | null;
+          dataset_slug?: string;
+          engine?: string;
+          sql_sha256?: string;
+          sql_length?: number;
+          duration_ms?: number | null;
+          status?: string;
+          sqlstate?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "query_executions_attempt_id_fkey";
+            columns: ["attempt_id"];
+            isOneToOne: false;
+            referencedRelation: "attempts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "query_executions_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       question_options: {
         Row: {
           id: string;
@@ -830,6 +1043,54 @@ export type Database = {
         Insert: { key: string; tokens: number; refilled_at?: string };
         Update: { key?: string; tokens?: number; refilled_at?: string };
         Relationships: [];
+      };
+      saved_queries: {
+        Row: {
+          id: string;
+          user_id: string;
+          exercise_id: string | null;
+          dataset_slug: string;
+          title: string;
+          sql: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          exercise_id?: string | null;
+          dataset_slug: string;
+          title: string;
+          sql: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          exercise_id?: string | null;
+          dataset_slug?: string;
+          title?: string;
+          sql?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "saved_queries_exercise_id_fkey";
+            columns: ["exercise_id"];
+            isOneToOne: false;
+            referencedRelation: "exercises";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "saved_queries_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       sections: {
         Row: {
@@ -893,6 +1154,45 @@ export type Database = {
             columns: ["requires_section_id"];
             isOneToOne: false;
             referencedRelation: "sections";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      solution_reveals: {
+        Row: {
+          id: string;
+          user_id: string;
+          exercise_id: string;
+          reason: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          exercise_id: string;
+          reason: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          exercise_id?: string;
+          reason?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "solution_reveals_exercise_id_fkey";
+            columns: ["exercise_id"];
+            isOneToOne: false;
+            referencedRelation: "exercises";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "solution_reveals_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
             referencedColumns: ["id"];
           },
         ];
@@ -1051,6 +1351,60 @@ export type Database = {
       };
     };
     Functions: {
+      can_access_exercise: {
+        Args: { p_user_id: string; p_exercise_id: string; p_free_limit: number };
+        Returns: string;
+      };
+      exercise_is_gated: { Args: { p_exercise_id: string }; Returns: boolean };
+      free_exercises_used: { Args: { p_user_id: string }; Returns: number };
+      has_active_entitlement: { Args: { p_user_id: string }; Returns: boolean };
+      log_query_execution: {
+        Args: {
+          p_user_id: string | null;
+          p_attempt_id: string | null;
+          p_dataset_slug: string;
+          p_engine: string;
+          p_sql_sha256: string;
+          p_sql_length: number;
+          p_duration_ms: number | null;
+          p_status: string;
+          p_sqlstate: string | null;
+        };
+        Returns: undefined;
+      };
+      record_attempt: {
+        Args: {
+          p_user_id: string;
+          p_exercise_id: string;
+          p_sql: string;
+          p_status: string;
+          p_feedback: Json;
+          p_execution_ms: number | null;
+          p_row_count: number | null;
+          p_is_genuine: boolean;
+        };
+        Returns: {
+          attempt_id: string;
+          first_completion: boolean;
+          attempts_count: number;
+          genuine_attempts_count: number;
+        }[];
+      };
+      reveal_solution: {
+        Args: { p_user_id: string; p_exercise_id: string; p_reason: string };
+        Returns: undefined;
+      };
+      save_exercise_draft: { Args: { p_exercise_id: string; p_sql: string }; Returns: undefined };
+      start_exercise: { Args: { p_user_id: string; p_exercise_id: string }; Returns: undefined };
+      unlock_hint: {
+        Args: { p_user_id: string; p_exercise_id: string; p_level: number };
+        Returns: {
+          body_md: string;
+          coin_cost: number;
+          xp_penalty_percent: number;
+          hints_used: number;
+        }[];
+      };
       check_alias_available: { Args: { candidate: string }; Returns: boolean };
       complete_onboarding: {
         Args: { payload: Json };

@@ -155,6 +155,13 @@ Every migration that creates a table must: `enable row level security`, add poli
 - Content rows are written only by the seed pipeline (`npm run content:build` → `supabase/seed/0002_content.sql`, idempotent upserts by slug). Quiz lessons are derived per section at build time.
 - `mark_lesson_viewed(slug, completed)` is the only writer of `lesson_progress` besides admins.
 
+### 4e. Implementation notes (Phase 4, migration `20260918200000_exercise_activity.sql`)
+
+- Free limit (D-01) is **start-based**: `free_exercises_used()` counts gated exercises with a progress row, because opening an exercise reveals its statement and enables the local engine. `can_access_exercise()` returns `ok | locked | unavailable` and keeps already-started exercises accessible; admins and active entitlements bypass (`has_active_entitlement()` tolerates the entitlements table not existing until Phase 6).
+- Activity RPCs are service-role only (`start_exercise`, `record_attempt`, `unlock_hint`, `reveal_solution`, `log_query_execution`); the server has already authorized, gated and executed the SQL. `save_exercise_draft` is learner-callable (own row).
+- `record_attempt` returns `first_completion` exactly once per (user, exercise); Phase 5 awards rewards from that flag. Hints unlock sequentially (`P0001/hint_sequence`).
+- `query_executions` stores SQL hash/length/duration/SQLSTATE only (raw SQL lives in `attempts`, learner-readable).
+
 ## 5. Indexes (initial)
 
 `attempts (user_id, exercise_id, created_at desc)`, `exercise_progress (user_id, status)`, `reward_ledger (user_id, created_at)`, `entitlements (user_id) WHERE revoked_at IS NULL`, `payment_events (provider, provider_event_id)`, `certificates (verification_code)`, `analytics_events (name, created_at)`, `lessons (section_id, sort_order)`, `daily_activity (user_id, activity_date desc)`.

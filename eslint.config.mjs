@@ -15,6 +15,9 @@ export default defineConfig([
     "playwright-report/**",
     "next-env.d.ts",
     "src/types/database.ts",
+    "public/pglite/**",
+    "public/sandbox-core/**",
+    "public/datasets/**",
   ]),
   {
     rules: {

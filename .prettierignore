@@ -9,3 +9,6 @@ package-lock.json
 supabase/.temp
 .claude/templates/lesson.md
 supabase/seed/0002_content.sql
+supabase/seed/0003_expected_results.sql
+public/pglite
+public/sandbox-core

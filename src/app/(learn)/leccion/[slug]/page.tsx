@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, ArrowRight, ListChecks, Lock } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { CompleteLessonButton } from "@/components/learn/complete-lesson-button";
@@ -26,6 +26,11 @@ export default async function LessonPage({ params }: PageProps<"/leccion/[slug]"
   if (!detail) notFound();
   const { lesson, section, siblings, questionCount } = detail;
   const t = await getTranslations("lesson");
+
+  // Exercise lessons live in the workspace; access is decided there (count-based free limit).
+  if ((lesson.kind === "exercise" || lesson.kind === "challenge") && lesson.ref_slug) {
+    redirect(`/ejercicio/${lesson.ref_slug}`);
+  }
 
   const access = await canReadLesson(profile, lesson);
   if (access === "unavailable") notFound();

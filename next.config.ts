@@ -20,6 +20,15 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   typedRoutes: true,
+  // The sandbox worker is spawned by path (not bundled); ship it, PGlite and the dataset
+  // snapshots with the routes that execute learner SQL (docs/SQL_SANDBOX.md).
+  outputFileTracingIncludes: {
+    "/ejercicio/[slug]": [
+      "./src/lib/sandbox/core/**",
+      "./public/datasets/**",
+      "./node_modules/@electric-sql/pglite/dist/**",
+    ],
+  },
   async headers() {
     return [{ source: "/(.*)", headers: securityHeaders }];
   },

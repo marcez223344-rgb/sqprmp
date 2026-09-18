@@ -62,8 +62,38 @@ export function loadContent(): LoadedContent {
   const sectionBySlug = new Map(sections.map((s) => [s.slug, s]));
   const datasetBySlug = new Map(datasets.map((d) => [d.slug, d]));
 
-  // Derived quiz lessons (one per section with published questions).
+  // Derived lessons: one exercise lesson per exercise (after theory), one quiz per section with questions.
   const lessons: LessonDef[] = [...authoredLessons];
+  for (const section of sections) {
+    const sectionExercises = exercises.filter((e) => e.section === section.slug);
+    const theoryMax = Math.max(
+      -1,
+      ...lessons.filter((l) => l.section === section.slug).map((l) => l.sort_order),
+    );
+    sectionExercises.forEach((e, i) => {
+      lessons.push({
+        slug: `ejercicio-${e.slug}`,
+        section: section.slug,
+        kind:
+          e.difficulty === "intermediate" ||
+          e.difficulty === "advanced" ||
+          e.difficulty === "expert"
+            ? i === sectionExercises.length - 1
+              ? "challenge"
+              : "exercise"
+            : "exercise",
+        title: e.title,
+        sort_order: theoryMax + 1 + i,
+        estimated_minutes: e.estimated_minutes,
+        ref: e.slug,
+        dataset: e.dataset.slug,
+        // Exercises are count-gated (D-01), never free at the lesson level.
+        is_free: false,
+        is_published: e.is_published && section.is_published,
+        prerequisites: [],
+      });
+    });
+  }
   for (const section of sections) {
     const hasQuestions = questions.some((q) => q.section === section.slug && q.is_published);
     if (hasQuestions) {

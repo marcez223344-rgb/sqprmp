@@ -4,7 +4,7 @@ Plataforma de aprendizaje de SQL para adultos de habla hispana en América Latin
 
 **Organización:** Data Minds Solutions · **Fundador e instructor:** Marcelo Pisner
 
-> Estado actual: **Fase 3 (currículo y motor de contenido) completada** — 39 secciones, lecciones y quizzes de las secciones 1–3, ruta de aprendizaje y páginas de lección; Fase 4 (motor de ejercicios SQL) en curso. Ver [docs/ROADMAP.md](docs/ROADMAP.md).
+> Estado actual: **Fase 4 (motor seguro de ejercicios SQL) completada** — PostgreSQL real en el navegador y en el servidor, validación estructurada, pistas y soluciones, 7 ejercicios sobre TiendaViva; Fase 5 (progreso y gamificación) en curso. Ver [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Documentación
 
@@ -38,6 +38,8 @@ npx supabase start                 # Postgres local (requiere Docker Desktop)
 npm run dev                        # http://localhost:3000
 npm run quality                    # formato, lint, tipos, pruebas, validación de migraciones, build
 npm run test:e2e                   # Playwright (instala Chromium con `npx playwright install chromium`)
+npm run datasets:build             # genera los datasets sintéticos en public/datasets
+npm run content:verify             # ejecuta las soluciones de cada ejercicio sobre el dataset real
 ```
 
 Sin Docker, `npm run db:validate` aplica las migraciones en PGlite (Postgres real en memoria) y verifica RLS; las pruebas pgTAP corren en CI.

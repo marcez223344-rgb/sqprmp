@@ -41,7 +41,7 @@
       "title": "Aprende SQL resolviendo problemas reales de negocio",
       "subtitle": "Practica con datos de e-commerce, fintech y delivery de América Latina. Ejecuta consultas en el navegador, recibe retroalimentación útil y consigue certificados verificables.",
       "ctaPrimary": "Empieza gratis con Google",
-      "ctaSecondary": "Ver el currículo",
+      "ctaSecondary": "Probar SQL sin registrarme",
       "note": "{count} ejercicios gratis, sin tarjeta."
     },
     "benefits": {
@@ -335,5 +335,161 @@
     "exercise": {
       "soon": "Los ejercicios prácticos con editor SQL se activan en la fase del motor de ejercicios."
     }
+  },
+  "workspace": {
+    "breadcrumb": "Ubicación",
+    "path": "Ruta",
+    "sectionNumber": "Sección {number}",
+    "minutes": "{minutes} min",
+    "freeCounter": "Ejercicios gratis usados: {used} de {limit}",
+    "difficulty": {
+      "label": "Dificultad",
+      "very_easy": "Muy fácil",
+      "easy": "Fácil",
+      "intermediate": "Intermedio",
+      "advanced": "Avanzado",
+      "expert": "Experto"
+    },
+    "locked": {
+      "title": "Alcanzaste el límite gratuito",
+      "body": "Ya usaste tus {limit} ejercicios gratis. Desbloquea todo el currículo con un pago único y sigue exactamente donde estabas.",
+      "cta": "Ver precios"
+    },
+    "scenario": "Situación",
+    "businessQuestion": "Lo que pide el negocio",
+    "expectedColumns": "Columnas esperadas",
+    "tabs": {
+      "label": "Paneles de apoyo",
+      "schema": "Esquema",
+      "theory": "Teoría",
+      "hints": "Pistas",
+      "solution": "Solución"
+    },
+    "openTheory": "Abrir la lección relacionada",
+    "editorTitle": "Tu consulta",
+    "editorAria": "Editor de SQL",
+    "editorPlaceholder": "Escribe tu consulta SQL aquí…",
+    "shortcuts": "Ctrl/⌘ + Enter ejecuta · Ctrl/⌘ + Shift + Enter envía · Esc sale del editor",
+    "run": "Ejecutar",
+    "submit": "Enviar respuesta",
+    "saveDraft": "Guardar borrador",
+    "draftSaved": "Borrador guardado",
+    "reset": "Limpiar",
+    "engine": {
+      "idle": "Motor local en espera",
+      "loading": "Cargando datos locales ({table})…",
+      "ready": "Motor local listo",
+      "failed": "El motor local no está disponible en este navegador; usa Enviar."
+    },
+    "results": {
+      "title": "Resultado",
+      "caption": "Resultado de la consulta para {title}",
+      "empty": "Ejecuta tu consulta para ver el resultado aquí.",
+      "preview": "Vista previa local: envía tu consulta para validarla",
+      "summary": "{rows} filas · {columns} columnas · {ms} ms",
+      "truncated": "resultado recortado a las primeras filas",
+      "renderLimited": "se muestran las primeras {shown}",
+      "noRows": "La consulta no devolvió filas.",
+      "pgHint": "Sugerencia de PostgreSQL: {hint}",
+      "position": "Posición del error en la consulta: carácter {position}",
+      "errorTitle": {
+        "gate": "Consulta no permitida",
+        "timeout": "Tiempo agotado",
+        "database": "Error de la base de datos",
+        "engine": "Error del motor",
+        "rate_limited": "Demasiadas ejecuciones"
+      }
+    },
+    "submitErrors": {
+      "unauthorized": "Debes iniciar sesión.",
+      "locked": "Este ejercicio requiere el plan completo.",
+      "rate_limited": "Enviaste muchas respuestas seguidas. Espera un momento.",
+      "not_found": "No encontramos el ejercicio.",
+      "validation": "La consulta no es válida."
+    },
+    "solutionErrors": {
+      "unauthorized": "Debes iniciar sesión.",
+      "locked": "Este ejercicio requiere el plan completo.",
+      "not_unlockable": "Todavía no se puede revelar la solución.",
+      "not_found": "No encontramos la solución."
+    },
+    "feedback": {
+      "title": "Retroalimentación",
+      "notYet": "Envía tu respuesta para recibir retroalimentación detallada.",
+      "correct": "¡Correcto! Tu consulta devuelve exactamente lo esperado.",
+      "incorrect": "Todavía no: revisa los puntos siguientes.",
+      "tipsTitle": "Mejoras sugeridas",
+      "severity": {
+        "blocking": "Bloqueante",
+        "warning": "Aviso"
+      },
+      "messages": {
+        "missing_columns": "Faltan columnas en tu resultado: {columns}.",
+        "extra_columns": "Tu resultado tiene columnas de más: {columns}. Selecciona solo las pedidas.",
+        "column_order": "Las columnas están en otro orden. Se espera: {expected}.",
+        "too_many_rows": "Tu resultado tiene {actual} filas y se esperaban {expected}. Probablemente falta un filtro o un join multiplica filas.",
+        "too_few_rows": "Tu resultado tiene {actual} filas y se esperaban {expected}. Un filtro o un join puede estar descartando filas.",
+        "row_count_truncated": "Tu consulta devuelve más filas de las que se pueden mostrar; se esperaban {expected}.",
+        "cell_values": "La cantidad de filas coincide pero algunos valores difieren ({missing} filas esperadas no aparecen).",
+        "wrong_order": "Los valores son correctos pero el orden no es el pedido. Revisa ORDER BY.",
+        "duplicates": "Hay {count} filas duplicadas de más. Revisa joins o considera DISTINCT.",
+        "duplicates_hint": "Aparecen filas repetidas; suele ocurrir al unir tablas uno a muchos.",
+        "required_concept_missing": "Este ejercicio espera que uses: {concepts}.",
+        "prohibited_pattern": "Este ejercicio no permite usar: {pattern}.",
+        "missing_filter": "Parece que falta un filtro (WHERE): tu resultado incluye filas que no deberían estar.",
+        "join_multiplies_rows": "El join multiplica filas ({actual} en lugar de {expected}). Revisa la condición ON o el nivel de agregación.",
+        "inner_join_drops_rows": "Un INNER JOIN puede estar descartando filas sin correspondencia; considera LEFT JOIN.",
+        "aggregation_level": "El nivel de agregación no coincide con lo pedido: revisa las columnas de GROUP BY.",
+        "date_boundary": "Revisa los límites de fechas: con timestamps, '<= fecha' excluye el último día. Usa '< día siguiente'.",
+        "null_handling": "Algunas filas con NULL pueden estar tratándose distinto de lo esperado. Revisa IS NULL / COALESCE.",
+        "improve.uses_select_star": "Evita SELECT * en entregas: nombra las columnas para que el resultado sea explícito.",
+        "improve.missing_alias_on_aggregate": "Da un alias a las columnas agregadas (por ejemplo, AS total) para que el reporte sea legible.",
+        "improve.no_table_alias_in_join": "Usa alias de tabla en los joins (orders o, customers c) para acortar y aclarar la consulta.",
+        "improve.uses_between_for_timestamps": "BETWEEN con timestamps incluye solo el instante 00:00 del último día; prefiere >= inicio AND < fin.",
+        "improve.uses_implicit_join": "Usa JOIN ... ON explícito en lugar de listar tablas separadas por coma.",
+        "improve.uppercase_inconsistent": "Mantén un estilo consistente: palabras clave en mayúsculas y nombres en minúsculas."
+      }
+    },
+    "hints": {
+      "intro": "Cada pista descuenta {penalty} % del XP del ejercicio. Úsalas cuando te sientas realmente atascado.",
+      "level": "Pista {level}",
+      "request": "Ver pista {level}",
+      "exhausted": "No hay más pistas. Puedes revelar la solución en la pestaña correspondiente."
+    },
+    "schema": {
+      "intro": "Tablas disponibles en este dataset. Las marcadas se usan en este ejercicio.",
+      "used": "En uso",
+      "columnsOf": "Columnas de {table}",
+      "column": "Columna",
+      "type": "Tipo",
+      "description": "Descripción"
+    },
+    "solutionLocked": "La solución se desbloquea tras {attempts} intentos genuinos, {hints} pistas o {minutes} minutos de trabajo.",
+    "solutionUnlocked": "Ya puedes ver la solución explicada. Te recomendamos estudiarla y volver a intentarlo.",
+    "revealSolution": "Ver la solución explicada",
+    "revealAnyway": "Quiero verla igual",
+    "revealWarning": "Si revelas la solución ahora conservarás solo el {percent} % del XP de este ejercicio. No hay penalización adicional: lo importante es aprender.",
+    "revealConfirm": "Sí, revelar",
+    "revealCancel": "Mejor sigo intentando",
+    "alternative": "Alternativa: {label}",
+    "solutionRetry": "Estudia la solución y vuelve a escribir la consulta con tus palabras: el ejercicio sigue contando como completado cuando la envíes correcta.",
+    "completedBanner": "Ejercicio completado",
+    "next": "Siguiente",
+    "backToPath": "Volver a la ruta"
+  },
+  "demo": {
+    "title": "Prueba SQL en tu navegador",
+    "intro": "Este es el dataset TiendaViva, un marketplace ficticio de América Latina. Las consultas se ejecutan en un PostgreSQL real dentro de tu navegador: nada sale de tu computadora. Inicia sesión para resolver ejercicios con validación, pistas y certificados.",
+    "editorTitle": "Consulta de ejemplo (edítala)",
+    "editorAria": "Editor de SQL de demostración",
+    "run": "Ejecutar",
+    "shortcut": "Ctrl/⌘ + Enter",
+    "caption": "Resultado de la consulta de demostración",
+    "idle": "Motor local en espera",
+    "loading": "Cargando datos ({table})…",
+    "ready": "Motor local listo",
+    "failed": "Tu navegador no puede ejecutar el motor local (requiere WebAssembly).",
+    "tablesTitle": "Tablas disponibles",
+    "cta": "Empieza gratis con Google"
   }
 }

@@ -11,7 +11,8 @@ import { lessons as selectLessons } from "./lessons/select";
 import { questions as introQuestions } from "./questions/introduccion-bases-de-datos";
 import { questions as tablasQuestions } from "./questions/tablas-filas-columnas-tipos";
 import { questions as selectQuestions } from "./questions/select";
-import type { ExerciseDef } from "./schemas/exercise";
+import { exercises as tablasExercises } from "./exercises/tablas-filas-columnas-tipos";
+import { exercises as selectExercises } from "./exercises/select";
 
 export const content = {
   courses: [course],
@@ -19,7 +20,7 @@ export const content = {
   datasets: [tiendaviva],
   lessons: [...introLessons, ...tablasLessons, ...selectLessons],
   questions: [...introQuestions, ...tablasQuestions, ...selectQuestions],
-  exercises: [] as ExerciseDef[],
+  exercises: [...tablasExercises, ...selectExercises],
 };
 
 export type ContentRegistry = typeof content;

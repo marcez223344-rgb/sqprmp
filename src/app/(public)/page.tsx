@@ -33,10 +33,7 @@ export default async function LandingPage() {
               {t("hero.ctaPrimary")}
               <ArrowRight aria-hidden="true" />
             </Link>
-            <Link
-              href="/curriculo"
-              className={cn(buttonVariants({ variant: "secondary", size: "lg" }))}
-            >
+            <Link href="/demo" className={cn(buttonVariants({ variant: "secondary", size: "lg" }))}>
               {t("hero.ctaSecondary")}
             </Link>
           </div>
