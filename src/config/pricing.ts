@@ -69,3 +69,22 @@ export const manualTransferChannels = [
   { id: "mercadopago_ars", label: "Mercado Pago (ARS)", currency: "ARS", countries: ["AR"] },
   { id: "wallbit_usd", label: "Wallbit (USD)", currency: "USD", countries: [] },
 ] as const;
+
+/**
+ * Manual transfer instructions shown to learners (not secrets; owner fills them in before
+ * launch — placeholders are clearly marked in the UI until then).
+ */
+export const manualTransferInstructions: Record<
+  (typeof manualTransferChannels)[number]["id"],
+  { holder: string; lines: string[] }
+> = {
+  bank_ars: {
+    holder: "Data Minds Solutions",
+    lines: ["Alias: PENDIENTE-DE-CONFIGURAR", "CBU: PENDIENTE-DE-CONFIGURAR"],
+  },
+  mercadopago_ars: {
+    holder: "Data Minds Solutions",
+    lines: ["Alias Mercado Pago: PENDIENTE-DE-CONFIGURAR"],
+  },
+  wallbit_usd: { holder: "Data Minds Solutions", lines: ["Wallbit TAG: PENDIENTE-DE-CONFIGURAR"] },
+};

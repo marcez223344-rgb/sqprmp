@@ -82,6 +82,26 @@ Flow: server action `createCheckout` → provider → redirect → webhook (`/ap
 
 Tests: signature verification vectors, replayed event, out-of-order events (approved before pending), refund → revoke, chargeback → revoke + flag, sandbox end-to-end with Mercado Pago test users.
 
+## 5b. Implementation (Phase 6) and runbook
+
+**Code:** `src/lib/payments/{types,index,service,actions}.ts`, providers in `providers/{manual,hotmart}.ts`, webhook route `src/app/api/webhooks/hotmart/route.ts`, pages `/precios` (public + checkout), `/acceso` (plan, pending purchase, promo codes, history), `/admin/accesos` (approve/reject transfers, grant/revoke by alias). Database: migration `20260918220000_commerce.sql` (D-05/D-06 seeded from `src/config/pricing.ts`).
+
+**Manual channel (live from day one):** learner picks a channel on `/precios` → sees the transfer details from `manualTransferInstructions` (placeholders `PENDIENTE-DE-CONFIGURAR` until the owner fills them in `src/config/pricing.ts`) → "Ya pagué" creates a pending purchase with reference `DM-XXXXXX` (one pending per learner) → admin approves in `/admin/accesos` (note + audit) → `grant_entitlement` → access is immediate. Rejections and cancellations are recorded; nothing is ever granted automatically from the learner side.
+
+**Hotmart (sandbox):** owner steps before enabling:
+
+1. Create the product/offer in Hotmart and copy the checkout link → `HOTMART_CHECKOUT_URL`.
+2. Create API credentials (Hotmart Developers → Credentials) → `HOTMART_CLIENT_ID`, `HOTMART_CLIENT_SECRET`; keep `HOTMART_ENV=sandbox`.
+3. Configure Webhook 2.0 pointing to `https://<domain>/api/webhooks/hotmart` with events PURCHASE_APPROVED, PURCHASE_COMPLETE, PURCHASE_REFUNDED, PURCHASE_CHARGEBACK, PURCHASE_CANCELED; copy the hottok → `HOTMART_WEBHOOK_HOTTOK`.
+4. Make a sandbox purchase and confirm in `/admin/accesos` that an approved event created purchase + entitlement; confirm a refund revokes it.
+5. Only after D-05 production approval: switch `HOTMART_ENV=production` and rotate credentials.
+
+Pipeline: token compared in constant time → event stored idempotently (`payment_events` unique per provider event id) → purchase re-fetched from the Sales API (`HOTMART_SKIP_REFETCH=true` only for local/CI) → `apply_payment_event` creates the purchase + entitlement or revokes on refund/chargeback (chargebacks also flag `suspicious_activity`). Buyer matching: `sck=<user_id>` echoed by Hotmart, else buyer email via `user_id_by_email()`. Unmatched approved payments are stored with `processing_error` for manual reconciliation in the admin panel (Phase 8 lists them).
+
+**Verification caveat:** the Hotmart field mapping (`data.purchase.transaction`, `price.value/currency_value`, `origin.sck`, Sales API `items[].purchase.status`) follows Hotmart's Webhook 2.0 documentation and must be confirmed against a real sandbox event before production (step 4).
+
+**Promo codes:** `promo_codes` (admins create rows in Supabase Studio until Phase 8 tooling) → learners redeem on `/acceso` (rate-limited); scholarships grant an entitlement for `access_days` (NULL = lifetime), discounts are recorded for the owner to apply manually in the provider.
+
 ## 6. Legal and accounting notes for the owner (not implemented by the app)
 
 - Argentina: electronic invoicing obligations for digital services; monotributo vs. responsable inscripto categories affect pricing and net revenue.

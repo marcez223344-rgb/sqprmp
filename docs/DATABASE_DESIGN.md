@@ -170,6 +170,13 @@ Every migration that creates a table must: `enable row level security`, add poli
 - `learning_goals` is learner-writable (own row); everything else is read-only for learners.
 - Rules narrative: [GAMIFICATION.md](GAMIFICATION.md).
 
+### 4g. Implementation notes (Phase 6, migration `20260918220000_commerce.sql`)
+
+- Learners never write commerce tables directly: `create_manual_purchase` / `cancel_manual_purchase` / `redeem_promo` are learner-callable RPCs; `review_manual_purchase`, `grant_entitlement`, `revoke_entitlement`, `apply_payment_event`, `user_id_by_email` are service-role only and audit-log every decision.
+- `apply_payment_event` is idempotent on `(provider, provider_event_id)` and transactional: approved → purchase + entitlement; refunded/chargeback → entitlement revoked (+ `suspicious_activity`); invalid signature → stored, never applied.
+- `has_active_entitlement` now reads `entitlements` (Phase 4 fallback removed). Admins always have access.
+- Products/prices are seeded from `src/config/pricing.ts` by `content:build` (unique per product/provider/currency/country).
+
 ## 5. Indexes (initial)
 
 `attempts (user_id, exercise_id, created_at desc)`, `exercise_progress (user_id, status)`, `reward_ledger (user_id, created_at)`, `entitlements (user_id) WHERE revoked_at IS NULL`, `payment_events (provider, provider_event_id)`, `certificates (verification_code)`, `analytics_events (name, created_at)`, `lessons (section_id, sort_order)`, `daily_activity (user_id, activity_date desc)`.

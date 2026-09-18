@@ -19,6 +19,7 @@ export async function AppHeader({ alias, displayName, isAdmin, onboarded }: AppH
     { href: "/aprender", label: t("nav.dashboard") },
     { href: "/ruta", label: t("nav.path") },
     { href: "/logros", label: t("nav.badges") },
+    { href: "/acceso", label: t("nav.access") },
     { href: "/perfil", label: t("nav.profile") },
   ] as const;
 

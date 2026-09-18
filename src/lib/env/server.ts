@@ -26,6 +26,13 @@ const schema = z.object({
   HOTMART_CLIENT_ID: z.string().optional(),
   HOTMART_CLIENT_SECRET: z.string().optional(),
   HOTMART_WEBHOOK_HOTTOK: z.string().optional(),
+  HOTMART_CHECKOUT_URL: z.url().optional(),
+  HOTMART_ENV: z.enum(["sandbox", "production"]).default("sandbox"),
+  /** Development/CI only: skip the provider re-fetch when API credentials are absent. */
+  HOTMART_SKIP_REFETCH: z
+    .string()
+    .optional()
+    .transform((v) => v === "true"),
   MERCADOPAGO_ACCESS_TOKEN: z.string().optional(),
   MERCADOPAGO_WEBHOOK_SECRET: z.string().optional(),
 });

@@ -4,7 +4,7 @@ Plataforma de aprendizaje de SQL para adultos de habla hispana en América Latin
 
 **Organización:** Data Minds Solutions · **Fundador e instructor:** Marcelo Pisner
 
-> Estado actual: **Fase 5 (progreso y gamificación) completada** — XP, niveles, monedas, rachas con congelamiento, metas, insignias, panel de progreso, historial y consultas guardadas; Fase 6 (monetización) en curso. Ver [docs/ROADMAP.md](docs/ROADMAP.md).
+> Estado actual: **Fase 6 (monetización, modo prueba) completada** — precios, pago por transferencia con aprobación del equipo, checkout Hotmart en sandbox, códigos de beca, panel de accesos; Fase 7 (quizzes y certificados) en curso. Ver [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Documentación
 

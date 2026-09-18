@@ -59,6 +59,8 @@ export const limits = {
     aliasCheck: { capacity: 10, refillPerSecond: 10 / 60 },
     checkout: { capacity: 5, refillPerSecond: 5 / 600 },
     verification: { capacity: 60, refillPerSecond: 1 },
+    webhook: { capacity: 600, refillPerSecond: 10 },
+    promo: { capacity: 5, refillPerSecond: 5 / 600 },
   },
 
   alias: {

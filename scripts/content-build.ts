@@ -6,6 +6,7 @@
 import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { loadContent } from "../src/content/load";
+import { products } from "../src/config/pricing";
 
 const loaded = loadContent();
 if (loaded.issues.length) {
@@ -96,7 +97,7 @@ values (${qid}, ${q(o.key)}, ${q(o.body_md)}, ${b(o.is_correct)}, ${q(o.why_inco
 
 for (const e of loaded.exercises) {
   out.push(`insert into public.exercises (lesson_id, section_id, slug, title, scenario_md, business_question_md, learning_objective, difficulty, estimated_minutes, concepts, tables_used, dataset_id, dataset_version, theory_ref_slug, allowed_statements, expected_columns, validation_rules, common_mistakes, expert_explanation_md, improvement_feedback, reward_config, solution_unlock, is_published)
-values ((select id from public.lessons where kind = 'exercise' and ref_slug = ${q(e.slug)}), ${sec(e.section)}, ${q(e.slug)}, ${q(e.title)}, ${q(e.scenario_md)}, ${q(e.business_question_md)}, ${q(e.learning_objective)}, ${q(e.difficulty)}, ${e.estimated_minutes}, ${arr(e.concepts)}, ${arr(e.tables_used)}, ${ds(e.dataset.slug)}, ${e.dataset.version}, ${q(e.theory_ref)}, ${arr(e.allowed_statements)}, ${j(e.expected_columns)}, ${j(e.validation_rules)}, ${j(e.common_mistakes)}, ${q(e.expert_explanation_md)}, ${j(e.improvement_feedback)}, ${j(e.reward)}, ${j(e.solution_unlock)}, ${b(e.is_published)})
+values ((select id from public.lessons where kind in ('exercise','challenge') and ref_slug = ${q(e.slug)}), ${sec(e.section)}, ${q(e.slug)}, ${q(e.title)}, ${q(e.scenario_md)}, ${q(e.business_question_md)}, ${q(e.learning_objective)}, ${q(e.difficulty)}, ${e.estimated_minutes}, ${arr(e.concepts)}, ${arr(e.tables_used)}, ${ds(e.dataset.slug)}, ${e.dataset.version}, ${q(e.theory_ref)}, ${arr(e.allowed_statements)}, ${j(e.expected_columns)}, ${j(e.validation_rules)}, ${j(e.common_mistakes)}, ${q(e.expert_explanation_md)}, ${j(e.improvement_feedback)}, ${j(e.reward)}, ${j(e.solution_unlock)}, ${b(e.is_published)})
 on conflict (slug) do update set lesson_id = excluded.lesson_id, section_id = excluded.section_id, title = excluded.title, scenario_md = excluded.scenario_md, business_question_md = excluded.business_question_md, learning_objective = excluded.learning_objective, difficulty = excluded.difficulty, estimated_minutes = excluded.estimated_minutes, concepts = excluded.concepts, tables_used = excluded.tables_used, dataset_id = excluded.dataset_id, dataset_version = excluded.dataset_version, theory_ref_slug = excluded.theory_ref_slug, allowed_statements = excluded.allowed_statements, expected_columns = excluded.expected_columns, validation_rules = excluded.validation_rules, common_mistakes = excluded.common_mistakes, expert_explanation_md = excluded.expert_explanation_md, improvement_feedback = excluded.improvement_feedback, reward_config = excluded.reward_config, solution_unlock = excluded.solution_unlock, is_published = excluded.is_published;`);
   out.push(`delete from public.exercise_solutions where exercise_id = ${exr(e.slug)};`);
   out.push(
@@ -117,6 +118,18 @@ on conflict (exercise_id, level) do update set body_md = excluded.body_md, coin_
     out.push(
       `insert into public.exercise_prerequisites (exercise_id, requires_exercise_id) values (${exr(e.slug)}, ${exr(p)}) on conflict do nothing;`,
     );
+  }
+}
+
+// Products and prices come from src/config/pricing.ts (D-05, D-06); admins may adjust rows later.
+for (const p of products) {
+  out.push(`insert into public.products (slug, kind, title, description, access_days, is_active)
+values (${q(p.slug)}, ${q(p.kind)}, ${q(p.title)}, ${q(p.description)}, ${p.accessDays === null ? "null" : p.accessDays}, ${b(p.isActive)})
+on conflict (slug) do update set kind = excluded.kind, title = excluded.title, description = excluded.description, access_days = excluded.access_days, is_active = excluded.is_active;`);
+  for (const pr of p.prices) {
+    out.push(`insert into public.prices (product_id, provider, currency, amount_minor, country, interval, is_active)
+values ((select id from public.products where slug = ${q(p.slug)}), ${q(pr.provider)}, ${q(pr.currency)}, ${pr.amountMinor}, ${pr.country ? q(pr.country) : "null"}, ${q(pr.interval)}, true)
+on conflict (product_id, provider, currency, country) do update set amount_minor = excluded.amount_minor, interval = excluded.interval, is_active = true;`);
   }
 }
 

@@ -12,11 +12,11 @@ Note: Supabase Free pauses projects after 7 days without activity and Vercel Hob
 
 ## 2. One-time external setup (owner performs; the assistant provides exact steps when each phase arrives)
 
-1. **GitHub**: create repository `data-minds-sql-academy` (private), enable Dependabot and branch protection on `main` (CI required).
+1. **GitHub**: repository `https://github.com/marcez223344-rgb/sqprmp` (remote `origin`); enable Dependabot and branch protection on `main` (CI required). Pushes use the owner's `gh auth login` session.
 2. **Supabase**: create `dmsa-dev` (Free) and later `dmsa-prod` (Pro). Apply migrations by linking the project (`npx supabase link --project-ref <ref>`) and pushing (owner runs the push command; the assistant's hook blocks it). Enable the Google provider (client id/secret from Google Cloud). Auth → URL Configuration: Site URL = app URL; Redirect URLs = `http://localhost:3000/auth/callback`, preview and production `/auth/callback`. Auth → Hooks: enable _Custom Access Token_ → `public.custom_access_token_hook`. Copy the publishable and secret keys into `.env.local` / Vercel.
 3. **Google Cloud**: OAuth consent screen (external, app name Data Minds SQL Academy, support email, privacy/terms URLs), OAuth client (web) with Supabase callback `https://<project>.supabase.co/auth/v1/callback`.
 4. **Vercel**: import the GitHub repo; set environment variables per environment (never paste secrets in chat; use the dashboard or `vercel env add`); assign domain.
-5. **Mercado Pago**: developer application, sandbox test users (seller/buyer), webhook URL `https://<domain>/api/webhooks/mercadopago`, copy the webhook secret. Production credentials only after D-05 approval.
+5. **Hotmart** (D-05): product/offer checkout link, API credentials and Webhook 2.0 hottok → `HOTMART_CHECKOUT_URL`, `HOTMART_CLIENT_ID`, `HOTMART_CLIENT_SECRET`, `HOTMART_WEBHOOK_HOTTOK`, `HOTMART_ENV=sandbox` (runbook in [PAYMENTS.md §5b](PAYMENTS.md)). Fill the manual transfer details in `src/config/pricing.ts`. Mercado Pago Checkout Pro is Phase 6b.
 
 ## 3. Commands (Phase 1 onward)
 

@@ -409,6 +409,63 @@ export type Database = {
         };
         Relationships: [];
       };
+      entitlements: {
+        Row: {
+          id: string;
+          user_id: string;
+          source: string;
+          source_id: string | null;
+          scope: string;
+          starts_at: string;
+          ends_at: string | null;
+          revoked_at: string | null;
+          revoked_reason: string | null;
+          created_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          source: string;
+          source_id?: string | null;
+          scope?: string;
+          starts_at?: string;
+          ends_at?: string | null;
+          revoked_at?: string | null;
+          revoked_reason?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          source?: string;
+          source_id?: string | null;
+          scope?: string;
+          starts_at?: string;
+          ends_at?: string | null;
+          revoked_at?: string | null;
+          revoked_reason?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "entitlements_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "entitlements_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       exercise_expected_results: {
         Row: {
           exercise_id: string;
@@ -957,6 +1014,125 @@ export type Database = {
           },
         ];
       };
+      payment_events: {
+        Row: {
+          id: string;
+          provider: string;
+          provider_event_id: string;
+          event_type: string;
+          payload: Json;
+          signature_valid: boolean;
+          processed_at: string | null;
+          processing_error: string | null;
+          received_at: string;
+        };
+        Insert: {
+          id?: string;
+          provider: string;
+          provider_event_id: string;
+          event_type: string;
+          payload?: Json;
+          signature_valid?: boolean;
+          processed_at?: string | null;
+          processing_error?: string | null;
+          received_at?: string;
+        };
+        Update: {
+          id?: string;
+          provider?: string;
+          provider_event_id?: string;
+          event_type?: string;
+          payload?: Json;
+          signature_valid?: boolean;
+          processed_at?: string | null;
+          processing_error?: string | null;
+          received_at?: string;
+        };
+        Relationships: [];
+      };
+      prices: {
+        Row: {
+          id: string;
+          product_id: string;
+          provider: string;
+          provider_price_ref: string | null;
+          currency: string;
+          amount_minor: number;
+          country: string | null;
+          interval: string;
+          is_active: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          product_id: string;
+          provider: string;
+          provider_price_ref?: string | null;
+          currency: string;
+          amount_minor: number;
+          country?: string | null;
+          interval?: string;
+          is_active?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          product_id?: string;
+          provider?: string;
+          provider_price_ref?: string | null;
+          currency?: string;
+          amount_minor?: number;
+          country?: string | null;
+          interval?: string;
+          is_active?: boolean;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "prices_product_id_fkey";
+            columns: ["product_id"];
+            isOneToOne: false;
+            referencedRelation: "products";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      products: {
+        Row: {
+          id: string;
+          slug: string;
+          kind: string;
+          title: string;
+          description: string;
+          access_days: number | null;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          slug: string;
+          kind: string;
+          title: string;
+          description: string;
+          access_days?: number | null;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          slug?: string;
+          kind?: string;
+          title?: string;
+          description?: string;
+          access_days?: number | null;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       profiles: {
         Row: {
           id: string;
@@ -1039,6 +1215,171 @@ export type Database = {
             columns: ["avatar_id"];
             isOneToOne: false;
             referencedRelation: "avatars";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      promo_codes: {
+        Row: {
+          id: string;
+          code: string;
+          kind: string;
+          access_days: number | null;
+          discount_percent: number | null;
+          max_redemptions: number | null;
+          redemptions_count: number;
+          expires_at: string | null;
+          is_active: boolean;
+          note: string | null;
+          created_by: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          code: string;
+          kind: string;
+          access_days?: number | null;
+          discount_percent?: number | null;
+          max_redemptions?: number | null;
+          redemptions_count?: number;
+          expires_at?: string | null;
+          is_active?: boolean;
+          note?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          code?: string;
+          kind?: string;
+          access_days?: number | null;
+          discount_percent?: number | null;
+          max_redemptions?: number | null;
+          redemptions_count?: number;
+          expires_at?: string | null;
+          is_active?: boolean;
+          note?: string | null;
+          created_by?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "promo_codes_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      promo_redemptions: {
+        Row: {
+          id: string;
+          promo_code_id: string;
+          user_id: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          promo_code_id: string;
+          user_id: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          promo_code_id?: string;
+          user_id?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "promo_redemptions_promo_code_id_fkey";
+            columns: ["promo_code_id"];
+            isOneToOne: false;
+            referencedRelation: "promo_codes";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "promo_redemptions_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      purchases: {
+        Row: {
+          id: string;
+          user_id: string;
+          price_id: string;
+          provider: string;
+          provider_payment_id: string | null;
+          reference_code: string | null;
+          channel: string | null;
+          status: string;
+          amount_minor: number;
+          currency: string;
+          note: string | null;
+          reviewed_by: string | null;
+          reviewed_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          price_id: string;
+          provider: string;
+          provider_payment_id?: string | null;
+          reference_code?: string | null;
+          channel?: string | null;
+          status?: string;
+          amount_minor: number;
+          currency: string;
+          note?: string | null;
+          reviewed_by?: string | null;
+          reviewed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          price_id?: string;
+          provider?: string;
+          provider_payment_id?: string | null;
+          reference_code?: string | null;
+          channel?: string | null;
+          status?: string;
+          amount_minor?: number;
+          currency?: string;
+          note?: string | null;
+          reviewed_by?: string | null;
+          reviewed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "purchases_price_id_fkey";
+            columns: ["price_id"];
+            isOneToOne: false;
+            referencedRelation: "prices";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "purchases_reviewed_by_fkey";
+            columns: ["reviewed_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "purchases_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
             referencedColumns: ["id"];
           },
         ];
@@ -1408,6 +1749,60 @@ export type Database = {
           },
         ];
       };
+      subscriptions: {
+        Row: {
+          id: string;
+          user_id: string;
+          price_id: string;
+          provider: string;
+          provider_subscription_id: string | null;
+          status: string;
+          current_period_end: string | null;
+          cancel_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          price_id: string;
+          provider: string;
+          provider_subscription_id?: string | null;
+          status: string;
+          current_period_end?: string | null;
+          cancel_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          price_id?: string;
+          provider?: string;
+          provider_subscription_id?: string | null;
+          status?: string;
+          current_period_end?: string | null;
+          cancel_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_price_id_fkey";
+            columns: ["price_id"];
+            isOneToOne: false;
+            referencedRelation: "prices";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "subscriptions_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       suspicious_activity: {
         Row: {
           id: string;
@@ -1659,6 +2054,61 @@ export type Database = {
       };
     };
     Functions: {
+      apply_payment_event: {
+        Args: {
+          p_provider: string;
+          p_event_id: string;
+          p_event_type: string;
+          p_payload: Json;
+          p_signature_valid: boolean;
+          p_payment_ref: string | null;
+          p_status: string | null;
+          p_amount_minor: number | null;
+          p_currency: string | null;
+          p_user_id: string | null;
+          p_price_id: string | null;
+        };
+        Returns: string;
+      };
+      cancel_manual_purchase: { Args: { p_purchase_id: string }; Returns: undefined };
+      create_manual_purchase: {
+        Args: { p_price_id: string; p_channel: string };
+        Returns: {
+          purchase_id: string;
+          reference_code: string;
+          amount_minor: number;
+          currency: string;
+        }[];
+      };
+      grant_entitlement: {
+        Args: {
+          p_user_id: string;
+          p_source: string;
+          p_source_id: string | null;
+          p_access_days: number | null;
+          p_created_by: string | null;
+          p_reason: string;
+        };
+        Returns: string;
+      };
+      redeem_promo: {
+        Args: { p_code: string };
+        Returns: { kind: string; access_days: number | null; discount_percent: number | null }[];
+      };
+      review_manual_purchase: {
+        Args: {
+          p_purchase_id: string;
+          p_actor: string | null;
+          p_approve: boolean;
+          p_note: string | null;
+        };
+        Returns: undefined;
+      };
+      revoke_entitlement: {
+        Args: { p_entitlement_id: string; p_actor: string | null; p_reason: string };
+        Returns: undefined;
+      };
+      user_id_by_email: { Args: { p_email: string }; Returns: string | null };
       award_reward: {
         Args: {
           p_user_id: string;

@@ -28,9 +28,9 @@ Done: TiendaViva generator (deterministic, 91 k rows, 19 consistency checks) + C
 
 Done: migration `20260918210000_gamification` (reward ledger with idempotent keys and daily cap, totals + level curve, daily activity, streaks with monthly freeze, goals, 12 badges, suspicious_activity), pure rules module (`src/lib/rewards/rules.ts`, 8 unit tests), rewards wired into first completions, real dashboard (continue card, level/XP/coins, streak status, goals editing, badges, mastery per section), `/logros`, `/historial`, `/consultas` + save-query form in the workspace, pgTAP 0005, E2E 05 extended. See [GAMIFICATION.md](GAMIFICATION.md). Moved out: review queue (Phase 7 with quizzes), remaining MVP sections (content sprint before Phase 9), pg_cron not needed (freezes refill lazily).
 
-## Phase 6 — Monetization ☐
+## Phase 6 — Monetization ☑ (2026-09-18, sandbox)
 
-Free limit + paywall (server), products/prices config, `PaymentProvider` + manual provider (admin approval) + Hotmart sandbox, webhook handler, entitlements, promo codes, admin entitlement UI, access settings page. Gate: E2E 7–10 with sandbox payment.
+Done: migration `20260918220000_commerce` (products, prices, purchases, subscriptions modeled, entitlements, promo codes/redemptions, payment events; RPCs for manual purchase flow, admin review/grant/revoke, idempotent webhook apply, promo redemption, buyer matching), `PaymentProvider` abstraction with `manual` and `hotmart` (sandbox) adapters, Hotmart webhook route (rate-limited, token verified, re-fetch before grant), `/precios` with card checkout + transfer channels + «Ya pagué», `/acceso` (plan, pending purchase, promo codes, history), `/admin/accesos` (approve/reject, grant/revoke by alias, audit), 5 provider unit tests, pgTAP 0006, E2E 06 (journeys 9–10 via manual approval, admin authz, webhook 401). Pending owner: fill transfer details in `src/config/pricing.ts`; Hotmart sandbox credentials to run the runbook.
 **Approval needed before Phase 6:** Hotmart payout eligibility confirmed by owner. Production credentials never without explicit approval.
 
 ## Phase 7 — Assessments and certificates ☐

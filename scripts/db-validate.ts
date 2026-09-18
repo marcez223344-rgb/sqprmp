@@ -248,6 +248,54 @@ async function main() {
     process.exit(1);
   }
 
+  // Commerce: manual purchase → admin approval → entitlement; idempotent webhook apply; promo.
+  const price = await db.query<{ id: string }>(
+    "select id from public.prices where provider = 'manual' and currency = 'USD' limit 1",
+  );
+  await db.exec(
+    `select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-000000000001', false)`,
+  );
+  const mp = await db.query<{ purchase_id: string; reference_code: string }>(
+    "select purchase_id, reference_code from public.create_manual_purchase($1, 'wallbit_usd')",
+    [price.rows[0]?.id],
+  );
+  await db.exec("select set_config('request.jwt.claim.sub', '', false)");
+  if (!mp.rows[0]?.reference_code?.startsWith("DM-")) {
+    console.error("create_manual_purchase failed", mp.rows);
+    process.exit(1);
+  }
+  const before = await db.query<{ ok: boolean }>(
+    `select public.has_active_entitlement(${u}) as ok`,
+  );
+  await db.query("select public.review_manual_purchase($1, null, true, 'test')", [
+    mp.rows[0].purchase_id,
+  ]);
+  const after = await db.query<{ ok: boolean }>(`select public.has_active_entitlement(${u}) as ok`);
+  if (before.rows[0]?.ok !== false || after.rows[0]?.ok !== true) {
+    console.error("manual purchase approval did not grant access", before.rows, after.rows);
+    process.exit(1);
+  }
+  const hot = (id: string, status: string) =>
+    db.query<{ r: string }>(
+      `select public.apply_payment_event('hotmart', $1, 'PURCHASE_' || upper($2), '{}'::jsonb, true, 'HP-1', $2, 2000, 'USD', ${u}, (select id from public.prices where provider = 'hotmart' limit 1)) as r`,
+      [id, status],
+    );
+  const e1 = await hot("evt-1", "approved");
+  const e2 = await hot("evt-1", "approved");
+  const e3 = await hot("evt-2", "refunded");
+  const ents = await db.query<{ n: number }>(
+    `select count(*)::int as n from public.entitlements where user_id = ${u} and revoked_at is null`,
+  );
+  if (!(
+    e1.rows[0]?.r === "processed" &&
+    e2.rows[0]?.r === "duplicate" &&
+    e3.rows[0]?.r === "processed" &&
+    ents.rows[0]?.n === 1
+  )) {
+    console.error("apply_payment_event misbehaves", e1.rows, e2.rows, e3.rows, ents.rows);
+    process.exit(1);
+  }
+
   const tables = await db.query<{ n: number }>(
     `select count(*)::int as n from pg_tables where schemaname='public'`,
   );

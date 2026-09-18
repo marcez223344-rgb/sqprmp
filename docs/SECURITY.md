@@ -48,6 +48,7 @@ Related: [SQL_SANDBOX.md](SQL_SANDBOX.md) (learner SQL), [DATABASE_DESIGN.md](DA
 
 - Webhooks: verify provider signature (Mercado Pago `x-signature` HMAC with `ts`/`v1`; Stripe `Stripe-Signature`), reject stale timestamps (> 5 min), store raw event with unique `(provider, provider_event_id)`, process idempotently, then **re-fetch the payment from the provider API** before granting access (never trust the webhook body alone).
 - No card data ever touches our servers (hosted checkout).
+- Implementation (Phase 6): `src/lib/payments/service.ts#processWebhook` — Hotmart hottok compared with `timingSafeEqual`, per-provider rate limit, 64 KB body cap, event persisted before any effect, provider re-fetch mandatory in production (`HOTMART_SKIP_REFETCH` is ignored when `NODE_ENV=production`), buyer matched by echoed user id or email, chargebacks flag `suspicious_activity`. Manual transfers are approved only by admins through audited RPCs.
 - Admin grants/revocations are audit-logged with reason.
 
 ## 7. Privacy

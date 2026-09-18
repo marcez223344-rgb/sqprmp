@@ -125,7 +125,8 @@
       "path": "Ruta",
       "profile": "Perfil",
       "admin": "Admin",
-      "badges": "Insignias"
+      "badges": "Insignias",
+      "access": "Mi acceso"
     },
     "signOut": "Salir",
     "signedInAs": "Sesión iniciada como"
@@ -571,5 +572,181 @@
     "intro": "Consultas que guardaste desde el editor para volver a usarlas.",
     "empty": "Todavía no guardaste consultas. Desde cualquier ejercicio usa «Guardar consulta».",
     "delete": "Eliminar"
+  },
+  "pricing": {
+    "title": "Precios",
+    "intro": "Empieza gratis con los primeros {free} ejercicios. Cuando quieras seguir, un solo pago desbloquea todo el currículo para siempre.",
+    "free": {
+      "title": "Gratis",
+      "price": "US$ 0",
+      "items": {
+        "theory": "Teoría completa del nivel Fundamentos",
+        "exercises": "Los primeros {free} ejercicios prácticos con validación y pistas",
+        "demo": "Sandbox SQL en el navegador sin límite",
+        "progress": "XP, rachas e insignias"
+      },
+      "cta": "Crear cuenta gratis"
+    },
+    "full": {
+      "title": "Acceso completo",
+      "priceSoon": "Precio por confirmar",
+      "once": "pago único",
+      "items": {
+        "all": "Los 6 niveles y las 39 secciones (se publican semana a semana)",
+        "quizzes": "Quizzes con explicaciones y repaso de errores",
+        "certificates": "Certificados verificables por nivel",
+        "updates": "Nuevos datasets y ejercicios sin costo adicional",
+        "support": "Soporte por correo"
+      }
+    },
+    "actions": {
+      "signInFirst": "Inicia sesión para comprar",
+      "alreadyEntitled": "Ya tienes acceso completo.",
+      "goLearn": "Ir a mi aprendizaje",
+      "pendingTitle": "Pago en revisión",
+      "referenceIs": "Tu código de referencia: {code}. Inclúyelo en el concepto de la transferencia.",
+      "pendingBody": "Cuando confirmemos el pago (normalmente en menos de 24 horas hábiles) tu acceso se activa automáticamente y te avisamos por correo.",
+      "viewAccess": "Ver estado de mi acceso",
+      "payWithCard": "Pagar con tarjeta (Hotmart)",
+      "hotmartNote": "Checkout seguro de Hotmart con métodos locales de tu país. Modo de prueba hasta el lanzamiento.",
+      "payByTransfer": "Pagar por transferencia",
+      "transferSteps": "1) Transfiere el importe exacto. 2) Presiona «Ya pagué» y anota el código de referencia. 3) Escríbelo en el concepto o envíanos el comprobante.",
+      "iPaid": "Ya pagué",
+      "errors": {
+        "unauthorized": "Inicia sesión para continuar.",
+        "validation": "Datos inválidos.",
+        "rate_limited": "Demasiados intentos. Espera unos minutos.",
+        "already_entitled": "Ya tienes acceso completo.",
+        "pending_exists": "Ya tienes un pago pendiente de revisión.",
+        "unknown": "No pudimos registrar el pago. Intenta de nuevo."
+      }
+    },
+    "errors": {
+      "validation": "Solicitud inválida.",
+      "rate_limited": "Demasiados intentos. Espera unos minutos.",
+      "provider": "El proveedor de pago no está disponible.",
+      "price": "El precio no está disponible.",
+      "provider_not_configured": "El checkout con tarjeta todavía no está configurado. Usa transferencia o vuelve más tarde."
+    },
+    "faq": {
+      "title": "Preguntas sobre pagos",
+      "manual": "Transferencias: aceptamos transferencia bancaria y Mercado Pago en pesos argentinos y Wallbit en dólares. Un humano revisa cada pago; por eso puede tardar unas horas.",
+      "hotmart": "Tarjetas: el checkout lo procesa Hotmart, que emite tu factura y acepta cuotas y métodos locales según tu país.",
+      "refund": "Reembolsos: si el curso no es para ti, escríbenos dentro de los 7 días de la compra y te devolvemos el dinero.",
+      "scholarship": "Becas: si el precio es una barrera, pídenos un código de beca desde tu página de acceso."
+    }
+  },
+  "access": {
+    "title": "Mi acceso",
+    "intro": "Estado de tu plan, pagos y códigos promocionales.",
+    "plan": {
+      "title": "Plan",
+      "lifetime": "Acceso completo de por vida",
+      "activeUntil": "Acceso completo hasta el {date}",
+      "source": {
+        "purchase": "compra",
+        "subscription": "suscripción",
+        "promo": "código promocional",
+        "admin": "otorgado por el equipo"
+      },
+      "goPath": "Ir a la ruta",
+      "free": "Plan gratuito: {used} de {limit} ejercicios gratis usados.",
+      "upgrade": "Desbloquear acceso completo"
+    },
+    "pending": {
+      "title": "Pago pendiente de revisión",
+      "body": "Referencia {code} · {amount} · registrado el {date}.",
+      "note": "Si aún no transferiste, hazlo con el importe exacto e incluye la referencia. Puedes cancelar si cambiaste de idea.",
+      "cancel": "Cancelar solicitud"
+    },
+    "promo": {
+      "title": "Código promocional o beca",
+      "body": "Si tienes un código de beca o descuento, aplícalo aquí.",
+      "label": "Código",
+      "placeholder": "CODIGO",
+      "apply": "Aplicar",
+      "scholarshipApplied": "Beca aplicada: ya tienes acceso completo.",
+      "discountApplied": "Descuento del {percent} % registrado. Se aplica en tu próximo pago.",
+      "errors": {
+        "promo_invalid": "El código no existe.",
+        "promo_expired": "El código venció.",
+        "promo_exhausted": "El código ya no tiene cupos.",
+        "promo_used": "Ya usaste este código.",
+        "rate_limited": "Demasiados intentos. Espera unos minutos.",
+        "unauthorized": "Inicia sesión.",
+        "validation": "Código inválido.",
+        "unknown": "No pudimos aplicar el código."
+      }
+    },
+    "history": {
+      "title": "Historial de pagos",
+      "empty": "Todavía no hay pagos registrados.",
+      "provider": {
+        "manual": "transferencia",
+        "hotmart": "Hotmart",
+        "mercadopago": "Mercado Pago",
+        "stripe": "Stripe"
+      },
+      "status": {
+        "pending": "pendiente",
+        "approved": "aprobado",
+        "rejected": "rechazado",
+        "refunded": "reembolsado",
+        "chargeback": "contracargo",
+        "cancelled": "cancelado"
+      }
+    }
+  },
+  "admin": {
+    "hub": {
+      "title": "Administración",
+      "intro": "Herramientas del equipo. Todas las acciones quedan en el registro de auditoría.",
+      "access": "Accesos y pagos",
+      "soon": "Más herramientas llegan en la fase de administración."
+    },
+    "access": {
+      "title": "Accesos y pagos",
+      "intro": "Aprueba transferencias, otorga o revoca accesos. Cada acción registra actor y motivo.",
+      "notePrompt": "Nota (opcional): referencia del comprobante, motivo, etc.",
+      "approved": "Pago aprobado y acceso otorgado.",
+      "rejected": "Pago rechazado.",
+      "error": "La acción falló.",
+      "pending": {
+        "title": "Transferencias pendientes ({count})",
+        "empty": "No hay pagos pendientes.",
+        "caption": "Pagos manuales pendientes de revisión",
+        "learner": "Persona",
+        "reference": "Referencia",
+        "channel": "Canal",
+        "amount": "Importe",
+        "date": "Fecha",
+        "actions": "Acciones",
+        "approve": "Aprobar",
+        "reject": "Rechazar"
+      },
+      "grant": {
+        "title": "Otorgar acceso por alias",
+        "alias": "Alias",
+        "days": "Días de acceso",
+        "daysHint": "Vacío = de por vida",
+        "reason": "Motivo",
+        "submit": "Otorgar",
+        "done": "Acceso otorgado.",
+        "errors": {
+          "user_not_found": "No existe un usuario con ese alias.",
+          "validation": "Datos inválidos.",
+          "unauthorized": "No autorizado.",
+          "unknown": "No pudimos otorgar el acceso."
+        }
+      },
+      "list": {
+        "title": "Accesos recientes",
+        "lifetime": "de por vida",
+        "revoked": "revocado",
+        "revoke": "Revocar",
+        "revokePrompt": "Motivo de la revocación:",
+        "revokedDone": "Acceso revocado."
+      }
+    }
   }
 }
