@@ -19,7 +19,7 @@ Status: Proposed · 2026-09-18 · See [SQL_SANDBOX.md](SQL_SANDBOX.md). Rejected
 Status: Proposed · 2026-09-18 · Single `authorize()` on the server + RLS mirror; admin via custom JWT claim; entitlements table is the only access source; free limit counted server-side.
 
 ### D-05 · Payment channels for MVP
-Status: **Under analysis with owner** · 2026-09-18 · Owner facts: entity in Argentina, sell to all LATAM from day one, price ≈ US$20. Proposed: `manual` provider (ARS bank/Mercado Pago transfer, Wallbit USD, wire) with admin approval **plus** one automated Merchant-of-Record for cards (Hotmart recommended; Paddle alternative), all behind `PaymentProvider`; Mercado Pago Checkout Pro in Phase 6b. Rejected: Stripe (no Argentine sellers), Lemon Squeezy (no payouts to Argentina), subscriptions at launch. See [PAYMENTS.md](PAYMENTS.md) §2b–3.
+Status: **Approved (owner, 2026-09-18): manual channel + Hotmart** · Owner facts: entity in Argentina, sell to all LATAM from day one, price ≈ US$20. Proposed: `manual` provider (ARS bank/Mercado Pago transfer, Wallbit USD, wire) with admin approval **plus** one automated Merchant-of-Record for cards (Hotmart recommended; Paddle alternative), all behind `PaymentProvider`; Mercado Pago Checkout Pro in Phase 6b. Rejected: Stripe (no Argentine sellers), Lemon Squeezy (no payouts to Argentina), subscriptions at launch. See [PAYMENTS.md](PAYMENTS.md) §2b–3.
 
 ### D-06 · Pricing
 Status: **Approved (owner, 2026-09-18)** · Lifetime access ≈ **US$20** equivalent (local currency where a channel prices locally); promo/scholarship codes from day one.
@@ -55,7 +55,6 @@ Status: Proposed · 24 illustrated avatars; uploads require moderation + storage
 
 | # | Question | Needed by | Default if no answer |
 |---|---|---|---|
-| D-05 | Payment channels: manual transfers (ARS bank/MP, Wallbit USD) + which automated card provider (Hotmart vs Paddle)? | Phase 6 | Manual + Hotmart |
 | D-09 | Who reviews legal pages? Company legal name, address, tax ID for footer/invoices? | Phase 9 | Placeholders, launch blocked |
 | P-1 | Domain name (e.g. `academia.dataminds…`)? | Phase 9 | Vercel subdomain |
 | P-3 | Google Workspace / support email for OAuth consent screen | Phase 2 | Owner's Gmail |

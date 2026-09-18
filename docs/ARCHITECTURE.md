@@ -65,7 +65,7 @@ src/
     validation/             # result comparator, feedback rules
     learning/               # progress, hints, solution unlock, quizzes
     rewards/                # xp, coins, streaks, badges (idempotent)
-    payments/               # PaymentProvider interface + providers/mercadopago, providers/stripe
+    payments/               # PaymentProvider interface + providers/manual, providers/hotmart (+ mercadopago in 6b)
     certificates/
     analytics/
     env/                    # server.ts / client.ts zod-validated env
