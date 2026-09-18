@@ -41,7 +41,8 @@ as $$
   );
 $$;
 revoke execute on function public.is_admin() from public;
-grant execute on function public.is_admin() to authenticated, service_role;
+-- anon needs it too: content policies call is_admin() for public reads (it just returns false).
+grant execute on function public.is_admin() to anon, authenticated, service_role;
 
 -- Normalizes an alias for uniqueness: lowercase, trims, folds common confusables.
 create or replace function public.normalize_alias(input text)

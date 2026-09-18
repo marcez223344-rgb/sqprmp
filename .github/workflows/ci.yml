@@ -32,6 +32,10 @@ jobs:
       - run: npm test
       - run: npm run db:validate
       - run: npm run content:validate
+      - name: Content seed must be up to date
+        run: |
+          npm run content:build
+          git diff --exit-code -- supabase/seed/0002_content.sql || (echo '::error::supabase/seed/0002_content.sql drifted; run npm run content:build' && exit 1)
       - run: npm run datasets:verify
       - run: npm run build
       - run: npm audit --audit-level=high

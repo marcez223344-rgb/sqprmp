@@ -21,7 +21,8 @@
     "datasets:build": "tsx scripts/datasets-build.ts",
     "datasets:verify": "tsx scripts/datasets-verify.ts",
     "quality": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run db:validate && npm run content:validate && npm run datasets:verify && npm run build",
-    "db:validate": "tsx scripts/db-validate.ts"
+    "db:validate": "tsx scripts/db-validate.ts",
+    "content:build": "tsx scripts/content-build.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.0",
@@ -35,6 +36,8 @@
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-hook-form": "^7.60.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
     "server-only": "^0.0.1",
     "tailwind-merge": "^3.7.0",
     "zod": "^4.1.0"

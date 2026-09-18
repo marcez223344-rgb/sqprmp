@@ -4,7 +4,7 @@ Plataforma de aprendizaje de SQL para adultos de habla hispana en América Latin
 
 **Organización:** Data Minds Solutions · **Fundador e instructor:** Marcelo Pisner
 
-> Estado actual: **Fase 2 (identidad y onboarding) completada** — ingreso con Google, onboarding en 3 pasos, alias moderados, avatares, perfil y privacidad; Fase 3 (currículo) en curso. Ver [docs/ROADMAP.md](docs/ROADMAP.md).
+> Estado actual: **Fase 3 (currículo y motor de contenido) completada** — 39 secciones, lecciones y quizzes de las secciones 1–3, ruta de aprendizaje y páginas de lección; Fase 4 (motor de ejercicios SQL) en curso. Ver [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Documentación
 

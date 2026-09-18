@@ -23,6 +23,8 @@ const supabaseStub = `
     if not exists (select 1 from pg_roles where rolname = 'service_role') then create role service_role nologin bypassrls; end if;
     if not exists (select 1 from pg_roles where rolname = 'supabase_auth_admin') then create role supabase_auth_admin nologin; end if;
   end $$;
+  grant usage on schema public to anon, authenticated, service_role, supabase_auth_admin;
+  grant usage on schema extensions to anon, authenticated, service_role;
   create table if not exists auth.users (
     id uuid primary key,
     email text,
@@ -153,6 +155,62 @@ async function main() {
     process.exit(1);
   }
   await db.exec("select set_config('request.jwt.claim.sub', '', false)");
+
+  // Curriculum seed sanity + privilege checks as anon/authenticated.
+  const counts = await db.query<{ sections: number; lessons: number; questions: number }>(
+    "select (select count(*) from public.sections)::int as sections, (select count(*) from public.lessons)::int as lessons, (select count(*) from public.theory_questions)::int as questions",
+  );
+  if ((counts.rows[0]?.sections ?? 0) < 39 || (counts.rows[0]?.questions ?? 0) < 1) {
+    console.error("curriculum seed incomplete", counts.rows[0]);
+    process.exit(1);
+  }
+  const mustFail = async (role: string, sql: string, label: string) => {
+    await db.exec(`set role ${role}`);
+    let failed = false;
+    try {
+      await db.query(sql);
+    } catch {
+      failed = true;
+    }
+    await db.exec("reset role");
+    if (!failed) {
+      console.error(`privilege leak: ${label} succeeded as ${role}`);
+      process.exit(1);
+    }
+  };
+  await mustFail(
+    "anon",
+    "select is_correct from public.question_options limit 1",
+    "read is_correct",
+  );
+  await mustFail(
+    "authenticated",
+    "select explanation_md from public.theory_questions limit 1",
+    "read explanation_md",
+  );
+  await mustFail(
+    "authenticated",
+    "select body_md from public.lessons limit 1",
+    "read lessons.body_md",
+  );
+  await mustFail(
+    "authenticated",
+    "select validation_rules from public.exercises limit 1",
+    "read validation_rules",
+  );
+  await mustFail("anon", "select sql from public.exercise_solutions limit 1", "read solutions");
+  await db.exec("set role anon");
+  const pub = await db.query<{ n: number }>(
+    "select count(*)::int as n from public.questions_public",
+  );
+  const freeBodies = await db.query<{ n: number }>(
+    "select count(*)::int as n from public.lessons_public where body_md_free is not null",
+  );
+  await db.exec("reset role");
+  if ((pub.rows[0]?.n ?? 0) < 1 || (freeBodies.rows[0]?.n ?? 0) < 1) {
+    console.error("public views return no rows for anon");
+    process.exit(1);
+  }
 
   const tables = await db.query<{ n: number }>(
     `select count(*)::int as n from pg_tables where schemaname='public'`,

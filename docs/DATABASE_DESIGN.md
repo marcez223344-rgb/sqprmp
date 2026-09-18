@@ -147,6 +147,14 @@ Every migration that creates a table must: `enable row level security`, add poli
 - `custom_access_token_hook`: adds `user_role` claim; enabled in `supabase/config.toml` and must be enabled in the cloud dashboard (Auth → Hooks) per environment.
 - Alias blocklist seeded with impersonation/brand/slur patterns (regex on the normalized alias).
 
+### 4d. Implementation notes (Phase 3, migration `20260918190000_curriculum.sql`)
+
+- Learners never get table-level `select` on `lessons`, `exercises`, `theory_questions` or `question_options`: they receive **column-level grants** (a column revoke would not subtract from a table grant), so `body_md`, `validation_rules`, `explanation_md`, `answer`, `is_correct` and `why_incorrect_md` are unreachable through PostgREST. `exercise_solutions`, `exercise_hints`, `exercise_expected_results` have admin-only policies.
+- `lessons_public` is a definer view (documented exception) exposing `body_md_free` only for free published lessons; premium bodies are read server-side with the admin client after `canReadLesson()`. `questions_public`, `question_options_public`, `exercises_public` are invoker views over the granted columns.
+- `sections` are readable by everyone (outlines on the path); `is_published` gates starting them.
+- Content rows are written only by the seed pipeline (`npm run content:build` → `supabase/seed/0002_content.sql`, idempotent upserts by slug). Quiz lessons are derived per section at build time.
+- `mark_lesson_viewed(slug, completed)` is the only writer of `lesson_progress` besides admins.
+
 ## 5. Indexes (initial)
 
 `attempts (user_id, exercise_id, created_at desc)`, `exercise_progress (user_id, status)`, `reward_ledger (user_id, created_at)`, `entitlements (user_id) WHERE revoked_at IS NULL`, `payment_events (provider, provider_event_id)`, `certificates (verification_code)`, `analytics_events (name, created_at)`, `lessons (section_id, sort_order)`, `daily_activity (user_id, activity_date desc)`.

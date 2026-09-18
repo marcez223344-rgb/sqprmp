@@ -10,6 +10,10 @@ Authoritative rules for lessons, exercises, hints, solutions, questions and data
 - No stereotypes about countries; vary cities, names and businesses across AR, MX, CO, CL, PE, UY, EC, BO, PY, CR, PA, DO, GT, VE respectfully.
 - Numbers and dates in the learner's locale in UI; in SQL examples use ISO dates.
 
+## 1b. Where content lives
+
+Content is code-reviewed data in `src/content/`: `course.ts`, `sections.ts` (39 outlines), `lessons/<section>.ts` (theory bodies as Markdown template strings), `questions/<section>.ts`, `exercises/<section>.ts` (Phase 4), `datasets/<slug>.ts` (schema specs). Everything is registered in `src/content/index.ts`, validated by `npm run content:validate` (`src/content/load.ts`: schemas, cross-references, acyclic prerequisites, published-section rules) and compiled to SQL by `npm run content:build`. Markdown (GFM) is rendered with `react-markdown`; raw HTML is disabled. A quiz lesson is derived automatically for every section that has published questions.
+
 ## 2. Theory lessons
 
 - ≤ 900 words per lesson; one idea per lesson; every claim has a runnable example on an MVP dataset.

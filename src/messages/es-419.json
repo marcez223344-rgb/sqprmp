@@ -276,5 +276,64 @@
         "validation": "Solicitud inválida."
       }
     }
+  },
+  "curriculum": {
+    "title": "Currículo completo",
+    "intro": "Seis niveles, treinta y nueve secciones. Cada sección combina teoría breve, ejercicios sobre datos de negocio reales de América Latina y un quiz. Las secciones marcadas como «Próximamente» se publican semana a semana.",
+    "cta": "Empieza gratis con Google"
+  },
+  "path": {
+    "title": "Tu ruta de aprendizaje",
+    "intro": "Avanza en orden: cada sección desbloquea la siguiente. Los primeros niveles incluyen teoría gratuita.",
+    "sectionNumber": "Sección {number}",
+    "freeTheory": "Teoría gratis",
+    "certificateMilestone": "Al completar esta sección obtienes un certificado",
+    "minutes": "{minutes} min",
+    "levels": {
+      "beginner": "Nivel 1 · Fundamentos",
+      "intermediate": "Nivel 2 · Agregar y combinar",
+      "advanced": "Nivel 3 · Consultas avanzadas",
+      "expert": "Nivel 4 · Analítica profesional"
+    },
+    "state": {
+      "soon": "Próximamente",
+      "available": "Disponible",
+      "in_progress": "En curso",
+      "completed": "Completada"
+    },
+    "lessonStatus": {
+      "not_started": "Sin empezar",
+      "in_progress": "En curso",
+      "completed": "Completada"
+    }
+  },
+  "lesson": {
+    "breadcrumb": "Ubicación",
+    "path": "Ruta",
+    "sectionNumber": "Sección {number}",
+    "minutes": "{minutes} min",
+    "pagination": "Navegación entre lecciones",
+    "backToPath": "Volver a la ruta",
+    "markComplete": "Marcar como completada",
+    "completed": "Lección completada",
+    "completeError": "No pudimos guardar tu progreso. Intenta de nuevo.",
+    "kind": {
+      "theory": "Teoría",
+      "exercise": "Ejercicio",
+      "quiz": "Quiz",
+      "challenge": "Desafío"
+    },
+    "locked": {
+      "title": "Contenido del plan completo",
+      "body": "Esta lección forma parte del acceso completo. Desbloquea todo el currículo con un pago único.",
+      "cta": "Ver precios"
+    },
+    "quiz": {
+      "title": "Quiz de la sección · {count} preguntas",
+      "soon": "Los quizzes interactivos se activan en la fase de evaluaciones. Las preguntas ya están listas y validadas."
+    },
+    "exercise": {
+      "soon": "Los ejercicios prácticos con editor SQL se activan en la fase del motor de ejercicios."
+    }
   }
 }

@@ -1,13 +1,18 @@
 /**
- * Validates authored content against the Zod schemas (Phase 3).
- * Until content exists this is a no-op that exits successfully.
+ * Validates authored content against the Zod schemas and cross-references.
+ * Exit code 1 on any issue. Usage: npm run content:validate
  */
-import { existsSync } from "node:fs";
+import { loadContent } from "../src/content/load";
 
-const contentDir = new URL("../src/content/", import.meta.url);
-if (!existsSync(contentDir)) {
-  console.log("content:validate — no content directory yet (Phase 3). OK.");
-  process.exit(0);
+const loaded = loadContent();
+
+if (loaded.issues.length) {
+  console.error(`content:validate — ${loaded.issues.length} issue(s):`);
+  for (const i of loaded.issues) console.error(`  [${i.kind}] ${i.slug}: ${i.message}`);
+  process.exit(1);
 }
-console.log("content:validate — schemas not implemented yet (Phase 3).");
-process.exit(0);
+
+const published = (xs: { is_published: boolean }[]) => xs.filter((x) => x.is_published).length;
+console.log(
+  `content:validate — OK. courses ${loaded.courses.length}, sections ${loaded.sections.length} (${published(loaded.sections)} published), lessons ${loaded.lessons.length}, questions ${loaded.questions.length}, exercises ${loaded.exercises.length}, datasets ${loaded.datasets.length}.`,
+);

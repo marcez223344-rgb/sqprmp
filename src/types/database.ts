@@ -95,6 +95,39 @@ export type Database = {
         };
         Relationships: [];
       };
+      courses: {
+        Row: {
+          id: string;
+          slug: string;
+          title: string;
+          description: string;
+          sort_order: number;
+          is_published: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          slug: string;
+          title: string;
+          description: string;
+          sort_order?: number;
+          is_published?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          slug?: string;
+          title?: string;
+          description?: string;
+          sort_order?: number;
+          is_published?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       data_requests: {
         Row: {
           id: string;
@@ -136,6 +169,368 @@ export type Database = {
           },
         ];
       };
+      dataset_columns: {
+        Row: {
+          id: string;
+          table_id: string;
+          name: string;
+          data_type: string;
+          description: string;
+          is_pk: boolean;
+          fk_ref: string | null;
+          sort_order: number;
+        };
+        Insert: {
+          id?: string;
+          table_id: string;
+          name: string;
+          data_type: string;
+          description: string;
+          is_pk?: boolean;
+          fk_ref?: string | null;
+          sort_order?: number;
+        };
+        Update: {
+          id?: string;
+          table_id?: string;
+          name?: string;
+          data_type?: string;
+          description?: string;
+          is_pk?: boolean;
+          fk_ref?: string | null;
+          sort_order?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "dataset_columns_table_id_fkey";
+            columns: ["table_id"];
+            isOneToOne: false;
+            referencedRelation: "dataset_tables";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      dataset_tables: {
+        Row: {
+          id: string;
+          dataset_id: string;
+          name: string;
+          description: string;
+          sort_order: number;
+        };
+        Insert: {
+          id?: string;
+          dataset_id: string;
+          name: string;
+          description: string;
+          sort_order?: number;
+        };
+        Update: {
+          id?: string;
+          dataset_id?: string;
+          name?: string;
+          description?: string;
+          sort_order?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "dataset_tables_dataset_id_fkey";
+            columns: ["dataset_id"];
+            isOneToOne: false;
+            referencedRelation: "datasets";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      datasets: {
+        Row: {
+          id: string;
+          slug: string;
+          version: number;
+          title: string;
+          domain: string;
+          description: string;
+          snapshot_path: string | null;
+          snapshot_sha256: string | null;
+          row_counts: Json;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          slug: string;
+          version?: number;
+          title: string;
+          domain: string;
+          description: string;
+          snapshot_path?: string | null;
+          snapshot_sha256?: string | null;
+          row_counts?: Json;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          slug?: string;
+          version?: number;
+          title?: string;
+          domain?: string;
+          description?: string;
+          snapshot_path?: string | null;
+          snapshot_sha256?: string | null;
+          row_counts?: Json;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      exercise_expected_results: {
+        Row: {
+          exercise_id: string;
+          dataset_version: number;
+          columns: Json;
+          rows: Json;
+          row_count: number;
+          computed_at: string;
+        };
+        Insert: {
+          exercise_id: string;
+          dataset_version: number;
+          columns: Json;
+          rows: Json;
+          row_count: number;
+          computed_at?: string;
+        };
+        Update: {
+          exercise_id?: string;
+          dataset_version?: number;
+          columns?: Json;
+          rows?: Json;
+          row_count?: number;
+          computed_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "exercise_expected_results_exercise_id_fkey";
+            columns: ["exercise_id"];
+            isOneToOne: true;
+            referencedRelation: "exercises";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      exercise_hints: {
+        Row: {
+          id: string;
+          exercise_id: string;
+          level: number;
+          body_md: string;
+          coin_cost: number;
+          xp_penalty_percent: number;
+        };
+        Insert: {
+          id?: string;
+          exercise_id: string;
+          level: number;
+          body_md: string;
+          coin_cost?: number;
+          xp_penalty_percent?: number;
+        };
+        Update: {
+          id?: string;
+          exercise_id?: string;
+          level?: number;
+          body_md?: string;
+          coin_cost?: number;
+          xp_penalty_percent?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "exercise_hints_exercise_id_fkey";
+            columns: ["exercise_id"];
+            isOneToOne: false;
+            referencedRelation: "exercises";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      exercise_prerequisites: {
+        Row: {
+          exercise_id: string;
+          requires_exercise_id: string;
+        };
+        Insert: {
+          exercise_id: string;
+          requires_exercise_id: string;
+        };
+        Update: {
+          exercise_id?: string;
+          requires_exercise_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "exercise_prerequisites_exercise_id_fkey";
+            columns: ["exercise_id"];
+            isOneToOne: false;
+            referencedRelation: "exercises";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "exercise_prerequisites_requires_exercise_id_fkey";
+            columns: ["requires_exercise_id"];
+            isOneToOne: false;
+            referencedRelation: "exercises";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      exercise_solutions: {
+        Row: {
+          id: string;
+          exercise_id: string;
+          sql: string;
+          is_reference: boolean;
+          approach_label: string | null;
+          sort_order: number;
+        };
+        Insert: {
+          id?: string;
+          exercise_id: string;
+          sql: string;
+          is_reference?: boolean;
+          approach_label?: string | null;
+          sort_order?: number;
+        };
+        Update: {
+          id?: string;
+          exercise_id?: string;
+          sql?: string;
+          is_reference?: boolean;
+          approach_label?: string | null;
+          sort_order?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "exercise_solutions_exercise_id_fkey";
+            columns: ["exercise_id"];
+            isOneToOne: false;
+            referencedRelation: "exercises";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      exercises: {
+        Row: {
+          id: string;
+          lesson_id: string | null;
+          section_id: string;
+          slug: string;
+          title: string;
+          scenario_md: string;
+          business_question_md: string;
+          learning_objective: string;
+          difficulty: string;
+          estimated_minutes: number;
+          concepts: string[];
+          tables_used: string[];
+          dataset_id: string;
+          dataset_version: number;
+          theory_ref_slug: string | null;
+          allowed_statements: string[];
+          expected_columns: Json;
+          validation_rules: Json;
+          common_mistakes: Json;
+          expert_explanation_md: string;
+          improvement_feedback: Json;
+          reward_config: Json;
+          solution_unlock: Json;
+          is_published: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          lesson_id?: string | null;
+          section_id: string;
+          slug: string;
+          title: string;
+          scenario_md: string;
+          business_question_md: string;
+          learning_objective: string;
+          difficulty: string;
+          estimated_minutes?: number;
+          concepts?: string[];
+          tables_used?: string[];
+          dataset_id: string;
+          dataset_version?: number;
+          theory_ref_slug?: string | null;
+          allowed_statements?: string[];
+          expected_columns?: Json;
+          validation_rules?: Json;
+          common_mistakes?: Json;
+          expert_explanation_md: string;
+          improvement_feedback?: Json;
+          reward_config?: Json;
+          solution_unlock?: Json;
+          is_published?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          lesson_id?: string | null;
+          section_id?: string;
+          slug?: string;
+          title?: string;
+          scenario_md?: string;
+          business_question_md?: string;
+          learning_objective?: string;
+          difficulty?: string;
+          estimated_minutes?: number;
+          concepts?: string[];
+          tables_used?: string[];
+          dataset_id?: string;
+          dataset_version?: number;
+          theory_ref_slug?: string | null;
+          allowed_statements?: string[];
+          expected_columns?: Json;
+          validation_rules?: Json;
+          common_mistakes?: Json;
+          expert_explanation_md?: string;
+          improvement_feedback?: Json;
+          reward_config?: Json;
+          solution_unlock?: Json;
+          is_published?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "exercises_dataset_id_fkey";
+            columns: ["dataset_id"];
+            isOneToOne: false;
+            referencedRelation: "datasets";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "exercises_lesson_id_fkey";
+            columns: ["lesson_id"];
+            isOneToOne: true;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "exercises_section_id_fkey";
+            columns: ["section_id"];
+            isOneToOne: false;
+            referencedRelation: "sections";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       feature_flags: {
         Row: {
           key: string;
@@ -167,6 +562,141 @@ export type Database = {
             columns: ["updated_by"];
             isOneToOne: false;
             referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      lesson_prerequisites: {
+        Row: {
+          lesson_id: string;
+          requires_lesson_id: string;
+        };
+        Insert: {
+          lesson_id: string;
+          requires_lesson_id: string;
+        };
+        Update: {
+          lesson_id?: string;
+          requires_lesson_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "lesson_prerequisites_lesson_id_fkey";
+            columns: ["lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "lesson_prerequisites_requires_lesson_id_fkey";
+            columns: ["requires_lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      lesson_progress: {
+        Row: {
+          user_id: string;
+          lesson_id: string;
+          status: string;
+          completed_at: string | null;
+          last_viewed_at: string;
+        };
+        Insert: {
+          user_id: string;
+          lesson_id: string;
+          status?: string;
+          completed_at?: string | null;
+          last_viewed_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          lesson_id?: string;
+          status?: string;
+          completed_at?: string | null;
+          last_viewed_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "lesson_progress_lesson_id_fkey";
+            columns: ["lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "lesson_progress_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      lessons: {
+        Row: {
+          id: string;
+          section_id: string;
+          slug: string;
+          kind: string;
+          title: string;
+          sort_order: number;
+          estimated_minutes: number;
+          body_md: string | null;
+          ref_slug: string | null;
+          dataset_id: string | null;
+          is_free: boolean;
+          is_published: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          section_id: string;
+          slug: string;
+          kind: string;
+          title: string;
+          sort_order?: number;
+          estimated_minutes?: number;
+          body_md?: string | null;
+          ref_slug?: string | null;
+          dataset_id?: string | null;
+          is_free?: boolean;
+          is_published?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          section_id?: string;
+          slug?: string;
+          kind?: string;
+          title?: string;
+          sort_order?: number;
+          estimated_minutes?: number;
+          body_md?: string | null;
+          ref_slug?: string | null;
+          dataset_id?: string | null;
+          is_free?: boolean;
+          is_published?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "lessons_dataset_id_fkey";
+            columns: ["dataset_id"];
+            isOneToOne: false;
+            referencedRelation: "datasets";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "lessons_section_id_fkey";
+            columns: ["section_id"];
+            isOneToOne: false;
+            referencedRelation: "sections";
             referencedColumns: ["id"];
           },
         ];
@@ -257,19 +787,265 @@ export type Database = {
           },
         ];
       };
+      question_options: {
+        Row: {
+          id: string;
+          question_id: string;
+          key: string;
+          body_md: string;
+          is_correct: boolean;
+          why_incorrect_md: string | null;
+          sort_order: number;
+        };
+        Insert: {
+          id?: string;
+          question_id: string;
+          key: string;
+          body_md: string;
+          is_correct?: boolean;
+          why_incorrect_md?: string | null;
+          sort_order?: number;
+        };
+        Update: {
+          id?: string;
+          question_id?: string;
+          key?: string;
+          body_md?: string;
+          is_correct?: boolean;
+          why_incorrect_md?: string | null;
+          sort_order?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "question_options_question_id_fkey";
+            columns: ["question_id"];
+            isOneToOne: false;
+            referencedRelation: "theory_questions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       rate_limits: {
         Row: { key: string; tokens: number; refilled_at: string };
         Insert: { key: string; tokens: number; refilled_at?: string };
         Update: { key?: string; tokens?: number; refilled_at?: string };
         Relationships: [];
       };
+      sections: {
+        Row: {
+          id: string;
+          course_id: string;
+          slug: string;
+          number: number;
+          level: string;
+          title: string;
+          summary: string;
+          objectives: Json;
+          requires_section_id: string | null;
+          is_free_theory: boolean;
+          is_published: boolean;
+          certificate_slug: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          course_id: string;
+          slug: string;
+          number: number;
+          level: string;
+          title: string;
+          summary: string;
+          objectives?: Json;
+          requires_section_id?: string | null;
+          is_free_theory?: boolean;
+          is_published?: boolean;
+          certificate_slug?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          course_id?: string;
+          slug?: string;
+          number?: number;
+          level?: string;
+          title?: string;
+          summary?: string;
+          objectives?: Json;
+          requires_section_id?: string | null;
+          is_free_theory?: boolean;
+          is_published?: boolean;
+          certificate_slug?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "sections_course_id_fkey";
+            columns: ["course_id"];
+            isOneToOne: false;
+            referencedRelation: "courses";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "sections_requires_section_id_fkey";
+            columns: ["requires_section_id"];
+            isOneToOne: false;
+            referencedRelation: "sections";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      theory_questions: {
+        Row: {
+          id: string;
+          section_id: string;
+          lesson_id: string | null;
+          slug: string;
+          type: string;
+          difficulty: string;
+          topic: string;
+          prompt_md: string;
+          code_md: string | null;
+          explanation_md: string;
+          answer: Json | null;
+          pairs: Json | null;
+          tags: string[];
+          estimated_seconds: number;
+          is_published: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          section_id: string;
+          lesson_id?: string | null;
+          slug: string;
+          type: string;
+          difficulty: string;
+          topic: string;
+          prompt_md: string;
+          code_md?: string | null;
+          explanation_md: string;
+          answer?: Json | null;
+          pairs?: Json | null;
+          tags?: string[];
+          estimated_seconds?: number;
+          is_published?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          section_id?: string;
+          lesson_id?: string | null;
+          slug?: string;
+          type?: string;
+          difficulty?: string;
+          topic?: string;
+          prompt_md?: string;
+          code_md?: string | null;
+          explanation_md?: string;
+          answer?: Json | null;
+          pairs?: Json | null;
+          tags?: string[];
+          estimated_seconds?: number;
+          is_published?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "theory_questions_lesson_id_fkey";
+            columns: ["lesson_id"];
+            isOneToOne: false;
+            referencedRelation: "lessons";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "theory_questions_section_id_fkey";
+            columns: ["section_id"];
+            isOneToOne: false;
+            referencedRelation: "sections";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
+      exercises_public: {
+        Row: {
+          id: string | null;
+          lesson_id: string | null;
+          section_id: string | null;
+          slug: string | null;
+          title: string | null;
+          scenario_md: string | null;
+          business_question_md: string | null;
+          learning_objective: string | null;
+          difficulty: string | null;
+          estimated_minutes: number | null;
+          concepts: string[] | null;
+          tables_used: string[] | null;
+          dataset_id: string | null;
+          dataset_version: number | null;
+          theory_ref_slug: string | null;
+          allowed_statements: string[] | null;
+          expected_columns: Json | null;
+          is_published: boolean | null;
+        };
+        Relationships: [];
+      };
+      lessons_public: {
+        Row: {
+          id: string | null;
+          section_id: string | null;
+          slug: string | null;
+          kind: string | null;
+          title: string | null;
+          sort_order: number | null;
+          estimated_minutes: number | null;
+          ref_slug: string | null;
+          dataset_id: string | null;
+          is_free: boolean | null;
+          is_published: boolean | null;
+          body_md_free: string | null;
+        };
+        Relationships: [];
+      };
       public_profiles: {
         Row: {
           id: string | null;
           alias: string | null;
           avatar_path: string | null;
+        };
+        Relationships: [];
+      };
+      question_options_public: {
+        Row: {
+          id: string | null;
+          question_id: string | null;
+          key: string | null;
+          body_md: string | null;
+          sort_order: number | null;
+        };
+        Relationships: [];
+      };
+      questions_public: {
+        Row: {
+          id: string | null;
+          section_id: string | null;
+          lesson_id: string | null;
+          slug: string | null;
+          type: string | null;
+          difficulty: string | null;
+          topic: string | null;
+          prompt_md: string | null;
+          code_md: string | null;
+          pairs: Json | null;
+          tags: string[] | null;
+          estimated_seconds: number | null;
         };
         Relationships: [];
       };
@@ -291,6 +1067,10 @@ export type Database = {
       };
       custom_access_token_hook: { Args: { event: Json }; Returns: Json };
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
+      mark_lesson_viewed: {
+        Args: { p_lesson_slug: string; p_completed?: boolean };
+        Returns: undefined;
+      };
       normalize_alias: { Args: { input: string }; Returns: string };
     };
     Enums: Record<never, never>;

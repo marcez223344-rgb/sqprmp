@@ -8,3 +8,4 @@ public/datasets
 package-lock.json
 supabase/.temp
 .claude/templates/lesson.md
+supabase/seed/0002_content.sql
