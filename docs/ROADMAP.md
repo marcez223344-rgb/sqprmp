@@ -49,6 +49,10 @@ Done: migration `20260918240000_admin_analytics` (`analytics_events`, normalized
 
 Sections 4 (alias y expresiones), 5 (DISTINCT), 6 (WHERE, 2 lessons), 7 (operadores) and 8 (NULL, 2 lessons) authored on `tiendaviva` and published: 7 theory lessons, 44 questions, 17 exercises (all verified by `content:verify`). Sections 1–8 complete → the `fundamentos-sql` certificate is attainable. Author tooling: `scripts/dataset-query.ts` (ad-hoc SQL against a built snapshot). Deviation from CURRICULUM §3: section 8 uses `tiendaviva` (NULL shipping dates, ratings, comments) instead of `bolsillo`; `bolsillo` will add exercises later. Remaining: sections 14–15, 17, 18, 25 + datasets `bolsillo` / `pidelo` (sprint B).
 
+## Content sprint B — Intermedio y avanzado ☑ (2026-09-18)
+
+Sections 14 (agregación), 15 (GROUP BY, 2 lessons), 17 (INNER JOIN, 2 lessons), 18 (LEFT/RIGHT/FULL, 2 lessons) and 25 (funciones de ventana, 2 lessons) authored and published; datasets `bolsillo` (wallet) and `pidelo` (delivery) generated, verified and described. Totals now: 13 published sections, 84 lessons, 124 questions, 49 verified exercises, 3 datasets — MVP volume per CURRICULUM §3 reached (38 exercises target exceeded). Gate change: window frame clauses are normalized before parsing (documented in SQL_SANDBOX.md). Snapshots are rebuilt by `prebuild` so Vercel ships them.
+
 ## Phase 9 — Quality and launch ☐
 
 Accessibility review, security review, performance (Lighthouse ≥ 90 mobile on public pages), full E2E, seed validation on prod, legal pages, Supabase Pro + Vercel Pro, domain, production deployment runbook, post-launch checklist (monitoring, backups, support inbox).

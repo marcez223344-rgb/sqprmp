@@ -4,7 +4,7 @@ Plataforma de aprendizaje de SQL para adultos de habla hispana en América Latin
 
 **Organización:** Data Minds Solutions · **Fundador e instructor:** Marcelo Pisner
 
-> Estado actual: **Fase 8 (administración y analítica) completada** — panel de administración (métricas, usuarios, pagos y conciliación, certificados, códigos, flags, auditoría) y eventos analíticos propios; Fase 9 (calidad y lanzamiento) en curso. Ver [docs/ROADMAP.md](docs/ROADMAP.md).
+> Estado actual: **contenido MVP completo** — 13 secciones publicadas (fundamentos, agregación, joins, ventanas), 49 ejercicios verificados sobre 3 datasets (TiendaViva, Bolsillo, Pídelo), quizzes, certificados y panel de administración; Fase 9 (calidad y lanzamiento) en curso. Ver [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Documentación
 

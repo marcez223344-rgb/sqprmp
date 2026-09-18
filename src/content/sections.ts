@@ -246,7 +246,7 @@ const outlines: Outline[] = [
       "Detectar promedios engañosos y proponer métricas alternativas",
     ],
     is_free_theory: false,
-    is_published: false,
+    is_published: true,
     certificate: null,
   },
   {
@@ -263,7 +263,7 @@ const outlines: Outline[] = [
       "Identificar el nivel de agregación correcto para una pregunta de negocio",
     ],
     is_free_theory: false,
-    is_published: false,
+    is_published: true,
     certificate: null,
   },
   {
@@ -314,7 +314,7 @@ const outlines: Outline[] = [
       "Contar correctamente cuando hay filas sin correspondencia",
     ],
     is_free_theory: false,
-    is_published: false,
+    is_published: true,
     certificate: null,
   },
   {
@@ -434,7 +434,7 @@ const outlines: Outline[] = [
       "Entender los marcos de ventana (ROWS y RANGE) en casos básicos",
     ],
     is_free_theory: false,
-    is_published: false,
+    is_published: true,
     certificate: null,
   },
   {

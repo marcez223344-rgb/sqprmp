@@ -16,6 +16,10 @@ import { lessons as whereLessons } from "./lessons/where";
 import { lessons as operadoresComparacionLogicosLessons } from "./lessons/operadores-comparacion-logicos";
 import { lessons as nullLessons } from "./lessons/null";
 import { lessons as innerJoinLessons } from "./lessons/inner-join";
+import { lessons as funcionesDeAgregacionLessons } from "./lessons/funciones-de-agregacion";
+import { lessons as groupByLessons } from "./lessons/group-by";
+import { lessons as leftRightFullJoinLessons } from "./lessons/left-right-full-join";
+import { lessons as funcionesDeVentanaLessons } from "./lessons/funciones-de-ventana";
 import { questions as introQuestions } from "./questions/introduccion-bases-de-datos";
 import { questions as tablasQuestions } from "./questions/tablas-filas-columnas-tipos";
 import { questions as selectQuestions } from "./questions/select";
@@ -25,6 +29,10 @@ import { questions as whereQuestions } from "./questions/where";
 import { questions as operadoresComparacionLogicosQuestions } from "./questions/operadores-comparacion-logicos";
 import { questions as nullQuestions } from "./questions/null";
 import { questions as innerJoinQuestions } from "./questions/inner-join";
+import { questions as funcionesDeAgregacionQuestions } from "./questions/funciones-de-agregacion";
+import { questions as groupByQuestions } from "./questions/group-by";
+import { questions as leftRightFullJoinQuestions } from "./questions/left-right-full-join";
+import { questions as funcionesDeVentanaQuestions } from "./questions/funciones-de-ventana";
 import { exercises as tablasExercises } from "./exercises/tablas-filas-columnas-tipos";
 import { exercises as selectExercises } from "./exercises/select";
 import { exercises as aliasExercises } from "./exercises/alias-y-expresiones";
@@ -33,6 +41,10 @@ import { exercises as whereExercises } from "./exercises/where";
 import { exercises as operadoresComparacionLogicosExercises } from "./exercises/operadores-comparacion-logicos";
 import { exercises as nullExercises } from "./exercises/null";
 import { exercises as innerJoinExercises } from "./exercises/inner-join";
+import { exercises as funcionesDeAgregacionExercises } from "./exercises/funciones-de-agregacion";
+import { exercises as groupByExercises } from "./exercises/group-by";
+import { exercises as leftRightFullJoinExercises } from "./exercises/left-right-full-join";
+import { exercises as funcionesDeVentanaExercises } from "./exercises/funciones-de-ventana";
 
 export const content = {
   courses: [course],
@@ -48,6 +60,10 @@ export const content = {
     ...operadoresComparacionLogicosLessons,
     ...nullLessons,
     ...innerJoinLessons,
+    ...funcionesDeAgregacionLessons,
+    ...groupByLessons,
+    ...leftRightFullJoinLessons,
+    ...funcionesDeVentanaLessons,
   ],
   questions: [
     ...introQuestions,
@@ -59,6 +75,10 @@ export const content = {
     ...operadoresComparacionLogicosQuestions,
     ...nullQuestions,
     ...innerJoinQuestions,
+    ...funcionesDeAgregacionQuestions,
+    ...groupByQuestions,
+    ...leftRightFullJoinQuestions,
+    ...funcionesDeVentanaQuestions,
   ],
   exercises: [
     ...tablasExercises,
@@ -69,6 +89,10 @@ export const content = {
     ...operadoresComparacionLogicosExercises,
     ...nullExercises,
     ...innerJoinExercises,
+    ...funcionesDeAgregacionExercises,
+    ...groupByExercises,
+    ...leftRightFullJoinExercises,
+    ...funcionesDeVentanaExercises,
   ],
 };
 
