@@ -1,0 +1,18 @@
+{
+  "tiendaviva": {
+    "version": 1,
+    "contentHash": "4ba6bf7ff06f71d3d90b6c1652b6a0b777bedceea67f2762183669df025d955c",
+    "rows": {
+      "customers": 3000,
+      "sellers": 180,
+      "categories": 30,
+      "products": 1500,
+      "orders": 18000,
+      "order_items": 30067,
+      "payments": 18050,
+      "shipments": 15201,
+      "reviews": 3985,
+      "returns": 1073
+    }
+  }
+}

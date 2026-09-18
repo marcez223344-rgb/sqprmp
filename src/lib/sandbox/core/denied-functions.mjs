@@ -1,0 +1,78 @@
+/**
+ * Functions learners may never call: sleeping, file/system access, settings, large objects,
+ * dblink, backend control. Shared by the parser gate (TS) and the engine lockdown (worker).
+ */
+export const DENIED_FUNCTIONS = Object.freeze([
+  "pg_sleep",
+  "pg_sleep_for",
+  "pg_sleep_until",
+  "pg_read_file",
+  "pg_read_binary_file",
+  "pg_ls_dir",
+  "pg_ls_logdir",
+  "pg_ls_waldir",
+  "pg_stat_file",
+  "pg_terminate_backend",
+  "pg_cancel_backend",
+  "pg_reload_conf",
+  "pg_rotate_logfile",
+  "set_config",
+  "current_setting",
+  "pg_advisory_lock",
+  "pg_advisory_xact_lock",
+  "pg_try_advisory_lock",
+  "lo_import",
+  "lo_export",
+  "lo_get",
+  "lo_put",
+  "lo_unlink",
+  "dblink",
+  "dblink_connect",
+  "dblink_exec",
+  "query_to_xml",
+  "table_to_xml",
+  "database_to_xml",
+  "pg_notify",
+  "txid_current",
+  "pg_backend_pid",
+  "inet_server_addr",
+  "inet_client_addr",
+  "version",
+  "pg_export_snapshot",
+  "pg_logical_slot_get_changes",
+  "pg_create_logical_replication_slot",
+  "pg_switch_wal",
+  "pg_start_backup",
+  "pg_stop_backup",
+]);
+
+/** Common Postgres OIDs → readable type names. */
+const TYPE_NAMES = {
+  16: "boolean",
+  20: "bigint",
+  21: "smallint",
+  23: "integer",
+  25: "text",
+  114: "json",
+  700: "real",
+  701: "double precision",
+  1042: "char",
+  1043: "varchar",
+  1082: "date",
+  1083: "time",
+  1114: "timestamp",
+  1184: "timestamptz",
+  1186: "interval",
+  1700: "numeric",
+  2950: "uuid",
+  3802: "jsonb",
+  1007: "integer[]",
+  1009: "text[]",
+  2249: "record",
+  705: "unknown",
+};
+
+/** @param {number} oid */
+export function typeNameForOid(oid) {
+  return TYPE_NAMES[oid] ?? "unknown";
+}

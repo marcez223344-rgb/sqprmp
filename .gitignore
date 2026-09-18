@@ -30,8 +30,8 @@ supabase/.env
 .vercel
 
 # Generated dataset snapshots (regenerate with `npm run datasets:build`)
-public/datasets/*.tar.gz
-public/datasets/*.tgz
+public/datasets/
+
 
 # OS / editor
 .DS_Store
