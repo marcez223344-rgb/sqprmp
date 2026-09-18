@@ -24,9 +24,9 @@ Done: Zod content schemas (`src/content/schemas`), content as typed TS modules (
 Done: TiendaViva generator (deterministic, 91 k rows, 19 consistency checks) + CSV snapshots + manifest hashes; parser gate with 200+ input fuzz corpus; server engine (worker_threads per dataset, hard-kill timeout verified with a recursive bomb); browser engine (static module worker + PGlite dist, public `/demo`); comparator (columns/order/tolerance/duplicates/dedupe) + feedback engine (concept detection, missing filter / multiplying join / aggregation level / date boundary / NULL heuristics, readability tips); migration `20260918200000_exercise_activity` (attempts, executions, progress, hints, reveals, saved queries, RPCs, start-based free limit); `content:verify` executes every solution on the real snapshot and seeds expected results; 7 exercises (sections 2–3); workspace UI (CodeMirror, Run/Submit/draft/reset, results table, feedback, hints, solution reveal with unlock rules, schema browser, locked state); tests: 16 validation + 12 sandbox unit/integration, pgTAP 0004, E2E 04 (browser sandbox, runs locally) and 05 (journeys 3–8, CI). Remaining for MVP volume: datasets `bolsillo`/`pidelo` and exercises for later sections (content sprint before Phase 9).
 **Approval needed before Phase 5:** none (reversible).
 
-## Phase 5 — Progress and gamification ☐
+## Phase 5 — Progress and gamification ☑ (2026-09-18)
 
-Reward ledger + RPCs, levels, streaks with freeze (pg_cron), goals, badges (first 12), dashboard, progress analytics, review queue, remaining MVP sections authored (to 8).
+Done: migration `20260918210000_gamification` (reward ledger with idempotent keys and daily cap, totals + level curve, daily activity, streaks with monthly freeze, goals, 12 badges, suspicious_activity), pure rules module (`src/lib/rewards/rules.ts`, 8 unit tests), rewards wired into first completions, real dashboard (continue card, level/XP/coins, streak status, goals editing, badges, mastery per section), `/logros`, `/historial`, `/consultas` + save-query form in the workspace, pgTAP 0005, E2E 05 extended. See [GAMIFICATION.md](GAMIFICATION.md). Moved out: review queue (Phase 7 with quizzes), remaining MVP sections (content sprint before Phase 9), pg_cron not needed (freezes refill lazily).
 
 ## Phase 6 — Monetization ☐
 

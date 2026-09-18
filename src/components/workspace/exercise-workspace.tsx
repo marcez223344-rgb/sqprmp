@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils/cn";
 import { MarkdownClient } from "./markdown-client";
 import { FeedbackPanel, HintPanel, SchemaBrowser } from "./panels";
 import { ResultsTable } from "./results-table";
+import { SaveQueryForm } from "./save-query-form";
 
 const SqlEditor = dynamic(() => import("./sql-editor").then((m) => m.SqlEditor), {
   ssr: false,
@@ -358,6 +359,7 @@ export function ExerciseWorkspace({ data }: { data: ExerciseWorkspaceData }) {
               <RotateCcw aria-hidden="true" />
               {t("reset")}
             </Button>
+            <SaveQueryForm exerciseId={exercise.id} datasetSlug={dataset.slug} sql={sqlText} />
           </div>
           {submitError ? (
             <p
@@ -387,6 +389,17 @@ export function ExerciseWorkspace({ data }: { data: ExerciseWorkspaceData }) {
           {completed ? (
             <div className="border-success/40 bg-success/10 mt-4 flex flex-wrap items-center gap-3 rounded-md border p-3 text-sm">
               <span className="text-success font-medium">{t("completedBanner")}</span>
+              {submitResult?.reward?.awarded ? (
+                <span className="text-muted">
+                  {t("rewardEarned", {
+                    xp: submitResult.reward.xp,
+                    coins: submitResult.reward.coins,
+                  })}
+                  {submitResult.reward.newBadges.length
+                    ? ` · ${t("badgesEarned", { count: submitResult.reward.newBadges.length })}`
+                    : ""}
+                </span>
+              ) : null}
               {data.nextLessonSlug ? (
                 <Link
                   href={`/leccion/${data.nextLessonSlug}`}

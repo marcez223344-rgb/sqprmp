@@ -149,6 +149,39 @@ export type Database = {
         };
         Relationships: [];
       };
+      badges: {
+        Row: {
+          id: string;
+          slug: string;
+          title: string;
+          description: string;
+          icon: string;
+          criteria: Json;
+          sort_order: number;
+          is_active: boolean;
+        };
+        Insert: {
+          id?: string;
+          slug: string;
+          title: string;
+          description: string;
+          icon: string;
+          criteria: Json;
+          sort_order?: number;
+          is_active?: boolean;
+        };
+        Update: {
+          id?: string;
+          slug?: string;
+          title?: string;
+          description?: string;
+          icon?: string;
+          criteria?: Json;
+          sort_order?: number;
+          is_active?: boolean;
+        };
+        Relationships: [];
+      };
       courses: {
         Row: {
           id: string;
@@ -181,6 +214,41 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [];
+      };
+      daily_activity: {
+        Row: {
+          user_id: string;
+          activity_date: string;
+          xp_earned: number;
+          minutes_active: number;
+          exercises_completed: number;
+          last_touch_at: string;
+        };
+        Insert: {
+          user_id: string;
+          activity_date: string;
+          xp_earned?: number;
+          minutes_active?: number;
+          exercises_completed?: number;
+          last_touch_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          activity_date?: string;
+          xp_earned?: number;
+          minutes_active?: number;
+          exercises_completed?: number;
+          last_touch_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "daily_activity_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       data_requests: {
         Row: {
@@ -722,6 +790,38 @@ export type Database = {
           },
         ];
       };
+      learning_goals: {
+        Row: {
+          user_id: string;
+          daily_xp_target: number;
+          weekly_minutes_target: number;
+          reminder_opt_in: boolean;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          daily_xp_target?: number;
+          weekly_minutes_target?: number;
+          reminder_opt_in?: boolean;
+          updated_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          daily_xp_target?: number;
+          weekly_minutes_target?: number;
+          reminder_opt_in?: boolean;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "learning_goals_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: true;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       lesson_prerequisites: {
         Row: {
           lesson_id: string;
@@ -1044,6 +1144,50 @@ export type Database = {
         Update: { key?: string; tokens?: number; refilled_at?: string };
         Relationships: [];
       };
+      reward_ledger: {
+        Row: {
+          id: string;
+          user_id: string;
+          event_key: string;
+          source: string;
+          xp_delta: number;
+          coin_delta: number;
+          metadata: Json;
+          activity_date: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          event_key: string;
+          source: string;
+          xp_delta?: number;
+          coin_delta?: number;
+          metadata?: Json;
+          activity_date: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          event_key?: string;
+          source?: string;
+          xp_delta?: number;
+          coin_delta?: number;
+          metadata?: Json;
+          activity_date?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "reward_ledger_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       saved_queries: {
         Row: {
           id: string;
@@ -1197,6 +1341,105 @@ export type Database = {
           },
         ];
       };
+      streak_freezes: {
+        Row: {
+          id: string;
+          user_id: string;
+          used_on: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          used_on: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          used_on?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "streak_freezes_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      streaks: {
+        Row: {
+          user_id: string;
+          current_length: number;
+          longest_length: number;
+          last_activity_date: string | null;
+          freezes_available: number;
+          freezes_refilled_month: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          current_length?: number;
+          longest_length?: number;
+          last_activity_date?: string | null;
+          freezes_available?: number;
+          freezes_refilled_month?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          current_length?: number;
+          longest_length?: number;
+          last_activity_date?: string | null;
+          freezes_available?: number;
+          freezes_refilled_month?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "streaks_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: true;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      suspicious_activity: {
+        Row: {
+          id: string;
+          user_id: string | null;
+          kind: string;
+          details: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string | null;
+          kind: string;
+          details?: Json;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string | null;
+          kind?: string;
+          details?: Json;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "suspicious_activity_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       theory_questions: {
         Row: {
           id: string;
@@ -1268,6 +1511,71 @@ export type Database = {
             columns: ["section_id"];
             isOneToOne: false;
             referencedRelation: "sections";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      user_badges: {
+        Row: {
+          user_id: string;
+          badge_id: string;
+          earned_at: string;
+        };
+        Insert: {
+          user_id: string;
+          badge_id: string;
+          earned_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          badge_id?: string;
+          earned_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_badge_id_fkey";
+            columns: ["badge_id"];
+            isOneToOne: false;
+            referencedRelation: "badges";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "user_badges_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      user_totals: {
+        Row: {
+          user_id: string;
+          xp_total: number;
+          coin_balance: number;
+          level: number;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          xp_total?: number;
+          coin_balance?: number;
+          level?: number;
+          updated_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          xp_total?: number;
+          coin_balance?: number;
+          level?: number;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "user_totals_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: true;
+            referencedRelation: "profiles";
             referencedColumns: ["id"];
           },
         ];
@@ -1351,6 +1659,36 @@ export type Database = {
       };
     };
     Functions: {
+      award_reward: {
+        Args: {
+          p_user_id: string;
+          p_event_key: string;
+          p_source: string;
+          p_xp: number;
+          p_coins: number;
+          p_metadata: Json;
+          p_activity_date: string;
+          p_daily_xp_cap: number;
+        };
+        Returns: {
+          awarded: boolean;
+          xp_awarded: number;
+          coins_awarded: number;
+          xp_total: number;
+          level: number;
+          streak_length: number;
+        }[];
+      };
+      evaluate_badges: { Args: { p_user_id: string }; Returns: string[] };
+      level_for_xp: { Args: { p_xp: number }; Returns: number };
+      touch_daily_activity: {
+        Args: { p_user_id: string; p_activity_date: string; p_max_gap_minutes: number };
+        Returns: undefined;
+      };
+      touch_streak: {
+        Args: { p_user_id: string; p_activity_date: string };
+        Returns: Database["public"]["Tables"]["streaks"]["Row"];
+      };
       can_access_exercise: {
         Args: { p_user_id: string; p_exercise_id: string; p_free_limit: number };
         Returns: string;

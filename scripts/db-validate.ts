@@ -212,6 +212,42 @@ async function main() {
     process.exit(1);
   }
 
+  // Gamification: idempotent awards, daily cap, streak with freeze.
+  const u = "'00000000-0000-0000-0000-000000000001'";
+  const award = (key: string, xp: number, date: string, cap = 600) =>
+    db.query<{ awarded: boolean; xp_awarded: number; streak_length: number; level: number }>(
+      `select awarded, xp_awarded, streak_length, level from public.award_reward(${u}, '${key}', 'exercise', ${xp}, 2, '{}'::jsonb, date '${date}', ${cap})`,
+    );
+  const a1 = await award("ex:1", 40, "2026-03-01");
+  const a2 = await award("ex:1", 40, "2026-03-01");
+  const a3 = await award("ex:2", 590, "2026-03-01");
+  if (!(
+    a1.rows[0]?.awarded &&
+    a1.rows[0]?.xp_awarded === 40 &&
+    a2.rows[0]?.awarded === false &&
+    a3.rows[0]?.xp_awarded === 560
+  )) {
+    console.error("award_reward idempotency/cap misbehaves", a1.rows[0], a2.rows[0], a3.rows[0]);
+    process.exit(1);
+  }
+  await award("ex:3", 10, "2026-03-02");
+  const gap = await award("ex:4", 10, "2026-03-04"); // one-day gap → freeze consumed, streak continues
+  const broken = await award("ex:5", 10, "2026-03-09"); // long gap → reset
+  if (!(gap.rows[0]?.streak_length === 3 && broken.rows[0]?.streak_length === 1)) {
+    console.error("streak/freeze logic misbehaves", gap.rows[0], broken.rows[0]);
+    process.exit(1);
+  }
+  const lvl = await db.query<{ l: number }>("select public.level_for_xp(600) as l");
+  if (lvl.rows[0]?.l !== 4) {
+    console.error("level curve mismatch", lvl.rows[0]);
+    process.exit(1);
+  }
+  const badges = await db.query<{ slug: string }>(`select public.evaluate_badges(${u}) as slug`);
+  if (!badges.rows.some((r) => r.slug === "nivel-3")) {
+    console.error("badge evaluation did not award nivel-3", badges.rows);
+    process.exit(1);
+  }
+
   const tables = await db.query<{ n: number }>(
     `select count(*)::int as n from pg_tables where schemaname='public'`,
   );

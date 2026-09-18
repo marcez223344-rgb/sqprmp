@@ -124,24 +124,68 @@
       "dashboard": "Mi aprendizaje",
       "path": "Ruta",
       "profile": "Perfil",
-      "admin": "Admin"
+      "admin": "Admin",
+      "badges": "Insignias"
     },
     "signOut": "Salir",
     "signedInAs": "Sesión iniciada como"
   },
   "dashboard": {
     "welcome": "Hola, {name}",
-    "weeklyGoal": "Tu meta semanal: {minutes} minutos de práctica.",
+    "subtitle": "Nivel {level}. Cada ejercicio correcto suma XP; cada día de práctica alimenta tu racha.",
+    "freeCounter": "Ejercicios gratis usados: {used} de {limit}",
     "continue": {
-      "title": "Tu ruta de aprendizaje",
-      "body": "El currículo y los ejercicios se activan en las próximas fases. Recuerda: los primeros {count} ejercicios prácticos son gratis.",
-      "cta": "Ver la ruta"
+      "title": "Continuar aprendiendo",
+      "cta": "Continuar",
+      "empty": "Todavía no empezaste ningún ejercicio. Tu ruta te espera.",
+      "start": "Ir a la ruta"
     },
     "stats": {
       "title": "Tu progreso",
+      "level": "Nivel",
       "xp": "XP",
-      "streak": "Racha (días)",
-      "note": "Las estadísticas se activan cuando completes tu primer ejercicio."
+      "coins": "Monedas",
+      "exercises": "Ejercicios",
+      "nextLevel": "Hacia el nivel {level}",
+      "levelProgress": "Progreso hacia el siguiente nivel"
+    },
+    "streak": {
+      "title": "Racha",
+      "days": "{days, plural, =1 {1 día} other {# días}}",
+      "activeToday": "Ya practicaste hoy. ¡Sigue así!",
+      "atRisk": "Practica hoy para mantener tu racha.",
+      "protected": "Ayer no practicaste, pero un congelamiento protege tu racha si practicas hoy.",
+      "start": "Completa un ejercicio para empezar una racha.",
+      "freezes": "{count, plural, =0 {Sin congelamientos} =1 {1 congelamiento disponible} other {# congelamientos disponibles}}",
+      "longest": "Mejor racha: {days}"
+    },
+    "goals": {
+      "title": "Metas",
+      "daily": "XP de hoy",
+      "weekly": "Minutos esta semana",
+      "edit": "Ajustar metas",
+      "dailyLabel": "Meta diaria de XP",
+      "weeklyLabel": "Meta semanal de minutos",
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "saved": "Metas guardadas",
+      "error": "No pudimos guardar las metas."
+    },
+    "badges": {
+      "title": "Insignias",
+      "count": "{earned} de {total} obtenidas",
+      "none": "Completa tu primer ejercicio para obtener la primera insignia.",
+      "all": "Ver todas las insignias"
+    },
+    "mastery": {
+      "title": "Dominio por sección",
+      "empty": "Las secciones con ejercicios aparecerán aquí a medida que se publiquen."
+    },
+    "links": {
+      "label": "Más de tu progreso",
+      "history": "Historial de intentos",
+      "savedQueries": "Consultas guardadas",
+      "badges": "Insignias"
     }
   },
   "onboarding": {
@@ -475,7 +519,18 @@
     "solutionRetry": "Estudia la solución y vuelve a escribir la consulta con tus palabras: el ejercicio sigue contando como completado cuando la envíes correcta.",
     "completedBanner": "Ejercicio completado",
     "next": "Siguiente",
-    "backToPath": "Volver a la ruta"
+    "backToPath": "Volver a la ruta",
+    "savedQuery": {
+      "open": "Guardar consulta",
+      "titleLabel": "Título de la consulta",
+      "titlePlaceholder": "Título (por ejemplo: ventas por país)",
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "saved": "Consulta guardada",
+      "error": "No pudimos guardar la consulta."
+    },
+    "rewardEarned": "+{xp} XP · +{coins} monedas",
+    "badgesEarned": "{count, plural, =1 {1 insignia nueva} other {# insignias nuevas}}"
   },
   "demo": {
     "title": "Prueba SQL en tu navegador",
@@ -491,5 +546,30 @@
     "failed": "Tu navegador no puede ejecutar el motor local (requiere WebAssembly).",
     "tablesTitle": "Tablas disponibles",
     "cta": "Empieza gratis con Google"
+  },
+  "badges": {
+    "title": "Insignias",
+    "summary": "{earned} de {total} obtenidas. Las insignias reconocen constancia y dominio, no velocidad.",
+    "earned": "obtenida",
+    "locked": "Aún no obtenida",
+    "earnedOn": "Obtenida el {date}"
+  },
+  "history": {
+    "title": "Historial de intentos",
+    "intro": "Tus últimos 100 envíos, con el resultado y las categorías de retroalimentación. Úsalo para repasar errores frecuentes.",
+    "empty": "Todavía no enviaste ninguna consulta.",
+    "status": {
+      "correct": "Correcto",
+      "incorrect": "Incorrecto",
+      "error": "Error"
+    },
+    "rows": "{rows} filas",
+    "feedbackCategories": "Retroalimentación"
+  },
+  "savedQueries": {
+    "title": "Consultas guardadas",
+    "intro": "Consultas que guardaste desde el editor para volver a usarlas.",
+    "empty": "Todavía no guardaste consultas. Desde cualquier ejercicio usa «Guardar consulta».",
+    "delete": "Eliminar"
   }
 }

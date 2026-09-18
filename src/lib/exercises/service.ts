@@ -14,6 +14,7 @@ import {
   type ValidationRules,
 } from "@/lib/validation/compare";
 import { buildFeedback, type FeedbackItem } from "@/lib/validation/feedback";
+import { awardExerciseCompletion, touchActivity, type AwardOutcome } from "@/lib/rewards/service";
 import type { Database, Json, Profile } from "@/types/database";
 
 type ExercisePublic = Database["public"]["Views"]["exercises_public"]["Row"];
@@ -198,6 +199,7 @@ export interface SubmitResult {
   attemptsCount: number;
   genuineAttemptsCount: number;
   solutionUnlockable: boolean;
+  reward: AwardOutcome | null;
 }
 
 async function consume(
@@ -238,7 +240,7 @@ export async function submitExercise(
     admin
       .from("exercises")
       .select(
-        "id, slug, dataset_id, dataset_version, allowed_statements, expected_columns, validation_rules, common_mistakes, improvement_feedback, datasets(slug)",
+        "id, slug, dataset_id, dataset_version, allowed_statements, expected_columns, validation_rules, common_mistakes, improvement_feedback, reward_config, datasets(slug)",
       )
       .eq("id", exerciseId)
       .single(),
@@ -338,6 +340,30 @@ export async function submitExercise(
     .eq("user_id", profile.id)
     .eq("exercise_id", exerciseId)
     .single();
+  await touchActivity(profile);
+
+  // Rewards are paid exactly once per exercise (ledger key), server-side, after persistence.
+  let reward: AwardOutcome | null = null;
+  if (rec?.first_completion && progress) {
+    const cfg = ex.reward_config as {
+      xp?: number;
+      coins?: number;
+      solution_reveal_xp_percent?: number;
+    } | null;
+    reward = await awardExerciseCompletion(
+      profile,
+      exerciseId,
+      {
+        xp: cfg?.xp ?? 0,
+        coins: cfg?.coins ?? 0,
+        solution_reveal_xp_percent:
+          cfg?.solution_reveal_xp_percent ?? limits.solutionUnlock.xpPercentAfterReveal,
+      },
+      progress.hints_used,
+      Boolean(progress.solution_revealed_at),
+    );
+  }
+
   return {
     outcome,
     correct,
@@ -346,6 +372,7 @@ export async function submitExercise(
     attemptsCount: rec?.attempts_count ?? 0,
     genuineAttemptsCount: rec?.genuine_attempts_count ?? 0,
     solutionUnlockable: progress ? isSolutionUnlockable(progress) : false,
+    reward,
   };
 }
 

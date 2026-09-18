@@ -162,6 +162,14 @@ Every migration that creates a table must: `enable row level security`, add poli
 - `record_attempt` returns `first_completion` exactly once per (user, exercise); Phase 5 awards rewards from that flag. Hints unlock sequentially (`P0001/hint_sequence`).
 - `query_executions` stores SQL hash/length/duration/SQLSTATE only (raw SQL lives in `attempts`, learner-readable).
 
+### 4f. Implementation notes (Phase 5, migration `20260918210000_gamification.sql`)
+
+- `award_reward(user, event_key, source, xp, coins, metadata, activity_date, daily_cap)` is the only writer of `reward_ledger`, `user_totals`, `daily_activity` and (via `touch_streak`) `streaks`; service role only. Idempotency = unique `(user_id, event_key)`; the XP cap applies per `activity_date` (learner timezone, computed by the server).
+- `level_for_xp()` (SQL) and `levelForXp()` (TS) implement the same curve; both are tested.
+- Badges: `evaluate_badges(user)` reads real progress and inserts `user_badges` idempotently, returning new slugs.
+- `learning_goals` is learner-writable (own row); everything else is read-only for learners.
+- Rules narrative: [GAMIFICATION.md](GAMIFICATION.md).
+
 ## 5. Indexes (initial)
 
 `attempts (user_id, exercise_id, created_at desc)`, `exercise_progress (user_id, status)`, `reward_ledger (user_id, created_at)`, `entitlements (user_id) WHERE revoked_at IS NULL`, `payment_events (provider, provider_event_id)`, `certificates (verification_code)`, `analytics_events (name, created_at)`, `lessons (section_id, sort_order)`, `daily_activity (user_id, activity_date desc)`.

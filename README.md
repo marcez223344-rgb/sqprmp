@@ -4,7 +4,7 @@ Plataforma de aprendizaje de SQL para adultos de habla hispana en América Latin
 
 **Organización:** Data Minds Solutions · **Fundador e instructor:** Marcelo Pisner
 
-> Estado actual: **Fase 4 (motor seguro de ejercicios SQL) completada** — PostgreSQL real en el navegador y en el servidor, validación estructurada, pistas y soluciones, 7 ejercicios sobre TiendaViva; Fase 5 (progreso y gamificación) en curso. Ver [docs/ROADMAP.md](docs/ROADMAP.md).
+> Estado actual: **Fase 5 (progreso y gamificación) completada** — XP, niveles, monedas, rachas con congelamiento, metas, insignias, panel de progreso, historial y consultas guardadas; Fase 6 (monetización) en curso. Ver [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Documentación
 
@@ -19,6 +19,7 @@ Plataforma de aprendizaje de SQL para adultos de habla hispana en América Latin
 | [docs/SECURITY.md](docs/SECURITY.md)                         | Modelo de seguridad y privacidad                                               |
 | [docs/PAYMENTS.md](docs/PAYMENTS.md)                         | Análisis de pagos para LATAM y recomendación                                   |
 | [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md)               | Dirección visual, tokens, componentes, pantallas                               |
+| [docs/GAMIFICATION.md](docs/GAMIFICATION.md)                 | Reglas de XP, niveles, rachas, metas e insignias                               |
 | [docs/ANALYTICS.md](docs/ANALYTICS.md)                       | Especificación de eventos de producto                                          |
 | [docs/TESTING.md](docs/TESTING.md)                           | Estrategia de pruebas y quality gate                                           |
 | [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)                     | Entornos, configuración externa, CI/CD, rollback                               |

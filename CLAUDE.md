@@ -6,7 +6,7 @@ Spanish-language (es-419) SQL learning SaaS for LATAM adults 25–35: realistic 
 
 ## Source of truth
 
-- Requirements: `docs/PRODUCT_REQUIREMENTS.md` · Architecture: `docs/ARCHITECTURE.md` · Data: `docs/DATABASE_DESIGN.md` · Sandbox: `docs/SQL_SANDBOX.md` · Security/privacy: `docs/SECURITY.md` · Payments: `docs/PAYMENTS.md` · Curriculum: `docs/CURRICULUM.md` · Content rules: `docs/CONTENT_GUIDELINES.md` · Design: `docs/DESIGN_SYSTEM.md` · Tests: `docs/TESTING.md` · Deploy: `docs/DEPLOYMENT.md` · Decisions + pending questions: `docs/DECISIONS.md` · Plan: `docs/ROADMAP.md` · Claude setup: `docs/CLAUDE_CODE_SETUP.md`.
+- Requirements: `docs/PRODUCT_REQUIREMENTS.md` · Architecture: `docs/ARCHITECTURE.md` · Data: `docs/DATABASE_DESIGN.md` · Sandbox: `docs/SQL_SANDBOX.md` · Security/privacy: `docs/SECURITY.md` · Payments: `docs/PAYMENTS.md` · Curriculum: `docs/CURRICULUM.md` · Content rules: `docs/CONTENT_GUIDELINES.md` · Gamification: `docs/GAMIFICATION.md` · Design: `docs/DESIGN_SYSTEM.md` · Tests: `docs/TESTING.md` · Deploy: `docs/DEPLOYMENT.md` · Decisions + pending questions: `docs/DECISIONS.md` · Plan: `docs/ROADMAP.md` · Claude setup: `docs/CLAUDE_CODE_SETUP.md`.
 - Detailed rules live in `.claude/rules/*.md` (path-scoped where possible). Do not duplicate a rule here; link to it.
 
 ## Stack (D-02)

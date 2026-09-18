@@ -82,10 +82,19 @@ test.describe("exercise workspace (journeys 3–8)", () => {
     await page.getByRole("button", { name: "Enviar respuesta" }).click();
     await expect(page.getByText("¡Correcto!")).toBeVisible({ timeout: 60_000 });
     await expect(page.getByText("Ejercicio completado")).toBeVisible();
+    // Solution was revealed → 25% of 10 XP = 3 XP, 0 coins (docs/CONTENT_GUIDELINES.md §6).
+    await expect(page.getByText("+3 XP · +0 monedas")).toBeVisible();
 
-    // Progress is reflected on the path.
+    // Progress is reflected on the path and the dashboard.
     await page.goto("/ruta");
     await expect(page.getByText("Completada").first()).toBeVisible();
+    await page.goto("/aprender");
+    await expect(page.getByText("1 día")).toBeVisible();
+    await expect(page.getByRole("link", { name: "Continuar" })).toBeVisible();
+    await page.goto("/logros");
+    await expect(page.getByText("Primera consulta")).toBeVisible();
+    await page.goto("/historial");
+    await expect(page.getByText("Correcto").first()).toBeVisible();
   });
 
   test("the sixth gated exercise is locked server-side (free limit)", async ({ page }) => {
