@@ -40,7 +40,7 @@ Status: Proposed · First-party `analytics_events` table with a documented spec 
 
 ### D-09 · Legal pages
 
-Status: **Pending owner** · Terms, privacy, refund policy drafted by the assistant as templates; require owner/legal review before production. Jurisdiction assumed Argentina.
+Status: **Partially answered (owner, 2026-09-19)** · The service is offered by the founder as an individual taxpayer (monotributo); "Data Minds Solutions" is a trade name, not a company. Legal drafts (`src/content/legal/*`) now name the founder as provider and mention type-C invoices. Still pending: street address and CUIT in `src/config/brand.ts` (the pages show a visible draft notice until then) and a lawyer's review of the wording. Jurisdiction assumed Argentina.
 
 ### D-10 · Rate limiting in Postgres
 
@@ -72,14 +72,14 @@ Status: **Accepted (2026-09-18)**. First-party events only, written server-side 
 
 ## Pending owner decisions (need an answer before the referenced phase)
 
-| #    | Question                                                                          | Needed by | Default if no answer                 |
-| ---- | --------------------------------------------------------------------------------- | --------- | ------------------------------------ |
-| D-09 | Who reviews legal pages? Company legal name, address, tax ID for footer/invoices? | Phase 9   | Placeholders, launch blocked         |
-| P-1  | Domain name (e.g. `academia.dataminds…`)?                                         | Phase 9   | Vercel subdomain                     |
-| P-3  | Google Workspace / support email for OAuth consent screen                         | Phase 2   | Owner's Gmail                        |
-| P-4  | Approve Supabase Pro + Vercel Pro (~US$45/mo) before production launch            | Phase 9   | Stay on free tiers, no public launch |
-| P-5  | Content style: use "tú" (recommended) or "usted"?                                 | Phase 3   | "tú"                                 |
-| P-6  | Certificate name shown: founder as "Instructor" and company as issuer?            | Phase 7   | Yes                                  |
+| #    | Question                                                                                                                                                                                     | Needed by | Default if no answer               |
+| ---- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- | ---------------------------------- |
+| D-09 | Street address + CUIT for legal pages; lawyer review of the drafts                                                                                                                           | Phase 9   | Draft notice stays visible         |
+| P-1  | Domain name (e.g. `academia.dataminds…`)?                                                                                                                                                    | Phase 9   | Vercel subdomain                   |
+| P-3  | Google Workspace / support email for OAuth consent screen                                                                                                                                    | Phase 2   | Owner's Gmail                      |
+| P-4  | Free tiers for soft launch (owner, 2026-09-19); Vercel Pro (US$20/mo) is required by Vercel's terms once access is sold (Hobby = non-commercial); Supabase Pro only when backups/PITR matter | Launch    | Free tiers, keep-alive workflow on |
+| P-5  | Content style: use "tú" (recommended) or "usted"?                                                                                                                                            | Phase 3   | "tú"                               |
+| P-6  | Certificate name shown: founder as "Instructor" and company as issuer?                                                                                                                       | Phase 7   | Yes                                |
 
 ## Rejected alternatives (summary)
 

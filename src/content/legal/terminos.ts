@@ -12,7 +12,7 @@ export const termsVersion = legal.termsVersion;
 export const termsMarkdown = `
 ## 1. Quiénes somos
 
-**${brand.productName}** es un servicio de **${brand.legalName}** («nosotros»), con domicilio en ${brand.legalAddress}, identificación fiscal ${brand.taxId}. Contacto: ${brand.supportEmail}.
+**${brand.productName}** es un servicio ofrecido por **${brand.legalName}** («nosotros»), con domicilio en ${brand.legalAddress}, CUIT ${brand.taxId}. Contacto: ${brand.supportEmail}. Las facturas se emiten como monotributista (comprobante tipo C).
 
 ## 2. Qué ofrecemos
 
