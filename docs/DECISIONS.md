@@ -70,6 +70,10 @@ Status: Proposed · 24 illustrated avatars; uploads require moderation + storage
 
 Status: **Accepted (2026-09-18)**. First-party events only, written server-side after Zod validation (docs/ANALYTICS.md). Not emitted at launch: `page_viewed` (would need an anonymous cookie id and a per-request write from the proxy; deferred until there is traffic worth measuring), `signup_started/completed` (Google OAuth happens off-site; `onboarding_completed` is the practical signup signal), `query_run` (browser runs never reach the server by design), `streak_frozen` (SQL-side). Owner metrics are computed on request by `admin_metrics()`; a materialized view is planned only if the RPC exceeds ~1 s.
 
+### D-16 · Cloud environments and the assistant's operating authority
+
+Status: **Accepted (2026-09-19)**. Single Supabase project `sqprmp` (ref `pgkbmhuehmotjctzjwxx`, Free, us-west-2) is the launch database (P-4: free tiers). Migrations 0001–0008 and seeds 0001–0003 were applied on 2026-09-19 with the CLI (`supabase migration up --linked`, `db query --file`); auth settings (custom access token hook, redirect URLs, email confirmations off, Google provider enabled) are managed from `supabase/config.toml` via `supabase config push` — the Google client id/secret are owner-provided env values, never committed. Code lives in `github.com/marcez223344-rgb/sqprmp`; Vercel team `sqprmp` (Hobby) hosts the app via the Git integration. The owner instructed: "do not ask me to type commands again … I approve you do it yourself" and "do not ask me permission for any more commands, I approve them all". The assistant therefore runs setup/deploy commands directly; the standing prohibitions that need a _fresh_ written go remain: production payment credentials, destructive/remote resets, force-push, pricing/legal changes.
+
 ## Pending owner decisions (need an answer before the referenced phase)
 
 | #    | Question                                                                                                                                                                                     | Needed by | Default if no answer               |

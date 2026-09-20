@@ -485,12 +485,14 @@
         "aggregation_level": "El nivel de agregación no coincide con lo pedido: revisa las columnas de GROUP BY.",
         "date_boundary": "Revisa los límites de fechas: con timestamps, '<= fecha' excluye el último día. Usa '< día siguiente'.",
         "null_handling": "Algunas filas con NULL pueden estar tratándose distinto de lo esperado. Revisa IS NULL / COALESCE.",
-        "improve.uses_select_star": "Evita SELECT * en entregas: nombra las columnas para que el resultado sea explícito.",
-        "improve.missing_alias_on_aggregate": "Da un alias a las columnas agregadas (por ejemplo, AS total) para que el reporte sea legible.",
-        "improve.no_table_alias_in_join": "Usa alias de tabla en los joins (orders o, customers c) para acortar y aclarar la consulta.",
-        "improve.uses_between_for_timestamps": "BETWEEN con timestamps incluye solo el instante 00:00 del último día; prefiere >= inicio AND < fin.",
-        "improve.uses_implicit_join": "Usa JOIN ... ON explícito en lugar de listar tablas separadas por coma.",
-        "improve.uppercase_inconsistent": "Mantén un estilo consistente: palabras clave en mayúsculas y nombres en minúsculas."
+        "improve": {
+          "uses_select_star": "Evita SELECT * en entregas: nombra las columnas para que el resultado sea explícito.",
+          "missing_alias_on_aggregate": "Da un alias a las columnas agregadas (por ejemplo, AS total) para que el reporte sea legible.",
+          "no_table_alias_in_join": "Usa alias de tabla en los joins (orders o, customers c) para acortar y aclarar la consulta.",
+          "uses_between_for_timestamps": "BETWEEN con timestamps incluye solo el instante 00:00 del último día; prefiere >= inicio AND < fin.",
+          "uses_implicit_join": "Usa JOIN ... ON explícito en lugar de listar tablas separadas por coma.",
+          "uppercase_inconsistent": "Mantén un estilo consistente: palabras clave en mayúsculas y nombres en minúsculas."
+        }
       }
     },
     "hints": {
