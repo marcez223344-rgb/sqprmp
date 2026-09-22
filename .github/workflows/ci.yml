@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
       - run: npm ci
       - run: npm run format:check
@@ -54,7 +54,7 @@ jobs:
       - run: supabase test db
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
       - run: npm ci
       - name: Generated types must match src/types/database.ts
@@ -62,10 +62,18 @@ jobs:
           supabase gen types typescript --local > /tmp/database.generated.ts
           cp src/types/database.ts /tmp/database.committed.ts
           npx prettier --write /tmp/database.generated.ts /tmp/database.committed.ts > /dev/null
+          cp /tmp/database.generated.ts database.generated.ts
           if ! diff -u /tmp/database.committed.ts /tmp/database.generated.ts; then
             echo "::error::src/types/database.ts drifted from the schema. Run: npx supabase gen types typescript --local > src/types/database.ts"
             exit 1
           fi
+      # Generating types needs Docker; contributors without it take the file from here.
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: database-types
+          path: database.generated.ts
+          retention-days: 7
 
   e2e:
     name: Playwright smoke
@@ -76,7 +84,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
       - run: npm ci
       - uses: supabase/setup-cli@v1
