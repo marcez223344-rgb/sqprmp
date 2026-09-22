@@ -368,6 +368,17 @@
       "not_started": "Sin empezar",
       "in_progress": "En curso",
       "completed": "Completada"
+    },
+    "progress": "{done} de {total} lecciones",
+    "progressAria": "Progreso de la sección {number}: {percent}%",
+    "current": "Continúa aquí",
+    "levelProgress": "{done} de {total} secciones completadas",
+    "premiumLesson": "Incluida en el acceso completo",
+    "lessonKind": {
+      "theory": "Teoría",
+      "exercise": "Ejercicio",
+      "quiz": "Quiz",
+      "challenge": "Desafío"
     }
   },
   "lesson": {
@@ -399,6 +410,15 @@
     },
     "exercise": {
       "soon": "Los ejercicios prácticos con editor SQL se activan en la fase del motor de ejercicios."
+    }
+  },
+  "datasets": {
+    "label": "Dataset",
+    "domain": {
+      "marketplace": "Marketplace",
+      "fintech": "Fintech",
+      "delivery": "Delivery",
+      "music": "Streaming de música"
     }
   },
   "workspace": {
@@ -574,7 +594,7 @@
     "theoryTitle": "Teoría relevante",
     "schemaTitle": "Definiciones de tablas",
     "hintsTitle": "Pistas",
-    "solutionTitle": "Solución",
+    "solutionTitle": "Solución (se desbloquea después de intentarlo)",
     "resultsMeta": "{rows} filas · {ms} ms",
     "hintErrors": {
       "unauthorized": "Debes iniciar sesión.",
@@ -583,7 +603,9 @@
       "validation": "No pudimos pedir esa pista.",
       "sequence": "Pide primero la pista anterior.",
       "rate_limited": "Espera un momento antes de pedir otra pista."
-    }
+    },
+    "schemaShowAll": "Ver las otras {count} tablas del dataset",
+    "schemaShowUsed": "Ver solo las tablas de este ejercicio"
   },
   "demo": {
     "title": "Prueba SQL en tu navegador",

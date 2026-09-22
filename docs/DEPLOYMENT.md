@@ -61,6 +61,32 @@ Every step below is performed by the **owner** (or by the assistant only with ex
 - [ ] Content: hardest exercises / frequent SQLSTATEs reviewed weekly; hints adjusted where reveal rate > 40 %.
 - [ ] Dependencies: Dependabot PRs merged weekly after `npm run quality`.
 
+## 5c. Owner runbook: admin, becas and metrics
+
+The first admin has to be promoted by hand, once, after the owner signs in with the Google account they will use as admin:
+
+```sql
+-- Supabase → SQL editor (or: npx supabase db query --linked "...")
+update public.profiles set role = 'admin' where id = (
+  select id from auth.users where email = '<the owner's Google address>'
+);
+```
+
+From then on, `/admin` is visible in the app header for that account only, with:
+
+| Page                  | What it is for                                                                                                            |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `/admin/metricas`     | signups, onboarding completion, exercises submitted, conversion — `admin_metrics()` computed on request                   |
+| `/admin/pagos`        | manual transfers waiting for approval; approve or reject with a reason (audited), and reconcile unmatched provider events |
+| `/admin/accesos`      | grant full access to a learner by alias — this is how a **beca** is given one-off                                         |
+| `/admin/promos`       | create promo codes, including `scholarship` codes that grant N days of access; deactivate them when the campaign ends     |
+| `/admin/usuarios`     | find a learner by alias, email or id; see their progress                                                                  |
+| `/admin/certificados` | issued certificates; revoke with a reason                                                                                 |
+| `/admin/flags`        | feature flags                                                                                                             |
+| `/admin/auditoria`    | every privileged action, who did it and why                                                                               |
+
+Scholarships in practice: for a handful of people use `/admin/accesos` (immediate, one learner). For a campaign — "20 becas para egresados de X" — create a `scholarship` promo code in `/admin/promos` with a redemption cap and an expiry, share the code, and deactivate it when the cap is reached. Both paths write to `audit_logs`.
+
 ## 6. Rollback
 
 App: promote previous Vercel deployment. DB: migrations are forward-only; destructive changes require an expand/contract plan and a backup (Supabase Pro daily backups).

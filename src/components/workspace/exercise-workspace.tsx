@@ -54,6 +54,7 @@ export function ExerciseWorkspace({ data }: { data: ExerciseWorkspaceData }) {
   const [hints, setHints] = useState(data.hints);
   const [hintPending, startHint] = useTransition();
   const [hintError, setHintError] = useState<string | null>(null);
+  const [showAllTables, setShowAllTables] = useState(false);
   const [solution, setSolution] = useState(data.solution);
   const [solutionPending, startReveal] = useTransition();
   const [solutionError, setSolutionError] = useState<string | null>(null);
@@ -67,6 +68,11 @@ export function ExerciseWorkspace({ data }: { data: ExerciseWorkspaceData }) {
     () =>
       (exercise.allowed_statements ?? ["select"]) as ("select" | "insert" | "update" | "delete")[],
     [exercise.allowed_statements],
+  );
+  const used = useMemo(() => new Set(exercise.tables_used ?? []), [exercise.tables_used]);
+  const visibleSchema = useMemo(
+    () => (showAllTables || used.size === 0 ? schema : schema.filter((tbl) => used.has(tbl.name))),
+    [schema, showAllTables, used],
   );
   const expectedColumns = useMemo(
     () => ((exercise.expected_columns as { name: string }[]) ?? []).map((c) => c.name),
@@ -209,7 +215,15 @@ export function ExerciseWorkspace({ data }: { data: ExerciseWorkspaceData }) {
 
         <div className="border-border bg-surface space-y-3 rounded-lg border p-5">
           <p className="text-sm font-medium">{t("schemaTitle")}</p>
-          <SchemaBrowser tables={schema} highlight={exercise.tables_used ?? []} />
+          {/* Only the tables this exercise needs: a dataset has ten of them and the rest is noise. */}
+          <SchemaBrowser tables={visibleSchema} highlight={exercise.tables_used ?? []} />
+          {schema.length > visibleSchema.length ? (
+            <Button variant="ghost" size="sm" onClick={() => setShowAllTables((v) => !v)}>
+              {showAllTables
+                ? t("schemaShowUsed")
+                : t("schemaShowAll", { count: schema.length - visibleSchema.length })}
+            </Button>
+          ) : null}
         </div>
 
         <details className="border-border bg-surface rounded-lg border p-5">

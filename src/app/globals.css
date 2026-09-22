@@ -18,6 +18,11 @@
   --accent-fg: #ffffff;
   --accent-ink: #b8461a; /* accent as text on light surfaces (≥ 4.5:1) */
   --success: #1c8a5a;
+  --success-ink: #15704a; /* success as text on light surfaces (--success only reaches 4.35:1) */
+  --dataset-marketplace: #6d3fc4;
+  --dataset-fintech: #0b7285;
+  --dataset-delivery: #96590c;
+  --dataset-music: #ad3a70;
   --warning: #b7791f;
   --danger: #c53a3a;
   --info: #2e6f9e;
@@ -42,6 +47,11 @@
   --accent-fg: #0e1117;
   --accent-ink: #ffa17a;
   --success: #4cc38a;
+  --success-ink: #4cc38a;
+  --dataset-marketplace: #b69bf0;
+  --dataset-fintech: #5fc8d8;
+  --dataset-delivery: #e0a93e;
+  --dataset-music: #ee87b4;
   --warning: #f0b35a;
   --danger: #f27474;
   --info: #6fb6e8;
@@ -63,6 +73,11 @@
   --color-accent-fg: var(--accent-fg);
   --color-accent-ink: var(--accent-ink);
   --color-success: var(--success);
+  --color-success-ink: var(--success-ink);
+  --color-dataset-marketplace: var(--dataset-marketplace);
+  --color-dataset-fintech: var(--dataset-fintech);
+  --color-dataset-delivery: var(--dataset-delivery);
+  --color-dataset-music: var(--dataset-music);
   --color-warning: var(--warning);
   --color-danger: var(--danger);
   --color-info: var(--info);

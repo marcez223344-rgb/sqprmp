@@ -5,3 +5,5 @@ export { products, enabledPaymentProviders, manualTransferChannels } from "./pri
 export type { ProductConfig, PriceConfig, PaymentProviderId, ProductKind } from "./pricing";
 export { social } from "./social";
 export { features, type FeatureFlag } from "./features";
+export { datasetIdentities, getDatasetIdentity } from "./datasets";
+export type { DatasetIdentity, DatasetAccent, DatasetIconName } from "./datasets";
