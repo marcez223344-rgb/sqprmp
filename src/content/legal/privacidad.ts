@@ -10,7 +10,7 @@ export const privacyVersion = legal.privacyVersion;
 export const privacyMarkdown = `
 ## 1. Responsable
 
-**${brand.legalName}**, ${brand.legalAddress}. Contacto para privacidad: ${brand.supportEmail}.
+**${brand.legalName}**${brand.legalAddress ? `, ${brand.legalAddress}` : ""}. Contacto para privacidad: ${brand.supportEmail}.
 
 ## 2. Qué datos tratamos
 

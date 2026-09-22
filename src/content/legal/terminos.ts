@@ -9,10 +9,18 @@ import { limits } from "@/config/limits";
  */
 export const termsVersion = legal.termsVersion;
 
+/** Address and CUIT appear only when configured; see docs/DECISIONS.md D-09. */
+const providerDetails = [
+  brand.legalAddress ? `con domicilio en ${brand.legalAddress}` : null,
+  brand.taxId ? `CUIT ${brand.taxId}` : null,
+]
+  .filter(Boolean)
+  .join(", ");
+
 export const termsMarkdown = `
 ## 1. Quiénes somos
 
-**${brand.productName}** es un servicio ofrecido por **${brand.legalName}** («nosotros»), con domicilio en ${brand.legalAddress}, CUIT ${brand.taxId}. Contacto: ${brand.supportEmail}. Las facturas se emiten como monotributista (comprobante tipo C).
+**${brand.productName}** es un servicio ofrecido por **${brand.legalName}** («nosotros»)${providerDetails ? `, ${providerDetails}` : ""}. Contacto: ${brand.supportEmail}. Las facturas se emiten como monotributista (comprobante tipo C).
 
 ## 2. Qué ofrecemos
 

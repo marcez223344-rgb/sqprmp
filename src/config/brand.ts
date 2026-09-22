@@ -16,13 +16,15 @@ export const brand = {
     dark: "/brand/logo-dark.svg",
     mark: "/brand/mark.svg",
   },
-  supportEmail: "hola@dataminds.example", // placeholder until P-3 is answered
+  supportEmail: "marcez223344@gmail.com",
   // D-09: the service is offered by the founder as an individual taxpayer (monotributo);
   // "Data Minds Solutions" is the trade name, not a company.
   legalName: "Marcelo Pisner (monotributista), nombre de fantasía Data Minds Solutions",
   legalEntityKind: "individual" as const,
-  legalAddress: "PENDIENTE (D-09)", // street address for legal pages; owner fills in (D-09)
-  taxId: "PENDIENTE (D-09)", // CUIT or equivalent; owner fills in (D-09)
+  // Empty while the owner chooses not to publish them (D-09): the legal pages then identify
+  // the provider by name and support email only. Required before charging in Argentina.
+  legalAddress: "",
+  taxId: "",
   jurisdiction: "Ciudad Autónoma de Buenos Aires, República Argentina",
   refundDays: 7,
 } as const;

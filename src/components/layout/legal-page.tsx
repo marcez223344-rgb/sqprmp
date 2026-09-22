@@ -17,6 +17,8 @@ export async function LegalPage({
   markdown: string;
 }) {
   const [t, format] = await Promise.all([getTranslations("legal"), getFormatter()]);
+  // The owner chose not to publish the address/CUIT (D-09); the texts omit them and the
+  // notice stays off. It reappears if a placeholder is ever put back into the config.
   const draft = brand.legalAddress.includes("PENDIENTE") || brand.taxId.includes("PENDIENTE");
   return (
     <div className="container-page max-w-3xl space-y-6 py-12">
