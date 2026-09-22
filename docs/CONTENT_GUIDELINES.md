@@ -72,3 +72,9 @@ Content is code-reviewed data in `src/content/`: `course.ts`, `sections.ts` (39 
 - [ ] Hints progressive, no leak
 - [ ] Language rules respected
 - [ ] Schema validation passes
+
+## Identifiers stay in English, with a Spanish gloss
+
+Tables and columns are named in English (`orders`, `customer_id`, `created_at`) because that is the convention in the jobs this course prepares for; teaching `pedidos.fecha_creacion` would make the product feel more Spanish and leave graduates less prepared. Everything around the identifier — scenario, business question, hints, explanations, column descriptions — is Spanish.
+
+So that English is never the barrier, `src/config/sql-glossary.ts` maps identifiers to a short Spanish gloss, shown next to each table and column in the schema panel. It resolves an exact name first, then a suffix rule (`_id`, `_at`, `_on`, `_count`, `is_`), and returns nothing when it is not confident: a missing gloss is better than a wrong one. A new dataset should add its table names and any domain-specific column to that file.

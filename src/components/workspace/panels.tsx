@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { AlertTriangle, CheckCircle2, ChevronDown, Info, Lightbulb, XCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { glossFor } from "@/config/sql-glossary";
 import type { FeedbackItem } from "@/lib/validation/feedback";
 import { cn } from "@/lib/utils/cn";
 import { MarkdownClient } from "./markdown-client";
@@ -48,6 +49,11 @@ export function SchemaBrowser({
               >
                 <span className="font-mono font-medium">
                   {table.name}
+                  {glossFor(table.name) ? (
+                    <span className="text-muted ml-2 font-sans text-xs font-normal italic">
+                      {glossFor(table.name)}
+                    </span>
+                  ) : null}
                   {used ? (
                     <span className="bg-primary/10 text-primary ml-2 rounded-full px-2 py-0.5 font-sans text-[10px] uppercase">
                       {t("used")}
@@ -85,6 +91,13 @@ export function SchemaBrowser({
                       <tr key={c.name} className="border-border/60 border-t align-top">
                         <td className="py-1 pr-2 font-mono whitespace-nowrap">
                           {c.name}
+                          {/* The identifiers stay in English, as in any data job; the gloss is
+                              there so that is never a barrier to reading the schema. */}
+                          {glossFor(c.name) ? (
+                            <span className="text-muted ml-2 font-sans text-[10px] italic">
+                              {glossFor(c.name)}
+                            </span>
+                          ) : null}
                           {c.is_pk ? <span className="text-muted ml-1 text-[10px]">PK</span> : null}
                           {c.fk_ref ? (
                             <span className="text-muted ml-1 text-[10px]">→ {c.fk_ref}</span>
