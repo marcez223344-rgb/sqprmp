@@ -78,7 +78,12 @@ test.describe("exercise workspace (journeys 3–8)", () => {
     await expect(page.getByText("Pista 2")).toBeVisible();
 
     // Solution unlocks after 2 hints; it lives in a collapsed panel.
-    await page.locator("summary").filter({ hasText: "Solución" }).click();
+    // Open the disclosure by its own state rather than by clicking a label that also appears in
+    // the panel body; a click that lands while the panel is re-rendering toggles it shut again.
+    const solutionPanel = page.locator("details", { has: page.locator("summary") }).filter({
+      hasText: "Solución",
+    });
+    await solutionPanel.evaluate((el: HTMLDetailsElement) => (el.open = true));
     await page.getByRole("button", { name: "Ver la solución explicada" }).click();
     await expect(page.locator("pre", { hasText: "ORDER BY id" })).toBeVisible();
 
