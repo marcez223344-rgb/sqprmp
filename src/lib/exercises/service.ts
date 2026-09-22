@@ -192,10 +192,36 @@ async function readSolution(exerciseId: string): Promise<ExerciseWorkspaceData["
 
 /** Records that the learner opened a gated exercise (consumes a free slot; idempotent). */
 export async function ensureExerciseStarted(profile: Profile, exerciseId: string): Promise<void> {
-  await createAdminClient().rpc("start_exercise", {
+  const { error } = await createAdminClient().rpc("start_exercise", {
     p_user_id: profile.id,
     p_exercise_id: exerciseId,
   });
+  // Swallowing this silently made every later access check look like a paywall: without the
+  // progress row the learner appears never to have opened the exercise.
+  if (error) console.error("[exercises] start_exercise failed", error.message);
+}
+
+/**
+ * The access check every learner-triggered action runs first.
+ *
+ * A failed call is not a paywall. Telling someone to pay because an RPC broke is the worst
+ * possible error message, and it is exactly what the three actions below used to do, because a
+ * null result is `!== "ok"`. Failures now come back as "unavailable" and are logged.
+ */
+async function checkAccess(
+  profile: Profile,
+  exerciseId: string,
+): Promise<"ok" | "locked" | "unavailable" | "failed"> {
+  const { data, error } = await createAdminClient().rpc("can_access_exercise", {
+    p_user_id: profile.id,
+    p_exercise_id: exerciseId,
+    p_free_limit: limits.freeExerciseLimit,
+  });
+  if (error || data === null) {
+    console.error("[exercises] can_access_exercise failed", error?.message ?? "null result");
+    return "failed";
+  }
+  return data as "ok" | "locked" | "unavailable";
 }
 
 export interface SubmitResult {
@@ -244,17 +270,8 @@ export async function submitExercise(
   SubmitResult | { error: "unauthorized" | "locked" | "rate_limited" | "not_found" | "unavailable" }
 > {
   const admin = createAdminClient();
-  const { data: access, error: accessError } = await admin.rpc("can_access_exercise", {
-    p_user_id: profile.id,
-    p_exercise_id: exerciseId,
-    p_free_limit: limits.freeExerciseLimit,
-  });
-  // A failed call is not a paywall: telling a learner to pay because an RPC broke is the worst
-  // possible error message. Fail loudly instead.
-  if (accessError || access === null) {
-    console.error("[exercises] can_access_exercise failed", accessError?.message);
-    return { error: "unavailable" };
-  }
+  const access = await checkAccess(profile, exerciseId);
+  if (access === "failed") return { error: "unavailable" };
   if (access === "unavailable") return { error: "not_found" };
   if (access !== "ok") return { error: "locked" };
   if (!(await consume(`submit:${profile.id}`, limits.rateLimits.submit)))
@@ -444,15 +461,15 @@ export async function requestHint(
   level: number,
 ): Promise<
   | { hint: { level: number; body_md: string } }
-  | { error: "unauthorized" | "locked" | "rate_limited" | "sequence" | "not_found" }
+  | { error: "unauthorized" | "locked" | "rate_limited" | "sequence" | "not_found" | "unavailable" }
 > {
   const admin = createAdminClient();
-  const { data: access } = await admin.rpc("can_access_exercise", {
-    p_user_id: profile.id,
-    p_exercise_id: exerciseId,
-    p_free_limit: limits.freeExerciseLimit,
-  });
+  const access = await checkAccess(profile, exerciseId);
+  if (access === "failed") return { error: "unavailable" };
   if (access !== "ok") return { error: access === "unavailable" ? "not_found" : "locked" };
+  // Opening the hint panel must not depend on the page having created the progress row first;
+  // unlock_hint writes against it.
+  await ensureExerciseStarted(profile, exerciseId);
   if (!(await consume(`hint:${profile.id}`, limits.rateLimits.hint)))
     return { error: "rate_limited" };
   const { data, error } = await admin.rpc("unlock_hint", {
@@ -477,14 +494,11 @@ export async function revealSolution(
   explicit: boolean,
 ): Promise<
   | { solution: NonNullable<ExerciseWorkspaceData["solution"]> }
-  | { error: "unauthorized" | "locked" | "not_unlockable" | "not_found" }
+  | { error: "unauthorized" | "locked" | "not_unlockable" | "not_found" | "unavailable" }
 > {
   const admin = createAdminClient();
-  const { data: access } = await admin.rpc("can_access_exercise", {
-    p_user_id: profile.id,
-    p_exercise_id: exerciseId,
-    p_free_limit: limits.freeExerciseLimit,
-  });
+  const access = await checkAccess(profile, exerciseId);
+  if (access === "failed") return { error: "unavailable" };
   if (access !== "ok") return { error: access === "unavailable" ? "not_found" : "locked" };
   await admin.rpc("start_exercise", { p_user_id: profile.id, p_exercise_id: exerciseId });
   const { data: progress } = await admin

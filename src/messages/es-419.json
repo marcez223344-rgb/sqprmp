@@ -510,7 +510,8 @@
       "unauthorized": "Debes iniciar sesión.",
       "locked": "Este ejercicio requiere el plan completo.",
       "not_unlockable": "Todavía no se puede revelar la solución.",
-      "not_found": "No encontramos la solución."
+      "not_found": "No encontramos la solución.",
+      "unavailable": "No pudimos verificar tu acceso ahora mismo. Vuelve a intentar en unos segundos."
     },
     "feedback": {
       "title": "Retroalimentación",
@@ -602,7 +603,8 @@
       "not_found": "No encontramos la pista.",
       "validation": "No pudimos pedir esa pista.",
       "sequence": "Pide primero la pista anterior.",
-      "rate_limited": "Espera un momento antes de pedir otra pista."
+      "rate_limited": "Espera un momento antes de pedir otra pista.",
+      "unavailable": "No pudimos verificar tu acceso ahora mismo. Vuelve a intentar en unos segundos."
     },
     "schemaShowAll": "Ver las otras {count} tablas del dataset",
     "schemaShowUsed": "Ver solo las tablas de este ejercicio",
