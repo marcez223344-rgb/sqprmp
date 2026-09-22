@@ -90,6 +90,12 @@ jobs:
             echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$(grep '^ANON_KEY=' .supabase-status.env | cut -d= -f2- | tr -d '"')"
             echo "SUPABASE_SECRET_KEY=$(grep '^SERVICE_ROLE_KEY=' .supabase-status.env | cut -d= -f2- | tr -d '"')"
             echo "E2E_SUPABASE=1"
+            # The webhook suite asserts that a bad hottok is rejected with 401, which only
+            # happens when the provider is enabled; the token itself is a throwaway test value.
+            echo "PAYMENT_PROVIDERS=manual,hotmart"
+            echo "HOTMART_WEBHOOK_HOTTOK=e2e-not-a-real-token"
+            echo "HOTMART_ENV=sandbox"
+            echo "HOTMART_SKIP_REFETCH=true"
           } >> "$GITHUB_ENV"
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e

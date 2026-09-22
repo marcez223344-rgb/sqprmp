@@ -11,6 +11,8 @@ Automated: `tests/e2e/a11y.spec.ts` (axe-core, tags wcag2a/2aa/21a/21aa/22aa) on
 | A-3 | 1.4.10 Reflow     | Landing header overflowed by 98 px at 768 px (desktop nav + CTAs).                                         | Public header switches to the desktop nav at `lg` (1024); app header at `xl` (1280) since it carries 7 links + admin + logout. Mobile nav remains a horizontal, scrollable list. |
 | A-4 | 2.1.1 Keyboard    | Mobile disclosure menu did not close with Escape.                                                          | Escape closes it and returns focus to the trigger (`SiteHeader`).                                                                                                                |
 
+| A-5 | 1.4.3 Contrast | Section cards in the "soon" state carried `opacity-80`, which pulled `--text-muted` (#5B6474) down to 3.83:1 on the page surface — 55 nodes on `/curriculo` once the real curriculum was seeded (found by CI, not by the local run against an empty database). | The blanket opacity is gone; "soon" is conveyed by a dashed border plus the existing icon and label (`LearningPath`). |
+
 ## Manual checklist (desktop Chrome + NVDA-style reading order; mobile Pixel 7 emulation)
 
 - [x] Skip link is the first Tab stop on every layout and moves focus to `<main id="contenido">`.

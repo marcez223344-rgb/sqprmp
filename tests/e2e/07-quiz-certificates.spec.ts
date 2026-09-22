@@ -150,7 +150,7 @@ test.describe("quizzes and certificates", () => {
     await expect(card.getByText("Listo para emitir")).toBeVisible();
     await card.getByLabel("Nombre completo para el certificado").fill("Quiz Prueba");
     await card.getByRole("button", { name: "Emitir certificado" }).click();
-    await expect(card.getByText("Emitido")).toBeVisible();
+    await expect(card.getByText("Emitido", { exact: true })).toBeVisible();
     await expect(card.getByText(/DMSA-\d{4}-[A-Z0-9]{8}/)).toBeVisible();
 
     const pdf = await page.request.get(

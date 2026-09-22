@@ -41,3 +41,5 @@ Thumbs.db
 !.vscode/extensions.json
 public/pglite/
 public/sandbox-core/
+# Vercel CLI link + downloaded env
+.vercel

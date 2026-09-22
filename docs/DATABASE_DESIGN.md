@@ -160,6 +160,7 @@ Every migration that creates a table must: `enable row level security`, add poli
 - Free limit (D-01) is **start-based**: `free_exercises_used()` counts gated exercises with a progress row, because opening an exercise reveals its statement and enables the local engine. `can_access_exercise()` returns `ok | locked | unavailable` and keeps already-started exercises accessible; admins and active entitlements bypass (`has_active_entitlement()` tolerates the entitlements table not existing until Phase 6).
 - Activity RPCs are service-role only (`start_exercise`, `record_attempt`, `unlock_hint`, `reveal_solution`, `log_query_execution`); the server has already authorized, gated and executed the SQL. `save_exercise_draft` is learner-callable (own row).
 - `record_attempt` returns `first_completion` exactly once per (user, exercise); Phase 5 awards rewards from that flag. Hints unlock sequentially (`P0001/hint_sequence`).
+- `record_attempt` names two of its OUT columns after table columns (`attempts_count`, `genuine_attempts_count`); its UPDATE must qualify every right-hand reference with the table alias, or Postgres raises `42702 column reference is ambiguous` (PGlite does not, which is why `db:validate` missed it). Fixed in `20260922120000_fix_record_attempt_ambiguity.sql`; covered by `supabase/tests/0004_exercise_activity.test.sql`.
 - `query_executions` stores SQL hash/length/duration/SQLSTATE only (raw SQL lives in `attempts`, learner-readable).
 
 ### 4f. Implementation notes (Phase 5, migration `20260918210000_gamification.sql`)

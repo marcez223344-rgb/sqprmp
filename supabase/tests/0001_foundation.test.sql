@@ -14,7 +14,7 @@ insert into public.avatars (slug, image_path, alt_text, is_active) values ('a1',
 
 -- anon: sees only active avatars, no profiles
 set local role anon;
-select is((select count(*) from public.avatars), 1::bigint, 'anon sees only active avatars');
+select is((select count(*) from public.avatars where slug in ('a1', 'a2')), 1::bigint, 'anon sees only active avatars');
 select throws_ok('select * from public.profiles', '42501', null, 'anon cannot read profiles');
 reset role;
 
@@ -29,7 +29,8 @@ select is((select alias::text from public.profiles), 'ana_sql', 'learner can set
 select throws_ok('update public.profiles set role = ''admin''', '42501', null, 'learner has no column grant on role');
 select is(public.check_alias_available('bruno_x'), true, 'alias available');
 select is(public.check_alias_available('ana_sql'), true, 'own alias reads as available for the owner');
-select throws_ok('select * from public.audit_logs', '42501', null, 'learner cannot read audit logs');
+-- authenticated holds the SELECT grant; RLS (admin only) is what hides the rows.
+select is((select count(*) from public.audit_logs), 0::bigint, 'learner reads no audit logs');
 reset role;
 
 -- learner Bruno cannot take Ana's alias (normalized collision)

@@ -59,7 +59,9 @@ export async function LearningPath({
                   key={s.id}
                   className={cn(
                     "border-border bg-surface rounded-lg border p-5",
-                    state === "soon" && "opacity-80",
+                    // A blanket opacity dropped the muted text below 4.5:1 (axe color-contrast);
+                    // "soon" is conveyed by the dashed border plus the icon and label instead.
+                    state === "soon" && "border-dashed",
                   )}
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
