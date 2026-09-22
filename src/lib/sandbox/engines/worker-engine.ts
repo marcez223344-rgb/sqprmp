@@ -37,6 +37,10 @@ class DatasetWorker {
     const worker = new Worker(workerPath, {
       workerData: { datasetDir: this.datasetDir },
       resourceLimits: { maxOldGenerationSizeMb: limits.sandbox.workerMemoryMb },
+      // Workers inherit the parent's execArgv, which under `next start` carries Next's module
+      // loader; the worker then resolved @electric-sql/pglite to a bundled .next chunk whose
+      // wasm/data lookups fail (ERR_INVALID_ARG_TYPE on a URL). The worker needs no flags.
+      execArgv: [],
     });
     this.worker = worker;
     return new Promise<void>((resolve, reject) => {

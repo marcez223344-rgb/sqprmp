@@ -7,10 +7,18 @@ import "./native-url.mjs";
 import { parentPort, workerData } from "node:worker_threads";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { PGlite } from "@electric-sql/pglite";
+import { createRequire } from "node:module";
+import { pathToFileURL } from "node:url";
 import { loadDatasetInto, runLearnerQuery, PgQueryError } from "./engine-core.mjs";
 
 const { datasetDir } = /** @type {{ datasetDir: string }} */ (workerData);
+
+// Resolved to an absolute path on purpose: a bare specifier can be redirected by a module
+// loader inherited from the host process (Next's, under `next start`) to a bundled copy of
+// PGlite whose wasm/data lookups fail. This always loads the package from node_modules.
+const { PGlite } = await import(
+  pathToFileURL(createRequire(import.meta.url).resolve("@electric-sql/pglite")).href
+);
 
 /** @type {Promise<PGlite>} */
 const ready = (async () => {
