@@ -1,10 +1,11 @@
 /**
- * Generates the curated avatar set (D-14): 24 abstract geometric compositions in the brand
- * palette, gender-neutral and culture-neutral. Deterministic: same input → same SVG.
+ * Generates the curated avatar set (D-14): 24 abstract geometric compositions plus the character
+ * and mascot avatars in scripts/avatar-characters.ts. Deterministic: same input → same SVG.
  * Output: public/avatars/<slug>.svg and supabase/seed/0001_avatars.sql
  */
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { characterAvatars } from "./avatar-characters";
 
 const palettes = [
   { name: "indigo", bg: "#2B4FE0", fg: "#FFFFFF", accent: "#F2652E" },
@@ -73,6 +74,14 @@ for (const shape of shapes) {
       `  ('${slug}', '/avatars/${slug}.svg', '${alt.replace(/'/g, "''")}', true, ${order++})`,
     );
   }
+}
+
+// Character avatars come after the abstract set so existing sort orders do not move.
+for (const c of characterAvatars()) {
+  writeFileSync(join(outDir, `${c.slug}.svg`), c.svg);
+  rows.push(
+    `  ('${c.slug}', '/avatars/${c.slug}.svg', '${c.label.replace(/'/g, "''")}', true, ${order++})`,
+  );
 }
 
 const seed =

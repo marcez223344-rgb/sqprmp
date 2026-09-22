@@ -42,7 +42,7 @@ const stepFields: Record<Step, (keyof OnboardingValues)[]> = {
   2: ["accept_terms", "accept_privacy"],
 };
 
-type AliasState = "idle" | "checking" | "available" | "taken" | "invalid";
+type AliasState = "idle" | "checking" | "available" | "taken" | "invalid" | "unknown";
 
 export function OnboardingForm({ avatars, next, defaults }: Props) {
   const t = useTranslations("onboarding");
@@ -51,6 +51,8 @@ export function OnboardingForm({ avatars, next, defaults }: Props) {
   const [pending, startTransition] = useTransition();
   const [serverError, setServerError] = useState<string | null>(null);
   const [aliasCheck, setAliasCheck] = useState<{ alias: string; available: boolean } | null>(null);
+  // A failed availability check must not trap the learner: the server re-validates on submit.
+  const [aliasCheckFailed, setAliasCheckFailed] = useState(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
 
   const form = useForm<OnboardingInput, unknown, OnboardingValues>({
@@ -79,7 +81,9 @@ export function OnboardingForm({ avatars, next, defaults }: Props) {
     : !aliasValid
       ? "invalid"
       : aliasCheck?.alias !== alias
-        ? "checking"
+        ? aliasCheckFailed
+          ? "unknown"
+          : "checking"
         : aliasCheck.available
           ? "available"
           : "taken";
@@ -88,11 +92,13 @@ export function OnboardingForm({ avatars, next, defaults }: Props) {
   useEffect(() => {
     if (!aliasValid) return;
     let cancelled = false;
+    setAliasCheckFailed(false);
     const handle = setTimeout(async () => {
       const result = await checkAlias(alias);
       if (cancelled) return;
-      // A limiter/network error leaves the state as "checking"; the server re-validates on submit.
       if (result.ok) setAliasCheck({ alias, available: Boolean(result.data?.available) });
+      // Rate limit or network error: stop blocking the step and let the server decide.
+      else setAliasCheckFailed(true);
     }, 450);
     return () => {
       cancelled = true;
@@ -226,6 +232,8 @@ export function OnboardingForm({ avatars, next, defaults }: Props) {
                     <X className="size-4" aria-hidden="true" />
                     {t("aliasStatus.taken")}
                   </span>
+                ) : aliasState === "unknown" ? (
+                  <span className="text-muted text-xs">{t("aliasStatus.unknown")}</span>
                 ) : null}
               </span>
             </div>

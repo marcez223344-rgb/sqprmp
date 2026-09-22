@@ -3,7 +3,18 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import dynamic from "next/dynamic";
-import { ArrowRight, BookOpen, Loader2, Play, RotateCcw, Save, Send, Eye } from "lucide-react";
+import {
+  ArrowRight,
+  BookOpen,
+  CheckCircle2,
+  Circle,
+  Eye,
+  Loader2,
+  Play,
+  RotateCcw,
+  Save,
+  Send,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { limits } from "@/config/limits";
@@ -16,7 +27,6 @@ import {
 import type { ExerciseWorkspaceData, SubmitResult } from "@/lib/exercises/service";
 import { BrowserEngine, type BrowserEngineState } from "@/lib/sandbox/browser-engine";
 import type { SandboxOutcome } from "@/lib/sandbox/types";
-import { cn } from "@/lib/utils/cn";
 import { MarkdownClient } from "./markdown-client";
 import { FeedbackPanel, HintPanel, SchemaBrowser } from "./panels";
 import { ResultsTable } from "./results-table";
@@ -28,8 +38,6 @@ const SqlEditor = dynamic(() => import("./sql-editor").then((m) => m.SqlEditor),
     <div className="border-border bg-surface-2 h-48 animate-pulse rounded-md border" />
   ),
 });
-
-type Tab = "schema" | "theory" | "hints" | "solution";
 
 export function ExerciseWorkspace({ data }: { data: ExerciseWorkspaceData }) {
   const t = useTranslations("workspace");
@@ -49,7 +57,6 @@ export function ExerciseWorkspace({ data }: { data: ExerciseWorkspaceData }) {
   const [solutionPending, startReveal] = useTransition();
   const [solutionError, setSolutionError] = useState<string | null>(null);
   const [confirmReveal, setConfirmReveal] = useState(false);
-  const [tab, setTab] = useState<Tab>("schema");
   const [draftStatus, setDraftStatus] = useState<"idle" | "saving" | "saved">("idle");
   const [completed, setCompleted] = useState(progress?.status === "completed");
   const lastSubmittedSql = useRef<string | null>(null);
@@ -59,6 +66,18 @@ export function ExerciseWorkspace({ data }: { data: ExerciseWorkspaceData }) {
     () =>
       (exercise.allowed_statements ?? ["select"]) as ("select" | "insert" | "update" | "delete")[],
     [exercise.allowed_statements],
+  );
+  const expectedColumns = useMemo(
+    () => ((exercise.expected_columns as { name: string }[]) ?? []).map((c) => c.name),
+    [exercise.expected_columns],
+  );
+  // Ticked from the last local run: the learner sees the target take shape while writing.
+  const producedColumns = useMemo(
+    () =>
+      new Set(
+        runResult?.ok ? runResult.columns.map((c) => c.name.toLowerCase()) : ([] as string[]),
+      ),
+    [runResult],
   );
   const editorSchema = useMemo(
     () => Object.fromEntries(schema.map((s) => [s.name, s.columns.map((c) => c.name)])),
@@ -131,7 +150,6 @@ export function ExerciseWorkspace({ data }: { data: ExerciseWorkspaceData }) {
 
   const unlockable =
     submitResult?.solutionUnlockable ?? (progress ? progressUnlockable(progress) : false);
-  const usedHints = hints.length;
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
@@ -142,86 +160,55 @@ export function ExerciseWorkspace({ data }: { data: ExerciseWorkspaceData }) {
           <MarkdownClient>{exercise.scenario_md ?? ""}</MarkdownClient>
           <h2 className="text-lg">{t("businessQuestion")}</h2>
           <MarkdownClient>{exercise.business_question_md ?? ""}</MarkdownClient>
-          <p className="text-muted text-sm">
-            <strong className="text-text">{t("expectedColumns")}:</strong>{" "}
-            <code className="font-mono">
-              {((exercise.expected_columns as { name: string }[]) ?? [])
-                .map((c) => c.name)
-                .join(", ")}
-            </code>
-          </p>
+          <div className="space-y-2">
+            <p className="text-sm font-medium">{t("expectedColumns")}</p>
+            <p className="text-muted text-xs">{t("expectedColumnsHint")}</p>
+            <ul className="space-y-1.5">
+              {expectedColumns.map((c) => {
+                const present = producedColumns.has(c.toLowerCase());
+                return (
+                  <li key={c} className="flex items-center gap-2 text-sm">
+                    {present ? (
+                      <CheckCircle2 aria-hidden="true" className="text-success size-4 shrink-0" />
+                    ) : (
+                      <Circle aria-hidden="true" className="text-muted size-4 shrink-0" />
+                    )}
+                    <code className="font-mono">{c}</code>
+                    <span className="sr-only">
+                      {present ? t("columnPresent") : t("columnPending")}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
         </div>
 
-        <div className="border-border bg-surface rounded-lg border">
-          <div role="tablist" aria-label={t("tabs.label")} className="border-border flex border-b">
-            {(["schema", "theory", "hints", "solution"] as Tab[]).map((id) => (
-              <button
-                key={id}
-                role="tab"
-                type="button"
-                id={`tab-${id}`}
-                aria-selected={tab === id}
-                aria-controls={`panel-${id}`}
-                onClick={() => setTab(id)}
-                className={cn(
-                  "px-4 py-2.5 text-sm font-medium",
-                  tab === id ? "border-primary text-text border-b-2" : "text-muted hover:text-text",
-                )}
-              >
-                {t(`tabs.${id}`)}
-                {id === "hints" && usedHints ? ` (${usedHints}/${limits.hints.levels})` : ""}
-              </button>
-            ))}
-          </div>
-          <div
-            id="panel-schema"
-            role="tabpanel"
-            aria-labelledby="tab-schema"
-            hidden={tab !== "schema"}
-            className="p-4"
-          >
-            <SchemaBrowser tables={schema} highlight={exercise.tables_used ?? []} />
-          </div>
-          <div
-            id="panel-theory"
-            role="tabpanel"
-            aria-labelledby="tab-theory"
-            hidden={tab !== "theory"}
-            className="space-y-3 p-4 text-sm"
-          >
-            <p>{exercise.learning_objective}</p>
-            {data.theoryLessonSlug ? (
-              <Link
-                href={`/leccion/${data.theoryLessonSlug}`}
-                className="text-primary inline-flex items-center gap-2 underline underline-offset-4"
-              >
-                <BookOpen aria-hidden="true" className="size-4" />
-                {t("openTheory")}
-              </Link>
-            ) : null}
-          </div>
-          <div
-            id="panel-hints"
-            role="tabpanel"
-            aria-labelledby="tab-hints"
-            hidden={tab !== "hints"}
-            className="p-4"
-          >
-            <HintPanel
-              hints={hints}
-              onRequest={requestHint}
-              pending={hintPending}
-              maxLevel={limits.hints.levels}
-              penaltyPercent={limits.hints.xpPenaltyPercentPerHint}
-            />
-          </div>
-          <div
-            id="panel-solution"
-            role="tabpanel"
-            aria-labelledby="tab-solution"
-            hidden={tab !== "solution"}
-            className="space-y-3 p-4 text-sm"
-          >
+        {/* Theory stays next to the statement: a tab would take the learner away from the task. */}
+        <div className="border-border bg-surface space-y-2 rounded-lg border p-5">
+          <p className="text-accent-ink text-xs font-semibold tracking-wide uppercase">
+            {t("theoryTitle")}
+          </p>
+          <p className="text-sm">{exercise.learning_objective}</p>
+          {data.theoryLessonSlug ? (
+            <Link
+              href={`/leccion/${data.theoryLessonSlug}`}
+              className="text-primary inline-flex min-h-10 items-center gap-2 text-sm underline underline-offset-4"
+            >
+              <BookOpen aria-hidden="true" className="size-4" />
+              {t("openTheory")}
+            </Link>
+          ) : null}
+        </div>
+
+        <div className="border-border bg-surface space-y-3 rounded-lg border p-5">
+          <p className="text-sm font-medium">{t("schemaTitle")}</p>
+          <SchemaBrowser tables={schema} highlight={exercise.tables_used ?? []} />
+        </div>
+
+        <details className="border-border bg-surface rounded-lg border p-5">
+          <summary className="cursor-pointer text-sm font-medium">{t("solutionTitle")}</summary>
+          <div className="mt-3 space-y-3 text-sm">
             {solution ? (
               <>
                 <pre className="border-border bg-surface-2 overflow-x-auto rounded-md border p-3 font-mono text-xs">
@@ -292,7 +279,7 @@ export function ExerciseWorkspace({ data }: { data: ExerciseWorkspaceData }) {
               </p>
             ) : null}
           </div>
-        </div>
+        </details>
       </section>
 
       {/* Right: editor + results + feedback */}
@@ -372,10 +359,28 @@ export function ExerciseWorkspace({ data }: { data: ExerciseWorkspaceData }) {
         </div>
 
         <div className="border-border bg-surface rounded-lg border p-4">
-          <h2 className="mb-3 text-sm font-medium">{t("results.title")}</h2>
+          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-sm font-medium">{t("results.title")}</h2>
+            {runResult?.ok ? (
+              <p className="text-muted text-xs">
+                {t("resultsMeta", { rows: runResult.rows.length, ms: runResult.durationMs ?? 0 })}
+              </p>
+            ) : null}
+          </div>
           <ResultsTable
             outcome={runResult}
             caption={t("results.caption", { title: exercise.title ?? "" })}
+          />
+        </div>
+
+        <div className="border-border bg-surface rounded-lg border p-4">
+          <h2 className="mb-3 text-sm font-medium">{t("hintsTitle")}</h2>
+          <HintPanel
+            hints={hints}
+            onRequest={requestHint}
+            pending={hintPending}
+            maxLevel={limits.hints.levels}
+            penaltyPercent={limits.hints.xpPenaltyPercentPerHint}
           />
         </div>
 

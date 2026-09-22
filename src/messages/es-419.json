@@ -99,6 +99,16 @@
     "finalCta": {
       "title": "Tu próximo paso en datos empieza con una consulta",
       "cta": "Crear mi cuenta gratis"
+    },
+    "path": {
+      "title": "La ruta de aprendizaje",
+      "sections": "{count} secciones",
+      "levels": {
+        "beginner": "Fundamentos",
+        "intermediate": "Agregación y JOINs",
+        "advanced": "Subconsultas y ventanas",
+        "expert": "Análisis de negocio"
+      }
     }
   },
   "auth": {
@@ -183,6 +193,17 @@
       "history": "Historial de intentos",
       "savedQueries": "Consultas guardadas",
       "badges": "Insignias"
+    },
+    "tiles": {
+      "level": "Nivel",
+      "xp": "XP total",
+      "coins": "Monedas",
+      "streakDays": "Racha (días)"
+    },
+    "review": {
+      "title": "Repaso recomendado",
+      "body": "Vuelve sobre las preguntas que fallaste o que ya casi olvidas. Cinco minutos alcanzan.",
+      "cta": "Repasar ahora"
     }
   },
   "onboarding": {
@@ -216,7 +237,8 @@
     "aliasStatus": {
       "checking": "Verificando",
       "available": "Disponible",
-      "taken": "No disponible"
+      "taken": "No disponible",
+      "unknown": "No pudimos verificarlo ahora; lo confirmamos al guardar."
     },
     "options": {
       "gender": {
@@ -531,7 +553,15 @@
       "error": "No pudimos guardar la consulta."
     },
     "rewardEarned": "+{xp} XP · +{coins} monedas",
-    "badgesEarned": "{count, plural, =1 {1 insignia nueva} other {# insignias nuevas}}"
+    "badgesEarned": "{count, plural, =1 {1 insignia nueva} other {# insignias nuevas}}",
+    "expectedColumnsHint": "Tu resultado debe tener estas columnas.",
+    "columnPresent": "incluida en tu último resultado",
+    "columnPending": "todavía no aparece en tu resultado",
+    "theoryTitle": "Teoría relevante",
+    "schemaTitle": "Definiciones de tablas",
+    "hintsTitle": "Pistas",
+    "solutionTitle": "Solución",
+    "resultsMeta": "{rows} filas · {ms} ms"
   },
   "demo": {
     "title": "Prueba SQL en tu navegador",

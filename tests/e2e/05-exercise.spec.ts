@@ -58,22 +58,23 @@ test.describe("exercise workspace (journeys 3–8)", () => {
     );
     await expect(page.getByText("Ejercicios gratis usados: 1 de 5")).toBeVisible();
 
+    // The expected-column checklist ticks as the local run produces the columns.
+    await expect(page.getByRole("code").filter({ hasText: "full_name" }).first()).toBeVisible();
+
     // Wrong columns → blocking feedback naming the missing columns.
     await typeSql(page, "select id from customers order by id limit 10");
     await page.getByRole("button", { name: "Enviar respuesta" }).click();
     await expect(page.getByText("Todavía no")).toBeVisible({ timeout: 60_000 });
     await expect(page.getByText(/Faltan columnas.*full_name/)).toBeVisible();
 
-    // Hints unlock sequentially and show Markdown.
-    await page.getByRole("tab", { name: /Pistas/ }).click();
+    // Hints unlock sequentially and show Markdown; they sit under the results, not behind a tab.
     await page.getByRole("button", { name: "Ver pista 1" }).click();
     await expect(page.getByText("Pista 1")).toBeVisible();
     await page.getByRole("button", { name: "Ver pista 2" }).click();
     await expect(page.getByText("Pista 2")).toBeVisible();
-    await expect(page.getByRole("tab", { name: /Pistas \(2\/3\)/ })).toBeVisible();
 
-    // Solution unlocks after 2 hints.
-    await page.getByRole("tab", { name: "Solución" }).click();
+    // Solution unlocks after 2 hints; it lives in a collapsed panel.
+    await page.getByRole("group").filter({ hasText: "Solución" }).getByText("Solución").click();
     await page.getByRole("button", { name: "Ver la solución explicada" }).click();
     await expect(page.locator("pre", { hasText: "ORDER BY id" })).toBeVisible();
 

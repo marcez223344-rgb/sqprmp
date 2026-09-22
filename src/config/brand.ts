@@ -16,7 +16,8 @@ export const brand = {
     dark: "/brand/logo-dark.svg",
     mark: "/brand/mark.svg",
   },
-  supportEmail: "marcez223344@gmail.com",
+  // Requires the datamindssolutions.com domain and a mailbox; see docs/DEPLOYMENT.md §2.
+  supportEmail: "admin@datamindssolutions.com",
   // D-09: the service is offered by the founder as an individual taxpayer (monotributo);
   // "Data Minds Solutions" is the trade name, not a company.
   legalName: "Marcelo Pisner (monotributista), nombre de fantasía Data Minds Solutions",

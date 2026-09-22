@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { ArrowRight, Award, Lightbulb, MessageSquareText, Table2 } from "lucide-react";
+import { ArrowRight, Award, Check, Lightbulb, MessageSquareText, Table2 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Card } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { brand } from "@/config/brand";
 import { founder } from "@/config/founder";
 import { limits } from "@/config/limits";
+import { getLearningPath } from "@/lib/curriculum/queries";
 import { cn } from "@/lib/utils/cn";
 
 const benefitIcons = {
@@ -16,10 +17,40 @@ const benefitIcons = {
 } as const;
 
 export default async function LandingPage() {
-  const t = await getTranslations("landing");
+  const [t, sections] = await Promise.all([getTranslations("landing"), getLearningPath()]);
+  const initials = founder.name
+    .split(" ")
+    .map((p) => p[0])
+    .join("")
+    .slice(0, 2);
+  const levelOrder = ["beginner", "intermediate", "advanced", "expert"] as const;
+  const levelSummary = levelOrder
+    .map((level) => ({ level, count: sections.filter((s) => s.level === level).length }))
+    .filter(({ count }) => count > 0);
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    name: brand.productName,
+    description: t("hero.subtitle"),
+    provider: { "@type": "Organization", name: brand.organization },
+    instructor: {
+      "@type": "Person",
+      name: founder.name,
+      jobTitle: founder.role,
+      description: founder.bio,
+      sameAs: [founder.links.linkedin],
+    },
+    inLanguage: "es-419",
+  };
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        // Built from src/config, never from user input.
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Hero */}
       <section className="container-page grid gap-10 py-16 md:grid-cols-2 md:items-center md:py-24">
         <div className="space-y-6">
@@ -40,9 +71,44 @@ export default async function LandingPage() {
           <p className="text-muted text-sm">
             {t("hero.note", { count: limits.freeExerciseLimit })}
           </p>
+          {/* The founder's name is the main trust signal at launch; it belongs above the fold. */}
+          <Link
+            href="/nosotros"
+            className="border-border bg-surface inline-flex min-h-10 items-center gap-3 rounded-full border py-1.5 pr-4 pl-1.5 text-sm"
+          >
+            <span
+              aria-hidden="true"
+              className="bg-primary/10 text-primary flex size-9 items-center justify-center rounded-full text-xs font-bold"
+            >
+              {initials}
+            </span>
+            <span>
+              <span className="font-medium">{founder.name}</span>
+              <span className="text-muted"> · {founder.role}</span>
+            </span>
+          </Link>
         </div>
 
         <SampleQuery />
+      </section>
+
+      {/* The 30-second version of the curriculum; the full list lives in /curriculo. */}
+      <section className="container-page py-8" aria-labelledby="ruta-resumen">
+        <h2 id="ruta-resumen" className="sr-only">
+          {t("path.title")}
+        </h2>
+        <ul className="flex flex-wrap gap-2">
+          {levelSummary.map(({ level, count }, i) => (
+            <li
+              key={level}
+              className="border-border bg-surface inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm"
+            >
+              <span className="text-primary font-mono text-xs">{i + 1}</span>
+              <span className="font-medium">{t(`path.levels.${level}`)}</span>
+              <span className="text-muted text-xs">{t("path.sections", { count })}</span>
+            </li>
+          ))}
+        </ul>
       </section>
 
       {/* Benefits */}
@@ -119,6 +185,7 @@ export default async function LandingPage() {
             <p className="text-muted mt-1">
               {founder.name} · {founder.role}, {brand.organization}
             </p>
+            <p className="text-muted mt-2 max-w-prose text-sm">{founder.bio}</p>
           </div>
           <Link href="/nosotros" className={cn(buttonVariants({ variant: "ghost" }))}>
             {t("founder.cta", { name: founder.name.split(" ")[0] })}
@@ -142,8 +209,24 @@ export default async function LandingPage() {
 function SampleQuery() {
   return (
     <figure className="border-border bg-surface overflow-hidden rounded-lg border shadow-sm">
-      <figcaption className="border-border bg-surface-2 text-muted border-b px-4 py-2 font-mono text-xs">
-        ventas_por_pais.sql · tiendaviva
+      {/* The hero shows the shape of an exercise — business question first, SQL second — because
+          that ordering is the product's whole argument. */}
+      <figcaption className="border-border bg-surface-2 space-y-2 border-b px-4 py-3">
+        <p className="text-accent-ink text-xs font-semibold tracking-wide uppercase">
+          Sección 14 · Agregación
+        </p>
+        <p className="text-sm">
+          TiendaViva quiere saber en qué países vendió más durante 2025, contando solo los pedidos
+          entregados.
+        </p>
+        <ul className="text-muted flex flex-wrap gap-x-4 gap-y-1 text-xs">
+          {["country", "total_sales"].map((c) => (
+            <li key={c} className="inline-flex items-center gap-1.5">
+              <Check aria-hidden="true" className="text-success size-3.5" />
+              <code className="font-mono">{c}</code>
+            </li>
+          ))}
+        </ul>
       </figcaption>
       <pre className="overflow-x-auto p-4 font-mono text-sm leading-relaxed">
         <code>{`SELECT c.country,

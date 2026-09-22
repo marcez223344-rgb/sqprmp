@@ -2,6 +2,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Logo } from "@/components/layout/logo";
 import { brand } from "@/config/brand";
+import { founder } from "@/config/founder";
 
 export function SiteFooter() {
   const t = useTranslations("footer");
@@ -12,6 +13,9 @@ export function SiteFooter() {
         <div className="space-y-2">
           <Logo compact />
           <p className="text-muted text-sm">{t("madeIn")}</p>
+          <p className="text-muted text-sm">
+            {founder.role} · {founder.name}
+          </p>
         </div>
         <nav aria-label="Legal" className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
           <Link href="/terminos" className="text-muted hover:text-text">

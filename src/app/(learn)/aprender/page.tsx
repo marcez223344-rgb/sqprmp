@@ -1,5 +1,15 @@
 import Link from "next/link";
-import { ArrowRight, Award, Flame, Snowflake, Target } from "lucide-react";
+import {
+  ArrowRight,
+  Award,
+  Coins,
+  Flame,
+  Gauge,
+  RefreshCw,
+  Snowflake,
+  Star,
+  Target,
+} from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { GoalsForm } from "@/components/progress/goals-form";
 import { Card } from "@/components/ui/card";
@@ -26,6 +36,24 @@ export default async function DashboardPage() {
         </h1>
         <p className="text-muted">{t("subtitle", { level: d.level.level })}</p>
       </header>
+
+      {/* Four numbers the learner checks every visit, before anything else on the page. */}
+      <dl className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {[
+          { key: "level", value: d.level.level, Icon: Gauge },
+          { key: "xp", value: d.xpTotal, Icon: Star },
+          { key: "coins", value: d.coins, Icon: Coins },
+          { key: "streakDays", value: d.streak.length, Icon: Flame },
+        ].map(({ key, value, Icon }) => (
+          <div key={key} className="border-border bg-surface rounded-lg border p-4">
+            <dt className="text-muted inline-flex items-center gap-2 text-sm">
+              <Icon aria-hidden="true" className="text-primary size-4" />
+              {t(`tiles.${key}`)}
+            </dt>
+            <dd className="font-heading mt-1 text-3xl font-bold">{value}</dd>
+          </div>
+        ))}
+      </dl>
 
       <div className="grid gap-6 md:grid-cols-3">
         {/* Continue */}
@@ -62,6 +90,19 @@ export default async function DashboardPage() {
               {t("freeCounter", { used: d.freeUsed, limit: d.freeLimit })}
             </p>
           ) : null}
+        </Card>
+
+        {/* Review is a finished feature that nobody found behind a nav link. */}
+        <Card className="space-y-3">
+          <h2 className="inline-flex items-center gap-2 text-lg">
+            <RefreshCw aria-hidden="true" className="text-info size-5" />
+            {t("review.title")}
+          </h2>
+          <p className="text-muted text-sm">{t("review.body")}</p>
+          <Link href="/repaso" className={cn(buttonVariants({ variant: "secondary" }), "w-fit")}>
+            {t("review.cta")}
+            <ArrowRight aria-hidden="true" />
+          </Link>
         </Card>
 
         {/* Level + XP */}
