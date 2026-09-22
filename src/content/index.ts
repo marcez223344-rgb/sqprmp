@@ -20,6 +20,11 @@ import { lessons as funcionesDeAgregacionLessons } from "./lessons/funciones-de-
 import { lessons as groupByLessons } from "./lessons/group-by";
 import { lessons as leftRightFullJoinLessons } from "./lessons/left-right-full-join";
 import { lessons as funcionesDeVentanaLessons } from "./lessons/funciones-de-ventana";
+import { lessons as funcionesDeTextoLessons } from "./lessons/funciones-de-texto";
+import { lessons as ordenarYLimitarLessons } from "./lessons/ordenar-y-limitar";
+import { lessons as caseLessons } from "./lessons/case";
+import { lessons as fechasYHorasLessons } from "./lessons/fechas-y-horas";
+import { lessons as funcionesNumericasLessons } from "./lessons/funciones-numericas";
 import { questions as introQuestions } from "./questions/introduccion-bases-de-datos";
 import { questions as tablasQuestions } from "./questions/tablas-filas-columnas-tipos";
 import { questions as selectQuestions } from "./questions/select";
@@ -33,6 +38,11 @@ import { questions as funcionesDeAgregacionQuestions } from "./questions/funcion
 import { questions as groupByQuestions } from "./questions/group-by";
 import { questions as leftRightFullJoinQuestions } from "./questions/left-right-full-join";
 import { questions as funcionesDeVentanaQuestions } from "./questions/funciones-de-ventana";
+import { questions as funcionesDeTextoQuestions } from "./questions/funciones-de-texto";
+import { questions as ordenarYLimitarQuestions } from "./questions/ordenar-y-limitar";
+import { questions as caseQuestions } from "./questions/case";
+import { questions as fechasYHorasQuestions } from "./questions/fechas-y-horas";
+import { questions as funcionesNumericasQuestions } from "./questions/funciones-numericas";
 import { exercises as tablasExercises } from "./exercises/tablas-filas-columnas-tipos";
 import { exercises as selectExercises } from "./exercises/select";
 import { exercises as aliasExercises } from "./exercises/alias-y-expresiones";
@@ -45,6 +55,11 @@ import { exercises as funcionesDeAgregacionExercises } from "./exercises/funcion
 import { exercises as groupByExercises } from "./exercises/group-by";
 import { exercises as leftRightFullJoinExercises } from "./exercises/left-right-full-join";
 import { exercises as funcionesDeVentanaExercises } from "./exercises/funciones-de-ventana";
+import { exercises as funcionesDeTextoExercises } from "./exercises/funciones-de-texto";
+import { exercises as ordenarYLimitarExercises } from "./exercises/ordenar-y-limitar";
+import { exercises as caseExercises } from "./exercises/case";
+import { exercises as fechasYHorasExercises } from "./exercises/fechas-y-horas";
+import { exercises as funcionesNumericasExercises } from "./exercises/funciones-numericas";
 
 export const content = {
   courses: [course],
@@ -64,6 +79,11 @@ export const content = {
     ...groupByLessons,
     ...leftRightFullJoinLessons,
     ...funcionesDeVentanaLessons,
+    ...funcionesDeTextoLessons,
+    ...ordenarYLimitarLessons,
+    ...caseLessons,
+    ...fechasYHorasLessons,
+    ...funcionesNumericasLessons,
   ],
   questions: [
     ...introQuestions,
@@ -79,6 +99,11 @@ export const content = {
     ...groupByQuestions,
     ...leftRightFullJoinQuestions,
     ...funcionesDeVentanaQuestions,
+    ...funcionesDeTextoQuestions,
+    ...ordenarYLimitarQuestions,
+    ...caseQuestions,
+    ...fechasYHorasQuestions,
+    ...funcionesNumericasQuestions,
   ],
   exercises: [
     ...tablasExercises,
@@ -93,6 +118,11 @@ export const content = {
     ...groupByExercises,
     ...leftRightFullJoinExercises,
     ...funcionesDeVentanaExercises,
+    ...funcionesDeTextoExercises,
+    ...ordenarYLimitarExercises,
+    ...caseExercises,
+    ...fechasYHorasExercises,
+    ...funcionesNumericasExercises,
   ],
 };
 

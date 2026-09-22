@@ -160,7 +160,7 @@ const outlines: Outline[] = [
       "Detectar problemas de calidad en textos (espacios, mayúsculas, acentos)",
     ],
     is_free_theory: false,
-    is_published: false,
+    is_published: true,
     certificate: null,
   },
   {
@@ -177,7 +177,7 @@ const outlines: Outline[] = [
       "Elegir entre integer, numeric y double precision según el caso",
     ],
     is_free_theory: false,
-    is_published: false,
+    is_published: true,
     certificate: null,
   },
   {
@@ -194,7 +194,7 @@ const outlines: Outline[] = [
       "Explicar el efecto de las zonas horarias en timestamptz",
     ],
     is_free_theory: false,
-    is_published: false,
+    is_published: true,
     certificate: null,
   },
   {
@@ -211,7 +211,7 @@ const outlines: Outline[] = [
       "Evitar errores de tipos y ramas ELSE olvidadas",
     ],
     is_free_theory: false,
-    is_published: false,
+    is_published: true,
     certificate: null,
   },
   {
@@ -228,7 +228,7 @@ const outlines: Outline[] = [
       "Reconocer cuándo el orden no está garantizado sin ORDER BY",
     ],
     is_free_theory: false,
-    is_published: false,
+    is_published: true,
     certificate: null,
   },
   // N3 · Agregar y combinar --------------------------------------------------------

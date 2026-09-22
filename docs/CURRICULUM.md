@@ -50,6 +50,10 @@ Depth over volume. Launch with **8 fully authored sections** spanning free and p
 
 All 39 sections exist as published _outlines_ (objectives + summary) so the path is visible; unauthored sections show "Próximamente" and are excluded from certificate requirements until complete. Target after launch: +1 fully authored section per week.
 
+### Published sections (2026-09-22)
+
+18 of 39 sections are published: 1–15 and 17–18 and 25. Volume: 128 lessons, 172 theory questions, 74 verified exercises over 3 datasets. Sections 9–13 (text, numeric, dates, CASE, ordering) were authored in parallel by `content-author` agents and wired in with `node scripts/register-content.mjs <slug>`; that script is the only supported way to touch `src/content/index.ts`, because several authors would otherwise edit the same registry.
+
 ## 4. MVP datasets (see `src/datasets/<slug>/README.md` once generated)
 
 | Slug         | Domain                                          | Story                                             | Tables                                                                                               | Highlights                                                                                                                                                |
