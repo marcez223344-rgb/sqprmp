@@ -605,7 +605,8 @@
       "rate_limited": "Espera un momento antes de pedir otra pista."
     },
     "schemaShowAll": "Ver las otras {count} tablas del dataset",
-    "schemaShowUsed": "Ver solo las tablas de este ejercicio"
+    "schemaShowUsed": "Ver solo las tablas de este ejercicio",
+    "freeExercise": "Ejercicio gratis"
   },
   "demo": {
     "title": "Prueba SQL en tu navegador",

@@ -57,7 +57,16 @@ export default async function ExercisePage({ params }: PageProps<"/ejercicio/[sl
           <h1 className="text-3xl">{data.exercise.title}</h1>
           <DatasetBadge slug={data.dataset.slug} title={data.dataset.title} />
         </div>
-        {data.access === "ok" && data.freeLimit > 0 && !profile.role.includes("admin") ? (
+        {/* The counter is only true for gated exercises; on a free one it wrongly suggested the
+            learner was spending an allowance. */}
+        {data.access === "ok" && !data.gated ? (
+          <p className="border-success/40 bg-success/10 text-success-ink rounded-full border px-3 py-1 text-xs font-medium">
+            {t("freeExercise")}
+          </p>
+        ) : data.access === "ok" &&
+          data.gated &&
+          data.freeLimit > 0 &&
+          !profile.role.includes("admin") ? (
           <p className="text-muted text-xs">
             {t("freeCounter", {
               used: Math.min(data.freeUsed + (data.progress ? 0 : 1), data.freeLimit),

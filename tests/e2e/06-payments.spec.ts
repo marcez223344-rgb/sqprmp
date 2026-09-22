@@ -64,7 +64,7 @@ test.describe("payments and entitlements", () => {
       await page.goto(`/ejercicio/${slug}`);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     }
-    await page.goto("/ejercicio/explorar-productos");
+    await page.goto("/ejercicio/paises-con-clientes");
     await expect(page.getByText("Alcanzaste el límite gratuito")).toBeVisible();
 
     await page.goto("/precios");
@@ -93,7 +93,7 @@ test.describe("payments and entitlements", () => {
     await signInAs(context, learner);
     await page.goto("/acceso");
     await expect(page.getByText("Acceso completo de por vida")).toBeVisible();
-    await page.goto("/ejercicio/explorar-productos");
+    await page.goto("/ejercicio/paises-con-clientes");
     await expect(page.getByRole("button", { name: "Enviar respuesta" })).toBeVisible();
   });
 

@@ -47,6 +47,8 @@ export interface ExerciseWorkspaceData {
   } | null;
   access: "ok" | "locked" | "unavailable";
   freeUsed: number;
+  /** False for the always-free intro sections; the free counter is meaningless there. */
+  gated: boolean;
   freeLimit: number;
   nextLessonSlug: string | null;
   theoryLessonSlug: string | null;
@@ -72,6 +74,7 @@ export const getExerciseWorkspace = cache(
       { data: progress },
       { data: accessValue },
       { data: freeUsed },
+      { data: gated },
       { data: lessons },
     ] = await Promise.all([
       supabase
@@ -103,6 +106,7 @@ export const getExerciseWorkspace = cache(
         p_free_limit: limits.freeExerciseLimit,
       }),
       supabase.rpc("free_exercises_used", { p_user_id: profile.id }),
+      supabase.rpc("exercise_is_gated", { p_exercise_id: exercise.id }),
       supabase
         .from("lessons_public")
         .select("slug, kind, sort_order, ref_slug")
@@ -157,6 +161,7 @@ export const getExerciseWorkspace = cache(
       solution,
       access,
       freeUsed: typeof freeUsed === "number" ? freeUsed : 0,
+      gated: gated !== false,
       freeLimit: limits.freeExerciseLimit,
       nextLessonSlug,
       theoryLessonSlug: exercise.theory_ref_slug,
