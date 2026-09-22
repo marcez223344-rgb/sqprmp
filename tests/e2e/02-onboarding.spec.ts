@@ -51,7 +51,8 @@ test.describe("identity and onboarding (journeys 1–2)", () => {
 
     // Profile page shows data and privacy controls
     await page.goto("/perfil");
-    await expect(page.getByText(`@${alias}`).first()).toBeVisible();
+    // The header badge is hidden below sm, so assert the alias inside the profile page itself.
+    await expect(page.getByRole("main").getByText(`@${alias}`).first()).toBeVisible();
     await expect(page.getByLabel("Nombre para mostrar")).toHaveValue("Persona Prueba");
     await page.getByRole("button", { name: "Solicitar exportación" }).click();
     await expect(page.getByRole("status").last()).toContainText("registrada");

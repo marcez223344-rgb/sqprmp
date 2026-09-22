@@ -7,6 +7,10 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
+  // Every sandbox test boots a PGlite instance (WASM in the page, worker_threads on the server).
+  // On a 2-core CI runner that also hosts the Supabase stack, parallel workers exhausted memory
+  // and the engine failed to start ("No pudimos iniciar el motor"); one worker keeps CI honest.
+  workers: process.env.CI ? 1 : undefined,
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
   use: {
     baseURL: `http://localhost:${port}`,
