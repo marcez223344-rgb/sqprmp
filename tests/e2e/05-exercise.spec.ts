@@ -65,7 +65,10 @@ test.describe("exercise workspace (journeys 3–8)", () => {
     // Wrong columns → blocking feedback naming the missing columns.
     await typeSql(page, "select id from customers order by id limit 10");
     await page.getByRole("button", { name: "Enviar respuesta" }).click();
-    await expect(page.getByText("Todavía no")).toBeVisible({ timeout: 60_000 });
+    const feedback = page.getByRole("region", { name: "Retroalimentación" });
+    await expect(feedback.getByText("Todavía no", { exact: false }).first()).toBeVisible({
+      timeout: 60_000,
+    });
     await expect(page.getByText(/Faltan columnas.*full_name/)).toBeVisible();
 
     // Hints unlock sequentially and show Markdown; they sit under the results, not behind a tab.

@@ -29,7 +29,11 @@ test.describe("browser SQL sandbox (demo)", () => {
     await page.keyboard.press("Control+A");
     await page.keyboard.type("select pg_sleep(1)");
     await page.getByRole("button", { name: "Ejecutar" }).click();
-    await expect(page.getByRole("alert").filter({ hasText: "pg_sleep" })).toBeVisible();
+    // The engine can still be warming up on the slower mobile project, so give the gate its own
+    // window rather than the default 5 s.
+    await expect(page.getByRole("alert").filter({ hasText: "pg_sleep" })).toBeVisible({
+      timeout: 60_000,
+    });
 
     await editor.click();
     await page.keyboard.press("Control+A");
