@@ -50,7 +50,10 @@ class DatasetWorker {
         hint?: string;
       }) => {
         if (msg.type === "ready") return resolve();
-        if (msg.type === "fatal") return reject(new Error(msg.message));
+        if (msg.type === "fatal") {
+          console.error("[sandbox] worker fatal", msg.message);
+          return reject(new Error(msg.message));
+        }
         if (msg.id === undefined) return;
         const p = this.pending.get(msg.id);
         if (!p) return;
@@ -76,6 +79,9 @@ class DatasetWorker {
       worker.on("message", onMessage);
       // Late events from a terminated worker must not touch its replacement.
       worker.on("error", (err) => {
+        // Never silent: a worker that cannot boot turns every submission into an engine error,
+        // and the learner-facing message says nothing about why (docs/SQL_SANDBOX.md).
+        console.error("[sandbox] worker error", err);
         reject(err);
         if (this.worker !== worker) return;
         this.failAll("engine", "El motor de práctica se detuvo inesperadamente.");

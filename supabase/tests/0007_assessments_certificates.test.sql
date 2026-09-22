@@ -36,10 +36,13 @@ select is(public.certificate_eligible('81111111-1111-1111-1111-111111111111', 't
 -- Passing attempt at the minimum → eligible → issue (idempotent).
 select lives_ok($$ select public.record_quiz_attempt('81111111-1111-1111-1111-111111111111', (select lesson_id from ctx), 8, 10, true, '[]'::jsonb) $$, 'pass at 80% recorded');
 select is(public.certificate_eligible('81111111-1111-1111-1111-111111111111', 'test-intro'), true, 'eligible at the minimum score');
+-- anon reads the code from this temp table after the role switch below.
 create temp table issued as select * from public.issue_certificate('81111111-1111-1111-1111-111111111111', 'test-intro', '  Sofía Test  ');
 select alike((select public_id from issued)::text, 'DMSA-____-________'::text, 'public id format'::text);
 select is((select already_issued from (select * from public.issue_certificate('81111111-1111-1111-1111-111111111111', 'test-intro', 'Sofía Test')) x), true, 'second issue returns the existing certificate');
 select throws_ok($$ select public.issue_certificate('82222222-2222-2222-2222-222222222222', 'test-intro', 'Otro') $$, 'P0001', null, 'ineligible learner cannot be issued');
+
+grant select on issued to anon;
 
 -- Public verification (anon) exposes minimal data; revocation flips the flag.
 set local role anon;

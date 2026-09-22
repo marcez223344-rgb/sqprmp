@@ -15,7 +15,8 @@ set local request.jwt.claims = '{"sub":"71111111-1111-1111-1111-111111111111","r
 create temp table mp as select * from public.create_manual_purchase((select id from public.prices where provider = 'manual' and currency = 'USD' limit 1), 'wallbit_usd');
 select alike((select reference_code from mp)::text, 'DM-%'::text, 'reference code generated'::text);
 select throws_ok($$ select public.create_manual_purchase((select id from public.prices where provider = 'manual' and currency = 'USD' limit 1), 'wallbit_usd') $$, 'P0001', null, 'only one pending purchase at a time');
-select throws_ok('select code from public.promo_codes limit 1', '42501', null, 'learner cannot read promo codes');
+-- authenticated holds the SELECT grant; RLS (admin only) is what hides the rows.
+select is((select count(*) from public.promo_codes), 0::bigint, 'learner reads no promo codes');
 select is((select count(*) from public.purchases), 1::bigint, 'learner sees own purchase only');
 reset role;
 
