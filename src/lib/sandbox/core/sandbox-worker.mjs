@@ -28,7 +28,12 @@ const ready = (async () => {
 
 ready.then(
   () => parentPort?.postMessage({ type: "ready" }),
-  (err) => parentPort?.postMessage({ type: "fatal", message: String(err?.message ?? err) }),
+  (err) =>
+    parentPort?.postMessage({
+      type: "fatal",
+      // The stack matters: the message alone does not say which loader failed.
+      message: String(err?.stack ?? err?.message ?? err),
+    }),
 );
 
 parentPort?.on("message", async (msg) => {
