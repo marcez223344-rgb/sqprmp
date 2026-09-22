@@ -71,10 +71,11 @@ export const questions: QuestionDef[] = [
       },
       {
         key: "c",
-        body_md: "Ninguno: eso se hace en una hoja de cálculo.",
+        body_md:
+          "Operativo: los datos salen de la misma tabla `orders` que usa la aplicación para vender.",
         is_correct: false,
         why_incorrect_md:
-          "Es exactamente el tipo de pregunta que SQL responde mejor que una hoja de cálculo, sin importar el volumen.",
+          "Lo que define el tipo de uso es la pregunta, no de qué tabla salen los datos: aquí se resumen miles de pedidos ya registrados para tomar una decisión.",
       },
     ],
     explanation_md:
@@ -110,16 +111,44 @@ export const questions: QuestionDef[] = [
     slug: "intro-q04-relacion-tablas",
     section,
     lesson: "que-es-una-base-de-datos",
-    type: "fill_blank",
+    type: "single",
     difficulty: "easy",
     topic: "Relaciones entre tablas",
     tags: ["claves", "tablas"],
     estimated_seconds: 40,
     prompt_md:
-      "En TiendaViva, la tabla `orders` guarda el identificador del cliente en la columna `________` en lugar de repetir su nombre completo.",
-    answer: { accepted: ["customer_id"], case_sensitive: false },
+      "En TiendaViva cada pedido lo hizo un cliente. Según el modelo relacional, ¿cómo registra la tabla `orders` a qué cliente pertenece cada pedido?",
+    options: [
+      {
+        key: "a",
+        body_md: "Con una columna `customer_id` que guarda el identificador del cliente.",
+        is_correct: true,
+      },
+      {
+        key: "b",
+        body_md: "Repitiendo el nombre completo del cliente en cada fila de `orders`.",
+        is_correct: false,
+        why_incorrect_md:
+          "Repetir el nombre duplica información y no distingue a dos personas que se llaman igual; por eso se guarda el identificador, que sí es único.",
+      },
+      {
+        key: "c",
+        body_md:
+          "Guardando la lista de pedidos dentro de la fila del cliente, separados por comas.",
+        is_correct: false,
+        why_incorrect_md:
+          "En el modelo relacional cada pedido es una fila propia de `orders`; amontonar varios valores en una celda impide filtrarlos y sumarlos.",
+      },
+      {
+        key: "d",
+        body_md: "No lo registra: la relación se deduce comparando las fechas de compra.",
+        is_correct: false,
+        why_incorrect_md:
+          "La relación entre dos tablas se declara de forma explícita con un identificador; nunca se adivina por coincidencia de fechas.",
+      },
+    ],
     explanation_md:
-      "`orders.customer_id` apunta a `customers.id`. Guardar solo el identificador evita duplicar datos del cliente en cada pedido.",
+      "`orders.customer_id` apunta a `customers.id`. Guardar solo el identificador evita duplicar los datos del cliente en cada pedido y permite combinar ambas tablas cuando hace falta.",
     is_published: true,
   },
   {
@@ -139,10 +168,11 @@ export const questions: QuestionDef[] = [
       { key: "c", body_md: "Ingeniero de datos", is_correct: true },
       {
         key: "d",
-        body_md: "Ninguno: SQL solo lo usan administradores de bases de datos",
+        body_md:
+          "Ninguno más: fuera del equipo técnico nadie escribe SQL, solo recibe reportes ya hechos",
         is_correct: false,
         why_incorrect_md:
-          "SQL es una herramienta transversal; los administradores son solo uno de muchos perfiles que lo usan.",
+          "En la práctica, muchas personas de marketing, finanzas y operaciones consultan los datos por su cuenta; SQL es una habilidad transversal, no exclusiva del equipo técnico.",
       },
     ],
     explanation_md:
@@ -236,35 +266,35 @@ export const questions: QuestionDef[] = [
     section,
     lesson: "como-piensa-un-analista",
     type: "single",
-    difficulty: "intermediate",
+    difficulty: "easy",
     topic: "Definición de métricas",
     tags: ["metodo", "fechas"],
     estimated_seconds: 50,
     prompt_md:
-      "Un pedido se creó el 31 de agosto y se entregó el 3 de septiembre. Finanzas reconoce ingresos en la entrega. ¿En qué mes cuenta para «ventas de agosto» según esa definición?",
+      "Antes de escribir la consulta acuerdas esta definición con quien te pidió el dato: **un pedido cuenta en el mes en que se entrega**.\n\nEl pedido 8123 se creó el 31 de agosto de 2025 y se entregó el 3 de septiembre de 2025. Con esa definición, ¿en qué mes lo cuentas?",
     options: [
       {
         key: "a",
-        body_md: "En septiembre, porque la fecha de referencia es la entrega.",
+        body_md: "En septiembre, porque la fecha que manda según la definición es la de entrega.",
         is_correct: true,
       },
       {
         key: "b",
-        body_md: "En agosto, porque el pedido se creó en agosto.",
+        body_md: "En agosto, porque el pedido se creó el 31 de agosto.",
         is_correct: false,
         why_incorrect_md:
-          "Con la definición de finanzas (reconocimiento en la entrega), la fecha de creación no es la que manda.",
+          "La fecha de creación sería la referencia solo si la definición acordada dijera «pedidos creados en el mes». Aquí la definición habla de la entrega, así que el pedido cae en septiembre.",
       },
       {
         key: "c",
-        body_md: "En ambos meses.",
+        body_md: "En los dos meses, porque el pedido atraviesa el cierre de mes.",
         is_correct: false,
         why_incorrect_md:
-          "Contarlo dos veces infla las cifras; cada pedido cuenta en un único período según la definición.",
+          "Contar el mismo pedido dos veces infla el total del año: con una definición clara, cada pedido pertenece a un único mes.",
       },
     ],
     explanation_md:
-      "La misma transacción cae en meses distintos según la fecha de referencia elegida. Por eso la definición debe explicitarse y acordarse.",
+      "El mismo pedido cae en meses distintos según la fecha de referencia (creación o entrega). Ninguna de las dos es «la correcta» en abstracto: la correcta es la que acordaste y dejaste por escrito antes de escribir SQL.",
     is_published: true,
   },
   {
@@ -322,10 +352,10 @@ export const questions: QuestionDef[] = [
       },
       {
         key: "b",
-        body_md: "Los clientes latinoamericanos prefieren cancelar de madrugada.",
+        body_md: "Los clientes revisan sus compras de madrugada y aprovechan para cancelarlas.",
         is_correct: false,
         why_incorrect_md:
-          "Es una suposición de comportamiento sin evidencia; los patrones horarios regulares suelen indicar procesos automáticos.",
+          "Es una suposición de comportamiento sin evidencia: la actividad de personas se reparte a lo largo del día, y una concentración exacta en un mismo horario apunta a un proceso automático.",
       },
       {
         key: "c",

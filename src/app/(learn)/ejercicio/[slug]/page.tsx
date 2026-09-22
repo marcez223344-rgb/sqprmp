@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Lock } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { track } from "@/lib/analytics/track";
+import { DatasetBadge } from "@/components/datasets/dataset-badge";
 import { ExerciseWorkspace } from "@/components/workspace/exercise-workspace";
 import { Card } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
@@ -48,12 +49,13 @@ export default async function ExercisePage({ params }: PageProps<"/ejercicio/[sl
       </nav>
 
       <header className="flex flex-wrap items-end justify-between gap-3">
-        <div className="space-y-1">
+        <div className="space-y-2">
           <p className="text-muted text-xs font-semibold tracking-wide uppercase">
             {t("difficulty.label")}: {t(`difficulty.${difficulty}` as never)} ·{" "}
-            {t("minutes", { minutes: data.exercise.estimated_minutes ?? 0 })} · {data.dataset.title}
+            {t("minutes", { minutes: data.exercise.estimated_minutes ?? 0 })}
           </p>
           <h1 className="text-3xl">{data.exercise.title}</h1>
+          <DatasetBadge slug={data.dataset.slug} title={data.dataset.title} />
         </div>
         {data.access === "ok" && data.freeLimit > 0 && !profile.role.includes("admin") ? (
           <p className="text-muted text-xs">

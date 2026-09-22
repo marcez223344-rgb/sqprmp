@@ -22,9 +22,13 @@ const nextConfig: NextConfig = {
   typedRoutes: true,
   // The sandbox worker is spawned by path (not bundled); ship it, PGlite and the dataset
   // snapshots with the routes that execute learner SQL (docs/SQL_SANDBOX.md).
+  // PGlite must stay a real node_modules dependency on the server: bundled, its wasm loader is
+  // replaced by a browser build that throws "instantiateWasm is not a function" the moment the
+  // graded engine boots.
+  serverExternalPackages: ["@electric-sql/pglite"],
   outputFileTracingIncludes: {
     "/ejercicio/[slug]": [
-      "./src/lib/sandbox/core/**",
+      "./sandbox-runtime/**",
       "./public/datasets/**",
       "./node_modules/@electric-sql/pglite/dist/**",
     ],

@@ -100,19 +100,21 @@ export const questions: QuestionDef[] = [
     topic: "SELECT *",
     tags: ["select", "buenas-practicas"],
     estimated_seconds: 40,
-    prompt_md: "¿Cuándo es razonable usar `SELECT *`?",
+    prompt_md:
+      "Según las buenas prácticas del curso, ¿en cuál de estas situaciones conviene usar `SELECT *`?",
     options: [
       {
         key: "a",
-        body_md: "Al explorar una tabla desconocida, normalmente con `LIMIT`.",
+        body_md:
+          "Al abrir por primera vez una tabla que no conoces, para ver qué columnas tiene (normalmente con `LIMIT`).",
         is_correct: true,
       },
       {
         key: "b",
-        body_md: "En un reporte mensual que otras personas consumen.",
+        body_md: "En la consulta de un reporte mensual que otras personas van a leer cada mes.",
         is_correct: false,
         why_incorrect_md:
-          "Un reporte debe listar columnas: es más claro y no cambia si la tabla gana columnas.",
+          "Un reporte debe listar sus columnas: así se entiende sin abrir la tabla y el resultado no cambia si alguien agrega una columna nueva.",
       },
       {
         key: "c",
@@ -134,7 +136,8 @@ export const questions: QuestionDef[] = [
     topic: "Errores comunes",
     tags: ["select", "esquema"],
     estimated_seconds: 40,
-    prompt_md: "¿Qué error devuelve esta consulta sobre TiendaViva?",
+    prompt_md:
+      "En TiendaViva, la tabla `customers` existe y sus columnas son `id`, `full_name`, `email`, `country`, `city` y `signup_at`. ¿Qué error devuelve esta consulta?",
     code_md: "```sql\nSELECT nombre\nFROM customers;\n```",
     options: [
       {
@@ -229,7 +232,8 @@ export const questions: QuestionDef[] = [
     topic: "Comentarios",
     tags: ["sintaxis", "buenas-practicas"],
     estimated_seconds: 30,
-    prompt_md: "En SQL, un comentario de una sola línea empieza con ________.",
+    prompt_md:
+      "Escribe el símbolo que falta: en SQL, un comentario de una sola línea empieza con ________ y llega hasta el final de la línea.",
     answer: { accepted: ["--"], case_sensitive: false },
     explanation_md: "`-- texto` comenta hasta el final de la línea; `/* ... */` comenta un bloque.",
     is_published: true,

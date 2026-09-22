@@ -28,10 +28,10 @@ export const questions: QuestionDef[] = [
       },
       {
         key: "c",
-        body_md: "Que la columna es de tipo texto.",
+        body_md: "Que no existen dos filas con exactamente los mismos datos en las demás columnas.",
         is_correct: false,
         why_incorrect_md:
-          "Una clave primaria puede ser de cualquier tipo; en TiendaViva son enteros.",
+          "La clave primaria solo obliga a que no se repita su propio valor. Dos clientes con distinto `id` pueden compartir nombre, ciudad y correo.",
       },
     ],
     explanation_md:
@@ -47,7 +47,8 @@ export const questions: QuestionDef[] = [
     topic: "Claves foráneas",
     tags: ["claves", "relaciones"],
     estimated_seconds: 40,
-    prompt_md: "La columna `order_items.order_id` es una clave ________ que apunta a `orders.id`.",
+    prompt_md:
+      "Completa con **una sola palabra**: la columna `order_items.order_id` es una clave ________ que apunta a `orders.id`.",
     answer: { accepted: ["foránea", "foranea", "foreign", "fk"], case_sensitive: false },
     explanation_md:
       "Una clave foránea guarda la clave primaria de otra tabla para expresar la relación «esta línea pertenece a este pedido».",
@@ -125,7 +126,7 @@ export const questions: QuestionDef[] = [
     tags: ["tipos", "orden"],
     estimated_seconds: 60,
     prompt_md:
-      "Una columna `precio_txt` de tipo `text` contiene '1000', '200' y '35'. ¿Qué devuelve esta consulta?",
+      "La tabla `precios` tiene tres filas y una sola columna, `precio_txt`, de tipo `text`, con los valores '1000', '200' y '35'. La consulta usa `ORDER BY` para ordenar el resultado por esa columna (lo verás en detalle en la sección de ordenamiento). ¿En qué orden devuelve las filas?",
     code_md: "```sql\nSELECT precio_txt\nFROM precios\nORDER BY precio_txt;\n```",
     options: [
       { key: "a", body_md: "'1000', '200', '35' (orden alfabético).", is_correct: true },
@@ -261,12 +262,13 @@ export const questions: QuestionDef[] = [
     slug: "tablas-q10-null-pk",
     section,
     lesson: "anatomia-de-una-tabla",
-    type: "single",
+    type: "query_interpretation",
     difficulty: "intermediate",
     topic: "Integridad",
     tags: ["claves", "calidad"],
     estimated_seconds: 50,
-    prompt_md: "Esta consulta sobre `customers` devuelve 0 filas. ¿Qué confirma?",
+    prompt_md:
+      "Ejecutas esta consulta sobre `customers`, que tiene 4 000 filas, y devuelve 0 filas. ¿Qué confirma ese resultado?",
     code_md: "```sql\nSELECT id, COUNT(*)\nFROM customers\nGROUP BY id\nHAVING COUNT(*) > 1;\n```",
     options: [
       {

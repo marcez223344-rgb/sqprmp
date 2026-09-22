@@ -14,7 +14,7 @@ export function CompleteLessonButton({ slug, completed }: { slug: string; comple
 
   if (done) {
     return (
-      <p role="status" className="text-success inline-flex items-center gap-2 text-sm">
+      <p role="status" className="text-success-ink inline-flex items-center gap-2 text-sm">
         <CheckCircle2 aria-hidden="true" className="size-5" />
         {t("completed")}
       </p>

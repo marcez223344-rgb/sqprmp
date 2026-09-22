@@ -24,7 +24,7 @@ const wanted = readdirSync(dist).filter(
 for (const f of wanted) copyFileSync(join(dist, f), join(outPglite, f));
 
 for (const f of ["engine-core.mjs", "denied-functions.mjs"]) {
-  copyFileSync(join(root, "src", "lib", "sandbox", "core", f), join(outCore, f));
+  copyFileSync(join(root, "sandbox-runtime", f), join(outCore, f));
 }
 const version = (
   JSON.parse(

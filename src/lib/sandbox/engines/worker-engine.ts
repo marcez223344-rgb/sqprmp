@@ -33,14 +33,17 @@ class DatasetWorker {
   constructor(private readonly datasetDir: string) {}
 
   private spawn(): Promise<void> {
-    const workerPath = join(process.cwd(), "src", "lib", "sandbox", "core", "sandbox-worker.mjs");
+    // Outside src/ on purpose: anything under src/ is compiled by the bundler, and a bundled worker
+    // resolves its imports through the bundler runtime — PGlite then loads a browser build whose
+    // wasm lookup fails ("instantiateWasm is not a function"). This path stays plain Node.
+    const workerPath = join(process.cwd(), "sandbox-runtime", "sandbox-worker.mjs");
     const worker = new Worker(workerPath, {
       workerData: { datasetDir: this.datasetDir },
       resourceLimits: { maxOldGenerationSizeMb: limits.sandbox.workerMemoryMb },
-      // Workers inherit the parent's execArgv, which under `next start` carries Next's module
-      // loader; the worker then resolved @electric-sql/pglite to a bundled .next chunk whose
-      // wasm/data lookups fail (ERR_INVALID_ARG_TYPE on a URL). The worker needs no flags.
+      // The worker needs none of the host's flags or instrumentation; clearing both keeps it a
+      // plain node process (see docs/SQL_SANDBOX.md → Runtime notes).
       execArgv: [],
+      env: { ...process.env, NODE_OPTIONS: "" },
     });
     this.worker = worker;
     return new Promise<void>((resolve, reject) => {

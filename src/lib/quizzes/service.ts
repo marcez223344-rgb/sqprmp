@@ -131,16 +131,24 @@ async function answerKeys(
   questionIds: string[],
 ): Promise<Map<string, AnswerKey & { explanation_md: string; whyByKey: Record<string, string> }>> {
   const admin = createAdminClient();
-  const [{ data: questions }, { data: options }] = await Promise.all([
-    admin
-      .from("theory_questions")
-      .select("id, type, answer, pairs, explanation_md")
-      .in("id", questionIds),
-    admin
-      .from("question_options")
-      .select("question_id, key, is_correct, why_incorrect_md")
-      .in("question_id", questionIds),
-  ]);
+  const [{ data: questions, error: questionsError }, { data: options, error: optionsError }] =
+    await Promise.all([
+      admin
+        .from("theory_questions")
+        .select("id, type, answer, pairs, explanation_md")
+        .in("id", questionIds),
+      admin
+        .from("question_options")
+        .select("question_id, key, is_correct, why_incorrect_md")
+        .in("question_id", questionIds),
+    ]);
+  // These reads are privileged (the answer key is never exposed to the browser). Swallowing an
+  // error here graded every question as wrong and showed "Respuesta correcta: —": an
+  // infrastructure failure presented to the learner as their own mistake.
+  if (questionsError || optionsError)
+    throw new Error(
+      `answer key unavailable: ${questionsError?.message ?? optionsError?.message ?? "unknown"}`,
+    );
   const map = new Map<
     string,
     AnswerKey & { explanation_md: string; whyByKey: Record<string, string> }
@@ -180,6 +188,13 @@ export async function gradeQuiz(
   if (!quiz) return null;
   const keys = await answerKeys(quiz.questions.map((q) => q.id));
   const graded: GradedQuestion[] = [];
+  // A question without an answer key cannot be graded honestly; grading the rest would report a
+  // wrong answer for something that was never checked.
+  const missing = quiz.questions.filter((q) => !keys.has(q.id));
+  if (missing.length)
+    throw new Error(
+      `answer key missing for ${missing.length} of ${quiz.questions.length} questions`,
+    );
   for (const q of quiz.questions) {
     const key = keys.get(q.id);
     if (!key) continue;

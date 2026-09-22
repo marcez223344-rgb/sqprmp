@@ -1,7 +1,16 @@
 import type { Route } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ArrowLeft, ArrowRight, ListChecks, Lock } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  BookOpen,
+  ListChecks,
+  Lock,
+  SquareTerminal,
+  Trophy,
+  type LucideIcon,
+} from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { CompleteLessonButton } from "@/components/learn/complete-lesson-button";
 import { Markdown } from "@/components/learn/markdown";
@@ -16,6 +25,15 @@ import { getQuiz } from "@/lib/quizzes/service";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils/cn";
 
+// Lesson kind gets a small marker so the path list and the lesson page agree visually
+// (docs/DESIGN_SYSTEM.md §6).
+const KIND_ICON: Record<string, LucideIcon> = {
+  theory: BookOpen,
+  exercise: SquareTerminal,
+  quiz: ListChecks,
+  challenge: Trophy,
+};
+
 export async function generateMetadata({ params }: PageProps<"/leccion/[slug]">) {
   const { slug } = await params;
   const detail = await getLessonBySlug(slug);
@@ -29,6 +47,7 @@ export default async function LessonPage({ params }: PageProps<"/leccion/[slug]"
   if (!detail) notFound();
   const { lesson, section, siblings, questionCount } = detail;
   const t = await getTranslations("lesson");
+  const KindIcon = KIND_ICON[lesson.kind ?? "theory"] ?? BookOpen;
 
   // Exercise lessons live in the workspace; access is decided there (count-based free limit).
   if ((lesson.kind === "exercise" || lesson.kind === "challenge") && lesson.ref_slug) {
@@ -73,9 +92,11 @@ export default async function LessonPage({ params }: PageProps<"/leccion/[slug]"
         </span>
       </nav>
 
-      <header className="space-y-2">
-        <p className="text-muted text-xs font-semibold tracking-wide uppercase">
-          {t(`kind.${lesson.kind ?? "theory"}`)} ·{" "}
+      <header className="space-y-3">
+        <p className="border-border bg-surface-2 text-muted inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold tracking-wide uppercase">
+          <KindIcon aria-hidden="true" className="text-primary size-4" />
+          {t(`kind.${lesson.kind ?? "theory"}`)}
+          <span aria-hidden="true">·</span>
           {t("minutes", { minutes: lesson.estimated_minutes ?? 0 })}
         </p>
         <h1 className="text-3xl">{lesson.title}</h1>

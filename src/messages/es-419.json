@@ -404,7 +404,7 @@
     },
     "quiz": {
       "title": "Quiz de la sección · {count} preguntas",
-      "intro": "Respondé todas las preguntas y enviá el quiz. Necesitás {percent}% de aciertos para aprobar; podés repetirlo las veces que quieras.",
+      "intro": "Responde todas las preguntas y envía el quiz. Necesitas {percent}% de aciertos para aprobar; puedes repetirlo las veces que quieras.",
       "lastAttempt": "Tu último intento: {score}/{total}.",
       "empty": "Este quiz todavía no tiene preguntas publicadas."
     },

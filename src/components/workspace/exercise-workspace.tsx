@@ -16,6 +16,7 @@ import {
   Send,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { DatasetBadge } from "@/components/datasets/dataset-badge";
 import { Button } from "@/components/ui/button";
 import { limits } from "@/config/limits";
 import {
@@ -214,7 +215,10 @@ export function ExerciseWorkspace({ data }: { data: ExerciseWorkspaceData }) {
         </div>
 
         <div className="border-border bg-surface space-y-3 rounded-lg border p-5">
-          <p className="text-sm font-medium">{t("schemaTitle")}</p>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-sm font-medium">{t("schemaTitle")}</p>
+            <DatasetBadge slug={dataset.slug} title={dataset.title} variant="inline" />
+          </div>
           {/* Only the tables this exercise needs: a dataset has ten of them and the rest is noise. */}
           <SchemaBrowser tables={visibleSchema} highlight={exercise.tables_used ?? []} />
           {schema.length > visibleSchema.length ? (

@@ -8,23 +8,30 @@
 
 ## 2. Color tokens (CSS variables, Tailwind 4 `@theme`)
 
-| Token                | Light                                                              | Dark      | Use                                                                                            |
-| -------------------- | ------------------------------------------------------------------ | --------- | ---------------------------------------------------------------------------------------------- |
-| `--color-bg`         | `#F7F8FB`                                                          | `#0E1117` | page background                                                                                |
-| `--color-surface`    | `#FFFFFF`                                                          | `#161B25` | cards, editor chrome                                                                           |
-| `--color-surface-2`  | `#EEF1F7`                                                          | `#1E2533` | table headers, wells                                                                           |
-| `--color-border`     | `#D9DEE8`                                                          | `#2A3242` |                                                                                                |
-| `--color-text`       | `#151A24`                                                          | `#E8ECF3` | body (contrast ≥ 12:1)                                                                         |
-| `--color-text-muted` | `#5B6474`                                                          | `#A3ACBD` | secondary (≥ 4.5:1)                                                                            |
-| `--color-primary`    | `#2B4FE0`                                                          | `#7C93FF` | actions, links, focus                                                                          |
-| `--color-primary-fg` | `#FFFFFF`                                                          | `#0E1117` |                                                                                                |
-| `--color-accent`     | `#F2652E`                                                          | `#FF8A5B` | streaks, XP, highlights (sparingly)                                                            |
-| `--color-accent-ink` | `#B8461A`                                                          | `#FFA17A` | accent used as **text** (eyebrows, labels): the base accent only reaches 3:1 on light surfaces |
-| `--color-success`    | `#1C8A5A`                                                          | `#4CC38A` | correct (always with icon + text)                                                              |
-| `--color-warning`    | `#B7791F`                                                          | `#F0B35A` | partial, hints                                                                                 |
-| `--color-danger`     | `#C53A3A`                                                          | `#F27474` | errors                                                                                         |
-| `--color-info`       | `#2E6F9E`                                                          | `#6FB6E8` | theory callouts                                                                                |
-| Difficulty scale     | 1–5 use a **shape + label** (dot count + text), color is secondary |           |                                                                                                |
+| Token                         | Light                                                              | Dark      | Use                                                                                            |
+| ----------------------------- | ------------------------------------------------------------------ | --------- | ---------------------------------------------------------------------------------------------- |
+| `--color-bg`                  | `#F7F8FB`                                                          | `#0E1117` | page background                                                                                |
+| `--color-surface`             | `#FFFFFF`                                                          | `#161B25` | cards, editor chrome                                                                           |
+| `--color-surface-2`           | `#EEF1F7`                                                          | `#1E2533` | table headers, wells                                                                           |
+| `--color-border`              | `#D9DEE8`                                                          | `#2A3242` |                                                                                                |
+| `--color-text`                | `#151A24`                                                          | `#E8ECF3` | body (contrast ≥ 12:1)                                                                         |
+| `--color-text-muted`          | `#5B6474`                                                          | `#A3ACBD` | secondary (≥ 4.5:1)                                                                            |
+| `--color-primary`             | `#2B4FE0`                                                          | `#7C93FF` | actions, links, focus                                                                          |
+| `--color-primary-fg`          | `#FFFFFF`                                                          | `#0E1117` |                                                                                                |
+| `--color-accent`              | `#F2652E`                                                          | `#FF8A5B` | streaks, XP, highlights (sparingly)                                                            |
+| `--color-accent-ink`          | `#B8461A`                                                          | `#FFA17A` | accent used as **text** (eyebrows, labels): the base accent only reaches 3:1 on light surfaces |
+| `--color-success`             | `#1C8A5A`                                                          | `#4CC38A` | correct (always with icon + text)                                                              |
+| `--color-success-ink`         | `#15704A`                                                          | `#4CC38A` | success as **text/icon** (completed states): `--color-success` only reaches 4.35:1 on white    |
+| `--color-warning`             | `#B7791F`                                                          | `#F0B35A` | partial, hints                                                                                 |
+| `--color-danger`              | `#C53A3A`                                                          | `#F27474` | errors                                                                                         |
+| `--color-info`                | `#2E6F9E`                                                          | `#6FB6E8` | theory callouts                                                                                |
+| Difficulty scale              | 1–5 use a **shape + label** (dot count + text), color is secondary |           |                                                                                                |
+| `--color-dataset-marketplace` | `#6D3FC4`                                                          | `#B69BF0` | TiendaViva marker (icon + chip)                                                                |
+| `--color-dataset-fintech`     | `#0B7285`                                                          | `#5FC8D8` | Bolsillo marker                                                                                |
+| `--color-dataset-delivery`    | `#96590C`                                                          | `#E0A93E` | Pídelo marker                                                                                  |
+| `--color-dataset-music`       | `#AD3A70`                                                          | `#EE87B4` | Ritmo marker                                                                                   |
+
+Dataset accents are identity, not status: they are used only for the dataset marker (icon + name), never to signal progress or correctness. Measured on `--color-surface`: marketplace 6.65:1 / 7.34:1, fintech 5.59:1 / 8.82:1, delivery 5.63:1 / 8.14:1, music 5.81:1 / 7.19:1 (light / dark); each stays ≥ 4.5:1 over its own 10 % tint.
 
 Rules: never encode status by color alone (icon + label always); minimum 4.5:1 for text, 3:1 for UI borders/icons; accent limited to ≤ 5 % of any screen.
 
@@ -44,7 +51,11 @@ Button (primary/secondary/ghost/danger, sizes sm/md/lg, loading state), Input/Te
 
 ## 6. Iconography and illustration
 
-Lucide icons (1.5 px stroke, 20/24 px). Illustrations: flat geometric compositions of tables, nodes and charts in primary/accent duotone; people illustrated as diverse abstract silhouettes when needed, never caricatures. Avatars: 24 curated geometric/animal/abstract illustrations in the brand palette (inclusive, gender-neutral options).
+Lucide icons (1.5 px stroke, 20/24 px). No emoji in product chrome: icons inherit color and size and can be hidden from screen readers.
+
+**Lesson kinds** (same icon in the path list and on the lesson page): teoría `BookOpen`, ejercicio `SquareTerminal`, quiz `ListChecks`, desafío `Trophy`. **Levels**: fundamentos `Sprout`, agregar y combinar `Layers`, consultas avanzadas `Network`, analítica profesional `BarChart3`. **Datasets**: TiendaViva `Store`, Bolsillo `Wallet`, Pídelo `Bike`, Ritmo `Music4`, desconocido `Database` (neutral fallback).
+
+**Dataset marker** (`src/components/datasets/dataset-badge.tsx`, data in `src/config/datasets.ts`): `chip` variant (icon + name + domain, tinted border and background) in the exercise header; `inline` variant (accent icon + name) in the schema panel and other dense places. The accent classes are written out per dataset because Tailwind cannot see interpolated class names. Illustrations: flat geometric compositions of tables, nodes and charts in primary/accent duotone; people illustrated as diverse abstract silhouettes when needed, never caricatures. Avatars: 24 curated geometric/animal/abstract illustrations in the brand palette (inclusive, gender-neutral options).
 
 ## 7. Motion
 
@@ -62,7 +73,7 @@ Semantic landmarks, skip link, visible 2 px focus ring (`--color-primary` + offs
 
 **Dashboard (`/aprender`)**: continue card (last activity), weekly goal ring, streak with freeze status, level/XP bar, next 3 lessons, mastery by topic (bars with labels), recent badges, review queue callout.
 
-**Learning path (`/ruta`)**: vertical levels with sections as cards (status icon + label: completado / en curso / bloqueado / próximamente), free badge on free items, certificate milestones.
+**Learning path (`/ruta`, `/curriculo`)**: levels introduced by an icon + heading + "{done} de {total} secciones completadas"; sections as cards. Each section state is carried by three channels at once — icon, color and weight: **completada** (check badge, `--color-success-ink` title and rail, 5 % tint card), **en curso** (play icon, primary chip), **disponible** (book icon, neutral chip), **próximamente** (dashed border, dashed chip; no opacity, which previously broke text contrast). The first continuable section is the focal card: `ring-2 ring-primary/45`, larger title and a "Continúa aquí" cue. Each published section shows a `role="progressbar"` bar plus the text "{done} de {total} lecciones". Lesson rows carry the kind icon (with an `sr-only` kind label), a 2 px left rail (success when completed, primary when in progress), `min-h-11` touch targets, an `sr-only` explanation for the padlock on premium lessons, and hide the minutes below `sm`.
 
 **Exercise workspace (`/ejercicio/[slug]`)** desktop 3-column: left (scenario, business question, expected columns, tabs: Esquema | Teoría | Pistas), center (editor with Run ⌘/Ctrl+Enter, Submit, Reset, Save draft; below: results table with timing/row count/truncation notice; feedback panel with categorized findings), right collapsible (progress, rewards preview, related lesson). Mobile: stacked with sticky bottom action bar; editor height limited; schema as bottom sheet. States: loading dataset (progress), empty (run to see results), error (Postgres message + hint + position highlight), incorrect (diff summary: missing/extra columns, row count, first differing rows), correct (rewards, improvements, next), locked (paywall card with what unlocks), offline engine fallback.
 

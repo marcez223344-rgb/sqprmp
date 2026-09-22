@@ -11,7 +11,7 @@ import { PGlite } from "@electric-sql/pglite";
 import { limits } from "../src/config/limits";
 import { loadContent } from "../src/content/load";
 import { gateSql } from "../src/lib/sandbox/gate";
-import { loadDatasetInto, runLearnerQuery } from "../src/lib/sandbox/core/engine-core.mjs";
+import { loadDatasetInto, runLearnerQuery } from "../sandbox-runtime/engine-core.mjs";
 import { compareResults } from "../src/lib/validation/compare";
 import type { SandboxResult } from "../src/lib/sandbox/types";
 

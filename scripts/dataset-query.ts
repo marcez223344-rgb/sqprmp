@@ -5,7 +5,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { PGlite } from "@electric-sql/pglite";
-import { loadDatasetInto } from "../src/lib/sandbox/core/engine-core.mjs";
+import { loadDatasetInto } from "../sandbox-runtime/engine-core.mjs";
 
 const [slug, ...queries] = process.argv.slice(2);
 if (!slug || queries.length === 0) {
