@@ -92,11 +92,13 @@ export function OnboardingForm({ avatars, next, defaults }: Props) {
   useEffect(() => {
     if (!aliasValid) return;
     let cancelled = false;
-    setAliasCheckFailed(false);
     const handle = setTimeout(async () => {
       const result = await checkAlias(alias);
       if (cancelled) return;
-      if (result.ok) setAliasCheck({ alias, available: Boolean(result.data?.available) });
+      if (result.ok) {
+        setAliasCheck({ alias, available: Boolean(result.data?.available) });
+        setAliasCheckFailed(false);
+      }
       // Rate limit or network error: stop blocking the step and let the server decide.
       else setAliasCheckFailed(true);
     }, 450);
