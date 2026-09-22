@@ -90,7 +90,7 @@ export function DemoWorkspace({ schema }: { schema: Record<string, string[]> }) 
         </Button>
         <span className="text-muted text-xs">{t("shortcut")}</span>
       </div>
-      <ResultsTable outcome={result} caption={t("caption")} />
+      <ResultsTable outcome={result} sql={sqlText} caption={t("caption")} />
     </div>
   );
 }

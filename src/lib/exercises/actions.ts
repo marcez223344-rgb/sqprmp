@@ -16,7 +16,11 @@ const sqlSchema = z.string().max(limits.sandbox.maxSqlBytes);
 
 export type SubmitActionResult =
   | { ok: true; result: SubmitResult }
-  | { ok: false; error: "unauthorized" | "locked" | "rate_limited" | "not_found" | "validation" };
+  | {
+      ok: false;
+      error:
+        "unauthorized" | "locked" | "rate_limited" | "not_found" | "validation" | "unavailable";
+    };
 
 export async function submitExerciseAction(
   rawExerciseId: unknown,

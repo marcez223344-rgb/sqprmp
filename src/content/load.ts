@@ -1,3 +1,4 @@
+import { limits } from "@/config/limits";
 import { content } from "./index";
 import { courseSchema, datasetSchema, lessonSchema, sectionSchema } from "./schemas/curriculum";
 import { exerciseSchema } from "./schemas/exercise";
@@ -87,8 +88,9 @@ export function loadContent(): LoadedContent {
         estimated_minutes: e.estimated_minutes,
         ref: e.slug,
         dataset: e.dataset.slug,
-        // Exercises are count-gated (D-01), never free at the lesson level.
-        is_free: false,
+        // Exercises are count-gated (D-01), except in the intro sections, which are always
+        // free so the product can be tried before the allowance starts counting.
+        is_free: limits.freeExerciseSections.includes(section.slug),
         is_published: e.is_published && section.is_published,
         prerequisites: [],
       });

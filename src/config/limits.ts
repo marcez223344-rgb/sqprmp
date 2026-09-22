@@ -5,6 +5,12 @@
 export const limits = {
   /** D-01: distinct gated exercises a learner may complete without an entitlement. */
   freeExerciseLimit: 5,
+  /**
+   * Sections whose exercises are always free, on top of `freeExerciseLimit`. Without these, a
+   * visitor could not try a single exercise without spending part of an invisible allowance,
+   * and the learning path showed no "free" marker anywhere (owner feedback, 2026-09-22).
+   */
+  freeExerciseSections: ["tablas-filas-columnas-tipos", "select"] as string[],
 
   hints: {
     levels: 3,

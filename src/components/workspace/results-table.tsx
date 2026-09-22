@@ -1,6 +1,8 @@
 "use client";
 
+import { Lightbulb } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { errorHelpFor } from "@/lib/sandbox/error-help";
 import type { SandboxOutcome } from "@/lib/sandbox/types";
 import { cn } from "@/lib/utils/cn";
 
@@ -9,11 +11,18 @@ const MAX_RENDER_ROWS = 200;
 export function ResultsTable({
   outcome,
   caption,
+  sql = "",
 }: {
   outcome: SandboxOutcome | null;
   caption: string;
+  /** The query that produced this outcome; some error hints depend on how it was written. */
+  sql?: string;
 }) {
   const t = useTranslations("workspace.results");
+  const help =
+    outcome && !outcome.ok && outcome.code === "database"
+      ? errorHelpFor({ sqlstate: outcome.sqlstate, message: outcome.message, sql })
+      : null;
 
   if (!outcome) {
     return (
@@ -30,6 +39,12 @@ export function ResultsTable({
       >
         <p className="font-semibold">{t(`errorTitle.${outcome.code}`)}</p>
         <p className="font-mono whitespace-pre-wrap">{outcome.message}</p>
+        {help ? (
+          <p className="border-danger/30 bg-surface rounded-md border p-3">
+            <Lightbulb aria-hidden="true" className="text-warning mr-2 inline size-4" />
+            {t(`help.${help.key}` as never, (help.params ?? {}) as never)}
+          </p>
+        ) : null}
         {outcome.hint ? <p className="text-muted">{t("pgHint", { hint: outcome.hint })}</p> : null}
         {outcome.position ? (
           <p className="text-muted">{t("position", { position: outcome.position })}</p>
@@ -81,13 +96,18 @@ export function ResultsTable({
               </tr>
             ) : (
               shown.map((row, i) => (
-                <tr key={i} className="border-border border-t">
-                  <td className="text-muted px-3 py-1.5">{i + 1}</td>
+                <tr
+                  key={i}
+                  // Alternating rows: scanning a wide result set by eye is the point of this table.
+                  className={cn("border-border border-t", i % 2 === 1 && "bg-surface-2/40")}
+                >
+                  <td className="text-muted px-3 py-1.5 tabular-nums">{i + 1}</td>
                   {row.map((cell, j) => (
                     <td
                       key={j}
                       className={cn(
                         "px-3 py-1.5 whitespace-nowrap",
+                        typeof cell === "number" && "text-right tabular-nums",
                         cell === null && "text-muted italic",
                       )}
                     >

@@ -280,7 +280,7 @@ const outlines: Outline[] = [
       "Evitar errores al usar alias de agregados en HAVING",
     ],
     is_free_theory: false,
-    is_published: false,
+    is_published: true,
     certificate: null,
   },
   {
@@ -331,7 +331,7 @@ const outlines: Outline[] = [
       "Reconocer cuándo una función de ventana es una mejor alternativa",
     ],
     is_free_theory: false,
-    is_published: false,
+    is_published: true,
     certificate: null,
   },
   {
@@ -348,7 +348,7 @@ const outlines: Outline[] = [
       "Escribir consultas legibles con alias consistentes y formato claro",
     ],
     is_free_theory: false,
-    is_published: false,
+    is_published: true,
     certificate: "sql-analisis-negocio",
   },
   // N4 · Consultas avanzadas -------------------------------------------------------
@@ -366,7 +366,7 @@ const outlines: Outline[] = [
       "Elegir entre subconsulta, join y CTE según legibilidad",
     ],
     is_free_theory: false,
-    is_published: false,
+    is_published: true,
     certificate: null,
   },
   {
@@ -383,7 +383,7 @@ const outlines: Outline[] = [
       "Comparar CTE y subconsultas derivadas en legibilidad y rendimiento",
     ],
     is_free_theory: false,
-    is_published: false,
+    is_published: true,
     certificate: null,
   },
   {

@@ -53,6 +53,7 @@ export function ExerciseWorkspace({ data }: { data: ExerciseWorkspaceData }) {
   const [submitting, startSubmit] = useTransition();
   const [hints, setHints] = useState(data.hints);
   const [hintPending, startHint] = useTransition();
+  const [hintError, setHintError] = useState<string | null>(null);
   const [solution, setSolution] = useState(data.solution);
   const [solutionPending, startReveal] = useTransition();
   const [solutionError, setSolutionError] = useState<string | null>(null);
@@ -128,12 +129,17 @@ export function ExerciseWorkspace({ data }: { data: ExerciseWorkspaceData }) {
   }, [exercise.id, sqlText]);
 
   const requestHint = (level: number) => {
+    setHintError(null);
     startHint(async () => {
       const r = await requestHintAction(exercise.id, level);
-      if (r.ok)
+      if (r.ok) {
         setHints((h) =>
           [...h.filter((x) => x.level !== level), r.hint].sort((a, b) => a.level - b.level),
         );
+        return;
+      }
+      // Swallowing this made the button look dead when a hint could not be served.
+      setHintError(t(`hintErrors.${r.error}` as never));
     });
   };
 
@@ -369,6 +375,7 @@ export function ExerciseWorkspace({ data }: { data: ExerciseWorkspaceData }) {
           </div>
           <ResultsTable
             outcome={runResult}
+            sql={sqlText}
             caption={t("results.caption", { title: exercise.title ?? "" })}
           />
         </div>
@@ -382,6 +389,11 @@ export function ExerciseWorkspace({ data }: { data: ExerciseWorkspaceData }) {
             maxLevel={limits.hints.levels}
             penaltyPercent={limits.hints.xpPenaltyPercentPerHint}
           />
+          {hintError ? (
+            <p role="alert" className="text-danger mt-3 text-sm">
+              {hintError}
+            </p>
+          ) : null}
         </div>
 
         <div className="border-border bg-surface rounded-lg border p-4">

@@ -463,6 +463,19 @@
         "database": "Error de la base de datos",
         "engine": "Error del motor",
         "rate_limited": "Demasiadas ejecuciones"
+      },
+      "help": {
+        "doubleQuotedString": "En SQL las comillas dobles nombran columnas, no textos. Para comparar con el texto {value} escribe comillas simples: '{value}'.",
+        "unknownColumn": "La columna {value} no existe en esta tabla. Revisa el panel «Definiciones de tablas»: ahí están los nombres exactos.",
+        "unknownTable": "La tabla {value} no existe en este dataset. Revisa el panel «Definiciones de tablas».",
+        "trailingComma": "Parece que quedó una coma de más justo antes de FROM.",
+        "syntax": "Hay un error de sintaxis. Revisa comas entre columnas, paréntesis sin cerrar y palabras clave mal escritas.",
+        "aggregateWithoutGroupBy": "Si combinas una columna suelta con una función de agregación (COUNT, SUM, AVG), esa columna debe estar en el GROUP BY.",
+        "unknownFunction": "No existe una función con ese nombre y esos tipos de argumento. Revisa el nombre y si hace falta convertir algún valor.",
+        "badCast": "Un valor no pudo convertirse al tipo esperado. Revisa comparaciones entre texto y números o fechas mal escritas.",
+        "ambiguousColumn": "La columna {value} existe en más de una tabla de la consulta. Antepone el alias de la tabla, por ejemplo c.{value}.",
+        "duplicateAlias": "Usaste el mismo alias dos veces. Dale un alias distinto a cada tabla.",
+        "divisionByZero": "Hubo una división por cero. Usa NULLIF(divisor, 0) para evitarla."
       }
     },
     "submitErrors": {
@@ -470,7 +483,8 @@
       "locked": "Este ejercicio requiere el plan completo.",
       "rate_limited": "Enviaste muchas respuestas seguidas. Espera un momento.",
       "not_found": "No encontramos el ejercicio.",
-      "validation": "La consulta no es válida."
+      "validation": "La consulta no es válida.",
+      "unavailable": "No pudimos verificar tu acceso ahora mismo. Vuelve a intentar en unos segundos."
     },
     "solutionErrors": {
       "unauthorized": "Debes iniciar sesión.",
@@ -561,7 +575,15 @@
     "schemaTitle": "Definiciones de tablas",
     "hintsTitle": "Pistas",
     "solutionTitle": "Solución",
-    "resultsMeta": "{rows} filas · {ms} ms"
+    "resultsMeta": "{rows} filas · {ms} ms",
+    "hintErrors": {
+      "unauthorized": "Debes iniciar sesión.",
+      "locked": "Este ejercicio requiere el plan completo.",
+      "not_found": "No encontramos la pista.",
+      "validation": "No pudimos pedir esa pista.",
+      "sequence": "Pide primero la pista anterior.",
+      "rate_limited": "Espera un momento antes de pedir otra pista."
+    }
   },
   "demo": {
     "title": "Prueba SQL en tu navegador",

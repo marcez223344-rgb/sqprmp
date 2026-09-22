@@ -44,5 +44,20 @@
       "order_events": 69724,
       "ratings": 7353
     }
+  },
+  "ritmo": {
+    "version": 1,
+    "contentHash": "1d17977e0cc57b658741ffce2556afe53f12cc7a9743a21d3bd0da7c98e6934a",
+    "rows": {
+      "users": 5000,
+      "artists": 320,
+      "albums": 794,
+      "tracks": 6751,
+      "plays": 109382,
+      "playlists": 3439,
+      "playlist_tracks": 21962,
+      "subscriptions": 1289,
+      "follows": 14839
+    }
   }
 }

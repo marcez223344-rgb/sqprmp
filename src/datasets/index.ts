@@ -5,10 +5,13 @@ import { generate as bolsilloGenerate } from "./bolsillo/generate";
 import { verify as bolsilloVerify } from "./bolsillo/verify";
 import { generate as pideloGenerate } from "./pidelo/generate";
 import { verify as pideloVerify } from "./pidelo/verify";
+import { generate as ritmoGenerate } from "./ritmo/generate";
+import { verify as ritmoVerify } from "./ritmo/verify";
 
 /** Registry of dataset generators. Snapshots are built by `npm run datasets:build`. */
 export const datasetModules: Record<string, DatasetModule> = {
   tiendaviva: { generate: tiendavivaGenerate, verify: tiendavivaVerify },
   bolsillo: { generate: bolsilloGenerate, verify: bolsilloVerify },
   pidelo: { generate: pideloGenerate, verify: pideloVerify },
+  ritmo: { generate: ritmoGenerate, verify: ritmoVerify },
 };

@@ -235,13 +235,21 @@ export async function submitExercise(
   exerciseId: string,
   sql: string,
   previousSql: string | null,
-): Promise<SubmitResult | { error: "unauthorized" | "locked" | "rate_limited" | "not_found" }> {
+): Promise<
+  SubmitResult | { error: "unauthorized" | "locked" | "rate_limited" | "not_found" | "unavailable" }
+> {
   const admin = createAdminClient();
-  const { data: access } = await admin.rpc("can_access_exercise", {
+  const { data: access, error: accessError } = await admin.rpc("can_access_exercise", {
     p_user_id: profile.id,
     p_exercise_id: exerciseId,
     p_free_limit: limits.freeExerciseLimit,
   });
+  // A failed call is not a paywall: telling a learner to pay because an RPC broke is the worst
+  // possible error message. Fail loudly instead.
+  if (accessError || access === null) {
+    console.error("[exercises] can_access_exercise failed", accessError?.message);
+    return { error: "unavailable" };
+  }
   if (access === "unavailable") return { error: "not_found" };
   if (access !== "ok") return { error: "locked" };
   if (!(await consume(`submit:${profile.id}`, limits.rateLimits.submit)))

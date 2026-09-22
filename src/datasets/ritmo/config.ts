@@ -7,7 +7,7 @@ export const config = {
     users: 5000,
     artists: 320,
     /** Target number of plays before the planted duplicates are added. */
-    plays: 150000,
+    plays: 110000,
   },
 } as const;
 

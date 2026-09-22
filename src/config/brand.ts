@@ -20,12 +20,14 @@ export const brand = {
   supportEmail: "admin@datamindssolutions.com",
   // D-09: the service is offered by the founder as an individual taxpayer (monotributo);
   // "Data Minds Solutions" is the trade name, not a company.
-  legalName: "Marcelo Pisner (monotributista), nombre de fantasía Data Minds Solutions",
+  legalName: "Marcelo Pisner — Data Minds Solutions",
   legalEntityKind: "individual" as const,
   // Empty while the owner chooses not to publish them (D-09): the legal pages then identify
   // the provider by name and support email only. Required before charging in Argentina.
   legalAddress: "",
   taxId: "",
   jurisdiction: "Ciudad Autónoma de Buenos Aires, República Argentina",
-  refundDays: 7,
+  // 10 days is the floor set by Argentina's consumer law for distance sales (Ley 24.240 art. 34);
+  // it cannot be shortened by contract, so this is not a marketing choice.
+  refundDays: 10,
 } as const;

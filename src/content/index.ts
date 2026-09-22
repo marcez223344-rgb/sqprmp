@@ -25,6 +25,11 @@ import { lessons as ordenarYLimitarLessons } from "./lessons/ordenar-y-limitar";
 import { lessons as caseLessons } from "./lessons/case";
 import { lessons as fechasYHorasLessons } from "./lessons/fechas-y-horas";
 import { lessons as funcionesNumericasLessons } from "./lessons/funciones-numericas";
+import { lessons as havingLessons } from "./lessons/having";
+import { lessons as selfJoinLessons } from "./lessons/self-join";
+import { lessons as joinsMultiplesTablasLessons } from "./lessons/joins-multiples-tablas";
+import { lessons as subconsultasLessons } from "./lessons/subconsultas";
+import { lessons as cteLessons } from "./lessons/cte";
 import { questions as introQuestions } from "./questions/introduccion-bases-de-datos";
 import { questions as tablasQuestions } from "./questions/tablas-filas-columnas-tipos";
 import { questions as selectQuestions } from "./questions/select";
@@ -43,6 +48,11 @@ import { questions as ordenarYLimitarQuestions } from "./questions/ordenar-y-lim
 import { questions as caseQuestions } from "./questions/case";
 import { questions as fechasYHorasQuestions } from "./questions/fechas-y-horas";
 import { questions as funcionesNumericasQuestions } from "./questions/funciones-numericas";
+import { questions as havingQuestions } from "./questions/having";
+import { questions as selfJoinQuestions } from "./questions/self-join";
+import { questions as joinsMultiplesTablasQuestions } from "./questions/joins-multiples-tablas";
+import { questions as subconsultasQuestions } from "./questions/subconsultas";
+import { questions as cteQuestions } from "./questions/cte";
 import { exercises as tablasExercises } from "./exercises/tablas-filas-columnas-tipos";
 import { exercises as selectExercises } from "./exercises/select";
 import { exercises as aliasExercises } from "./exercises/alias-y-expresiones";
@@ -60,6 +70,11 @@ import { exercises as ordenarYLimitarExercises } from "./exercises/ordenar-y-lim
 import { exercises as caseExercises } from "./exercises/case";
 import { exercises as fechasYHorasExercises } from "./exercises/fechas-y-horas";
 import { exercises as funcionesNumericasExercises } from "./exercises/funciones-numericas";
+import { exercises as havingExercises } from "./exercises/having";
+import { exercises as selfJoinExercises } from "./exercises/self-join";
+import { exercises as joinsMultiplesTablasExercises } from "./exercises/joins-multiples-tablas";
+import { exercises as subconsultasExercises } from "./exercises/subconsultas";
+import { exercises as cteExercises } from "./exercises/cte";
 
 export const content = {
   courses: [course],
@@ -84,6 +99,11 @@ export const content = {
     ...caseLessons,
     ...fechasYHorasLessons,
     ...funcionesNumericasLessons,
+    ...havingLessons,
+    ...selfJoinLessons,
+    ...joinsMultiplesTablasLessons,
+    ...subconsultasLessons,
+    ...cteLessons,
   ],
   questions: [
     ...introQuestions,
@@ -104,6 +124,11 @@ export const content = {
     ...caseQuestions,
     ...fechasYHorasQuestions,
     ...funcionesNumericasQuestions,
+    ...havingQuestions,
+    ...selfJoinQuestions,
+    ...joinsMultiplesTablasQuestions,
+    ...subconsultasQuestions,
+    ...cteQuestions,
   ],
   exercises: [
     ...tablasExercises,
@@ -123,6 +148,11 @@ export const content = {
     ...caseExercises,
     ...fechasYHorasExercises,
     ...funcionesNumericasExercises,
+    ...havingExercises,
+    ...selfJoinExercises,
+    ...joinsMultiplesTablasExercises,
+    ...subconsultasExercises,
+    ...cteExercises,
   ],
 };
 
