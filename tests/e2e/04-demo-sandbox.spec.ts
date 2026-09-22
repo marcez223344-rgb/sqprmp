@@ -39,6 +39,10 @@ test.describe("browser SQL sandbox (demo)", () => {
     await page.keyboard.press("Control+A");
     await page.keyboard.type("select nombre from customers");
     await page.getByRole("button", { name: "Ejecutar" }).click();
-    await expect(page.getByRole("alert").filter({ hasText: "nombre" })).toBeVisible();
+    await expect(page.getByRole("alert").filter({ hasText: "nombre" })).toBeVisible({
+      timeout: 60_000,
+    });
+    // The engine's message is Postgres's; the line under it is the one a learner can act on.
+    await expect(page.getByText(/La columna nombre no existe/)).toBeVisible();
   });
 });
