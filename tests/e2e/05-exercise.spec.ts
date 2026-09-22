@@ -56,7 +56,8 @@ test.describe("exercise workspace (journeys 3–8)", () => {
     await expect(page.getByRole("heading", { level: 1 })).toContainText(
       "Explorar la tabla de clientes",
     );
-    await expect(page.getByText("Ejercicios gratis usados: 1 de 5")).toBeVisible();
+    // explorar-clientes is in an always-free section, so no allowance is consumed here.
+    await expect(page.getByText("Ejercicios gratis usados")).toHaveCount(0);
 
     // The expected-column checklist ticks as the local run produces the columns.
     await expect(page.getByRole("code").filter({ hasText: "full_name" }).first()).toBeVisible();

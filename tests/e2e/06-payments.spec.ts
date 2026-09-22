@@ -52,13 +52,14 @@ test.describe("payments and entitlements", () => {
 
   test("learner requests a manual purchase and sees it pending", async ({ context, page }) => {
     await signInAs(context, learner);
-    // Exhaust the free allowance first so the paywall is real.
+    // Exhaust the free allowance first so the paywall is real. These must be *gated* exercises:
+    // the intro sections are always free and never touch the allowance.
     for (const slug of [
-      "explorar-clientes",
-      "tipos-en-pedidos",
-      "catalogo-de-categorias",
-      "vendedores-basico",
-      "columnas-en-orden",
+      "codigos-de-categoria",
+      "neto-y-porcentaje-de-envio",
+      "tiendas-en-espanol",
+      "categorias-padre",
+      "cobertura-de-transportistas",
     ]) {
       await page.goto(`/ejercicio/${slug}`);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();

@@ -25,7 +25,9 @@ async function onboard(page: Page, name: string) {
 
 const QUIZ_SLUG = "introduccion-bases-de-datos-quiz";
 /** Option labels render Markdown; match on a plain-text prefix of the body. */
-const plainPrefix = (md: string | null) => (md ?? "").replace(/[`*_]/g, "").slice(0, 30);
+// Strips markdown that the renderer drops, but never underscores: they are part of identifiers
+// like customer_id, and removing them made the locator search for "customerid".
+const plainPrefix = (md: string | null) => (md ?? "").replace(/[`*]/g, "").slice(0, 30);
 const REQUIREMENT = "e2e-intro";
 
 /**

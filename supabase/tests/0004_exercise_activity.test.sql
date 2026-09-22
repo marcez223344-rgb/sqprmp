@@ -7,9 +7,14 @@ insert into auth.users (id, email) values
   ('52222222-2222-2222-2222-222222222222', 'gabi@ejemplo.lat');
 
 -- Exercise ids from the seed (section 3 has five gated exercises, section 2 has two).
+-- Only gated exercises count against the free allowance: the intro sections are always free
+-- (limits.freeExerciseSections), so they must not be part of this fixture.
 create temp table ex as
   select e.id, e.slug, row_number() over (order by s.number, e.slug) as n
-  from public.exercises e join public.sections s on s.id = e.section_id where e.is_published;
+  from public.exercises e
+  join public.sections s on s.id = e.section_id
+  join public.lessons l on l.id = e.lesson_id
+  where e.is_published and not l.is_free;
 select cmp_ok((select count(*) from ex), '>=', 7::bigint, 'seeded exercises available');
 
 -- Free limit: first 5 gated exercises ok, 6th locked; admins/entitled bypass.
