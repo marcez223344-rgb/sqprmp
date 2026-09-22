@@ -3,6 +3,7 @@
  * sequentially. The parent enforces the hard timeout by terminating this worker; a fresh
  * one is spawned on demand. Nothing here talks to the network or the application database.
  */
+import "./native-url.mjs";
 import { parentPort, workerData } from "node:worker_threads";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";

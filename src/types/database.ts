@@ -1530,7 +1530,7 @@ export type Database = {
           created_at: string;
         };
         Insert: {
-          id?: number;
+          id?: never;
           attempt_id?: string | null;
           user_id?: string | null;
           dataset_slug: string;
@@ -1543,7 +1543,7 @@ export type Database = {
           created_at?: string;
         };
         Update: {
-          id?: number;
+          id?: never;
           attempt_id?: string | null;
           user_id?: string | null;
           dataset_slug?: string;

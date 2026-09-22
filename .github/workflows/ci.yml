@@ -60,13 +60,8 @@ jobs:
       - name: Generated types must match src/types/database.ts
         run: |
           supabase gen types typescript --local > /tmp/database.generated.ts
-          cp src/types/database.ts /tmp/database.committed.ts
-          npx prettier --write /tmp/database.generated.ts /tmp/database.committed.ts > /dev/null
           cp /tmp/database.generated.ts database.generated.ts
-          if ! diff -u /tmp/database.committed.ts /tmp/database.generated.ts; then
-            echo "::error::src/types/database.ts drifted from the schema. Run: npx supabase gen types typescript --local > src/types/database.ts"
-            exit 1
-          fi
+          node scripts/check-types-drift.mjs /tmp/database.generated.ts src/types/database.ts
       # Generating types needs Docker; contributors without it take the file from here.
       - uses: actions/upload-artifact@v4
         if: always()

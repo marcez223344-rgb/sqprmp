@@ -87,3 +87,9 @@ Controlled **write exercises** (post-MVP): exercise metadata declares `allowed_s
 - Timeout test: a `WITH RECURSIVE` bomb is killed within 5 s and the function stays healthy.
 - Load test: 50 concurrent submits stay under function memory limits.
 - Static check: no module that imports `@electric-sql/pglite` may import the Supabase secret client.
+
+## Runtime notes
+
+- The worker imports `core/native-url.mjs` first: Next.js installs its own global `URL` in the server runtime and the worker inherits it, so PGlite's `new URL(..., import.meta.url)` lookups were rejected by `fs` ("must be ... an instance of URL. Received an instance of URL") and the engine never booted — every graded submission came back as an engine error. Restoring the native class before PGlite is evaluated fixes it.
+- Boot failures are logged (`[sandbox] worker fatal/error`); they used to be swallowed, which is why the cause was invisible in CI.
+- Node 24 everywhere (local, CI, Vercel); see `package.json` engines.

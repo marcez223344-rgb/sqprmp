@@ -22,6 +22,7 @@
     "datasets:verify": "tsx scripts/datasets-verify.ts",
     "quality": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run db:validate && npm run content:validate && npm run datasets:verify && npm run build",
     "db:validate": "tsx scripts/db-validate.ts",
+    "types:drift": "node scripts/check-types-drift.mjs",
     "content:build": "tsx scripts/content-build.ts",
     "assets:pglite": "tsx scripts/copy-pglite-assets.ts",
     "predev": "npm run assets:pglite && npm run datasets:build",
