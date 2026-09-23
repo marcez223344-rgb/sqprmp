@@ -104,7 +104,10 @@ export const manualTransferInstructions: Record<
     holder: "Marcelo Hernan Pisner",
     lines: ["Mercado Pago", "Alias: marc.hern.pis", "CVU: 0000003100024616194588"],
   },
-  wallbit_usd: { holder: "Data Minds Solutions", lines: ["Wallbit TAG: PENDIENTE-DE-CONFIGURAR"] },
+  wallbit_usd: {
+    holder: "Marcelo Hernan Pisner",
+    lines: ["Wallbit", "TAG: $marcelo-pisner"],
+  },
 };
 
 /** Marker for details the owner has not supplied yet. */
