@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { limits } from "@/config/limits";
 import { getCurrentProfile } from "@/lib/auth/session";
@@ -40,6 +41,12 @@ export async function submitExerciseAction(
 
   const result = await submitExercise(profile, id.data, sql.data, previous.data);
   if ("error" in result) return { ok: false, error: result.error };
+  // A first completion changes the learning path and the dashboard; both are read on the next
+  // navigation, so they have to be invalidated here and not by the client.
+  if (result.firstCompletion) {
+    revalidatePath("/ruta");
+    revalidatePath("/aprender");
+  }
   return { ok: true, result };
 }
 

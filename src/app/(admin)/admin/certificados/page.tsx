@@ -71,6 +71,7 @@ export default async function AdminCertificatesPage() {
                       ) : (
                         <ReasonActionButton
                           label={t("revoke")}
+                          title={t("revokeTitle", { id: c.public_id })}
                           prompt={t("revokePrompt")}
                           done={t("revokeDone")}
                           failed={t("revokeFailed")}

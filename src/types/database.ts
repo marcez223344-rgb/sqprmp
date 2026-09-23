@@ -1286,6 +1286,7 @@ export type Database = {
           privacy_version: string | null;
           onboarding_completed_at: string | null;
           leaderboard_opt_in: boolean;
+          leaderboard_opt_in_at: string | null;
           deleted_at: string | null;
           created_at: string;
           updated_at: string;
@@ -1311,6 +1312,7 @@ export type Database = {
           privacy_version?: string | null;
           onboarding_completed_at?: string | null;
           leaderboard_opt_in?: boolean;
+          leaderboard_opt_in_at?: string | null;
           deleted_at?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -1336,6 +1338,7 @@ export type Database = {
           privacy_version?: string | null;
           onboarding_completed_at?: string | null;
           leaderboard_opt_in?: boolean;
+          leaderboard_opt_in_at?: string | null;
           deleted_at?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -1671,19 +1674,23 @@ export type Database = {
           score: number;
           total: number;
           passed: boolean;
+          status: string;
+          question_ids: string[];
           started_at: string;
-          submitted_at: string;
+          submitted_at: string | null;
         };
         Insert: {
           id?: string;
           user_id: string;
           lesson_id: string;
           section_id: string;
-          score: number;
-          total: number;
-          passed: boolean;
+          score?: number;
+          total?: number;
+          passed?: boolean;
+          status?: string;
+          question_ids?: string[];
           started_at?: string;
-          submitted_at?: string;
+          submitted_at?: string | null;
         };
         Update: {
           id?: string;
@@ -1693,8 +1700,10 @@ export type Database = {
           score?: number;
           total?: number;
           passed?: boolean;
+          status?: string;
+          question_ids?: string[];
           started_at?: string;
-          submitted_at?: string;
+          submitted_at?: string | null;
         };
         Relationships: [
           {
@@ -2320,7 +2329,6 @@ export type Database = {
           topic: string | null;
           prompt_md: string | null;
           code_md: string | null;
-          pairs: Json | null;
           tags: string[] | null;
           estimated_seconds: number | null;
         };
@@ -2328,6 +2336,56 @@ export type Database = {
       };
     };
     Functions: {
+      lesson_id_for_exercise: { Args: { p_exercise_id: string }; Returns: string | null };
+      sync_exercise_lesson_progress: {
+        Args: { p_user_id: string; p_exercise_id: string; p_completed: boolean };
+        Returns: string | null;
+      };
+      backfill_exercise_lesson_progress: { Args: Record<string, never>; Returns: number };
+      leaderboards_enabled: { Args: Record<string, never>; Returns: boolean };
+      leaderboard: {
+        Args: { p_user_id: string; p_period: string; p_limit: number };
+        Returns: {
+          rank_position: number;
+          alias: string;
+          avatar_path: string | null;
+          level: number;
+          xp: number;
+          is_self: boolean;
+        }[];
+      };
+      leaderboard_participants: { Args: { p_user_id: string; p_period: string }; Returns: number };
+      admin_user_directory: {
+        Args: {
+          p_search?: string | null;
+          p_country?: string | null;
+          p_entitlement?: string | null;
+          p_include_deleted?: boolean;
+          p_sort?: string;
+          p_desc?: boolean;
+          p_limit?: number;
+          p_offset?: number;
+        };
+        Returns: {
+          total_count: number;
+          id: string;
+          alias: string | null;
+          display_name: string | null;
+          country: string | null;
+          age: number | null;
+          created_at: string;
+          onboarded: boolean;
+          role: string;
+          entitlement: string;
+          exercises_started: number;
+          exercises_completed: number;
+          level: number;
+          xp_total: number;
+          last_activity: string | null;
+          is_deleted: boolean;
+        }[];
+      };
+      admin_user_stats: { Args: { p_free_limit: number }; Returns: Json };
       admin_find_user: {
         Args: { p_query: string };
         Returns: {
@@ -2530,6 +2588,28 @@ export type Database = {
       issue_certificate: {
         Args: { p_user_id: string; p_requirement_slug: string; p_recipient_name: string };
         Returns: { public_id: string; verification_code: string; already_issued: boolean }[];
+      };
+      start_quiz_attempt: {
+        Args: { p_user_id: string; p_lesson_id: string; p_question_ids: string[] };
+        Returns: { attempt_id: string; question_ids: string[]; resumed: boolean }[];
+      };
+      discard_quiz_attempt: {
+        Args: { p_user_id: string; p_attempt_id: string };
+        Returns: boolean;
+      };
+      record_quiz_answer: {
+        Args: {
+          p_user_id: string;
+          p_attempt_id: string;
+          p_question_id: string;
+          p_answer: Json;
+          p_is_correct: boolean;
+        };
+        Returns: { recorded: boolean; answered_count: number; total: number }[];
+      };
+      finalize_quiz_attempt: {
+        Args: { p_user_id: string; p_attempt_id: string; p_pass_threshold_percent: number };
+        Returns: { score: number; total: number; passed: boolean; already_submitted: boolean }[];
       };
       record_quiz_attempt: {
         Args: {

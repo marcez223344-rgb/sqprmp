@@ -199,16 +199,34 @@ async function main() {
     "read validation_rules",
   );
   await mustFail("anon", "select sql from public.exercise_solutions limit 1", "read solutions");
-  await db.exec("set role anon");
+  // `theory_questions.pairs` is the grading key of every `matching` question, and quiz prompts are
+  // learner material: both stopped being anonymous with 20260923180000 (security review F-1). These
+  // are negative assertions on purpose — they catch a future migration that re-grants either one.
+  await mustFail("anon", "select pairs from public.theory_questions limit 1", "read matching key");
+  await mustFail(
+    "authenticated",
+    "select pairs from public.theory_questions limit 1",
+    "read matching key",
+  );
+  await mustFail("anon", "select count(*) from public.questions_public", "read quiz prompts");
+
+  // The view must still serve a signed-in learner, and free lesson bodies stay public.
+  await db.exec("set role authenticated");
   const pub = await db.query<{ n: number }>(
     "select count(*)::int as n from public.questions_public",
   );
+  await db.exec("reset role");
+  await db.exec("set role anon");
   const freeBodies = await db.query<{ n: number }>(
     "select count(*)::int as n from public.lessons_public where body_md_free is not null",
   );
   await db.exec("reset role");
-  if ((pub.rows[0]?.n ?? 0) < 1 || (freeBodies.rows[0]?.n ?? 0) < 1) {
-    console.error("public views return no rows for anon");
+  if ((pub.rows[0]?.n ?? 0) < 1) {
+    console.error("questions_public returns no rows for a signed-in learner");
+    process.exit(1);
+  }
+  if ((freeBodies.rows[0]?.n ?? 0) < 1) {
+    console.error("lessons_public returns no free bodies for anon");
     process.exit(1);
   }
 

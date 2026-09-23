@@ -1,17 +1,20 @@
+import Link from "next/link";
 import { getFormatter, getTranslations } from "next-intl/server";
+import { AudienceStats } from "@/components/admin/audience-stats";
 import { Card } from "@/components/ui/card";
 import { requireAdmin } from "@/lib/auth/session";
-import { getAdminMetrics } from "@/lib/admin/queries";
+import { getAdminMetrics, getUserStatsAdmin } from "@/lib/admin/queries";
 
 export const metadata = { title: "Métricas · Administración" };
 
 /** Owner dashboard: one RPC (admin_metrics) computed on request; no third-party analytics. */
 export default async function AdminMetricsPage() {
   await requireAdmin();
-  const [t, format, m] = await Promise.all([
+  const [t, format, m, audience] = await Promise.all([
     getTranslations("admin.metrics"),
     getFormatter(),
     getAdminMetrics(),
+    getUserStatsAdmin(),
   ]);
   if (!m) {
     return (
@@ -84,7 +87,17 @@ export default async function AdminMetricsPage() {
             }),
           })}
         </p>
+        <p className="text-sm">
+          <Link href="/admin/usuarios" className="text-primary underline underline-offset-4">
+            {t("usersLink")}
+          </Link>
+        </p>
       </header>
+      {audience ? (
+        <AudienceStats stats={audience} />
+      ) : (
+        <p className="text-danger">{t("audience.unavailable")}</p>
+      )}
       <div className="grid gap-4 md:grid-cols-2">
         {groups.map((g) => (
           <Card key={g.title}>

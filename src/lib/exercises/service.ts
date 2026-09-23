@@ -14,6 +14,7 @@ import {
   type ValidationRules,
 } from "@/lib/validation/compare";
 import { buildFeedback, type FeedbackItem } from "@/lib/validation/feedback";
+import { syncExerciseLessonProgress } from "@/lib/progress/lesson-sync";
 import { awardExerciseCompletion, touchActivity, type AwardOutcome } from "@/lib/rewards/service";
 import { settleSectionCompletion } from "@/lib/quizzes/service";
 import { track } from "@/lib/analytics/track";
@@ -200,6 +201,8 @@ export async function ensureExerciseStarted(profile: Profile, exerciseId: string
   // Swallowing this silently made every later access check look like a paywall: without the
   // progress row the learner appears never to have opened the exercise.
   if (error) console.error("[exercises] start_exercise failed", error.message);
+  // The learning path reads lesson rows, so an exercise that was started has to show up there too.
+  await syncExerciseLessonProgress(profile.id, exerciseId, false);
 }
 
 /**
@@ -296,7 +299,7 @@ export async function submitExercise(
   const datasetSlug = (ex.datasets as { slug: string } | null)?.slug;
   if (!datasetSlug) return { error: "not_found" };
 
-  await admin.rpc("start_exercise", { p_user_id: profile.id, p_exercise_id: exerciseId });
+  await ensureExerciseStarted(profile, exerciseId);
 
   const allowed = (ex.allowed_statements ?? ["select"]) as (
     "select" | "insert" | "update" | "delete"
@@ -397,6 +400,8 @@ export async function submitExercise(
   // Rewards are paid exactly once per exercise (ledger key), server-side, after persistence.
   let reward: AwardOutcome | null = null;
   if (rec?.first_completion && progress) {
+    // First completion is also what completes the lesson on the learning path.
+    await syncExerciseLessonProgress(profile.id, exerciseId, true);
     const cfg = ex.reward_config as {
       xp?: number;
       coins?: number;
@@ -488,7 +493,7 @@ export async function revealSolution(
   const access = await checkAccess(profile, exerciseId);
   if (access === "failed") return { error: "unavailable" };
   if (access !== "ok") return { error: access === "unavailable" ? "not_found" : "locked" };
-  await admin.rpc("start_exercise", { p_user_id: profile.id, p_exercise_id: exerciseId });
+  await ensureExerciseStarted(profile, exerciseId);
   const { data: progress } = await admin
     .from("exercise_progress")
     .select("*")

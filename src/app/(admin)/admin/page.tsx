@@ -19,7 +19,11 @@ export const metadata = { title: "Administración" };
 
 export default async function AdminPage() {
   await requireAdmin();
-  const [t, m] = await Promise.all([getTranslations("admin.hub"), getAdminMetrics()]);
+  const [t, tm, m] = await Promise.all([
+    getTranslations("admin.hub"),
+    getTranslations("admin.metrics"),
+    getAdminMetrics(),
+  ]);
   const tools: { href: Route; label: string; icon: typeof Users; badge?: number }[] = [
     {
       href: "/admin/accesos",
@@ -53,7 +57,12 @@ export default async function AdminPage() {
           <Stat label={t("stats.entitled")} value={m.monetization.entitled} />
           <Stat label={t("stats.pending")} value={m.monetization.purchases_pending} />
         </dl>
-      ) : null}
+      ) : (
+        // Dropping the tiles silently made the panel look like a product with no users at all.
+        <p role="status" className="text-danger text-sm">
+          {tm("unavailable")}
+        </p>
+      )}
       <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {tools.map((tool) => (
           <li key={tool.href}>

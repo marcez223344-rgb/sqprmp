@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { ReasonDialog } from "@/components/admin/reason-dialog";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
@@ -39,18 +40,43 @@ export function AccessAdminPanel({
   entitlements: EntitlementRow[];
 }) {
   const t = useTranslations("admin.access");
+  const td = useTranslations("admin.reasonDialog");
   const router = useRouter();
   const [busy, startTransition] = useTransition();
   const [message, setMessage] = useState<string | null>(null);
   const [alias, setAlias] = useState("");
   const [days, setDays] = useState("");
   const [reason, setReason] = useState("");
+  // Both dialogs record a justification that lands in audit_logs; the trigger is remembered so
+  // focus returns to it when the dialog closes.
+  const [reviewTarget, setReviewTarget] = useState<{ id: string; approve: boolean } | null>(null);
+  const [revokeTarget, setRevokeTarget] = useState<string | null>(null);
+  const lastTrigger = useRef<HTMLButtonElement | null>(null);
 
-  const review = (id: string, approve: boolean) => {
-    const note = window.prompt(t("notePrompt")) ?? "";
+  const closeDialogs = () => {
+    setReviewTarget(null);
+    setRevokeTarget(null);
+    lastTrigger.current?.focus();
+  };
+
+  const review = (note: string) => {
+    const target = reviewTarget;
+    if (!target) return;
+    closeDialogs();
     startTransition(async () => {
-      const r = await reviewManualPurchaseAction(id, approve, note);
-      setMessage(r.ok ? (approve ? t("approved") : t("rejected")) : t("error"));
+      const r = await reviewManualPurchaseAction(target.id, target.approve, note);
+      setMessage(r.ok ? (target.approve ? t("approved") : t("rejected")) : t("error"));
+      router.refresh();
+    });
+  };
+
+  const revoke = (why: string) => {
+    const id = revokeTarget;
+    if (!id) return;
+    closeDialogs();
+    startTransition(async () => {
+      const r = await revokeEntitlementAction(id, why);
+      setMessage(r.ok ? t("list.revokedDone") : t("error"));
       router.refresh();
     });
   };
@@ -99,14 +125,28 @@ export function AccessAdminPanel({
                     <td className="py-2 pr-3">{p.createdAt}</td>
                     <td className="py-2">
                       <div className="flex gap-2">
-                        <Button size="sm" disabled={busy} onClick={() => review(p.id, true)}>
+                        <Button
+                          size="sm"
+                          disabled={busy}
+                          aria-haspopup="dialog"
+                          aria-expanded={reviewTarget?.id === p.id && reviewTarget.approve}
+                          onClick={(event) => {
+                            lastTrigger.current = event.currentTarget;
+                            setReviewTarget({ id: p.id, approve: true });
+                          }}
+                        >
                           {t("pending.approve")}
                         </Button>
                         <Button
                           size="sm"
                           variant="danger"
                           disabled={busy}
-                          onClick={() => review(p.id, false)}
+                          aria-haspopup="dialog"
+                          aria-expanded={reviewTarget?.id === p.id && !reviewTarget.approve}
+                          onClick={(event) => {
+                            lastTrigger.current = event.currentTarget;
+                            setReviewTarget({ id: p.id, approve: false });
+                          }}
                         >
                           {t("pending.reject")}
                         </Button>
@@ -191,14 +231,11 @@ export function AccessAdminPanel({
                   size="sm"
                   variant="ghost"
                   disabled={busy}
-                  onClick={() => {
-                    const why = window.prompt(t("list.revokePrompt"));
-                    if (!why) return;
-                    startTransition(async () => {
-                      const r = await revokeEntitlementAction(e.id, why);
-                      setMessage(r.ok ? t("list.revokedDone") : t("error"));
-                      router.refresh();
-                    });
+                  aria-haspopup="dialog"
+                  aria-expanded={revokeTarget === e.id}
+                  onClick={(event) => {
+                    lastTrigger.current = event.currentTarget;
+                    setRevokeTarget(e.id);
                   }}
                 >
                   {t("list.revoke")}
@@ -208,6 +245,30 @@ export function AccessAdminPanel({
           ))}
         </ul>
       </Card>
+
+      <ReasonDialog
+        open={reviewTarget !== null}
+        title={reviewTarget?.approve === false ? t("pending.reject") : t("pending.approve")}
+        label={t("notePrompt")}
+        submitLabel={reviewTarget?.approve === false ? t("pending.reject") : t("pending.approve")}
+        cancelLabel={td("cancel")}
+        invalidMessage={td("required", { min: 3 })}
+        pending={busy}
+        onCancel={closeDialogs}
+        onSubmit={review}
+      />
+      <ReasonDialog
+        open={revokeTarget !== null}
+        title={t("list.revoke")}
+        label={t("list.revokePrompt")}
+        submitLabel={t("list.revoke")}
+        cancelLabel={td("cancel")}
+        invalidMessage={td("required", { min: 3 })}
+        minLength={3}
+        pending={busy}
+        onCancel={closeDialogs}
+        onSubmit={revoke}
+      />
 
       <p role="status" aria-live="polite" className="text-muted text-sm">
         {message}

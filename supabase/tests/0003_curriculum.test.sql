@@ -9,7 +9,8 @@ select cmp_ok((select count(*) from public.lessons where kind = 'quiz'), '>=', 3
 
 -- anon: public views work, secrets do not
 set local role anon;
-select cmp_ok((select count(*) from public.questions_public), '>=', 30::bigint, 'anon reads public questions');
+-- Quiz prompts stopped being anonymous material with migration 20260923180000 (security F-1).
+select throws_ok('select count(*) from public.questions_public', '42501', null, 'anon cannot read quiz questions');
 select cmp_ok((select count(*) from public.lessons_public where body_md_free is not null), '>=', 6::bigint, 'anon reads free lesson bodies');
 select throws_ok('select is_correct from public.question_options limit 1', '42501', null, 'anon cannot read is_correct');
 select throws_ok('select explanation_md from public.theory_questions limit 1', '42501', null, 'anon cannot read explanations');
