@@ -134,7 +134,7 @@ ORDER BY (rating IS NULL) ASC, rating DESC   -- falso (0) antes que verdadero (1
 ORDER BY COALESCE(rating, -1) DESC           -- reemplaza el NULL por un valor extremo
 \`\`\`
 
-La primera hace exactamente lo mismo que \`NULLS LAST\` y funciona en cualquier motor. La segunda es riesgosa por dos motivos: te obliga a elegir un valor centinela que algún día puede aparecer en los datos reales, y si además muestras esa columna en el reporte, quien lo lea va a ver un \`-1\` donde debería ver «sin calificación».
+La primera hace exactamente lo mismo que \`NULLS LAST\` y funciona en cualquier motor. La segunda es riesgosa por dos motivos: te obliga a elegir un valor centinela, es decir, un valor inventado que representa «sin dato», y ese valor algún día puede aparecer de verdad en los datos, y si además muestras esa columna en el reporte, quien lo lea va a ver un \`-1\` donde debería ver «sin calificación».
 
 ## Un detalle útil
 

@@ -421,7 +421,7 @@ export const questions: QuestionDef[] = [
         body_md: "`BETWEEN` no puede usarse con valores `timestamptz`.",
         is_correct: false,
         why_incorrect_md:
-          "Sí puede: es sintácticamente válido y se ejecuta sin error. El problema es semántico, no de tipos, y por eso pasa desapercibido.",
+          "Sí puede: es sintácticamente válido y se ejecuta sin error. El problema es de significado, no de tipos, y por eso pasa desapercibido.",
       },
       {
         key: "c",

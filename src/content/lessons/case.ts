@@ -226,7 +226,7 @@ CASE WHEN description IS NULL THEN 'sin detalle' ELSE description END
 COALESCE(note, description, 'sin concepto')
 \`\`\`
 
-Recuerda que rellenar un NULL con un valor tiene consecuencias. \`COALESCE(rating, 0)\` está bien para un listado que solo se mira, pero convierte «sin datos» en «puntaje cero»: si después calculas un promedio, esos ceros lo bajan y el número deja de ser cierto.
+Rellenar un NULL con un valor tiene consecuencias. \`COALESCE(rating, 0)\` está bien para un listado que solo se mira, pero convierte «sin datos» en «puntaje cero»: si después calculas un promedio, esos ceros lo bajan y el número deja de ser cierto.
 
 ## NULLIF: producir un NULL a propósito
 

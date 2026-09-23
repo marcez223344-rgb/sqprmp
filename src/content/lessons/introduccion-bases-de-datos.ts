@@ -61,7 +61,7 @@ FROM customers
 GROUP BY country;
 \`\`\`
 
-Esa consulta responde «cuántos clientes hay por país». Se lee así: de la tabla \`customers\`, agrupa las filas según el valor de la columna \`country\` y, para cada país, cuenta cuántas filas hay. El resultado es una tabla con una fila por país. No te preocupes todavía por la sintaxis: la vas a aprender palabra por palabra en las próximas secciones.
+Esa consulta responde «cuántos clientes hay por país». Se lee así: de la tabla \`customers\`, agrupa las filas según el valor de la columna \`country\` y, para cada país, cuenta cuántas filas hay. El resultado es una tabla con una fila por país. La sintaxis la vas a aprender palabra por palabra en las próximas secciones.
 
 En una hoja de cálculo harías lo mismo con una tabla dinámica. La diferencia es que estas tres líneas funcionan igual con mil filas o con cien millones, y además puedes guardarlas, versionarlas y compartirlas para que otra persona obtenga exactamente el mismo número.
 
@@ -111,7 +111,7 @@ WHERE o.status = 'delivered'
 GROUP BY c.country;
 \`\`\`
 
-No te preocupes si todavía no entiendes cada palabra: en las próximas secciones vas a aprender \`SELECT\`, \`WHERE\`, \`JOIN\` y \`GROUP BY\` paso a paso. Lo que importa ahora es el **orden de razonamiento**, porque ese orden es el mismo sin importar qué tan complicada sea la consulta.
+Todavía no hace falta que entiendas cada palabra: en las próximas secciones vas a aprender \`SELECT\`, \`WHERE\`, \`JOIN\` y \`GROUP BY\` paso a paso. Lo que importa ahora es el **orden de razonamiento**, porque ese orden es el mismo sin importar qué tan complicada sea la consulta.
 
 ## Ejemplo resuelto
 

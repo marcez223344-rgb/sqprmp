@@ -19,9 +19,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["customers"],
     scenario_md:
-      "Es tu primer día en el equipo de datos de **TiendaViva**. Antes de responder cualquier pregunta quieres conocer la tabla `customers`: qué columnas tiene y cómo se ven sus filas.",
+      "Es tu primer día en el equipo de datos de **TiendaViva**. Antes de responder cualquier pregunta quieres conocer la tabla `customers`: qué columnas tiene y cómo se ven sus filas. Vas a compartir esa muestra con quien te está haciendo el traspaso, así que necesitas que le devuelva exactamente las mismas diez filas que a ti.",
     business_question_md:
-      "Muestra las columnas `id`, `full_name` y `country` de los **10 primeros clientes según su `id`** (de menor a mayor).",
+      "Muestra las columnas `id`, `full_name` y `country` de **10 clientes**, ordenando por `id` de menor a mayor para que la muestra sea siempre la misma.",
     learning_objective:
       "Leer el esquema de una tabla y seleccionar columnas concretas en un orden definido.",
     theory_ref: "anatomia-de-una-tabla",
@@ -42,7 +42,7 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Necesitas tres columnas de una sola tabla, en un orden concreto y solo las primeras filas. Piensa en qué cláusulas controlan el orden y la cantidad.",
+          "Necesitas tres columnas de una sola tabla, un orden fijo y solo unas pocas filas. Piensa en qué cláusulas controlan el orden y la cantidad.",
         ...defaultHintMeta(1),
       },
       {
@@ -71,7 +71,7 @@ export const exercises: ExerciseDef[] = [
       { category: "row_count", description_md: "Olvidar `LIMIT 10` devuelve los 3000 clientes." },
     ],
     expert_explanation_md:
-      "1. `SELECT id, full_name, country` elige las tres columnas pedidas, en ese orden.\n2. `FROM customers` indica la tabla.\n3. `ORDER BY id` garantiza el orden ascendente (es el valor por defecto; `ASC` es opcional).\n4. `LIMIT 10` corta el resultado.\n\n**Por qué importa el orden:** `LIMIT` sin `ORDER BY` devuelve *alguna* selección de 10 filas, no necesariamente las de menor `id`. Combinar ambas cláusulas es el patrón estándar para «los primeros N».",
+      "1. `SELECT id, full_name, country` elige las tres columnas pedidas, en ese orden.\n2. `FROM customers` indica la tabla.\n3. `ORDER BY id` garantiza el orden ascendente (es el valor por defecto; `ASC` es opcional).\n4. `LIMIT 10` corta el resultado.\n\n**Por qué importa el orden:** `LIMIT` sin `ORDER BY` devuelve *alguna* selección de 10 filas y el motor no promete que sean las mismas la próxima vez. Aquí el `id` no responde ninguna pregunta de negocio; lo único que hace es fijar la muestra para que dos personas vean lo mismo. Cuando la pregunta sí tenga un criterio propio (el cliente más nuevo, el pedido más caro), ese criterio va en el `ORDER BY` y el `id` queda como desempate.",
     reward: defaultReward("very_easy"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -86,9 +86,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["orders"],
     scenario_md:
-      "Finanzas te pregunta si `total_amount` es un número «de verdad» o un texto, y si `created_at` guarda la hora. La forma más rápida de comprobarlo es mirar algunas filas y observar los tipos que muestra el resultado.",
+      "Finanzas está armando un reporte de cierre y te pasó cinco números de pedido que quiere revisar a mano: 1, 3, 18, 36 y 58. Además pregunta si `total_amount` es un número «de verdad» o un texto, y si `created_at` guarda la hora. Al traer esas cinco filas vas a responder las dos cosas de una sola vez.",
     business_question_md:
-      "Muestra `id`, `status`, `total_amount` y `created_at` de los pedidos con `id` menor o igual a **5**, ordenados por `id`.",
+      "Muestra `id`, `status`, `total_amount` y `created_at` de los cinco pedidos que pidió Finanzas (`id` 1, 3, 18, 36 y 58), ordenados por `id` de menor a mayor.",
     learning_objective:
       "Observar tipos de datos reales (numérico, texto, timestamp) en el resultado de una consulta.",
     theory_ref: "tipos-de-datos",
@@ -100,30 +100,30 @@ export const exercises: ExerciseDef[] = [
     ],
     validation_rules: { order_matters: true, required_concepts: ["where"] },
     reference_solution:
-      "SELECT id, status, total_amount, created_at\nFROM orders\nWHERE id <= 5\nORDER BY id;",
+      "SELECT id, status, total_amount, created_at\nFROM orders\nWHERE id IN (1, 3, 18, 36, 58)\nORDER BY id;",
     alternative_solutions: [
       {
-        label: "Con BETWEEN",
-        sql: "SELECT id, status, total_amount, created_at FROM orders WHERE id BETWEEN 1 AND 5 ORDER BY id",
+        label: "Con una lista de comparaciones unidas por OR",
+        sql: "SELECT id, status, total_amount, created_at FROM orders WHERE id = 1 OR id = 3 OR id = 18 OR id = 36 OR id = 58 ORDER BY id",
       },
     ],
     hints: [
       {
         level: 1,
         body_md:
-          "Quieres pocas filas concretas (las de `id` 1 a 5): eso es un filtro sobre filas, no un límite de cantidad.",
+          "Quieres cinco filas concretas, identificadas una por una: eso es un filtro sobre filas, no un límite de cantidad.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Filtra con `WHERE id <= 5` en la tabla `orders` y ordena por `id`. Fíjate en el tipo que el resultado muestra para `total_amount` y `created_at`.",
+          "En la tabla `orders`, el operador `IN` permite escribir una lista de valores entre paréntesis y quedarte con las filas que coinciden con cualquiera de ellos. Después ordena por `id`. Fíjate en el tipo que el resultado muestra para `total_amount` y `created_at`.",
         ...defaultHintMeta(2),
       },
       {
         level: 3,
         body_md:
-          "```sql\nSELECT id, status, ___, ___\nFROM orders\nWHERE id ___ 5\nORDER BY id;\n```",
+          "```sql\nSELECT id, status, ___, ___\nFROM orders\nWHERE id ___ (1, 3, 18, 36, 58)\nORDER BY id;\n```",
         ...defaultHintMeta(3),
       },
     ],
@@ -131,7 +131,7 @@ export const exercises: ExerciseDef[] = [
       {
         category: "missing_filter",
         description_md:
-          "Usar `LIMIT 5` en lugar de `WHERE id <= 5`: devuelve cinco filas, pero no necesariamente las de `id` 1 a 5.",
+          "Usar `LIMIT 5` en lugar del filtro: devuelve cinco filas, pero no las cinco que pidió Finanzas. `LIMIT` recorta por cantidad, no elige por contenido.",
       },
       {
         category: "wrong_columns",
@@ -144,7 +144,7 @@ export const exercises: ExerciseDef[] = [
       },
     ],
     expert_explanation_md:
-      "`WHERE id <= 5` selecciona por contenido (los pedidos cuyo identificador es 1 a 5), mientras que `LIMIT 5` selecciona por cantidad. En este caso coinciden solo si además ordenas por `id`, pero la consigna pide un filtro.\n\nEn el resultado observa los tipos: `total_amount` es `numeric` (decimales exactos, ideal para dinero) y `created_at` es `timestamptz` (instante con zona horaria). `status` es texto.",
+      "Buscar pedidos por su número es uno de los usos legítimos de un identificador: cuando alguien del negocio te pasa una lista de casos a revisar, `WHERE id IN (...)` es exactamente la herramienta. `IN` es la forma corta de una cadena de `OR`, y las dos consultas se ejecutan igual.\n\n`WHERE` selecciona por contenido y `LIMIT` selecciona por cantidad: son decisiones distintas. Con `LIMIT 5` traerías cinco pedidos cualesquiera y el reporte de Finanzas quedaría mal desde la primera fila.\n\nEn el resultado observa los tipos: `total_amount` es `numeric` (decimales exactos, ideal para dinero) y `created_at` es `timestamptz` (instante con zona horaria). `status` es texto, y en estas cinco filas ya aparecen cinco valores distintos (`cancelled`, `delivered`, `shipped`, `returned`, `pending`): así se ve de un vistazo qué estados maneja la tabla.",
     reward: defaultReward("very_easy"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,

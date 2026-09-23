@@ -127,7 +127,7 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Aquí las condiciones no son igualdades sino umbrales, así que necesitas la forma buscada (`WHEN condición THEN etiqueta`). Recuerda que las ramas se evalúan de arriba hacia abajo y gana la primera que sea verdadera.",
+          "Aquí las condiciones no son igualdades sino umbrales, así que necesitas la forma buscada (`WHEN condición THEN etiqueta`). Las ramas se evalúan de arriba hacia abajo y gana la primera que sea verdadera.",
         ...defaultHintMeta(1),
       },
       {
@@ -350,9 +350,9 @@ export const exercises: ExerciseDef[] = [
     dataset: bolsillo,
     tables_used: ["transactions"],
     scenario_md:
-      "El equipo de riesgo de **Bolsillo** revisa manualmente los movimientos que el motor antifraude marcó (`is_flagged`). Para priorizar la cola de trabajo traduce el estado del movimiento a un nivel de riesgo: `reversed` es **Fraude confirmado**, `failed` es **Bloqueado**, `pending` es **En revisión** y cualquier otro estado es **Alerta sin bloqueo**. Además, la columna `description` viene vacía en la mayoría de los casos y en la planilla debe leerse `sin detalle`.",
+      "El equipo de riesgo de **Bolsillo** revisa manualmente los movimientos que el motor antifraude marcó (`is_flagged`) y trabaja la cola de lo más nuevo a lo más viejo: una alerta de hace un mes ya no se puede frenar, la de hoy sí. Para clasificar cada caso traduce el estado del movimiento a un nivel de riesgo: `reversed` es **Fraude confirmado**, `failed` es **Bloqueado**, `pending` es **En revisión** y cualquier otro estado es **Alerta sin bloqueo**. Además, la columna `description` viene vacía en la mayoría de los casos y en la planilla debe leerse `sin detalle`.",
     business_question_md:
-      "Devuelve `id`, `account_id`, `kind`, `amount`, `currency`, una columna `nivel_riesgo` con la etiqueta correspondiente y una columna `detalle` con la descripción del movimiento o el texto `sin detalle` cuando no haya ninguna. Incluye solo los movimientos marcados y ordena el resultado por `id` ascendente.",
+      "Devuelve `id`, `account_id`, `kind`, `amount`, `currency`, `created_at`, una columna `nivel_riesgo` con la etiqueta correspondiente y una columna `detalle` con la descripción del movimiento o el texto `sin detalle` cuando no haya ninguna. Incluye solo los movimientos marcados y ordena de la alerta **más reciente a la más antigua**, desempatando por `id` ascendente.",
     learning_objective:
       "Combinar una expresión CASE de clasificación con COALESCE para presentar datos ausentes.",
     theory_ref: "case-coalesce-y-nullif",
@@ -362,6 +362,7 @@ export const exercises: ExerciseDef[] = [
       { name: "kind", type: "text" },
       { name: "amount", type: "numeric" },
       { name: "currency", type: "text" },
+      { name: "created_at", type: "timestamp" },
       { name: "nivel_riesgo", type: "text" },
       { name: "detalle", type: "text" },
     ],
@@ -370,11 +371,11 @@ export const exercises: ExerciseDef[] = [
       required_concepts: ["case", "where", "order_by"],
     },
     reference_solution:
-      "SELECT\n  id,\n  account_id,\n  kind,\n  amount,\n  currency,\n  CASE status\n    WHEN 'reversed' THEN 'Fraude confirmado'\n    WHEN 'failed' THEN 'Bloqueado'\n    WHEN 'pending' THEN 'En revisión'\n    ELSE 'Alerta sin bloqueo'\n  END AS nivel_riesgo,\n  COALESCE(description, 'sin detalle') AS detalle\nFROM transactions\nWHERE is_flagged\nORDER BY id;",
+      "SELECT\n  id,\n  account_id,\n  kind,\n  amount,\n  currency,\n  created_at,\n  CASE status\n    WHEN 'reversed' THEN 'Fraude confirmado'\n    WHEN 'failed' THEN 'Bloqueado'\n    WHEN 'pending' THEN 'En revisión'\n    ELSE 'Alerta sin bloqueo'\n  END AS nivel_riesgo,\n  COALESCE(description, 'sin detalle') AS detalle\nFROM transactions\nWHERE is_flagged\nORDER BY created_at DESC, id ASC;",
     alternative_solutions: [
       {
         label: "CASE buscada y CASE en lugar de COALESCE",
-        sql: "SELECT\n  id,\n  account_id,\n  kind,\n  amount,\n  currency,\n  CASE\n    WHEN status = 'reversed' THEN 'Fraude confirmado'\n    WHEN status = 'failed' THEN 'Bloqueado'\n    WHEN status = 'pending' THEN 'En revisión'\n    ELSE 'Alerta sin bloqueo'\n  END AS nivel_riesgo,\n  CASE WHEN description IS NULL THEN 'sin detalle' ELSE description END AS detalle\nFROM transactions\nWHERE is_flagged = true\nORDER BY id;",
+        sql: "SELECT\n  id,\n  account_id,\n  kind,\n  amount,\n  currency,\n  created_at,\n  CASE\n    WHEN status = 'reversed' THEN 'Fraude confirmado'\n    WHEN status = 'failed' THEN 'Bloqueado'\n    WHEN status = 'pending' THEN 'En revisión'\n    ELSE 'Alerta sin bloqueo'\n  END AS nivel_riesgo,\n  CASE WHEN description IS NULL THEN 'sin detalle' ELSE description END AS detalle\nFROM transactions\nWHERE is_flagged = true\nORDER BY created_at DESC, id;",
       },
     ],
     hints: [
@@ -387,13 +388,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 2,
         body_md:
-          "Trabaja sobre `transactions`. El filtro es sobre la columna booleana `is_flagged`, que puedes usar directamente en el `WHERE` sin compararla con nada. Para `nivel_riesgo` alcanza la forma simple de `CASE` sobre `status`; para `detalle`, usa `COALESCE` con dos argumentos. No olvides el `ORDER BY`.",
+          "Trabaja sobre `transactions`. El filtro es sobre la columna booleana `is_flagged`, que puedes usar directamente en el `WHERE` sin compararla con nada. Para `nivel_riesgo` alcanza la forma simple de `CASE` sobre `status`; para `detalle`, usa `COALESCE` con dos argumentos. El orden lleva dos claves: `created_at` en dirección descendente y después `id`.",
         ...defaultHintMeta(2),
       },
       {
         level: 3,
         body_md:
-          "```sql\nSELECT\n  id,\n  account_id,\n  kind,\n  amount,\n  currency,\n  CASE ___\n    WHEN ___ THEN ___\n    ...\n    ELSE ___\n  END AS nivel_riesgo,\n  ___(description, ___) AS detalle\nFROM transactions\nWHERE ___\nORDER BY ___;\n```",
+          "```sql\nSELECT\n  id,\n  account_id,\n  kind,\n  amount,\n  currency,\n  created_at,\n  CASE ___\n    WHEN ___ THEN ___\n    ...\n    ELSE ___\n  END AS nivel_riesgo,\n  ___(description, ___) AS detalle\nFROM transactions\nWHERE ___\nORDER BY ___ ___, id ASC;\n```",
         ...defaultHintMeta(3),
       },
     ],
@@ -416,11 +417,11 @@ export const exercises: ExerciseDef[] = [
       {
         category: "wrong_order",
         description_md:
-          "Omitir `ORDER BY id`: sin orden explícito, PostgreSQL no garantiza la secuencia de las filas y la cola de revisión llega desordenada.",
+          "Ordenar de forma ascendente por `created_at`: la cola arranca por las alertas más viejas, justo las que ya no tienen remedio. Y sin `ORDER BY` alguno, PostgreSQL no garantiza ninguna secuencia.",
       },
     ],
     expert_explanation_md:
-      "193 movimientos marcados: 183 `Alerta sin bloqueo`, 5 `En revisión`, 4 `Bloqueado` y 1 `Fraude confirmado`.\n\nEl ejercicio muestra la división de tareas entre las tres herramientas. `CASE` clasifica cuando hay varias categorías; `COALESCE` solo responde «si esto es NULL, muestra aquello». `COALESCE(description, 'sin detalle')` es idéntico a `CASE WHEN description IS NULL THEN 'sin detalle' ELSE description END`, como se ve en la solución alternativa, pero se lee de un vistazo.\n\nDos detalles de estilo. `WHERE is_flagged` y `WHERE is_flagged = true` son equivalentes: una columna booleana ya es una condición. Y en la forma simple `CASE status WHEN 'reversed' ...`, el `ELSE` cubre `completed` y cualquier estado que se agregue en el futuro; si prefieres que un estado nuevo salte a la vista, escribe `ELSE 'Estado no clasificado'`.\n\nLa distribución del resultado dice algo del negocio: casi todos los movimientos marcados terminaron completándose. El motor antifraude prioriza no perder casos sospechosos a costa de muchas falsas alarmas, y esta consulta es el primer paso para medir ese costo.",
+      "193 movimientos marcados: 183 `Alerta sin bloqueo`, 5 `En revisión`, 4 `Bloqueado` y 1 `Fraude confirmado`.\n\nEl orden por `created_at DESC` es parte de la respuesta, no un adorno: una cola de antifraude se trabaja por antigüedad de la alerta, porque el margen para revertir un movimiento se cierra con el tiempo. Ordenar por `amount` sería tentador, pero `transactions` mezcla monedas y un ranking de importes nominales pondría arriba a los países con más ceros en los precios.\n\nEl ejercicio muestra la división de tareas entre las tres herramientas. `CASE` clasifica cuando hay varias categorías; `COALESCE` solo responde «si esto es NULL, muestra aquello». `COALESCE(description, 'sin detalle')` es idéntico a `CASE WHEN description IS NULL THEN 'sin detalle' ELSE description END`, como se ve en la solución alternativa, pero se lee de un vistazo.\n\nDos detalles de estilo. `WHERE is_flagged` y `WHERE is_flagged = true` son equivalentes: una columna booleana ya es una condición. Y en la forma simple `CASE status WHEN 'reversed' ...`, el `ELSE` cubre `completed` y cualquier estado que se agregue en el futuro; si prefieres que un estado nuevo salte a la vista, escribe `ELSE 'Estado no clasificado'`.\n\nLa distribución del resultado dice algo del negocio: casi todos los movimientos marcados terminaron completándose. El motor antifraude prioriza no perder casos sospechosos a costa de muchas falsas alarmas, y esta consulta es el primer paso para medir ese costo.",
     improvement_feedback: [
       { condition: "uses_select_star", message_key: "improve.uses_select_star" },
     ],

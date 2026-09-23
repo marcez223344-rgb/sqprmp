@@ -94,7 +94,7 @@ Además, la forma de dos argumentos \`ROUND(valor, decimales)\` **solo existe pa
     slug: "division-entera-y-porcentajes",
     section,
     kind: "theory",
-    title: "División entera, casteos y porcentajes",
+    title: "División entera, conversión de tipos y porcentajes",
     sort_order: 1,
     estimated_minutes: 12,
     is_free: false,
@@ -140,7 +140,7 @@ SELECT rating / 5 * 100 AS base_100_mal  -- 0 para rating 2: el cociente ya era 
 FROM reviews;
 \`\`\`
 
-Aun así, castear es más seguro que confiar en el orden.
+Aun así, convertir el tipo de forma explícita es más seguro que confiar en el orden de los operadores.
 
 ## Dividir por cero
 

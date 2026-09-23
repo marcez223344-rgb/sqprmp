@@ -106,7 +106,7 @@ Esto es un **duplicado por clave de negocio**: filas que la restricción técnic
 
 ## Normalizar antes de agrupar
 
-La clave de identidad no es la columna tal como está guardada, sino la columna **normalizada**: eliges una forma canónica —una única manera de escribir el valor, por ejemplo todo en minúsculas y sin espacios al principio ni al final— y agrupas por ella.
+La clave de identidad no es la columna tal como está guardada, sino la columna **normalizada**: eliges una forma normalizada, es decir, una única manera de escribir el valor: por ejemplo, todo en minúsculas y sin espacios al principio ni al final. Después agrupas por ella.
 
 \`\`\`sql
 SELECT lower(btrim(email)) AS correo, count(*) AS cuentas
@@ -127,7 +127,7 @@ Las normalizaciones más usadas, y el criterio para elegirlas:
 | \`regexp_replace(tel, '[^0-9]', '', 'g')\` | Teléfonos con guiones y paréntesis | Pierde el prefijo internacional si no está escrito |
 | \`unaccent(...)\` | Nombres con tildes | Requiere una extensión; no siempre disponible |
 
-Todas comparten la misma regla de oro: **normalizas para comparar, no para guardar**. El dato original se conserva; la forma canónica vive en la consulta o en una columna calculada aparte.
+Todas comparten la misma regla de oro: **normalizas para comparar, no para guardar**. El dato original se conserva; la forma normalizada vive en la consulta o en una columna calculada aparte.
 
 ## La clave puede ser compuesta
 
@@ -162,7 +162,7 @@ Eso no se arregla con \`DISTINCT\`: se arregla resumiendo \`payments\` a una fil
 
 ## Resumen
 
-1. Normaliza (\`lower\`, \`btrim\`, limpieza de símbolos) y agrupa por la forma canónica.
+1. Normaliza (\`lower\`, \`btrim\`, limpieza de símbolos) y agrupa por la forma normalizada.
 2. La clave de identidad suele ser compuesta; cada versión es una hipótesis que se discute con el negocio.
 3. Filas repetidas por un join no son duplicados de datos: son un problema de cardinalidad.
 `,

@@ -152,7 +152,7 @@ Es la solución por defecto y la más legible: cada CTE declara su grano.
 
 **2. Suma en el grano correcto.** Si ya estás en el grano de línea, suma columnas de línea (\`quantity * unit_price\`), no columnas de pedido. El problema no es el join, es sumar una columna de cabecera desde el detalle.
 
-**3. Desduplica con \`DISTINCT\` solo cuando la clave lo permite.** \`count(DISTINCT o.id)\` es correcto para contar pedidos, porque \`id\` identifica a cada pedido sin repetirse. \`sum(DISTINCT o.total_amount)\` es una trampa, en cambio, porque dos pedidos distintos que casualmente valen lo mismo se cuentan como uno solo y el total queda por debajo del real. Para contar, \`DISTINCT\` sirve. Para sumar importes, casi nunca.
+**3. Deduplica con \`DISTINCT\` solo cuando la clave lo permite.** \`count(DISTINCT o.id)\` es correcto para contar pedidos, porque \`id\` identifica a cada pedido sin repetirse. \`sum(DISTINCT o.total_amount)\` es una trampa, en cambio, porque dos pedidos distintos que casualmente valen lo mismo se cuentan como uno solo y el total queda por debajo del real. Para contar, \`DISTINCT\` sirve. Para sumar importes, casi nunca.
 
 ## El join que filtra sin avisar
 

@@ -101,7 +101,7 @@ export const exercises: ExerciseDef[] = [
     scenario_md:
       "Finanzas cerró agosto de 2025 con un filtro `BETWEEN '2025-08-01' AND '2025-08-31'` y el total no cuadra con el del sistema de facturación. Sospechan que se perdieron los pedidos del último día del mes y te piden verlos para conciliar.",
     business_question_md:
-      "Devuelve los pedidos de `orders` creados el **31 de agosto de 2025** (cualquier hora de ese día), con las columnas `id`, `created_at` y `total_amount`, ordenados cronológicamente por `created_at` y, ante empates, por `id` ascendente.\n\nRecuerda que `created_at` es un `timestamptz`: guarda fecha **y** hora.",
+      "Devuelve los pedidos de `orders` creados el **31 de agosto de 2025** (cualquier hora de ese día), con las columnas `id`, `created_at` y `total_amount`, ordenados cronológicamente por `created_at` y, ante empates, por `id` ascendente.\n\n`created_at` es un `timestamptz`: guarda fecha **y** hora.",
     learning_objective:
       "Filtrar un día completo en una columna con hora usando un rango medio abierto en lugar de BETWEEN.",
     theory_ref: "fechas-rangos-sin-errores-de-borde",

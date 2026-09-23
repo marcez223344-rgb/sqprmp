@@ -137,7 +137,7 @@ export const exercises: ExerciseDef[] = [
       },
     ],
     expert_explanation_md:
-      "Diez rubros; restaurantes y transporte encabezan con ~16 % y ~14 %, y los porcentajes suman 100. El patrón `agregado / sum(agregado) OVER ()` es la forma canónica de «participación sobre el total» en SQL moderno.\n\nEl filtro de moneda va antes de la ventana: así el 100 % es el gasto en UYU, no el de toda la plataforma.",
+      "Diez rubros; restaurantes y transporte encabezan con ~16 % y ~14 %, y los porcentajes suman 100. El patrón `agregado / sum(agregado) OVER ()` es la forma habitual de calcular «participación sobre el total» en SQL moderno.\n\nEl filtro de moneda va antes de la ventana: así el 100 % es el gasto en UYU, no el de toda la plataforma.",
     reward: defaultReward("advanced"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,

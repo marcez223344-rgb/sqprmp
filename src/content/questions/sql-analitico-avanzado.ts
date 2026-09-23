@@ -366,7 +366,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "`json` es texto validado; `jsonb` es una representación interpretada que ordena las claves y elimina duplicadas. Para cualquier salida que alguien vaya a comparar, versionar o testear, `jsonb` es la opción reproducible.",
+      "`json` es texto validado; `jsonb` es una representación interpretada que ordena las claves y elimina duplicadas. Para cualquier salida que alguien vaya a comparar, versionar o probar con un test, `jsonb` es la opción reproducible.",
     is_published: true,
   },
   {

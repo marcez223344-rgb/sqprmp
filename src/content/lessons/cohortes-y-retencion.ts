@@ -154,7 +154,7 @@ Son tres pasos, uno por cada CTE (por *common table expression*, la consulta con
 
 El \`DISTINCT\` de la CTE \`actividad\` es obligatorio. Sin él, una persona que reprodujo cuarenta canciones en marzo aportaría cuarenta filas, el numerador contaría reproducciones en lugar de personas y la «retención» superaría el 100 %.
 
-Aquí el \`INNER JOIN\` con \`plays\` sí es correcto, porque solo se usa para generar las celdas que existen. El denominador no sale de ese join: viene de la CTE \`tamano\`, calculada antes sobre la cohorte completa. Ten en cuenta que las celdas sin ninguna actividad no aparecen en el resultado, así que si tu informe necesita mostrarlas en cero hay que generarlas aparte con \`generate_series\`.
+Aquí el \`INNER JOIN\` con \`plays\` sí es correcto, porque solo se usa para generar las celdas que existen. El denominador no sale de ese join: viene de la CTE \`tamano\`, calculada antes sobre la cohorte completa. Las celdas sin ninguna actividad no aparecen en el resultado, así que si tu informe necesita mostrarlas en cero hay que generarlas aparte con \`generate_series\`.
 
 ## Cómo se lee
 

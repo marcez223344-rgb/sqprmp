@@ -257,7 +257,7 @@ export const exercises: ExerciseDef[] = [
   {
     slug: "nombre-comercial-sin-numero",
     section,
-    title: "Nombre comercial listo para la vidriera",
+    title: "Nombre comercial listo para mostrar",
     difficulty: "intermediate",
     estimated_minutes: 10,
     concepts: ["select", "alias", "text_functions"],

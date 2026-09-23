@@ -51,7 +51,7 @@ export const questions: QuestionDef[] = [
     lesson: division,
     type: "query_interpretation",
     difficulty: "intermediate",
-    topic: "Casteos en porcentajes",
+    topic: "Conversión de tipos en porcentajes",
     tags: ["numeric_functions", "cast"],
     estimated_seconds: 60,
     prompt_md:
@@ -86,7 +86,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "El orden de evaluación manda: primero `100 / 3` entre enteros (33) y después el redondeo. La solución es castear el numerador: `ROUND(100.0 / installments, 2)` o `ROUND(100::numeric / installments, 2)`.",
+      "El orden de evaluación manda: primero `100 / 3` entre enteros (33) y después el redondeo. La solución es convertir el numerador a decimal: `ROUND(100.0 / installments, 2)` o `ROUND(100::numeric / installments, 2)`.",
     is_published: true,
   },
   {
@@ -158,7 +158,7 @@ export const questions: QuestionDef[] = [
       },
       {
         key: "c",
-        body_md: "Castear el segundo argumento con `5.00::numeric`.",
+        body_md: "Convertir el segundo argumento a `numeric` con `5.00::numeric`.",
         is_correct: false,
         why_incorrect_md:
           "El problema no son los tipos: `MAX` simplemente no existe con dos argumentos.",
@@ -207,7 +207,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "Hay dos caminos válidos: castear un operando a `numeric` o multiplicar antes de dividir para que el numerador sea mayor que el denominador. El casteo es más seguro porque no depende del orden de los operadores.",
+      "Hay dos caminos válidos: convertir un operando a `numeric` o multiplicar antes de dividir para que el numerador sea mayor que el denominador. La conversión explícita es más segura porque no depende del orden de los operadores.",
     is_published: true,
   },
   {
@@ -263,7 +263,7 @@ export const questions: QuestionDef[] = [
         body_md: "Usar `TRUNC` en vez de `ROUND` para que el total nunca quede por encima.",
         is_correct: false,
         why_incorrect_md:
-          "Cambia el sesgo del error, no su causa, y además subfactura de forma sistemática.",
+          "Cambia el sesgo del error, no su causa, y además factura de menos de forma sistemática.",
       },
       {
         key: "d",

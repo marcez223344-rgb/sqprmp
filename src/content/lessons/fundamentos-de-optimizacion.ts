@@ -161,7 +161,7 @@ Aquí \`date_trunc\` se aplica solo a las filas que el rango del \`WHERE\` ya de
 
 ## \`LIKE\`, comodines y el orden del índice
 
-\`name LIKE 'Pizza%'\` puede usar un índice, porque el prefijo fijo le dice al motor desde qué punto del orden alfabético empezar a leer. \`name LIKE '%Pizza'\` y \`name LIKE '%Pizza%'\` no pueden, porque el texto buscado puede estar en cualquier posición y no hay ningún orden que ayude a descartar filas. Para las búsquedas de texto libre existen herramientas específicas, como los índices de texto completo o los de trigramas; un \`LIKE\` con comodín al principio no las reemplaza.
+\`name LIKE 'Pizza%'\` puede usar un índice, porque el prefijo fijo le dice al motor desde qué punto del orden alfabético empezar a leer. \`name LIKE '%Pizza'\` y \`name LIKE '%Pizza%'\` no pueden, porque el texto buscado puede estar en cualquier posición y no hay ningún orden que ayude a descartar filas. Para las búsquedas de texto libre existen herramientas específicas, como los índices de texto completo o los de trigramas (que indexan fragmentos de tres caracteres); un \`LIKE\` con comodín al principio no las reemplaza.
 
 ## \`OR\` entre columnas distintas
 
@@ -180,7 +180,7 @@ SELECT id FROM orders WHERE promotion_id = 12;
 
 Dos advertencias que no se negocian. La primera: \`UNION\` elimina los duplicados, así que un pedido que cumple las dos condiciones aparece una sola vez, igual que con \`OR\`. Si usas \`UNION ALL\` ese pedido aparece dos veces y cambiaste el resultado. La segunda: esta reescritura vale la pena cuando hay índices y cada rama descarta muchas filas. Sin índices detrás es solamente más código para el mismo trabajo, así que no la apliques como reflejo.
 
-Ten en cuenta que un \`OR\` sobre **la misma** columna (\`status = 'a' OR status = 'b'\`) sí se puede aprovechar, y se escribe mejor como \`status IN ('a','b')\`.
+Un \`OR\` sobre **la misma** columna (\`status = 'a' OR status = 'b'\`) sí se puede aprovechar, y se escribe mejor como \`status IN ('a','b')\`.
 
 ## Errores comunes
 

@@ -318,7 +318,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "Comparar la columna «desnuda» contra constantes permite usar el índice. Es la forma recomendada para rangos de fechas.",
+      "Comparar la columna tal cual, sin envolverla en ninguna función, permite usar el índice. Es la forma recomendada para rangos de fechas.",
     is_published: true,
   },
 ];

@@ -46,6 +46,7 @@ import { lessons as desafiosDeEntrevistaLessons } from "./lessons/desafios-de-en
 import { lessons as sqlAnaliticoAvanzadoLessons } from "./lessons/sql-analitico-avanzado";
 import { lessons as proyectosFinalesLessons } from "./lessons/proyectos-finales";
 import { lessons as fundamentosDeOptimizacionLessons } from "./lessons/fundamentos-de-optimizacion";
+import { lessons as indicesYPlanesDeEjecucionLessons } from "./lessons/indices-y-planes-de-ejecucion";
 import { questions as introQuestions } from "./questions/introduccion-bases-de-datos";
 import { questions as tablasQuestions } from "./questions/tablas-filas-columnas-tipos";
 import { questions as selectQuestions } from "./questions/select";
@@ -84,6 +85,7 @@ import { questions as desafiosDeEntrevistaQuestions } from "./questions/desafios
 import { questions as sqlAnaliticoAvanzadoQuestions } from "./questions/sql-analitico-avanzado";
 import { questions as proyectosFinalesQuestions } from "./questions/proyectos-finales";
 import { questions as fundamentosDeOptimizacionQuestions } from "./questions/fundamentos-de-optimizacion";
+import { questions as indicesYPlanesDeEjecucionQuestions } from "./questions/indices-y-planes-de-ejecucion";
 import { exercises as tablasExercises } from "./exercises/tablas-filas-columnas-tipos";
 import { exercises as selectExercises } from "./exercises/select";
 import { exercises as aliasExercises } from "./exercises/alias-y-expresiones";
@@ -121,6 +123,7 @@ import { exercises as desafiosDeEntrevistaExercises } from "./exercises/desafios
 import { exercises as sqlAnaliticoAvanzadoExercises } from "./exercises/sql-analitico-avanzado";
 import { exercises as proyectosFinalesExercises } from "./exercises/proyectos-finales";
 import { exercises as fundamentosDeOptimizacionExercises } from "./exercises/fundamentos-de-optimizacion";
+import { exercises as indicesYPlanesDeEjecucionExercises } from "./exercises/indices-y-planes-de-ejecucion";
 
 export const content = {
   courses: [course],
@@ -165,6 +168,7 @@ export const content = {
     ...sqlAnaliticoAvanzadoLessons,
     ...proyectosFinalesLessons,
     ...fundamentosDeOptimizacionLessons,
+    ...indicesYPlanesDeEjecucionLessons,
   ],
   questions: [
     ...introQuestions,
@@ -205,6 +209,7 @@ export const content = {
     ...sqlAnaliticoAvanzadoQuestions,
     ...proyectosFinalesQuestions,
     ...fundamentosDeOptimizacionQuestions,
+    ...indicesYPlanesDeEjecucionQuestions,
   ],
   exercises: [
     ...tablasExercises,
@@ -244,6 +249,7 @@ export const content = {
     ...sqlAnaliticoAvanzadoExercises,
     ...proyectosFinalesExercises,
     ...fundamentosDeOptimizacionExercises,
+    ...indicesYPlanesDeEjecucionExercises,
   ],
 };
 

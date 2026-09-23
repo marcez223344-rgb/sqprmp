@@ -202,52 +202,71 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["products"],
     scenario_md:
-      "Marketing quiere ver una muestra del catálogo para entender cómo se llaman los productos y en qué moneda están sus precios antes de diseñar una campaña regional.",
+      "Operaciones hace el inventario del depósito de **TiendaViva** y quiere saber de qué productos hay más unidades guardadas. Le interesan todos, publicados y pausados: cada unidad ocupa lugar y es plata inmovilizada, sin importar si la publicación está activa.",
     business_question_md:
-      "Muestra `id`, `name`, `list_price` y `currency` de los **20 productos con menor `id`**, ordenados por `id` ascendente.",
-    learning_objective:
-      "Combinar SELECT con ORDER BY y LIMIT para obtener una muestra determinista.",
+      "Muestra `id`, `name`, `list_price`, `currency` y `stock` de los **20 productos con más unidades en stock**, del stock más alto al más bajo, **sin filtrar por estado de publicación**. Si dos productos tienen el mismo stock, muestra primero el de `id` menor.",
+    learning_objective: "Combinar SELECT con ORDER BY y LIMIT para obtener un top-N determinista.",
     theory_ref: "select-columnas",
     expected_columns: [
       { name: "id", type: "integer" },
       { name: "name", type: "text" },
       { name: "list_price", type: "numeric" },
       { name: "currency", type: "text" },
+      { name: "stock", type: "integer" },
     ],
     validation_rules: { order_matters: true },
     reference_solution:
-      "SELECT id, name, list_price, currency\nFROM products\nORDER BY id\nLIMIT 20;",
+      "SELECT id, name, list_price, currency, stock\nFROM products\nORDER BY stock DESC, id ASC\nLIMIT 20;",
+    alternative_solutions: [
+      {
+        label: "Con DESC explícito en la primera clave y el desempate implícito",
+        sql: "SELECT id, name, list_price, currency, stock FROM products ORDER BY stock DESC, id LIMIT 20;",
+      },
+    ],
     hints: [
       {
         level: 1,
-        body_md: "«Los 20 con menor id» = ordenar por `id` y quedarte con las primeras 20 filas.",
+        body_md:
+          "«Los 20 con más stock» son las 20 primeras filas de un orden descendente por esa columna. El desempate es una segunda clave de orden.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "En `products`: `ORDER BY id` seguido de `LIMIT 20`. Recuerda listar las cuatro columnas en el orden pedido.",
+          "En `products`, ordena por `stock` en dirección descendente y agrega `id` como segunda clave; después recorta con `LIMIT 20`. Lista las cinco columnas en el orden pedido.",
         ...defaultHintMeta(2),
       },
       {
         level: 3,
-        body_md: "```sql\nSELECT id, name, ___, ___\nFROM products\nORDER BY ___\nLIMIT ___;\n```",
+        body_md:
+          "```sql\nSELECT id, name, ___, ___, ___\nFROM products\nORDER BY ___ ___, id ASC\nLIMIT ___;\n```",
         ...defaultHintMeta(3),
       },
     ],
     common_mistakes: [
       {
         category: "wrong_order",
-        description_md: "`LIMIT 20` sin `ORDER BY id` devuelve 20 productos cualesquiera.",
+        description_md:
+          "`LIMIT 20` sin `ORDER BY` devuelve 20 productos cualesquiera: sin orden explícito el motor entrega las filas como le convenga.",
+      },
+      {
+        category: "wrong_order",
+        description_md:
+          "Ordenar por `stock` ascendente: devuelve los productos casi agotados, lo contrario de lo que pidió Operaciones.",
+      },
+      {
+        category: "missing_filter",
+        description_md:
+          "Agregar `WHERE is_active`: parece prudente, pero deja fuera 5 de los 20 productos con más stock. Las publicaciones pausadas también ocupan depósito, y por eso la consigna aclara que no se filtra por estado.",
       },
       { category: "row_count", description_md: "Olvidar `LIMIT` devuelve los 1500 productos." },
       {
         category: "wrong_columns",
-        description_md: "Incluir `stock` o `seller_id`, que no fueron pedidos.",
+        description_md: "Incluir `seller_id` o `category_id`, que no fueron pedidos.",
       },
     ],
     expert_explanation_md:
-      "`ORDER BY id LIMIT 20` es el patrón canónico para una muestra reproducible: siempre devuelve las mismas 20 filas. Observa que `currency` varía por producto (ARS, MXN, COP…): un análisis de precios entre países necesitará convertir monedas, tema de secciones posteriores.",
+      "`ORDER BY stock DESC LIMIT 20` es el patrón de top-N: ordenas todo el conjunto y te quedas con la cabeza de la lista. El stock máximo del catálogo es 250 unidades y cuatro productos llegan a ese tope, así que sin la segunda clave (`id`) el motor podría devolverlos en cualquier orden y la lista cambiaría entre ejecuciones.\n\nObserva que `currency` varía por producto (ARS, MXN, COP, CLP, PEN): por eso el ranking se hace por `stock`, que son unidades y se comparan entre países, y no por `list_price`. Comparar precios de distintas monedas exige convertirlas primero, tema de secciones posteriores.",
     reward: defaultReward("easy"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,

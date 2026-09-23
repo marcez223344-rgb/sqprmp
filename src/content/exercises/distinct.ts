@@ -139,7 +139,7 @@ export const exercises: ExerciseDef[] = [
     scenario_md:
       "El árbol de categorías tiene dos niveles. Catálogo quiere ver qué valores toma `parent_id`, incluido el caso de las categorías raíz (sin padre).",
     business_question_md:
-      "Devuelve los valores **únicos** de `parent_id` en `categories`, ordenados de menor a mayor. Recuerda que las raíces tienen `parent_id` NULL y también deben aparecer.",
+      "Devuelve los valores **únicos** de `parent_id` en `categories`, ordenados de menor a mayor. Las categorías raíz tienen `parent_id` NULL y también deben aparecer.",
     learning_objective: "Observar cómo DISTINCT y ORDER BY tratan a NULL.",
     theory_ref,
     expected_columns: [{ name: "parent_id", type: "integer" }],

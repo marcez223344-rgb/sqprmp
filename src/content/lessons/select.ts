@@ -143,7 +143,7 @@ FROM customers;
 
 ## Errores comunes
 
-- Entrecomillar nombres con comillas dobles (\`"Full_Name"\`): PostgreSQL los vuelve sensibles a mayúsculas y la columna deja de encontrarse.
+- Usar comillas dobles en los nombres de columna (\`"Full_Name"\`): PostgreSQL los vuelve sensibles a mayúsculas y la columna deja de encontrarse.
 - Usar comillas dobles para texto: los literales de texto van con comillas **simples** (\`'MX'\`).
 - Escribir toda la consulta en una sola línea de 200 caracteres: quien la revise tiene que recorrerla entera para encontrar la cláusula que le interesa.
 

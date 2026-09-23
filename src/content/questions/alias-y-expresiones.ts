@@ -113,7 +113,8 @@ export const questions: QuestionDef[] = [
     prompt_md:
       "Completa el operador que une textos en PostgreSQL: `SELECT 'CAT-' ___ id AS codigo FROM categories;`",
     answer: { accepted: ["||"], case_sensitive: false },
-    explanation_md: "`||` concatena. `+` no funciona con textos en PostgreSQL.",
+    explanation_md:
+      "`||` concatena. `+` no funciona con textos en PostgreSQL: concatena en SQL Server, no acá.\n\n`||` es el operador de concatenación del estándar ISO SQL y se comporta igual en PostgreSQL, Oracle, SQLite y DB2. MySQL lee `||` como el OR lógico salvo que tenga activado el modo `PIPES_AS_CONCAT`, así que allí se usa `CONCAT()`. `CONCAT()` también corre en PostgreSQL y es la opción portable; la diferencia práctica es que `'A' || NULL` es NULL y `CONCAT('A', NULL)` es `'A'`.",
     is_published: true,
   },
   {

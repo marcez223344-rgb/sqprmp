@@ -347,7 +347,7 @@ export const exercises: ExerciseDef[] = [
     dataset: bolsillo,
     tables_used: ["transfers", "accounts", "users"],
     scenario_md:
-      "En **Bolsillo**, el equipo de Crecimiento estudia las cuentas en pesos chilenos que funcionan como «tubería de salida»: envían transferencias a otras cuentas y nunca reciben ninguna. Son candidatas a una campaña para que también cobren dentro de la billetera en lugar de hacerlo por fuera.",
+      "En **Bolsillo**, el equipo de Crecimiento estudia las cuentas en pesos chilenos que funcionan solo como canal de salida: envían transferencias a otras cuentas y nunca reciben ninguna. Son candidatas a una campaña para que también cobren dentro de la billetera en lugar de hacerlo por fuera.",
     business_question_md:
       "Considerando solo transferencias con `status = 'completed'`, obtén las cuentas con `currency = 'CLP'` que aparecen como emisoras (`transfers.from_account_id`) y **nunca** como receptoras (`transfers.to_account_id`, sin importar la moneda de la cuenta receptora). Devuelve `account_id`, el `full_name` de la persona titular y su `city`. Calcula el conjunto de cuentas en una CTE y recién después trae los datos descriptivos con joins. Ordena por `account_id` ascendente.",
     learning_objective:

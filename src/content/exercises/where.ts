@@ -152,7 +152,7 @@ export const exercises: ExerciseDef[] = [
     scenario_md:
       "Comercial arma un programa de fidelización para las tiendas cuyo nombre comienza con «Bazar», una familia de vendedores con estilo propio.",
     business_question_md:
-      "Devuelve `id` y `store_name` de los vendedores cuyo nombre **empieza** con `Bazar`, ordenados por `id` ascendente.",
+      "Devuelve `id` y `store_name` de los vendedores cuyo nombre **empieza** con `Bazar`, ordenados alfabéticamente por `store_name` y, si dos tiendas se llamaran igual, por `id` ascendente.",
     learning_objective: "Filtrar texto por patrón con LIKE y el comodín %.",
     theory_ref: "where-texto-y-fechas",
     expected_columns: [
@@ -161,11 +161,11 @@ export const exercises: ExerciseDef[] = [
     ],
     validation_rules: { order_matters: true, required_concepts: ["where", "order_by"] },
     reference_solution:
-      "SELECT id, store_name\nFROM sellers\nWHERE store_name LIKE 'Bazar%'\nORDER BY id;",
+      "SELECT id, store_name\nFROM sellers\nWHERE store_name LIKE 'Bazar%'\nORDER BY store_name ASC, id ASC;",
     alternative_solutions: [
       {
         label: "Con ILIKE",
-        sql: "SELECT id, store_name FROM sellers WHERE store_name ILIKE 'bazar%' ORDER BY id;",
+        sql: "SELECT id, store_name FROM sellers WHERE store_name ILIKE 'bazar%' ORDER BY store_name, id;",
       },
     ],
     hints: [
@@ -177,13 +177,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 2,
         body_md:
-          "El patrón es `'Bazar%'` (con B mayúscula si usas `LIKE`). No olvides el `ORDER BY`.",
+          "El patrón es `'Bazar%'` (con B mayúscula si usas `LIKE`). Ordena por `store_name` y agrega `id` como segunda clave.",
         ...defaultHintMeta(2),
       },
       {
         level: 3,
         body_md:
-          "```sql\nSELECT id, store_name\nFROM sellers\nWHERE store_name LIKE '___%'\nORDER BY ___;\n```",
+          "```sql\nSELECT id, store_name\nFROM sellers\nWHERE store_name LIKE '___%'\nORDER BY ___, ___;\n```",
         ...defaultHintMeta(3),
       },
     ],
@@ -200,11 +200,12 @@ export const exercises: ExerciseDef[] = [
       },
       {
         category: "wrong_order",
-        description_md: "Omitir `ORDER BY id`.",
+        description_md:
+          "Ordenar por `id`: el listado sale en el orden en que se dieron de alta las tiendas, que a quien busca un nombre en la planilla no le sirve de nada.",
       },
     ],
     expert_explanation_md:
-      "20 tiendas. `LIKE 'Bazar%'` compara desde el inicio del texto, lo que además permite usar índices; `'%Bazar%'` obliga a recorrer todas las filas.\n\n`ILIKE` es cómodo cuando los datos vienen con capitalización inconsistente, algo frecuente en campos cargados a mano.",
+      "20 tiendas, de «Bazar Artesanal 49» a «Bazar Urbano 9» en orden alfabético. `LIKE 'Bazar%'` compara desde el inicio del texto, lo que además permite usar índices; `'%Bazar%'` obliga a recorrer todas las filas.\n\nEl orden alfabético no es un detalle estético: quien recibe la planilla va a buscar tiendas por nombre. El `id` queda como segunda clave para que el resultado sea reproducible si algún día se repite un nombre.\n\n`ILIKE` es cómodo cuando los datos vienen con capitalización inconsistente, algo frecuente en campos cargados a mano.",
     reward: defaultReward("easy"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,

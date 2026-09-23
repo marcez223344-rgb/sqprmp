@@ -182,7 +182,7 @@ Pasar de ancho a largo, es decir, despivotar, se hace con \`UNION ALL\` o con \`
 
 Los conteos absolutos llevan a conclusiones equivocadas cuando los grupos tienen tamaños distintos: México cancela más pedidos que Uruguay simplemente porque vende mucho más, no porque cancele peor. Lo que sí se puede comparar es la **tasa**, es decir, los pedidos cancelados divididos por el total de pedidos de ese mismo país. Con agregación condicional, el numerador (los cancelados) y el denominador (el total) se calculan en la misma consulta y sobre exactamente las mismas filas.
 
-## La forma canónica
+## La forma habitual
 
 \`\`\`sql
 SELECT

@@ -133,7 +133,8 @@
       "access": "Mi acceso",
       "review": "Repaso",
       "savedQueries": "Consultas",
-      "certificates": "Certificados"
+      "certificates": "Certificados",
+      "leaderboard": "Ranking"
     },
     "signOut": "Salir",
     "signedInAs": "Sesión iniciada como"
@@ -149,23 +150,18 @@
       "start": "Ir a la ruta"
     },
     "stats": {
-      "title": "Tu progreso",
-      "level": "Nivel",
-      "xp": "XP",
-      "coins": "Monedas",
       "exercises": "Ejercicios",
-      "nextLevel": "Hacia el nivel {level}",
       "levelProgress": "Progreso hacia el siguiente nivel"
     },
     "streak": {
       "title": "Racha",
-      "days": "{days, plural, =1 {1 día} other {# días}}",
-      "activeToday": "Ya practicaste hoy. ¡Sigue así!",
+      "activeToday": "Ya practicaste hoy.",
       "atRisk": "Practica hoy para mantener tu racha.",
-      "protected": "Ayer no practicaste, pero un congelamiento protege tu racha si practicas hoy.",
+      "protected": "Ayer no practicaste; la protección de racha la mantiene si practicas hoy.",
       "start": "Completa un ejercicio para empezar una racha.",
-      "freezes": "{count, plural, =0 {Sin congelamientos} =1 {1 congelamiento disponible} other {# congelamientos disponibles}}",
-      "longest": "Mejor racha: {days}"
+      "longest": "Mejor racha: {days}",
+      "protectionCount": "{count, plural, =0 {Sin protección de racha este mes} =1 {1 protección de racha disponible} other {# protecciones de racha disponibles}}",
+      "protectionHow": "La protección mantiene tu racha cuando te salta un día: se aplica sola y tienes {max, plural, =1 {una} other {#}} por mes."
     },
     "goals": {
       "title": "Metas",
@@ -183,7 +179,8 @@
       "title": "Insignias",
       "count": "{earned} de {total} obtenidas",
       "none": "Completa tu primer ejercicio para obtener la primera insignia.",
-      "all": "Ver todas las insignias"
+      "all": "Ver todas las insignias",
+      "chipLabel": "{title} · insignia obtenida"
     },
     "mastery": {
       "title": "Dominio por sección",
@@ -199,7 +196,10 @@
       "level": "Nivel",
       "xp": "XP total",
       "coins": "Monedas",
-      "streakDays": "Racha (días)"
+      "streakDays": "Racha",
+      "toNextLevel": "{xp} XP para el nivel {level}",
+      "xpToday": "Hoy sumaste {xp} XP",
+      "streakNext": "Practica hoy para llegar a {days} días"
     },
     "review": {
       "title": "Repaso recomendado",
@@ -230,8 +230,8 @@
     },
     "hints": {
       "displayName": "Así te saludaremos dentro de la plataforma.",
-      "alias": "Entre {min} y {max} caracteres: letras minúsculas, números y guion bajo. Es único y puede aparecer en tablas de posiciones si lo autorizas.",
-      "avatar": "Ilustraciones abstractas, sin fotos. Puedes cambiarlo cuando quieras.",
+      "alias": "Entre {min} y {max} caracteres: letras minúsculas, números y guion bajo. Es único y puede aparecer en el ranking si lo autorizas.",
+      "avatar": "Ilustraciones abstractas, sin fotos.",
       "birthDate": "Debes tener al menos {age} años. Solo usamos tu año de nacimiento para estadísticas agregadas.",
       "gender": "Solo se usa para métricas agregadas de inclusión. Nunca se muestra públicamente."
     },
@@ -304,12 +304,12 @@
     "fields": {
       "certificateName": "Nombre en certificados",
       "timezone": "Zona horaria",
-      "leaderboardOptIn": "Participar en tablas de posiciones"
+      "leaderboardOptIn": "Aparecer en el ranking"
     },
     "hints": {
       "certificateName": "Tal como quieres que aparezca en tus certificados.",
       "timezone": "Se usa para calcular tus rachas diarias.",
-      "leaderboardOptIn": "Solo se mostrará tu alias y avatar. Puedes desactivarlo cuando quieras."
+      "leaderboardOptIn": "Otras personas con cuenta verán tu alias, tu avatar, tu nivel y tu XP en el ranking; el ranking semanal también muestra cuánto practicaste en los últimos 7 días. No se muestra tu nombre, tu correo ni tu país. Puedes desactivarlo cuando quieras y dejas de aparecer de inmediato."
     },
     "save": "Guardar cambios",
     "saved": "Cambios guardados",
@@ -399,13 +399,16 @@
       "challenge": "Desafío"
     },
     "locked": {
-      "title": "Contenido del plan completo",
-      "body": "Esta lección forma parte del acceso completo. Desbloquea todo el currículo con un pago único.",
-      "cta": "Ver precios"
+      "eyebrow": "Lección del curso pago",
+      "title": "Contenido del acceso completo",
+      "body": "Esta lección forma parte del acceso completo. Se desbloquea con un pago único.",
+      "freeSections": "Las lecciones marcadas como gratis y sus ejercicios siguen abiertos.",
+      "cta": "Ver precios",
+      "secondaryCta": "Volver a la ruta"
     },
     "quiz": {
       "title": "Quiz de la sección · {count} preguntas",
-      "intro": "Responde todas las preguntas y envía el quiz. Necesitas {percent}% de aciertos para aprobar; puedes repetirlo las veces que quieras.",
+      "intro": "Cada respuesta se corrige al instante y no se puede cambiar. Necesitas {percent}% de aciertos para aprobar; puedes repetir el quiz y te tocan otras preguntas.",
       "lastAttempt": "Tu último intento: {score}/{total}.",
       "empty": "Este quiz todavía no tiene preguntas publicadas."
     },
@@ -427,7 +430,7 @@
     "path": "Ruta",
     "sectionNumber": "Sección {number}",
     "minutes": "{minutes} min",
-    "freeCounter": "Ejercicios gratis usados: {used} de {limit}",
+    "freeCounter": "Cupo gratis del curso pago: {used} de {limit}",
     "difficulty": {
       "label": "Dificultad",
       "very_easy": "Muy fácil",
@@ -437,9 +440,14 @@
       "expert": "Experto"
     },
     "locked": {
-      "title": "Alcanzaste el límite gratuito",
-      "body": "Ya usaste tus {limit} ejercicios gratis. Desbloquea todo el currículo con un pago único y sigue exactamente donde estabas.",
-      "cta": "Ver precios"
+      "eyebrow": "Ejercicio bloqueado",
+      "title": "Usaste tus {limit} ejercicios gratis del curso pago",
+      "body": "El resto del currículo se desbloquea con un pago único y sigues donde estabas.",
+      "freeSections": "Las secciones gratis siguen abiertas: puedes practicar sus ejercicios sin límite.",
+      "previewTitle": "Vista previa del ejercicio",
+      "editorDisabled": "El editor está bloqueado en este ejercicio.",
+      "cta": "Ver precios",
+      "secondaryCta": "Volver a la ruta"
     },
     "scenario": "Situación",
     "businessQuestion": "Lo que pide el negocio",
@@ -459,7 +467,6 @@
     "run": "Ejecutar",
     "submit": "Enviar respuesta",
     "saveDraft": "Guardar borrador",
-    "draftSaved": "Borrador guardado",
     "reset": "Limpiar",
     "engine": {
       "idle": "Motor local en espera",
@@ -532,7 +539,13 @@
         "too_many_rows": "Tu resultado tiene {actual} filas y se esperaban {expected}. Probablemente falta un filtro o un join multiplica filas.",
         "too_few_rows": "Tu resultado tiene {actual} filas y se esperaban {expected}. Un filtro o un join puede estar descartando filas.",
         "row_count_truncated": "Tu consulta devuelve más filas de las que se pueden mostrar; se esperaban {expected}.",
-        "cell_values": "La cantidad de filas coincide pero algunos valores difieren ({missing} filas esperadas no aparecen).",
+        "cell_values": "La cantidad de filas es correcta; los valores no. {count, plural, one {No coincide la columna} other {No coinciden las columnas}}: {columns}.",
+        "cell_values_scale_smaller": "En {column} tus valores son {amount} veces menores que los esperados. Todo el desvío es el mismo factor: revisa si falta multiplicar o dividir en el cálculo.",
+        "cell_values_scale_larger": "En {column} tus valores son {amount} veces mayores que los esperados. Todo el desvío es el mismo factor: revisa si falta multiplicar o dividir en el cálculo.",
+        "cell_values_offset_low": "En {column} a cada valor tuyo le faltan {amount} para llegar al esperado. Una diferencia constante suele venir de un límite de fechas o de una resta de más.",
+        "cell_values_offset_high": "En {column} cada valor tuyo excede al esperado por {amount}. Una diferencia constante suele venir de un límite de fechas o de una resta de menos.",
+        "cell_values_example": "En {column}, la primera fila que no coincide tiene {actual} y se esperaba {expected}.",
+        "cell_values_example_actual": "En {column} obtuviste {actual}, que no es el valor esperado.",
         "wrong_order": "Los valores son correctos pero el orden no es el pedido. Revisa ORDER BY.",
         "duplicates": "Hay {count} filas duplicadas de más. Revisa joins o considera DISTINCT.",
         "duplicates_hint": "Aparecen filas repetidas; suele ocurrir al unir tablas uno a muchos.",
@@ -550,7 +563,17 @@
           "no_table_alias_in_join": "Usa alias de tabla en los joins (orders o, customers c) para acortar y aclarar la consulta.",
           "uses_between_for_timestamps": "BETWEEN con timestamps incluye solo el instante 00:00 del último día; prefiere >= inicio AND < fin.",
           "uses_implicit_join": "Usa JOIN ... ON explícito en lugar de listar tablas separadas por coma.",
-          "uppercase_inconsistent": "Mantén un estilo consistente: palabras clave en mayúsculas y nombres en minúsculas."
+          "uppercase_inconsistent": "Mantén un estilo consistente: palabras clave en mayúsculas y nombres en minúsculas.",
+          "limit_without_order_by": "LIMIT sin ORDER BY te devuelve las filas en el orden que decida el motor, y ese orden puede cambiar entre ejecuciones. Agrega ORDER BY con la columna que define el criterio.",
+          "missing_space_after_comma": "Deja un espacio después de cada coma (id, name, parent_id). Sin el espacio hay que buscar las comas para saber dónde termina cada columna.",
+          "one_line_query": "La consulta es larga y está en una sola línea. Pon cada cláusula (SELECT, FROM, WHERE, GROUP BY, ORDER BY) en su propia línea: los errores se ven antes y los cambios se revisan más rápido.",
+          "lowercase_keywords": "Escribir las palabras clave en mayúsculas (SELECT, FROM, WHERE) las distingue de los nombres de tablas y columnas. Es una convención, no un error: lo que importa es mantenerla en toda la consulta.",
+          "inconsistent_indentation": "La sangría mezcla tabulaciones y espacios. Usa solo espacios: la tabulación tiene otro ancho en cada editor y la consulta pierde la forma al compartirla.",
+          "order_by_ordinal": "ORDER BY con un número ordena por la posición de la columna: si agregas o mueves una columna del SELECT, el orden cambia sin que toques el ORDER BY. Nombra la columna o su alias.",
+          "distinct_with_aggregate": "DISTINCT junto a un agregado casi siempre tapa filas que un join duplicó. Revisa la condición del join o el nivel del GROUP BY: si el detalle no se repite, el DISTINCT no hace falta.",
+          "cryptic_table_alias": "El alias no recuerda al nombre de la tabla. Usa sus iniciales (orders o, order_items oi): así se sabe de qué tabla sale cada columna sin volver al FROM.",
+          "unused_table_alias": "Declaras un alias de tabla y después no lo usas. Si calificas las columnas con el alias, se lee de qué tabla viene cada una; si no lo vas a usar, no lo declares.",
+          "formatted_version": "Tu misma consulta con formato: {formatted}"
         }
       }
     },
@@ -558,7 +581,8 @@
       "intro": "Cada pista descuenta {penalty} % del XP del ejercicio. Úsalas cuando te sientas realmente atascado.",
       "level": "Pista {level}",
       "request": "Ver pista {level}",
-      "exhausted": "No hay más pistas. Puedes revelar la solución en la pestaña correspondiente."
+      "exhausted": "No hay más pistas. Puedes revelar la solución en la pestaña correspondiente.",
+      "alreadyUsed": "Pista {level} · ya la pediste"
     },
     "schema": {
       "intro": "Tablas disponibles en este dataset. Las marcadas se usan en este ejercicio.",
@@ -566,7 +590,9 @@
       "columnsOf": "Columnas de {table}",
       "column": "Columna",
       "type": "Tipo",
-      "description": "Descripción"
+      "description": "Descripción",
+      "pk": "clave primaria",
+      "fk": "referencia a {table}"
     },
     "solutionLocked": "La solución se desbloquea tras {attempts} intentos genuinos, {hints} pistas o {minutes} minutos de trabajo.",
     "solutionUnlocked": "Ya puedes ver la solución explicada. Te recomendamos estudiarla y volver a intentarlo.",
@@ -613,7 +639,31 @@
     },
     "schemaShowAll": "Ver las otras {count} tablas del dataset",
     "schemaShowUsed": "Ver solo las tablas de este ejercicio",
-    "freeExercise": "Ejercicio gratis"
+    "opensInNewTab": "Se abre en una pestaña nueva",
+    "draft": {
+      "saving": "Guardando borrador…",
+      "savedServer": "Borrador guardado en tu cuenta",
+      "savedLocal": "Borrador guardado en este navegador",
+      "restored": "Recuperamos el borrador más reciente de este navegador."
+    },
+    "submitProgress": {
+      "label": "Progreso del envío",
+      "validating": "Validando la consulta…",
+      "executing": "Ejecutando en el servidor y comparando resultados…"
+    },
+    "verdict": {
+      "correct": "¡Correcto! Tu consulta devuelve exactamente lo esperado.",
+      "incorrect": "Todavía no: revisa el detalle.",
+      "not_executed": "Tu consulta no llegó a ejecutarse."
+    },
+    "verdictDetail": "Ver el detalle",
+    "regime": {
+      "freeBadge": "Sección gratis",
+      "freeDetail": "Los ejercicios de esta sección no consumen tu cupo gratis.",
+      "countedBadge": "Cupo gratis: {used} de {limit}",
+      "countedDetail": "Este ejercicio es del curso pago y usa tu cupo. Los ejercicios de las secciones gratis no cuentan aquí."
+    },
+    "referenceMaterial": "Material de referencia"
   },
   "demo": {
     "title": "Prueba SQL en tu navegador",
@@ -635,7 +685,19 @@
     "summary": "{earned} de {total} obtenidas. Las insignias reconocen constancia y dominio, no velocidad.",
     "earned": "obtenida",
     "locked": "Aún no obtenida",
-    "earnedOn": "Obtenida el {date}"
+    "earnedOn": "Obtenida el {date}",
+    "categories": {
+      "practica": "Práctica",
+      "autonomia": "Autonomía",
+      "dominio": "Dominio",
+      "constancia": "Constancia",
+      "nivel": "Nivel",
+      "otras": "Otras"
+    },
+    "groupProgress": "{earned} de {total} obtenidas",
+    "groupProgressLabel": "Progreso en {category}",
+    "overallProgressLabel": "Progreso total de insignias",
+    "tierLabel": "nivel {tier} de {total} en {category}"
   },
   "history": {
     "title": "Historial de intentos",
@@ -838,7 +900,7 @@
         "lifetime": "de por vida",
         "revoked": "revocado",
         "revoke": "Revocar",
-        "revokePrompt": "Motivo de la revocación:",
+        "revokePrompt": "Motivo de la revocación",
         "revokedDone": "Acceso revocado."
       }
     },
@@ -889,6 +951,82 @@
       },
       "sections": {
         "title": "Secciones completadas por persona"
+      },
+      "usersLink": "Ver el listado de personas",
+      "audience": {
+        "unavailable": "No pudimos calcular las estadísticas de la audiencia.",
+        "title": "Audiencia y activación",
+        "noLearners": "Todavía no hay personas registradas para analizar.",
+        "learnersTotal": "{count} personas registradas",
+        "smallSample": "con menos de {min} personas no mostramos porcentajes ni medianas: los números serían engañosos",
+        "noData": "Sin datos todavía.",
+        "na": "—",
+        "unknown": "Sin dato",
+        "cols": {
+          "learners": "Personas",
+          "share": "Porcentaje",
+          "withAccess": "Con acceso"
+        },
+        "country": {
+          "title": "Por país",
+          "why": "Dónde conviene invertir en difusión y qué medios de pago priorizar.",
+          "country": "País",
+          "activated": "Resolvieron al menos uno"
+        },
+        "age": {
+          "title": "Por edad",
+          "why": "Verifica si la audiencia real coincide con el público objetivo de 25 a 35 años.",
+          "bracket": "Rango",
+          "brackets": {
+            "18_24": "18 a 24",
+            "25_34": "25 a 34",
+            "35_44": "35 a 44",
+            "45_plus": "45 o más",
+            "unknown": "Sin dato"
+          }
+        },
+        "cohorts": {
+          "title": "Altas por mes",
+          "why": "Muestra si el embudo mejora con el tiempo, no solo el total acumulado.",
+          "month": "Mes"
+        },
+        "access": {
+          "title": "Por tipo de acceso",
+          "why": "Separa los pagos reales de las becas y los accesos otorgados a mano.",
+          "status": "Acceso",
+          "statuses": {
+            "free": "Gratis",
+            "paid": "Pagado",
+            "promo": "Código",
+            "granted": "Otorgado"
+          }
+        },
+        "activation": {
+          "title": "Activación y avance",
+          "why": "Indica si las personas abandonan en el primer ejercicio o se estancan a mitad del curso.",
+          "startedAny": "Empezaron al menos un ejercicio",
+          "completedAny": "Completaron al menos un ejercicio",
+          "median": "Mediana de ejercicios completados",
+          "p90": "Percentil 90 de ejercicios completados",
+          "distribution": "Distribución de ejercicios completados",
+          "bucket": "Ejercicios completados",
+          "buckets": {
+            "0": "Ninguno",
+            "1_2": "1 a 2",
+            "3_5": "3 a 5",
+            "6_10": "6 a 10",
+            "11_plus": "11 o más"
+          }
+        },
+        "friction": {
+          "title": "Fricción y conversión",
+          "why": "El número más accionable para decidir sobre el límite gratuito y el precio.",
+          "freeLimit": "Agotaron los gratuitos sin pagar",
+          "quizPassRate": "Tasa de aprobación de quizzes",
+          "certificates": "Personas con certificado",
+          "quizSubmitted": "Quizzes entregados",
+          "quizOpen": "Quizzes abiertos sin entregar"
+        }
       }
     },
     "payments": {
@@ -947,7 +1085,8 @@
       "revokePrompt": "Motivo de la revocación (queda en auditoría):",
       "revokeDone": "Certificado revocado.",
       "revokeFailed": "No pudimos revocar el certificado.",
-      "verifyLink": "Ir a la página pública de verificación"
+      "verifyLink": "Ir a la página pública de verificación",
+      "revokeTitle": "Revocar el certificado {id}"
     },
     "promos": {
       "title": "Códigos de beca y descuento",
@@ -993,7 +1132,7 @@
         "done": "Código creado.",
         "errors": {
           "unauthorized": "No autorizado.",
-          "validation": "Revisá los datos: el código debe tener 4–40 caracteres y el tipo su valor.",
+          "validation": "Revisa los datos: el código debe tener 4–40 caracteres y el tipo su valor.",
           "duplicate": "Ya existe un código con ese nombre.",
           "unknown": "No pudimos crear el código."
         }
@@ -1018,13 +1157,14 @@
       "save": "Guardar",
       "reasonPrompt": "Motivo del cambio (queda en auditoría):",
       "saved": "Flag guardado.",
-      "failed": "No pudimos guardar el flag."
+      "failed": "No pudimos guardar el flag.",
+      "reasonTitle": "Guardar el flag {key}"
     },
     "audit": {
       "title": "Registro de auditoría",
-      "intro": "Acciones privilegiadas y eventos del sistema (últimos 200). Filtrá por prefijo de acción o por id de objetivo.",
+      "intro": "Acciones privilegiadas y eventos del sistema (últimos 200). Filtra por prefijo de acción o por id de objetivo.",
       "filterAction": "Acción (prefijo)",
-      "filterTarget": "Objetivo (id)",
+      "filterTarget": "Objetivo (ID o tabla)",
       "apply": "Filtrar",
       "empty": "Sin registros para ese filtro.",
       "caption": "Registro de auditoría",
@@ -1038,10 +1178,8 @@
     },
     "users": {
       "title": "Usuarios",
-      "intro": "Buscá por alias, email o id. Los datos personales se muestran solo a administradores y no se exportan.",
+      "intro": "Busca por alias, email o id. Los datos personales se muestran solo a administradores y no se exportan.",
       "query": "Alias, email o id",
-      "search": "Buscar",
-      "noResults": "Sin resultados.",
       "open": "Ver detalle",
       "deleted": "eliminado",
       "fields": {
@@ -1053,7 +1191,12 @@
         "progress": "Ejercicios",
         "level": "Nivel",
         "xp": "XP",
-        "coins": "Monedas"
+        "coins": "Monedas",
+        "email": "Correo",
+        "age": "Edad",
+        "access": "Acceso",
+        "lastActivity": "Última actividad",
+        "deletedAt": "Eliminada el"
       },
       "progressValue": "{completed} completados de {started} iniciados",
       "entitlements": "Accesos",
@@ -1061,17 +1204,76 @@
       "certificates": "Certificados",
       "none": "Ninguno.",
       "revoked": "revocado",
-      "goAccess": "Otorgar o revocar acceso en Accesos"
+      "goAccess": "Otorgar o revocar acceso en Accesos",
+      "statsLink": "Ver estadísticas de la audiencia",
+      "searchHint": "Busca por alias, nombre, ID o correo exacto.",
+      "emailMatches": "Coincidencias por correo",
+      "yes": "Sí",
+      "no": "No",
+      "roles": {
+        "learner": "Aprendiz",
+        "admin": "Admin"
+      },
+      "access": {
+        "free": "Gratis",
+        "paid": "Pagado",
+        "promo": "Código",
+        "granted": "Otorgado",
+        "admin": "Admin"
+      },
+      "filters": {
+        "legend": "Filtros del listado",
+        "country": "País (ISO)",
+        "access": "Acceso",
+        "accessAny": "Cualquiera",
+        "includeDeleted": "Incluir cuentas eliminadas",
+        "apply": "Aplicar filtros",
+        "clear": "Limpiar filtros"
+      },
+      "cols": {
+        "alias": "Alias",
+        "name": "Nombre",
+        "country": "País",
+        "age": "Edad",
+        "signup": "Alta",
+        "onboarded": "Alta completa",
+        "role": "Rol",
+        "access": "Acceso",
+        "completed": "Completados",
+        "started": "Empezados",
+        "level": "Nivel",
+        "xp": "XP",
+        "lastActivity": "Última actividad",
+        "detail": "Detalle"
+      },
+      "table": {
+        "caption": "Personas registradas, con datos demográficos y de avance",
+        "empty": "Todavía no hay personas registradas.",
+        "emptyFiltered": "Ninguna persona coincide con estos filtros.",
+        "scrollHint": "Desplaza la tabla horizontalmente para ver todas las columnas.",
+        "sortBy": "Ordenar por {column}"
+      },
+      "pagination": {
+        "label": "Paginación del listado",
+        "summary": "{from}–{to} de {total}",
+        "page": "Página {page} de {pages}",
+        "prev": "Anterior",
+        "next": "Siguiente"
+      }
+    },
+    "reasonDialog": {
+      "cancel": "Cancelar",
+      "required": "El motivo es obligatorio (mínimo {min} caracteres)."
     }
   },
   "quiz": {
     "empty": "No hay preguntas para mostrar.",
     "score": "{score} de {total} correctas",
-    "passed": "¡Aprobaste! Superaste el {percent}% requerido.",
-    "failed": "No alcanzaste el {percent}% requerido. Revisá las explicaciones y volvé a intentarlo.",
+    "passed": "Aprobaste. Superaste el {percent}% requerido.",
+    "failed": "No alcanzaste el {percent}% requerido. Revisa las explicaciones y vuelve a intentarlo.",
     "reviewDone": "Sesión de repaso terminada. Las respuestas del repaso no suman XP ni cuentan como intento.",
     "reward": "+{xp} XP por aprobar el quiz.",
-    "sectionCompleted": "Completaste la sección entera. ¡Bien ahí!",
+    "sectionCompleted": "Sección completada.",
     "questionN": "Pregunta {n}",
     "correct": "Correcta",
     "incorrect": "Incorrecta",
@@ -1093,24 +1295,44 @@
       "matching": "Relacionar",
       "scenario": "Escenario"
     },
-    "prev": "Anterior",
-    "next": "Siguiente",
-    "submit": "Enviar quiz",
-    "answerAll": "Respondé todas las preguntas para poder enviar.",
-    "selectMany": "Seleccioná todas las opciones correctas",
-    "fillBlank": "Escribí tu respuesta",
+    "selectMany": "Selecciona todas las opciones correctas",
+    "fillBlank": "Escribe tu respuesta",
     "choose": "Elegir…",
-    "selectOne": "Seleccioná una opción",
+    "selectOne": "Selecciona una opción",
     "errors": {
-      "unauthorized": "Tenés que iniciar sesión para enviar el quiz.",
+      "unauthorized": "Tienes que iniciar sesión para enviar el quiz.",
       "validation": "Las respuestas no tienen un formato válido.",
       "not_found": "No encontramos este quiz.",
-      "unknown": "Ocurrió un error. Intentá de nuevo."
-    }
+      "unknown": "Ocurrió un error. Vuelve a intentarlo.",
+      "no_attempt": "Este intento ya se cerró. Vuelve a abrir el quiz para empezar otro.",
+      "rate_limited": "Demasiadas respuestas seguidas. Espera unos segundos.",
+      "incomplete": "Falta responder alguna pregunta.",
+      "unavailable": "No pudimos registrar tu respuesta. Vuelve a intentarlo."
+    },
+    "check": "Comprobar respuesta",
+    "nextQuestion": "Siguiente pregunta",
+    "seeResult": "Ver resultado",
+    "answerToContinue": "Elige una respuesta para continuar.",
+    "answerRecorded": "Respuesta registrada. No se puede cambiar.",
+    "explanation": "Explicación",
+    "whyIncorrect": "Por qué no",
+    "tally": "{correct} correctas de {answered} respondidas.",
+    "markers": {
+      "yoursCorrect": "tu respuesta, correcta",
+      "yoursIncorrect": "tu respuesta, incorrecta",
+      "correctOption": "respuesta correcta"
+    },
+    "resultHeading": "Resultado",
+    "verdictPassed": "Aprobado",
+    "verdictFailed": "No alcanzado",
+    "reviewHeading": "Revisión",
+    "reviewHint": "{count, plural, one {Revisa primero la que falló.} other {Revisa primero las # que fallaron.}}",
+    "nextHeading": "Qué sigue",
+    "retryNewSample": "Repetir con otras preguntas"
   },
   "review": {
     "title": "Repaso",
-    "subtitle": "Practicá las preguntas que respondiste mal la última vez. El repaso no suma XP: sirve para afianzar conceptos.",
+    "subtitle": "Practica las preguntas que respondiste mal la última vez. El repaso no suma XP: sirve para afianzar conceptos.",
     "empty": "No tienes preguntas pendientes de repaso. Cuando falles alguna en un quiz, aparecerá aquí.",
     "count": "{count} preguntas para repasar",
     "backToPath": "Volver a la ruta"
@@ -1138,11 +1360,11 @@
       "nameHint": "Así aparecerá impreso en el certificado. Solo letras, espacios, apóstrofes y guiones.",
       "submit": "Emitir certificado",
       "errors": {
-        "unauthorized": "Tenés que iniciar sesión.",
+        "unauthorized": "Tienes que iniciar sesión.",
         "validation": "Ingresa un nombre válido (3 a 60 caracteres).",
         "not_eligible": "Todavía no cumplís todos los requisitos de esta ruta.",
         "not_found": "No encontramos esta ruta certificable.",
-        "unknown": "No pudimos emitir el certificado. Intentá de nuevo."
+        "unknown": "No pudimos emitir el certificado. Vuelve a intentarlo."
       }
     },
     "pdf": {
@@ -1165,7 +1387,7 @@
     "tryAgain": "Probar otro código",
     "notFound": {
       "title": "No encontramos un certificado con ese código",
-      "body": "Revisá que el código esté completo. Si el problema persiste, el certificado puede no existir o haber sido emitido por otra entidad."
+      "body": "Revisa que el código esté completo. Si el problema persiste, el certificado puede no existir o haber sido emitido por otra entidad."
     },
     "valid": {
       "title": "Certificado válido"
@@ -1248,7 +1470,7 @@
       },
       "progress": {
         "title": "Suma progreso",
-        "body": "XP por cada primer acierto, monedas para pistas, rachas con un congelamiento mensual e insignias por hitos. Las dos primeras secciones y tus primeros {free} ejercicios del resto del curso son gratis; luego, un pago único desbloquea todo."
+        "body": "XP por cada primer acierto, monedas para pistas, rachas con una protección mensual e insignias por hitos. Las dos primeras secciones y tus primeros {free} ejercicios del resto del curso son gratis; luego, un pago único desbloquea todo."
       },
       "certify": {
         "title": "Aprueba el quiz y certifícate",
@@ -1309,5 +1531,37 @@
     },
     "ctaPricing": "Ver precios",
     "ctaStart": "Empezar gratis"
+  },
+  "leaderboard": {
+    "title": "Ranking",
+    "intro": "Comparación voluntaria entre quienes eligieron aparecer. Se muestra solo el alias y el avatar.",
+    "periodLabel": "Período del ranking",
+    "periods": {
+      "week": "Últimos 7 días",
+      "all": "Histórico"
+    },
+    "caption": {
+      "week": "XP de los últimos 7 días, según tu zona horaria.",
+      "all": "XP acumulado desde que empezaste."
+    },
+    "columns": {
+      "position": "Puesto",
+      "learner": "Alias",
+      "level": "Nivel",
+      "xp": "XP"
+    },
+    "you": "Tú",
+    "gap": "…",
+    "tooFew": {
+      "title": "Todavía no hay con quién comparar",
+      "body": "{participants, plural, =0 {Nadie participa del ranking por ahora} =1 {Solo una persona participa por ahora} other {Participan # personas por ahora}}; el ranking se muestra a partir de {minimum}.",
+      "yourXp": "Tu XP en este período: {xp}."
+    },
+    "notParticipating": {
+      "title": "No apareces en el ranking",
+      "body": "Elegiste no participar, así que tus datos no se muestran ni se cuentan aquí. Puedes cambiarlo en tu perfil.",
+      "cta": "Ir a mi perfil"
+    },
+    "privacy": "Solo aparecen quienes activaron la participación en su perfil. No se muestra tu nombre, tu correo ni tu país."
   }
 }

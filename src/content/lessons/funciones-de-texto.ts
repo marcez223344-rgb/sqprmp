@@ -174,7 +174,8 @@ FROM customers;
 El operador \`||\` une varios textos en uno solo. Dos comportamientos que conviene tener presentes:
 
 1. Si **cualquiera** de los operandos es NULL, el resultado completo es NULL. Un cliente sin ciudad no aparece con el país solo: aparece con la celda vacía. Protégete con \`COALESCE(city, 'sin ciudad')\`.
-2. La función \`CONCAT(a, b, c)\` hace lo mismo pero trata los NULL como cadena vacía, así que el resto del texto se conserva. Elige una u otra según lo que quieras que ocurra con los datos faltantes.
+2. La función \`CONCAT(a, b, c)\` hace lo mismo pero trata los NULL como cadena vacía, así que el resto del texto se conserva: \`'A' || NULL\` es NULL, mientras que \`CONCAT('A', NULL)\` es \`'A'\`. Elige una u otra según lo que quieras que ocurra con los datos faltantes.
+3. \`||\` es el operador de concatenación del estándar ISO SQL y se comporta igual en PostgreSQL, Oracle, SQLite y DB2, pero SQL Server usa \`+\` y MySQL lee \`||\` como el OR lógico salvo que el servidor tenga activado el modo \`PIPES_AS_CONCAT\`. Si la consulta tiene que correr en varios motores, escribe \`CONCAT()\`. La sección 6 lo detalla.
 
 También puedes concatenar un número directamente, como en \`'Pedido ' || id\`: PostgreSQL lo convierte a texto por su cuenta.
 
@@ -182,7 +183,7 @@ También puedes concatenar un número directamente, como en \`'Pedido ' || id\`:
 
 - \`LEFT\`, \`RIGHT\` y \`SUBSTRING\` cortan por posición; \`POSITION\` encuentra esa posición cuando es variable.
 - \`SPLIT_PART\` parte por un separador y es la opción más legible para correos, códigos y referencias.
-- \`||\` concatena pero deja todo en NULL si algún operando lo es; \`CONCAT\` no.
+- \`||\` concatena pero deja todo en NULL si algún operando lo es; \`CONCAT\` no, y además es la forma portable entre motores.
 `,
   },
 ];

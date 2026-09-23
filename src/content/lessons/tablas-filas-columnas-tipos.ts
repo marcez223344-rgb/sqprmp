@@ -30,9 +30,9 @@ Las tablas tienen dos tipos de columnas especiales que sirven para definir relac
 - **Clave primaria** (PK, por *primary key*, su nombre en inglés): es la columna que identifica de forma única cada fila. En TiendaViva es \`id\` en todas las tablas. Su valor nunca se repite y nunca es NULL. Funciona como el número de documento de identidad de la fila.
 - **Clave foránea** (FK, por *foreign key*): es una columna que guarda la clave primaria de otra tabla, y de esa forma relaciona las dos. Por ejemplo, \`orders.customer_id\` es la columna \`customer_id\` de la tabla \`orders\`, y apunta a la columna \`id\` de la tabla \`customers\`. En términos de negocio eso significa: «este pedido lo hizo este cliente».
 
-## Cardinalidad: uno a muchos
+## Cardinalidad: cuántas filas se corresponden con cuántas
 
-Un cliente puede tener muchos pedidos, y cada pedido pertenece a un solo cliente. Esa forma de relación se llama **uno a muchos** y es la más frecuente en cualquier base de datos. Tiene una consecuencia que conviene tener presente desde ahora: si combinas la tabla \`customers\` con la tabla \`orders\`, cada cliente aparecerá en el resultado **tantas veces como pedidos tenga**. Si después sumas importes sobre esas filas, estarás sumando varias veces el mismo dato y el total quedará más alto que el real.
+La **cardinalidad** de una relación es cuántas filas de una tabla se corresponden con cuántas filas de la otra. Un cliente puede tener muchos pedidos, y cada pedido pertenece a un solo cliente: esa forma de relación se llama **uno a muchos** y es la más frecuente en cualquier base de datos. Tiene una consecuencia que conviene tener presente desde ahora: si combinas la tabla \`customers\` con la tabla \`orders\`, cada cliente aparecerá en el resultado **tantas veces como pedidos tenga**. Si después sumas importes sobre esas filas, estarás sumando varias veces el mismo dato y el total quedará más alto que el real.
 
 ## Ejemplo ejecutable
 

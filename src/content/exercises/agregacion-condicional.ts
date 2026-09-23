@@ -273,7 +273,7 @@ export const exercises: ExerciseDef[] = [
       {
         category: "wrong_order",
         description_md:
-          "Ordenar por `cancelled_orders` en lugar de por la tasa: volverías a rankear por tamaño del país, que es exactamente lo que el reporte quiere evitar.",
+          "Ordenar por `cancelled_orders` en lugar de por la tasa: volverías a ordenar por tamaño del país, que es exactamente lo que el reporte quiere evitar.",
       },
     ],
     expert_explanation_md:
@@ -308,7 +308,7 @@ export const exercises: ExerciseDef[] = [
     dataset: tiendaviva,
     tables_used: ["payments", "orders"],
     scenario_md:
-      "El equipo de pagos negocia comisiones con los procesadores y necesita el desempeño de cada medio de pago **solo en los pedidos facturados en pesos mexicanos** (`currency = 'MXN'`), para no mezclar monedas en una misma suma. Recuerda que un mismo pedido puede tener un intento rechazado y otro aprobado: cada fila de `payments` es un intento.",
+      "El equipo de pagos negocia comisiones con los procesadores y necesita el desempeño de cada medio de pago **solo en los pedidos facturados en pesos mexicanos** (`currency = 'MXN'`), para no mezclar monedas en una misma suma. Un mismo pedido puede tener un intento rechazado y otro aprobado: cada fila de `payments` es un intento.",
     business_question_md:
       "Devuelve una fila por `method` con estas columnas: `payment_attempts` (intentos de pago del método), `approved_amount` (suma de `amount` de los intentos con estado `approved`), `refunded_amount` (suma de `amount` de los intentos con estado `refunded`) y `approval_rate_pct` (porcentaje de intentos aprobados sobre los intentos del método, de 0 a 100, redondeado a 2 decimales). Considera únicamente los pagos de pedidos con `currency = 'MXN'` y ordena por `approved_amount` de mayor a menor.",
     learning_objective:
@@ -439,7 +439,7 @@ export const exercises: ExerciseDef[] = [
       {
         level: 2,
         body_md:
-          "El camino es `reviews.product_id → products.id` y `products.seller_id → sellers.id`. Agrupa por el vendedor (incluye `s.id` en el `GROUP BY` para no fusionar tiendas homónimas), usa `HAVING count(*) >= 20` y arma el `nps` con la resta de los dos conteos condicionales dividida por el total.",
+          "El camino es `reviews.product_id → products.id` y `products.seller_id → sellers.id`. Agrupa por el vendedor (incluye `s.id` en el `GROUP BY` para no fusionar dos tiendas que tengan el mismo nombre), usa `HAVING count(*) >= 20` y arma el `nps` con la resta de los dos conteos condicionales dividida por el total.",
         ...defaultHintMeta(2),
       },
       {
@@ -533,7 +533,7 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "La unidad de medida no es el pedido sino la persona. Cualquier conteo que sume una unidad por fila va a sobrecontar a quien compró varias veces: el agregado tiene que eliminar repeticiones **y**, además, aplicar la condición del canal.",
+          "La unidad de medida no es el pedido sino la persona. Cualquier conteo que sume una unidad por fila va a contar de más a quien compró varias veces: el agregado tiene que eliminar repeticiones **y**, además, aplicar la condición del canal.",
         ...defaultHintMeta(1),
       },
       {
@@ -572,7 +572,7 @@ export const exercises: ExerciseDef[] = [
       },
     ],
     expert_explanation_md:
-      "Seis filas. Uruguay lidera con 90,9 % de sus 110 compradores usando la app; Colombia queda último con 82,9 % sobre 434. La suma de `app_customers` y `web_customers` supera a `buying_customers` en todos los países: mucha gente usa ambos canales, y eso es información, no un error.\n\nEste ejercicio es el caso donde las dos formas de agregación condicional dejan de ser intercambiables. `sum(CASE WHEN ... THEN 1 ELSE 0 END)` cuenta filas; para contar entidades distintas hay que eliminar duplicados antes de contar, y eso solo lo hace `DISTINCT` dentro del agregado. Las dos escrituras válidas son `count(DISTINCT o.customer_id) FILTER (WHERE o.channel = 'app')` y `count(DISTINCT CASE WHEN o.channel = 'app' THEN o.customer_id END)`: el `CASE` sin `ELSE` devuelve NULL para las filas de otros canales y `count` ignora los NULL.\n\nRendimiento: `count(DISTINCT ...)` obliga al motor a ordenar o hashear los valores de cada grupo y es bastante más caro que un `count(*)`. Con volúmenes grandes, el patrón habitual es preagregar en una CTE a nivel cliente-canal y contar después; aquí, con 18 000 pedidos, la consulta directa es más clara y la diferencia es imperceptible.\n\nDefinición de negocio: «cliente activo» quedó definido como quien tiene al menos un pedido no cancelado en toda la historia del marketplace. Si el tablero fuera mensual, habría que agregar el recorte de fechas al `WHERE`, y la tasa cambiaría bastante.",
+      "Seis filas. Uruguay lidera con 90,9 % de sus 110 compradores usando la app; Colombia queda último con 82,9 % sobre 434. La suma de `app_customers` y `web_customers` supera a `buying_customers` en todos los países: mucha gente usa ambos canales, y eso es información, no un error.\n\nEste ejercicio es el caso donde las dos formas de agregación condicional dejan de ser intercambiables. `sum(CASE WHEN ... THEN 1 ELSE 0 END)` cuenta filas; para contar entidades distintas hay que eliminar duplicados antes de contar, y eso solo lo hace `DISTINCT` dentro del agregado. Las dos escrituras válidas son `count(DISTINCT o.customer_id) FILTER (WHERE o.channel = 'app')` y `count(DISTINCT CASE WHEN o.channel = 'app' THEN o.customer_id END)`: el `CASE` sin `ELSE` devuelve NULL para las filas de otros canales y `count` ignora los NULL.\n\nRendimiento: `count(DISTINCT ...)` obliga al motor a ordenar los valores de cada grupo o a armar una tabla auxiliar con ellos, y es bastante más caro que un `count(*)`. Con volúmenes grandes, el patrón habitual es agregar primero en una CTE a nivel cliente-canal y contar después; aquí, con 18 000 pedidos, la consulta directa es más clara y la diferencia es imperceptible.\n\nDefinición de negocio: «cliente activo» quedó definido como quien tiene al menos un pedido no cancelado en toda la historia del marketplace. Si el tablero fuera mensual, habría que agregar el recorte de fechas al `WHERE`, y la tasa cambiaría bastante.",
     improvement_feedback: [
       { condition: "no_table_alias_in_join", message_key: "improve.no_table_alias_in_join" },
       {

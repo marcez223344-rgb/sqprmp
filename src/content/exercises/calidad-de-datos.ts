@@ -52,7 +52,7 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Todo el perfil sale de **una sola pasada** por la tabla: no necesitas `WHERE`, `GROUP BY` ni varias consultas. Recuerda que hay dos funciones de conteo con comportamientos distintos: una cuenta filas y la otra cuenta valores presentes.",
+          "Todo el perfil sale de **una sola pasada** por la tabla: no necesitas `WHERE`, `GROUP BY` ni varias consultas. Hay dos funciones de conteo con comportamientos distintos: una cuenta filas y la otra cuenta valores presentes.",
         ...defaultHintMeta(1),
       },
       {

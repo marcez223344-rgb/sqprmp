@@ -160,7 +160,7 @@ Tiene dos usos que valen mucho en producción:
 
 ## CUBE: todos los cortes
 
-\`CUBE (a, b)\` calcula las cuatro combinaciones posibles: \`(a, b)\`, \`(a)\`, \`(b)\` y el total general. Úsalo cuando las dos dimensiones son independientes entre sí, por ejemplo tipo de cocina y medio de pago, y quieres los márgenes de la tabla en los dos sentidos. Ten en cuenta que con *n* columnas genera 2 elevado a *n* niveles: con cuatro dimensiones son 16 niveles, y el resultado se vuelve ilegible para quien lo recibe mucho antes de volverse lento para el motor.
+\`CUBE (a, b)\` calcula las cuatro combinaciones posibles: \`(a, b)\`, \`(a)\`, \`(b)\` y el total general. Úsalo cuando las dos dimensiones son independientes entre sí, por ejemplo tipo de cocina y medio de pago, y quieres los márgenes de la tabla en los dos sentidos. Con *n* columnas genera 2 elevado a *n* niveles: con cuatro dimensiones son 16 niveles, y el resultado se vuelve ilegible para quien lo recibe mucho antes de volverse lento para el motor.
 
 **Nota del entorno de práctica:** la forma explícita \`GROUP BY GROUPING SETS ((a, b), (a), ())\` no está disponible en el simulador, y \`ROLLUP\` con \`CUBE\` cubren los mismos casos. En un PostgreSQL real, \`GROUPING SETS\` existe y te permite elegir exactamente qué niveles calcular.
 

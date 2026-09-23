@@ -619,7 +619,7 @@ ORDER BY paso;`,
       {
         category: "null_handling",
         description_md:
-          "Escribir el paso 4 como `WHERE delivered_at IS NOT NULL` sobre un `LEFT JOIN` con `shipments` sin desduplicar, o confundir «no tiene envío» con «tiene envío sin entregar»: son dos poblaciones distintas.",
+          "Escribir el paso 4 como `WHERE delivered_at IS NOT NULL` sobre un `LEFT JOIN` con `shipments` sin deduplicar, o confundir «no tiene envío» con «tiene envío sin entregar»: son dos poblaciones distintas.",
       },
       {
         category: "wrong_order",
@@ -628,7 +628,7 @@ ORDER BY paso;`,
       },
     ],
     expert_explanation_md:
-      "5 filas: 18 000 → 14 229 (pierde 3 771) → 13 156 (pierde 1 073) → 13 018 (pierde 138) → 13 018 (pierde 0).\n\nCada número dice algo. Los 3 771 del paso 2 son los pedidos cancelados, pagados y enviados que todavía no cerraron el ciclo: una pérdida esperada. Los 138 del paso 4 son pedidos con pago aprobado cuyo envío no registra entrega, y merecen una revisión operativa.\n\nLos otros dos pasos son el verdadero hallazgo, y ninguno se ve sin la tabla. El paso 3 pierde exactamente 1 073 pedidos, que es exactamente la cantidad de pedidos con `status = 'returned'`: cuando un pedido se devuelve, su pago pasa a `refunded` y deja de ser `approved`. Es decir, el filtro «con pago aprobado», que suena inofensivo, elimina toda la población de devoluciones. Si el informe pretendía medir devoluciones, ese paso las borró antes de contarlas.\n\nY el paso 5 pierde 0, lo que parece un error y no lo es: `returns` solo tiene filas para pedidos devueltos, que el paso 3 ya había eliminado. Un paso que no descarta nada es un paso redundante, y saberlo permite quitarlo o moverlo antes en la cadena. La coincidencia exacta entre 1 073 y el total de devueltos es la clase de verificación que convierte una sospecha en un diagnóstico.\n\nDos decisiones técnicas sostienen la tabla. `EXISTS` en vez de `INNER JOIN` evita el fan-out de `payments` —1 251 pedidos tienen dos pagos— y garantiza que la sucesión sea monótona decreciente; si alguna vez ves un paso que **sube**, el error es este. Y `lag(pedidos) OVER (ORDER BY paso)` calcula la pérdida sin volver a consultar nada, con `coalesce` para el primer paso, que no tiene anterior.",
+      "5 filas: 18 000 → 14 229 (pierde 3 771) → 13 156 (pierde 1 073) → 13 018 (pierde 138) → 13 018 (pierde 0).\n\nCada número dice algo. Los 3 771 del paso 2 son los pedidos cancelados, pagados y enviados que todavía no cerraron el ciclo: una pérdida esperada. Los 138 del paso 4 son pedidos con pago aprobado cuyo envío no registra entrega, y merecen una revisión operativa.\n\nLos otros dos pasos son el verdadero hallazgo, y ninguno se ve sin la tabla. El paso 3 pierde exactamente 1 073 pedidos, que es exactamente la cantidad de pedidos con `status = 'returned'`: cuando un pedido se devuelve, su pago pasa a `refunded` y deja de ser `approved`. Es decir, el filtro «con pago aprobado», que suena inofensivo, elimina toda la población de devoluciones. Si el informe pretendía medir devoluciones, ese paso las borró antes de contarlas.\n\nY el paso 5 pierde 0, lo que parece un error y no lo es: `returns` solo tiene filas para pedidos devueltos, que el paso 3 ya había eliminado. Un paso que no descarta nada es un paso redundante, y saberlo permite quitarlo o moverlo antes en la cadena. La coincidencia exacta entre 1 073 y el total de devueltos es la clase de verificación que convierte una sospecha en un diagnóstico.\n\nDos decisiones técnicas sostienen la tabla. `EXISTS` en vez de `INNER JOIN` evita el fan-out de `payments` —1 251 pedidos tienen dos pagos— y garantiza que la sucesión nunca suba; si alguna vez ves un paso que **sube**, el error es este. Y `lag(pedidos) OVER (ORDER BY paso)` calcula la pérdida sin volver a consultar nada, con `coalesce` para el primer paso, que no tiene anterior.",
     improvement_feedback: [
       { condition: "uses_implicit_join", message_key: "improve.uses_implicit_join" },
       {
@@ -684,7 +684,7 @@ GROUP BY c.name
 ORDER BY tasa_pct DESC, categoria ASC;`,
     alternative_solutions: [
       {
-        label: "Desduplicado con GROUP BY en lugar de DISTINCT",
+        label: "Deduplicado con GROUP BY en lugar de DISTINCT",
         sql: "WITH pedido_categoria AS (SELECT p.category_id, o.id AS order_id, max(CASE WHEN o.status = 'returned' THEN 1 ELSE 0 END) AS devuelto FROM orders AS o INNER JOIN order_items AS oi ON oi.order_id = o.id INNER JOIN products AS p ON p.id = oi.product_id WHERE o.status IN ('delivered', 'returned') GROUP BY p.category_id, o.id) SELECT c.name AS categoria, count(*) AS pedidos, sum(pc.devuelto)::bigint AS devueltos, round(100.0 * sum(pc.devuelto) / count(*), 2) AS tasa_pct FROM pedido_categoria AS pc INNER JOIN categories AS c ON c.id = pc.category_id GROUP BY c.name ORDER BY tasa_pct DESC, categoria ASC;",
       },
       {
@@ -716,7 +716,7 @@ ORDER BY tasa_pct DESC, categoria ASC;`,
       {
         category: "duplicates",
         description_md:
-          "Contar filas del join sin desduplicar: los pedidos con dos líneas de la misma categoría se cuentan dos veces. Bebés pasa de 979 a 1 014 pedidos y su tasa de 8,99 % a 8,78 %.",
+          "Contar filas del join sin deduplicar: los pedidos con dos líneas de la misma categoría se cuentan dos veces. Bebés pasa de 979 a 1 014 pedidos y su tasa de 8,99 % a 8,78 %.",
       },
       {
         category: "aggregation_level",

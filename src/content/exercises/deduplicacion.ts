@@ -304,7 +304,7 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Agrupar por la columna tal como está guardada no sirve: para la base de datos, dos escrituras distintas del mismo correo son valores distintos. Primero tienes que llevar el texto a una forma canónica y agrupar por **esa** expresión.",
+          "Agrupar por la columna tal como está guardada no sirve: para la base de datos, dos escrituras distintas del mismo correo son valores distintos. Primero tienes que llevar el texto a una forma normalizada y agrupar por **esa** expresión.",
         ...defaultHintMeta(1),
       },
       {
@@ -512,7 +512,7 @@ export const exercises: ExerciseDef[] = [
       },
     ],
     expert_explanation_md:
-      "632 filas: los clientes uruguayos tienen 684 pedidos, de los cuales 632 registraron al menos un intento de pago, sumando 674 intentos. Sin deduplicar, el cierre contaría 674 cobros. Del resultado final, 511 quedan en `approved`, 90 en `rejected` y 31 en `refunded`.\n\n`DISTINCT ON` es azúcar sintáctico específico de PostgreSQL y es difícil de superar en legibilidad: una línea dice «una fila por pedido» y el `ORDER BY` dice cuál. Tiene dos ataduras que conviene tener presentes: el `ORDER BY` debe empezar por las expresiones del `DISTINCT ON`, y el orden de salida queda determinado por ese mismo `ORDER BY`. Si Finanzas pidiera el resultado ordenado por importe, habría que envolver la consulta en una subconsulta y ordenar por fuera.\n\nLa versión con `ROW_NUMBER` devuelve exactamente las mismas 632 filas y es la que escribirías en SQL Server, MySQL u Oracle. Vale la pena saber las dos.\n\nEl detalle que más veces rompe este tipo de consulta en producción es el de los NULL: `ORDER BY paid_at DESC` parece la regla natural («el más reciente») y en esta tabla te devolvería preferentemente los intentos rechazados, porque 2414 de ellos tienen `paid_at` nulo y `DESC` pone los nulos adelante. Por eso la regla de negocio se fijó sobre `id`, que nunca es nulo.",
+      "632 filas: los clientes uruguayos tienen 684 pedidos, de los cuales 632 registraron al menos un intento de pago, sumando 674 intentos. Sin deduplicar, el cierre contaría 674 cobros. Del resultado final, 511 quedan en `approved`, 90 en `rejected` y 31 en `refunded`.\n\n`DISTINCT ON` es azúcar sintáctico específico de PostgreSQL y es difícil de superar en legibilidad: una línea dice «una fila por pedido» y el `ORDER BY` dice cuál. Tiene dos condiciones que conviene tener presentes: el `ORDER BY` debe empezar por las expresiones del `DISTINCT ON`, y el orden de salida queda determinado por ese mismo `ORDER BY`. Si Finanzas pidiera el resultado ordenado por importe, habría que envolver la consulta en una subconsulta y ordenar por fuera.\n\nLa versión con `ROW_NUMBER` devuelve exactamente las mismas 632 filas y es la que escribirías en SQL Server, MySQL u Oracle. Vale la pena saber las dos.\n\nEl detalle que más veces rompe este tipo de consulta en producción es el de los NULL: `ORDER BY paid_at DESC` parece la regla natural («el más reciente») y en esta tabla te devolvería preferentemente los intentos rechazados, porque 2414 de ellos tienen `paid_at` nulo y `DESC` pone los nulos adelante. Por eso la regla de negocio se fijó sobre `id`, que nunca es nulo.",
     improvement_feedback: [
       { condition: "no_table_alias_in_join", message_key: "improve.no_table_alias_in_join" },
     ],

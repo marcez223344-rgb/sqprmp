@@ -296,9 +296,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["products", "categories"],
     scenario_md:
-      "El vendedor **3** (Bazar Urbano 3) quiere ver cómo se clasifica su catálogo: la subcategoría de cada producto y la categoría raíz a la que pertenece. En `categories`, `parent_id` apunta a la categoría padre.",
+      "**Bazar Urbano 3** (el vendedor con `id` 3, de Perú) quiere ver cómo se clasifica su catálogo completo, para saber en qué rubros está concentrado: la subcategoría de cada producto y la categoría raíz a la que pertenece. Pide el listado agrupado por rubro, como lo leería en una reunión. En `categories`, `parent_id` apunta a la categoría padre.",
     business_question_md:
-      "Para los productos con `seller_id` igual a 3, devuelve `name` del producto, el nombre de su categoría como `subcategoria` y el nombre de la categoría padre como `categoria`, ordenados por `id` del producto ascendente.",
+      "Para los productos con `seller_id` igual a 3, devuelve `name` del producto, el nombre de su categoría como `subcategoria` y el nombre de la categoría padre como `categoria`. Ordena por `categoria`, después por `subcategoria` y después por el nombre del producto, todo ascendente.",
     learning_objective:
       "Unir la misma tabla dos veces con alias distintos para recorrer una jerarquía.",
     theory_ref: varias,
@@ -309,7 +309,7 @@ export const exercises: ExerciseDef[] = [
     ],
     validation_rules: { order_matters: true, required_concepts: ["inner_join", "alias"] },
     reference_solution:
-      "SELECT p.name, sub.name AS subcategoria, raiz.name AS categoria\nFROM products AS p\nINNER JOIN categories AS sub ON sub.id = p.category_id\nINNER JOIN categories AS raiz ON raiz.id = sub.parent_id\nWHERE p.seller_id = 3\nORDER BY p.id;",
+      "SELECT p.name, sub.name AS subcategoria, raiz.name AS categoria\nFROM products AS p\nINNER JOIN categories AS sub ON sub.id = p.category_id\nINNER JOIN categories AS raiz ON raiz.id = sub.parent_id\nWHERE p.seller_id = 3\nORDER BY raiz.name, sub.name, p.name;",
     hints: [
       {
         level: 1,
@@ -326,7 +326,7 @@ export const exercises: ExerciseDef[] = [
       {
         level: 3,
         body_md:
-          "```sql\nSELECT p.name, sub.name AS subcategoria, raiz.name AS categoria\nFROM products AS p\nINNER JOIN categories AS sub ON sub.id = p.___\nINNER JOIN categories AS raiz ON raiz.id = sub.___\nWHERE p.seller_id = 3\nORDER BY p.id;\n```",
+          "```sql\nSELECT p.name, sub.name AS subcategoria, raiz.name AS categoria\nFROM products AS p\nINNER JOIN categories AS sub ON sub.id = p.___\nINNER JOIN categories AS raiz ON raiz.id = sub.___\nWHERE p.seller_id = 3\nORDER BY ___.name, ___.name, p.name;\n```",
         ...defaultHintMeta(3),
       },
     ],
@@ -343,11 +343,12 @@ export const exercises: ExerciseDef[] = [
       },
       {
         category: "wrong_order",
-        description_md: "Ordenar por `p.name` en lugar de por `p.id`.",
+        description_md:
+          "Ordenar por `p.id`: el listado sale en el orden en que se cargaron los productos y el vendedor no puede leer sus rubros de un vistazo, que es justamente lo que pidió.",
       },
     ],
     expert_explanation_md:
-      "7 productos, cada uno con su subcategoría y su raíz (Belleza, Hogar, Tecnología, Juguetes). Como todos los productos cuelgan de subcategorías (ninguno de una raíz), el INNER JOIN no pierde filas; si algún producto estuviera en una categoría raíz, `sub.parent_id` sería NULL y ese producto desaparecería. Ahí necesitarías un LEFT JOIN.\n\nRecorrer jerarquías de profundidad fija con self join es habitual; para profundidad variable existen las CTE recursivas (sección 22).",
+      "7 productos, cada uno con su subcategoría y su raíz. Ordenados por rubro se lee la respuesta de negocio de una vez: tres productos en Belleza, dos en Hogar, uno en Juguetes y uno en Tecnología. Esa concentración es lo que el vendedor quería ver.\n\nLas claves del `ORDER BY` son columnas de las tablas unidas (`raiz.name`, `sub.name`), no del `SELECT`: puedes ordenar por cualquier columna disponible después del `FROM`, tenga alias o no.\n\n Como todos los productos cuelgan de subcategorías (ninguno de una raíz), el INNER JOIN no pierde filas; si algún producto estuviera en una categoría raíz, `sub.parent_id` sería NULL y ese producto desaparecería. Ahí necesitarías un LEFT JOIN.\n\nRecorrer jerarquías de profundidad fija con self join es habitual; para profundidad variable existen las CTE recursivas (sección 22).",
     reward: defaultReward("intermediate"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,

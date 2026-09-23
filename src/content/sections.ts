@@ -597,7 +597,7 @@ const outlines: Outline[] = [
     level: "expert",
     title: "Índices y planes de ejecución",
     summary:
-      "Leer EXPLAIN, entender cuándo un índice ayuda y conversar con ingeniería de datos con fundamentos.",
+      "Leer EXPLAIN, entender cuándo un índice ayuda y cuándo no, y conversar con ingeniería de datos con fundamentos.",
     objectives: [
       "Leer un plan de ejecución básico e identificar los nodos más costosos",
       "Explicar cuándo un índice acelera una consulta y cuándo no",
@@ -605,7 +605,7 @@ const outlines: Outline[] = [
       "Proponer mejoras de consulta o de índice con evidencia",
     ],
     is_free_theory: false,
-    is_published: false,
+    is_published: true,
     certificate: null,
   },
   // N6 · Profesional ---------------------------------------------------------------

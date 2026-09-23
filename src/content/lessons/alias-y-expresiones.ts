@@ -69,6 +69,8 @@ FROM categories;
 
 Así, la categoría con \`id\` 7 sale como \`CAT-7\`, que es el formato que espera el catálogo impreso. Otras funciones útiles son \`upper()\` y \`lower()\`, que pasan un texto a mayúsculas o a minúsculas, y \`length()\`, que devuelve su cantidad de caracteres. Las verás en detalle en la sección 9.
 
+Dos cosas sobre \`||\` que te van a servir fuera de este curso. La primera: si alguno de los operandos es NULL, todo el resultado es NULL (\`'CAT-' || NULL\` no es \`'CAT-'\`, es NULL). La función \`CONCAT()\` hace lo mismo pero trata los NULL como texto vacío. La segunda: \`||\` es el operador de concatenación del estándar ISO SQL y funciona igual en PostgreSQL, Oracle, SQLite y DB2, pero SQL Server usa \`+\` y MySQL interpreta \`||\` como el OR lógico. Si tu consulta tiene que correr en varios motores, escribe \`CONCAT()\`.
+
 ## Redondeo y precedencia
 
 \`\`\`sql

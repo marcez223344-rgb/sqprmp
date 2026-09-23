@@ -197,7 +197,7 @@ export const questions: QuestionDef[] = [
         body_md: "Falta `GROUP BY c.country` además de `c.city`.",
         is_correct: false,
         why_incorrect_md:
-          "Agrupar también por país mejoraría la lectura si hubiera ciudades homónimas, pero no cambiaría en nada el 100 % en cada fila.",
+          "Agrupar también por país mejoraría la lectura si hubiera dos ciudades con el mismo nombre, pero no cambiaría en nada el 100 % en cada fila.",
       },
       {
         key: "d",
@@ -462,7 +462,7 @@ export const questions: QuestionDef[] = [
       {
         key: "a",
         body_md:
-          "El `INNER JOIN` con `payments` multiplica: los pedidos con más de un pago aparecen varias veces. Con `EXISTS` o `SELECT DISTINCT` el paso vuelve a ser monótono decreciente.",
+          "El `INNER JOIN` con `payments` multiplica: los pedidos con más de un pago aparecen varias veces. Con `EXISTS` o `SELECT DISTINCT` el paso vuelve a bajar, como corresponde.",
         is_correct: true,
       },
       {

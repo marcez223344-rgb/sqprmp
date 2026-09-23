@@ -604,7 +604,7 @@ export const exercises: ExerciseDef[] = [
       {
         category: "cell_values",
         description_md:
-          "Usar `json_build_object` en vez de `jsonb_build_object`: `json` conserva el orden en que escribiste las claves, así que el texto resultante depende de cómo hayas tipeado la consulta.",
+          "Usar `json_build_object` en vez de `jsonb_build_object`: `json` conserva el orden en que escribiste las claves, así que el texto resultante depende del orden en que hayas escrito las claves.",
       },
       {
         category: "duplicates",

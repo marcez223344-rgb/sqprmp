@@ -174,7 +174,7 @@ export const exercises: ExerciseDef[] = [
       },
     ],
     expert_explanation_md:
-      "247 filas. `discount`, `subtotal` y `total_amount` son `numeric(12,2)`, así que la división ya es exacta y no hace falta ningún casteo: el problema de la división entera aparece solo cuando **ambos** operandos son enteros.\n\nVerás que `discount_percent` cae en valores redondos (8.00, 13.00, 18.00) porque el descuento se generó como un porcentaje del subtotal; `shipping_percent`, en cambio, varía libremente e incluso vale `0.00` cuando el envío fue gratis.\n\nDos detalles profesionales: (1) si algún pedido pudiera tener `subtotal = 0`, la consulta fallaría con *division by zero*, y la defensa estándar es `NULLIF(subtotal, 0)`; (2) el nombre `_percent` documenta la escala; si devolvieras la proporción, el nombre correcto sería `_ratio`.",
+      "247 filas. `discount`, `subtotal` y `total_amount` son `numeric(12,2)`, así que la división ya es exacta y no hace falta convertir ningún tipo: el problema de la división entera aparece solo cuando **ambos** operandos son enteros.\n\nVerás que `discount_percent` cae en valores redondos (8.00, 13.00, 18.00) porque el descuento se generó como un porcentaje del subtotal; `shipping_percent`, en cambio, varía libremente e incluso vale `0.00` cuando el envío fue gratis.\n\nDos detalles profesionales: (1) si algún pedido pudiera tener `subtotal = 0`, la consulta fallaría con *division by zero*, y la defensa estándar es `NULLIF(subtotal, 0)`; (2) el nombre `_percent` documenta la escala; si devolvieras la proporción, el nombre correcto sería `_ratio`.",
     improvement_feedback: [
       {
         condition: "missing_alias_on_aggregate",
@@ -279,7 +279,7 @@ export const exercises: ExerciseDef[] = [
     business_question_md:
       "Para los pagos con `status = 'approved'` y más de una cuota, devuelve `id`, `order_id`, `amount`, `installments`, el importe de cada cuota en `installment_amount` y el porcentaje del total que representa **una** cuota en `installment_share_percent`. Ambos cálculos redondeados a dos decimales. El orden no importa.",
     learning_objective:
-      "Reconocer la división entera entre dos enteros y forzar un resultado decimal con un casteo a numeric.",
+      "Reconocer la división entera entre dos enteros y forzar un resultado decimal convirtiendo un operando a numeric.",
     theory_ref: division,
     expected_columns: [
       { name: "id", type: "integer" },
@@ -297,7 +297,7 @@ export const exercises: ExerciseDef[] = [
       "SELECT id,\n       order_id,\n       amount,\n       installments,\n       ROUND(amount / installments, 2) AS installment_amount,\n       ROUND(100.0 / installments, 2) AS installment_share_percent\nFROM payments\nWHERE status = 'approved'\n  AND installments >= 12;",
     alternative_solutions: [
       {
-        label: "Casteos explícitos con :: y CAST",
+        label: "Conversiones de tipo explícitas con :: y CAST",
         sql: "SELECT id,\n       order_id,\n       amount,\n       installments,\n       ROUND(amount / installments::numeric, 2) AS installment_amount,\n       ROUND(CAST(100 AS numeric) / installments, 2) AS installment_share_percent\nFROM payments\nWHERE status = 'approved'\n  AND installments >= 12;",
       },
     ],
