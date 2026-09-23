@@ -1111,13 +1111,13 @@
   "review": {
     "title": "Repaso",
     "subtitle": "Practicá las preguntas que respondiste mal la última vez. El repaso no suma XP: sirve para afianzar conceptos.",
-    "empty": "No tenés preguntas pendientes de repaso. Cuando falles alguna en un quiz, aparecerá acá.",
+    "empty": "No tienes preguntas pendientes de repaso. Cuando falles alguna en un quiz, aparecerá aquí.",
     "count": "{count} preguntas para repasar",
     "backToPath": "Volver a la ruta"
   },
   "certificates": {
     "title": "Certificados",
-    "subtitle": "Cada certificado se emite cuando completás todas las secciones de una ruta y aprobás sus quizzes. Tiene un código público de verificación.",
+    "subtitle": "Cada certificado se emite cuando completas todas las secciones de una ruta y apruebas sus quizzes. Tiene un código público de verificación.",
     "empty": "Todavía no hay rutas certificables publicadas.",
     "progress": "{completed} de {total} secciones completadas",
     "status": {
@@ -1132,14 +1132,14 @@
     "issuedOn": "Emitido el {date}",
     "downloadPdf": "Descargar PDF",
     "verifyLink": "Ver página de verificación",
-    "howToEarn": "Para obtenerlo: completá todas las lecciones y ejercicios de cada sección y aprobá cada quiz con al menos {percent}%.",
+    "howToEarn": "Para obtenerlo: completa todas las lecciones y ejercicios de cada sección y aprueba cada quiz con al menos {percent} %.",
     "issue": {
       "nameLabel": "Nombre completo para el certificado",
       "nameHint": "Así aparecerá impreso en el certificado. Solo letras, espacios, apóstrofes y guiones.",
       "submit": "Emitir certificado",
       "errors": {
         "unauthorized": "Tenés que iniciar sesión.",
-        "validation": "Ingresá un nombre válido (3 a 60 caracteres).",
+        "validation": "Ingresa un nombre válido (3 a 60 caracteres).",
         "not_eligible": "Todavía no cumplís todos los requisitos de esta ruta.",
         "not_found": "No encontramos esta ruta certificable.",
         "unknown": "No pudimos emitir el certificado. Intentá de nuevo."
@@ -1157,7 +1157,7 @@
   },
   "verify": {
     "title": "Verificar certificado",
-    "subtitle": "Ingresá el código de verificación impreso en el certificado (o pegá el enlace completo) para confirmar que es auténtico y está vigente.",
+    "subtitle": "Ingresa el código de verificación impreso en el certificado (o pega el enlace completo) para confirmar que es auténtico y está vigente.",
     "codeLabel": "Código de verificación",
     "codeHint": "20 caracteres, letras y números.",
     "invalidFormat": "El código no tiene el formato esperado.",
