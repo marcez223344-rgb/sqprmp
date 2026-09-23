@@ -17,6 +17,18 @@ export async function accessHealth(
 ): Promise<{ status: number; body: Record<string, unknown> }> {
   if (!authorized(authorization)) return { status: 401, body: { error: "unauthorized" } };
   const admin = createAdminClient();
+  // Shape only, never the value: enough to tell "the new key never reached this build" from
+  // "the key reached it and the project rejects it", which look identical from the UI.
+  const key = serverEnv().SUPABASE_SECRET_KEY;
+  const keyShape = {
+    kind: key.startsWith("sb_secret_")
+      ? "sb_secret"
+      : key.startsWith("ey")
+        ? "legacy_jwt"
+        : "other",
+    length: key.length,
+    build: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? "local",
+  };
 
   const { data: exercise, error: exerciseError } = await admin
     .from("exercises")
@@ -26,7 +38,12 @@ export async function accessHealth(
   if (exerciseError || !exercise)
     return {
       status: 503,
-      body: { ok: false, step: "read_exercise", error: exerciseError?.message ?? "not found" },
+      body: {
+        ok: false,
+        step: "read_exercise",
+        error: exerciseError?.message ?? "not found",
+        keyShape,
+      },
     };
 
   const { data: lesson } = await admin
@@ -62,6 +79,7 @@ export async function accessHealth(
     status: 200,
     body: {
       ok: true,
+      keyShape,
       slug: exercise.slug,
       is_published: exercise.is_published,
       lesson: lesson ? { slug: lesson.slug, is_free: lesson.is_free } : null,

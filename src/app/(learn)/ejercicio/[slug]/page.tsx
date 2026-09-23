@@ -9,11 +9,20 @@ import { Card } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { requireOnboardedProfile } from "@/lib/auth/session";
 import { ensureExerciseStarted, getExerciseWorkspace } from "@/lib/exercises/service";
+import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils/cn";
 
 export async function generateMetadata({ params }: PageProps<"/ejercicio/[slug]">) {
   const { slug } = await params;
-  return { title: `Ejercicio · ${slug}` };
+  // The tab said "Ejercicio · catalogo-de-categorias"; a learner with several tabs open reads the
+  // slug, not the exercise. Fall back to the generic word rather than to the slug.
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("exercises_public")
+    .select("title")
+    .eq("slug", slug)
+    .maybeSingle();
+  return { title: data?.title ?? "Ejercicio" };
 }
 
 export default async function ExercisePage({ params }: PageProps<"/ejercicio/[slug]">) {
