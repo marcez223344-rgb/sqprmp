@@ -6,6 +6,7 @@ Spanish-language (es-419) SQL learning SaaS for LATAM adults 25–35: realistic 
 
 ## Source of truth
 
+- **Waiting on the owner: `docs/OWNER_ACTIONS.md`** — the single list of everything blocked on Marcelo (decisions _and_ tasks). Read it at the start of a working session; surface anything BLOCKING before starting new work. Anything that needs his hands, account, money or signature goes here the moment it is discovered, never only in a phase note or a code comment.
 - Requirements: `docs/PRODUCT_REQUIREMENTS.md` · Architecture: `docs/ARCHITECTURE.md` · Data: `docs/DATABASE_DESIGN.md` · Sandbox: `docs/SQL_SANDBOX.md` · Security/privacy: `docs/SECURITY.md` · Payments: `docs/PAYMENTS.md` · Curriculum: `docs/CURRICULUM.md` · Content rules: `docs/CONTENT_GUIDELINES.md` · Gamification: `docs/GAMIFICATION.md` · Design: `docs/DESIGN_SYSTEM.md` · Tests: `docs/TESTING.md` · Deploy: `docs/DEPLOYMENT.md` · Decisions + pending questions: `docs/DECISIONS.md` · Plan: `docs/ROADMAP.md` · Claude setup: `docs/CLAUDE_CODE_SETUP.md`.
 - Detailed rules live in `.claude/rules/*.md` (path-scoped where possible). Do not duplicate a rule here; link to it.
 
@@ -62,4 +63,4 @@ Production deploys · production payment credentials · `supabase db push`/`db r
 
 ## Communication
 
-Report honestly (never invent test, build, migration or payment results). Show commands before asking the owner to run them. Separate required work from optional. Keep `docs/DECISIONS.md` pending list current. The owner is strong in SQL/data; explain frontend, auth, security and deployment decisions clearly.
+Report honestly (never invent test, build, migration or payment results). Show commands before asking the owner to run them. Separate required work from optional. Keep `docs/DECISIONS.md` pending list and `docs/OWNER_ACTIONS.md` current — the owner should never have to remember a pending item himself. When a pending decision blocks work and the owner is in the conversation, **ask it with `AskUserQuestion`, with the context and the trade-offs in the options**; filing it in a doc is bookkeeping, not asking. The owner is strong in SQL/data; explain frontend, auth, security and deployment decisions clearly.

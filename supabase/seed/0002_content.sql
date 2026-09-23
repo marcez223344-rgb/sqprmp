@@ -30284,7 +30284,7 @@ values ((select id from public.products where slug = $c19826$full-lifetime$c1982
 on conflict (product_id, provider, currency, country) do update set amount_minor = excluded.amount_minor, interval = excluded.interval, is_active = true;
 
 insert into public.prices (product_id, provider, currency, amount_minor, country, interval, is_active)
-values ((select id from public.products where slug = $c19830$full-lifetime$c19830$), $c19831$manual$c19831$, $c19832$ARS$c19832$, 0, $c19833$AR$c19833$, $c19834$one_time$c19834$, true)
+values ((select id from public.products where slug = $c19830$full-lifetime$c19830$), $c19831$manual$c19831$, $c19832$ARS$c19832$, 2990000, $c19833$AR$c19833$, $c19834$one_time$c19834$, true)
 on conflict (product_id, provider, currency, country) do update set amount_minor = excluded.amount_minor, interval = excluded.interval, is_active = true;
 
 insert into public.prices (product_id, provider, currency, amount_minor, country, interval, is_active)

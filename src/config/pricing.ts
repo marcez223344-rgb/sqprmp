@@ -34,9 +34,17 @@ export const products: ProductConfig[] = [
     accessDays: null,
     isActive: true,
     prices: [
-      // D-06: ≈ US$20. Local ARS amount is set by the owner before Phase 6 launch.
+      // D-17 (owner, 2026-09-23): one price, no founder cohort. US$20 stays.
+      // ARS 29.900 is set as an independent round number rather than an FX conversion, so a
+      // devaluation does not turn it into an odd figure (US$20 × blue 1.545 ≈ ARS 30.900).
       { provider: "manual", currency: "USD", amountMinor: 2000, interval: "one_time" },
-      { provider: "manual", currency: "ARS", amountMinor: 0, country: "AR", interval: "one_time" },
+      {
+        provider: "manual",
+        currency: "ARS",
+        amountMinor: 2990000,
+        country: "AR",
+        interval: "one_time",
+      },
       { provider: "hotmart", currency: "USD", amountMinor: 2000, interval: "one_time" },
     ],
   },

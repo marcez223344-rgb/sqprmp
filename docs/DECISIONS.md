@@ -74,9 +74,13 @@ Status: **Accepted (2026-09-18)**. First-party events only, written server-side 
 
 Status: **Accepted (2026-09-19)**. Single Supabase project `sqprmp` (ref `pgkbmhuehmotjctzjwxx`, Free, us-west-2) is the launch database (P-4: free tiers). Migrations 0001–0008 and seeds 0001–0003 were applied on 2026-09-19 with the CLI (`supabase migration up --linked`, `db query --file`); auth settings (custom access token hook, redirect URLs, email confirmations off, Google provider enabled) are managed from `supabase/config.toml` via `supabase config push` — the Google client id/secret are owner-provided env values, never committed. Code lives in `github.com/marcez223344-rgb/sqprmp`; Vercel team `sqprmp` (Hobby) hosts the app via the Git integration. The owner instructed: "do not ask me to type commands again … I approve you do it yourself" and "do not ask me permission for any more commands, I approve them all". The assistant therefore runs setup/deploy commands directly; the standing prohibitions that need a _fresh_ written go remain: production payment credentials, destructive/remote resets, force-push, pricing/legal changes.
 
-### D-17 · Launch pricing (proposed, owner decides)
+### D-17 · Launch pricing
 
-Status: **Proposed (2026-09-22)** — nothing in `src/config/pricing.ts` changed; changing price needs the owner's go (CLAUDE.md).
+Status: **Accepted (owner, 2026-09-23)** — **US$20 one-time, ARS 29.900, one price, no founder cohort and no counter.** Applied to `src/config/pricing.ts` and seeded to the database.
+
+The recommendation below (US$29/49 with a founder ladder) was **not** taken. The owner chose the simplest thing that can make a first sale: one number, nothing to explain, nothing to maintain. The trade-off he accepted is that US$20 sits inside Udemy's commodity band, so a later rise reads as a price increase rather than a founder discount ending. ARS 29.900 is an independent round number, not an FX conversion (US$20 × blue 1.545 ≈ ARS 30.900), so a devaluation does not turn it into an odd figure.
+
+Original research and recommendation, kept for when the price is revisited:
 
 Market research (2026-09-22, sources in the session log): Coderhouse AR sells a _live_ 11-week SQL course at ARS 243.936 (~USD 163 discounted, list ARS 304.920); LearnSQL.es — the closest product shape, Spanish, browser exercises, lifetime — sells a single course at €29 and all-access at €99; Udemy Spanish SQL courses effectively sell at USD 10–15 but are video-only and the marketplace keeps ~68 %; Platzi ARS 359.900/year and DataCamp USD 168–336/year are subscriptions. Blue dollar 2026-09-22: ARS 1.535/1.555. Junior analyst salary in AR: ARS 450.000–900.000/month.
 
@@ -414,6 +418,9 @@ api-keys` returns it masked and the masked string is what is currently deployed.
 
 ## Pending owner decisions (need an answer before the referenced phase)
 
+> Tasks waiting on the owner (not decisions) live in [OWNER_ACTIONS.md](OWNER_ACTIONS.md), which is the
+> single list he should have to read. Keep both current.
+
 | #    | Question                                                                                                                                                                                                                                                                                                                       | Needed by       | Default if no answer               |
 | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------- | ---------------------------------- |
 | D-09 | Street address + CUIT for legal pages; lawyer review of the drafts. **Owner, 2026-09-22: not published for now** — `brand.legalAddress`/`taxId` are empty, the texts identify the provider by name + support email, and the draft banner is off. Required before charging in Argentina (Ley 24.240 and AFIP e-commerce rules). | Before charging | Name + support email only          |
@@ -421,8 +428,6 @@ api-keys` returns it masked and the masked string is what is currently deployed.
 | P-3  | Google Workspace / support email for OAuth consent screen                                                                                                                                                                                                                                                                      | Phase 2         | Owner's Gmail                      |
 | P-4  | Free tiers for soft launch. **Owner, 2026-09-22: stay on Vercel Hobby while testing with first customers, upgrade later.** Hobby's terms forbid commercial use, so the risk (project suspension on review, no SLA) is accepted knowingly; Supabase Free pauses after 7 days idle — the nightly keep-alive covers it.           | Before scaling  | Free tiers, keep-alive workflow on |
 | P-5  | Content style: use "tú" (recommended) or "usted"?                                                                                                                                                                                                                                                                              | Phase 3         | "tú"                               |
-| D-17 | Launch price: USD 29 founder / USD 49 regular, ARS 39.900 / ARS 69.900 (recommended above) — or a different number                                                                                                                                                                                                             | Before selling  | Current USD 20 stays               |
-| D-29 | Landing and pricing copy says "{free} ejercicios gratis", which understates the offer (two whole sections are free on top of the five gated exercises). Restate it?                                                                                                                                                            | Before launch   | Current wording stays              |
 | P-6  | Certificate name shown: founder as "Instructor" and company as issuer?                                                                                                                                                                                                                                                         | Phase 7         | Yes                                |
 
 ## Rejected alternatives (summary)
