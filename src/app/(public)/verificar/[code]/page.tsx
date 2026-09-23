@@ -4,6 +4,7 @@ import { getFormatter, getTranslations } from "next-intl/server";
 import { Card } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { brand } from "@/config/brand";
+import { founder } from "@/config/founder";
 import { verificationRateLimited, verifyCertificate } from "@/lib/certificates/service";
 import { cn } from "@/lib/utils/cn";
 
@@ -71,6 +72,10 @@ export default async function VerifyCodePage({ params }: PageProps<"/verificar/[
             <dd>{format.dateTime(new Date(result.issuedAt), { dateStyle: "long" })}</dd>
             <dt className="text-muted">{t("fields.id")}</dt>
             <dd className="font-mono">{result.publicId}</dd>
+            {/* P-6 (owner, 2026-09-23): the named instructor gives the credential its
+                credibility, the company is the verifiable entity that issued it. */}
+            <dt className="text-muted">{t("fields.instructor")}</dt>
+            <dd>{founder.name}</dd>
             <dt className="text-muted">{t("fields.issuer")}</dt>
             <dd>
               {brand.organization} · {brand.productName}

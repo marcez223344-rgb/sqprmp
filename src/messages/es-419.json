@@ -42,7 +42,7 @@
       "subtitle": "Practica con datos de e-commerce, fintech y delivery de América Latina. Ejecuta consultas en el navegador, recibe retroalimentación útil y consigue certificados verificables.",
       "ctaPrimary": "Empieza gratis con Google",
       "ctaSecondary": "Probar SQL sin registrarme",
-      "note": "{count} ejercicios gratis, sin tarjeta."
+      "note": "Dos secciones completas gratis, más tus primeros {count} ejercicios del resto del curso. Sin tarjeta."
     },
     "benefits": {
       "title": "Diseñado para personas que trabajan con datos",
@@ -657,13 +657,13 @@
   },
   "pricing": {
     "title": "Precios",
-    "intro": "Empieza gratis con los primeros {free} ejercicios. Cuando quieras seguir, un solo pago desbloquea todo el currículo para siempre.",
+    "intro": "Empieza gratis: las dos primeras secciones completas, más tus primeros {free} ejercicios del resto del curso. Cuando quieras seguir, un solo pago desbloquea todo el currículo para siempre.",
     "free": {
       "title": "Gratis",
       "price": "US$ 0",
       "items": {
         "theory": "Teoría completa del nivel Fundamentos",
-        "exercises": "Los primeros {free} ejercicios prácticos con validación y pistas",
+        "exercises": "Las dos primeras secciones completas, más tus primeros {free} ejercicios del resto del curso, con validación y pistas",
         "demo": "Sandbox SQL en el navegador sin límite",
         "progress": "XP, rachas e insignias"
       },
@@ -1180,6 +1180,7 @@
       "skills": "Habilidades",
       "issuedAt": "Fecha de emisión",
       "id": "ID",
+      "instructor": "Instructor",
       "issuer": "Emisor"
     },
     "privacyNote": "Esta página muestra solo los datos necesarios para validar el certificado.",
@@ -1247,7 +1248,7 @@
       },
       "progress": {
         "title": "Suma progreso",
-        "body": "XP por cada primer acierto, monedas para pistas, rachas con un congelamiento mensual e insignias por hitos. Los primeros {free} ejercicios son gratis; luego, un pago único desbloquea todo."
+        "body": "XP por cada primer acierto, monedas para pistas, rachas con un congelamiento mensual e insignias por hitos. Las dos primeras secciones y tus primeros {free} ejercicios del resto del curso son gratis; luego, un pago único desbloquea todo."
       },
       "certify": {
         "title": "Aprueba el quiz y certifícate",
@@ -1271,7 +1272,7 @@
       },
       "free": {
         "q": "¿Qué incluye el plan gratuito?",
-        "a": "Las lecciones teóricas de las primeras secciones, los quizzes de esas secciones y los primeros {free} ejercicios que abras. Sin tarjeta ni límite de tiempo."
+        "a": "Las dos primeras secciones completas —teoría, ejercicios y quizzes—, la teoría gratuita de las demás secciones, y además tus primeros {free} ejercicios del resto del curso. Sin tarjeta ni límite de tiempo."
       },
       "price": {
         "q": "¿Cuánto cuesta y es una suscripción?",

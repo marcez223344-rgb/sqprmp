@@ -5,7 +5,11 @@ import { useState, useTransition } from "react";
 import { CreditCard, Landmark, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { manualTransferChannels, manualTransferInstructions } from "@/config/pricing";
+import {
+  manualTransferChannels,
+  manualTransferInstructions,
+  readyTransferChannels,
+} from "@/config/pricing";
 import { createManualPurchaseAction, startHostedCheckoutAction } from "@/lib/payments/actions";
 import { cn } from "@/lib/utils/cn";
 import type { CatalogPrice } from "@/lib/payments/service";
@@ -80,7 +84,7 @@ export function PricingActions({ signedIn, entitled, pending, prices }: Props) {
           {t("payByTransfer")}
         </p>
         <div className="grid gap-2 sm:grid-cols-3">
-          {manualTransferChannels.map((c) => {
+          {readyTransferChannels.map((c) => {
             const price = manualByCurrency(c.currency);
             if (!price) return null;
             return (

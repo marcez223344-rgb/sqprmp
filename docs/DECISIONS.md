@@ -407,6 +407,69 @@ than a saving. Offered a reworded version framing it as the legal right instead 
 promise; **owner chose to leave the text exactly as it is**, which already closes with the
 Ley 24.240 reference.
 
+### D-29 · The free offer is stated in full
+
+Status: Accepted (owner, 2026-09-23).
+
+The landing, pricing, FAQ and gamification copy all said "{free} ejercicios gratis". That named
+less than a learner actually gets: `limits.freeExerciseSections` makes `tablas-filas-columnas-tipos`
+and `select` free for everyone — 7 published exercises between them, plus their theory and quizzes
+— **on top of** the 5 gated exercises the counter allows. The real offer is 12 free exercises and
+two complete sections.
+
+The copy now says "las dos primeras secciones completas, más tus primeros {free} ejercicios del
+resto del curso". The section count is not interpolated: it is a curriculum fact that changes only
+with a deliberate edit to `freeExerciseSections`, whereas the 5 stays bound to
+`limits.freeExerciseLimit`. Understating an offer is not a safe default — it costs conversions for
+nothing.
+
+### D-30 · Certificates name the instructor and the company
+
+Status: Accepted (owner, 2026-09-23). Answers P-6.
+
+A named human gives the credential its credibility; the company is the entity that issued it and
+that a verifier checks. The PDF already signed with `founder.name` / `founder.role`; the public
+verification page showed only "Emisor: organización · producto", so it now carries an
+**Instructor** row above it. Both read from `src/config/founder.ts` — no name is hardcoded.
+
+### D-31 · The domain decision waits for the first paying student
+
+Status: Accepted (owner, 2026-09-23). Answers P-1.
+
+The site stays on `dataminds-sql-academy.vercel.app`. A Vercel subdomain is a real trust cost at
+the moment someone is deciding to pay, and that cost is accepted knowingly in exchange for not
+spending on a domain before anyone has bought anything. Revisit the moment a purchase lands —
+`OWNER_ACTIONS.md` keeps it OPEN rather than closed so it resurfaces then.
+
+Note for when it happens: a domain change is not only DNS. The Supabase Site URL and additional
+redirect URLs, and the Google OAuth consent screen and authorised redirect URIs, all have to move
+with it, or sign-in breaks. See DEPLOYMENT.md §2.
+
+### D-32 · Launch with bank transfer only; a channel appears only when it can be paid
+
+Status: Accepted (owner, 2026-09-23). Answers the Hotmart and transfer-details questions.
+
+**Hotmart is off at launch.** `enabledPaymentProviders` is `["manual"]`. Bank transfer plus
+Mercado Pago covers Argentina, the first market, and Hotmart was unusable anyway without payout
+eligibility and credentials. Re-adding `"hotmart"` to that array is the whole change when it
+arrives; the adapter, webhook route and tests all stay.
+
+**Transfer details.** The owner supplied the Banco Galicia account (alias `MarceloPisner`,
+CBU `0070040530004041083717`, 22 digits, bank code 007 = Galicia). Mercado Pago and Wallbit were
+not supplied.
+
+**A half-configured channel is worse than a missing one.** Until now `/precios` rendered the
+literal string `PENDIENTE-DE-CONFIGURAR` to every visitor on all three channels: unpayable, and
+it made the whole site read as unfinished. `readyTransferChannels` now filters out any channel
+whose instructions still contain the placeholder, so Mercado Pago and Wallbit are simply absent
+and reappear on their own when the real values land. `createManualPurchaseAction` repeats the
+check server-side, because the channel id comes from the browser and a purchase must never be
+opened against a channel nobody can pay into.
+
+The displayed holder is **Marcelo Pisner**, the personal name the alias resolves to, not the trade
+name — a learner comparing it against what their banking app shows has to see a match. Change it
+only if the account is actually held in the company's name.
+
 ## Owner-only follow-ups from 2026-09-23
 
 - **`SUPABASE_SECRET_KEY` is invalid in production** (see the runbook note in
@@ -424,11 +487,9 @@ api-keys` returns it masked and the masked string is what is currently deployed.
 | #    | Question                                                                                                                                                                                                                                                                                                                       | Needed by       | Default if no answer               |
 | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------- | ---------------------------------- |
 | D-09 | Street address + CUIT for legal pages; lawyer review of the drafts. **Owner, 2026-09-22: not published for now** — `brand.legalAddress`/`taxId` are empty, the texts identify the provider by name + support email, and the draft banner is off. Required before charging in Argentina (Ley 24.240 and AFIP e-commerce rules). | Before charging | Name + support email only          |
-| P-1  | Domain name (e.g. `academia.dataminds…`)?                                                                                                                                                                                                                                                                                      | Phase 9         | Vercel subdomain                   |
 | P-3  | Google Workspace / support email for OAuth consent screen                                                                                                                                                                                                                                                                      | Phase 2         | Owner's Gmail                      |
 | P-4  | Free tiers for soft launch. **Owner, 2026-09-22: stay on Vercel Hobby while testing with first customers, upgrade later.** Hobby's terms forbid commercial use, so the risk (project suspension on review, no SLA) is accepted knowingly; Supabase Free pauses after 7 days idle — the nightly keep-alive covers it.           | Before scaling  | Free tiers, keep-alive workflow on |
 | P-5  | Content style: use "tú" (recommended) or "usted"?                                                                                                                                                                                                                                                                              | Phase 3         | "tú"                               |
-| P-6  | Certificate name shown: founder as "Instructor" and company as issuer?                                                                                                                                                                                                                                                         | Phase 7         | Yes                                |
 
 ## Rejected alternatives (summary)
 

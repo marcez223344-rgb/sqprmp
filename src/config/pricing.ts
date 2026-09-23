@@ -68,8 +68,14 @@ export const products: ProductConfig[] = [
   },
 ];
 
-/** Payment channels enabled at launch, in display order (docs/PAYMENTS.md §3). */
-export const enabledPaymentProviders: PaymentProviderId[] = ["manual", "hotmart"];
+/**
+ * Payment channels enabled at launch, in display order (docs/PAYMENTS.md §3).
+ *
+ * D-32 (owner, 2026-09-23): launch with manual transfer only. Bank transfer plus Mercado Pago
+ * covers Argentina, which is the first market, and Hotmart is unusable anyway without payout
+ * eligibility and credentials. Re-adding "hotmart" here is the whole change when that arrives.
+ */
+export const enabledPaymentProviders: PaymentProviderId[] = ["manual"];
 
 /** Manual transfer instructions are owner-provided; placeholders until Phase 6. */
 export const manualTransferChannels = [
@@ -87,8 +93,10 @@ export const manualTransferInstructions: Record<
   { holder: string; lines: string[] }
 > = {
   bank_ars: {
-    holder: "Data Minds Solutions",
-    lines: ["Alias: PENDIENTE-DE-CONFIGURAR", "CBU: PENDIENTE-DE-CONFIGURAR"],
+    // Owner-supplied 2026-09-23. Holder is the personal name the alias points at, not the trade
+    // name: a learner comparing it against what their banking app shows must see a match.
+    holder: "Marcelo Pisner",
+    lines: ["Banco Galicia", "Alias: MarceloPisner", "CBU: 0070040530004041083717"],
   },
   mercadopago_ars: {
     holder: "Data Minds Solutions",
@@ -96,3 +104,23 @@ export const manualTransferInstructions: Record<
   },
   wallbit_usd: { holder: "Data Minds Solutions", lines: ["Wallbit TAG: PENDIENTE-DE-CONFIGURAR"] },
 };
+
+/** Marker for details the owner has not supplied yet. */
+const PLACEHOLDER = "PENDIENTE-DE-CONFIGURAR";
+
+/**
+ * A channel is offered only once its details are real.
+ *
+ * The placeholders above were rendering verbatim on `/precios`, so every visitor read
+ * "PENDIENTE-DE-CONFIGURAR" as the payment instructions. A half-configured channel is worse than
+ * a missing one: it cannot be paid and it makes the whole site look unfinished. Channels
+ * reappear on their own as soon as the real values land in `manualTransferInstructions`.
+ */
+export function transferChannelIsReady(id: (typeof manualTransferChannels)[number]["id"]): boolean {
+  return !manualTransferInstructions[id].lines.some((line) => line.includes(PLACEHOLDER));
+}
+
+/** The manual channels that can actually be paid right now, in display order. */
+export const readyTransferChannels = manualTransferChannels.filter((c) =>
+  transferChannelIsReady(c.id),
+);

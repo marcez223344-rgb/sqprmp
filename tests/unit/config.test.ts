@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { limits } from "@/config/limits";
-import { products, enabledPaymentProviders } from "@/config/pricing";
+import {
+  products,
+  enabledPaymentProviders,
+  readyTransferChannels,
+  manualTransferInstructions,
+  type PaymentProviderId,
+} from "@/config/pricing";
 import { buildCsp, generateNonce } from "@/lib/security/csp";
 
 describe("config/limits", () => {
@@ -28,7 +34,21 @@ describe("config/pricing", () => {
     expect(active[0]?.accessDays).toBeNull();
   });
   it("only enables approved providers (D-05)", () => {
-    expect(enabledPaymentProviders).toEqual(["manual", "hotmart"]);
+    // Asserts the rule, not the current list: which providers are on is an owner decision that
+    // moves (D-32 dropped Hotmart for launch), but enabling one that was never approved is a
+    // regression at any time.
+    const approved: PaymentProviderId[] = ["manual", "hotmart"];
+    expect(enabledPaymentProviders.every((p) => approved.includes(p))).toBe(true);
+    expect(enabledPaymentProviders).toContain("manual");
+  });
+  it("offers a transfer channel only once its details are real (D-32)", () => {
+    // The placeholders rendered verbatim on /precios for a while; readyTransferChannels is what
+    // stops that, and a channel that still has one must never be offered.
+    for (const channel of readyTransferChannels) {
+      const { lines } = manualTransferInstructions[channel.id];
+      expect(lines.some((l) => l.includes("PENDIENTE-DE-CONFIGURAR"))).toBe(false);
+    }
+    expect(readyTransferChannels.length).toBeGreaterThan(0);
   });
 });
 

@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { track } from "@/lib/analytics/track";
 import { limits } from "@/config/limits";
-import { manualTransferChannels } from "@/config/pricing";
+import { manualTransferChannels, transferChannelIsReady } from "@/config/pricing";
 import { clientEnv } from "@/lib/env/client";
 import { getCurrentProfile, getCurrentUser } from "@/lib/auth/session";
 import { getProvider } from "@/lib/payments/index";
@@ -39,6 +39,10 @@ export async function createManualPurchaseAction(
     .object({ priceId: z.uuid(), channel: z.enum(channelIds) })
     .safeParse({ priceId: rawPriceId, channel: rawChannel });
   if (!parsed.success) return { ok: false, error: "validation" };
+  // The UI hides channels whose transfer details are still placeholders, but the channel id
+  // arrives from the browser: a purchase must never be opened against an unpayable channel.
+  if (!transferChannelIsReady(parsed.data.channel as (typeof manualTransferChannels)[number]["id"]))
+    return { ok: false, error: "validation" };
   if (await limited(`checkout:${user.id}`, limits.rateLimits.checkout))
     return { ok: false, error: "rate_limited" };
   const supabase = await createClient();
