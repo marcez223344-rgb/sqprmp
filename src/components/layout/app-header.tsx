@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { LogOut, ShieldCheck } from "lucide-react";
+import type { Route } from "next";
+import { ShieldCheck } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Logo } from "@/components/layout/logo";
+import { SignOutForm } from "@/components/layout/sign-out-form";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils/cn";
+import { isLeaderboardEnabled } from "@/lib/progress/leaderboard";
 
 interface AppHeaderProps {
   alias: string | null;
@@ -14,17 +15,20 @@ interface AppHeaderProps {
 }
 
 export async function AppHeader({ alias, displayName, isAdmin, onboarded }: AppHeaderProps) {
-  const t = await getTranslations("app");
-  const links = [
+  const [t, leaderboard] = await Promise.all([getTranslations("app"), isLeaderboardEnabled()]);
+  const links: { href: Route; label: string }[] = [
     { href: "/aprender", label: t("nav.dashboard") },
     { href: "/ruta", label: t("nav.path") },
     { href: "/logros", label: t("nav.badges") },
+    // Only when the flag is on: /ranking returns 404 otherwise, and a nav item that 404s is worse
+    // than no nav item.
+    ...(leaderboard ? [{ href: "/ranking" as Route, label: t("nav.leaderboard") }] : []),
     { href: "/repaso", label: t("nav.review") },
     { href: "/consultas", label: t("nav.savedQueries") },
     { href: "/certificados", label: t("nav.certificates") },
     { href: "/acceso", label: t("nav.access") },
     { href: "/perfil", label: t("nav.profile") },
-  ] as const;
+  ];
 
   return (
     <header className="border-border bg-bg/80 sticky top-0 z-40 border-b backdrop-blur">
@@ -69,12 +73,7 @@ export async function AppHeader({ alias, displayName, isAdmin, onboarded }: AppH
             <span className="text-muted hidden text-sm sm:inline">{displayName}</span>
           ) : null}
           <ThemeToggle />
-          <form action="/auth/signout" method="post">
-            <button type="submit" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
-              <LogOut aria-hidden="true" />
-              <span className="sr-only sm:not-sr-only">{t("signOut")}</span>
-            </button>
-          </form>
+          <SignOutForm label={t("signOut")} />
         </div>
       </div>
       {onboarded ? (
@@ -89,6 +88,15 @@ export async function AppHeader({ alias, displayName, isAdmin, onboarded }: AppH
                 {l.label}
               </Link>
             ))}
+            {isAdmin ? (
+              <Link
+                href="/admin"
+                className="hover:bg-surface-2 inline-flex min-h-10 items-center rounded-md px-3 py-2 text-sm whitespace-nowrap"
+              >
+                <ShieldCheck aria-hidden="true" className="mr-1 inline size-4" />
+                {t("nav.admin")}
+              </Link>
+            ) : null}
           </div>
         </nav>
       ) : null}

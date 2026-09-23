@@ -20,6 +20,7 @@ describe("analytics event spec", () => {
         "promo_redeemed",
         "purchase_completed",
         "query_run",
+        "quiz_question_answered",
         "quiz_submitted",
         "review_session_started",
         "section_completed",

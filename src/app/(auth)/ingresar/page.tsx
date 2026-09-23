@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { DraftStorageSweep } from "@/components/layout/draft-storage-sweep";
 import { Logo } from "@/components/layout/logo";
 import { Card } from "@/components/ui/card";
 import { signInWithGoogle } from "@/lib/auth/actions";
@@ -26,6 +27,9 @@ export default async function LoginPage({ searchParams }: PageProps<"/ingresar">
 
   return (
     <main id="contenido" className="container-page flex flex-1 items-center justify-center py-16">
+      {/* A session that ended without a clean sign-out leaves drafts behind; this is where the
+          next learner on a shared machine arrives, so the sweep happens here too (F-8). */}
+      <DraftStorageSweep />
       <Card className="w-full max-w-md space-y-6 text-center">
         <Link href="/" className="inline-flex justify-center rounded-md">
           <Logo />

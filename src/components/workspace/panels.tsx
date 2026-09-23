@@ -1,8 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { AlertTriangle, CheckCircle2, ChevronDown, Info, Lightbulb, XCircle } from "lucide-react";
+import {
+  ChevronDown,
+  CircleCheck,
+  CircleDashed,
+  CircleX,
+  Info,
+  Lightbulb,
+  TriangleAlert,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
+import { Callout } from "@/components/ui/callout";
 import { glossFor } from "@/config/sql-glossary";
 import type { FeedbackItem } from "@/lib/validation/feedback";
 import { cn } from "@/lib/utils/cn";
@@ -34,7 +43,7 @@ export function SchemaBrowser({
   return (
     <div className="space-y-2">
       <p className="text-muted text-xs">{t("intro")}</p>
-      <ul className="divide-border border-border divide-y rounded-md border">
+      <ul className="divide-border border-border bg-surface divide-y rounded-md border">
         {tables.map((table) => {
           const isOpen = open[table.name] ?? false;
           const used = highlight.includes(table.name);
@@ -55,7 +64,7 @@ export function SchemaBrowser({
                     </span>
                   ) : null}
                   {used ? (
-                    <span className="bg-primary/10 text-primary ml-2 rounded-full px-2 py-0.5 font-sans text-[10px] uppercase">
+                    <span className="bg-primary/10 text-primary ml-2 rounded-full px-2 py-0.5 font-sans text-[11px] uppercase">
                       {t("used")}
                     </span>
                   ) : null}
@@ -68,7 +77,7 @@ export function SchemaBrowser({
               <div
                 id={`schema-${table.name}`}
                 hidden={!isOpen}
-                className="border-border bg-surface-2/50 border-t px-3 py-2"
+                className="border-border bg-surface-2 border-t px-3 py-2"
               >
                 <p className="text-muted mb-2 text-xs">{table.description}</p>
                 <table className="w-full text-xs">
@@ -94,13 +103,25 @@ export function SchemaBrowser({
                           {/* The identifiers stay in English, as in any data job; the gloss is
                               there so that is never a barrier to reading the schema. */}
                           {glossFor(c.name) ? (
-                            <span className="text-muted ml-2 font-sans text-[10px] italic">
+                            <span className="text-muted ml-2 font-sans text-xs italic">
                               {glossFor(c.name)}
                             </span>
                           ) : null}
-                          {c.is_pk ? <span className="text-muted ml-1 text-[10px]">PK</span> : null}
-                          {c.fk_ref ? (
-                            <span className="text-muted ml-1 text-[10px]">→ {c.fk_ref}</span>
+                          {/* Abbreviations are always expanded for assistive tech. */}
+                          {c.is_pk || c.fk_ref ? (
+                            <span className="text-muted ml-1.5 text-[11px]">
+                              {c.is_pk ? (
+                                <>
+                                  PK<span className="sr-only"> ({t("pk")})</span>
+                                </>
+                              ) : null}
+                              {c.fk_ref ? (
+                                <>
+                                  {c.is_pk ? " " : null}→ {c.fk_ref}
+                                  <span className="sr-only"> ({t("fk", { table: c.fk_ref })})</span>
+                                </>
+                              ) : null}
+                            </span>
                           ) : null}
                         </td>
                         <td className="text-muted py-1 pr-2 font-mono whitespace-nowrap">
@@ -120,6 +141,14 @@ export function SchemaBrowser({
   );
 }
 
+/**
+ * The one tip whose parameter is multi-line SQL: the learner's own query re-indented. It is
+ * special-cased by message key (never by sniffing the value for newlines) so an ordinary tip can
+ * never accidentally render as code. The length is already capped server-side
+ * (`limits.sandbox.feedback.maxFormattedSqlChars`).
+ */
+const FORMATTED_SQL_KEY = "improve.formatted_version";
+
 export function FeedbackPanel({
   items,
   correct,
@@ -134,28 +163,41 @@ export function FeedbackPanel({
   executed?: boolean;
 }) {
   const t = useTranslations("workspace.feedback");
-  if (!submitted) return <p className="text-muted text-sm">{t("notYet")}</p>;
+  // The panel keeps the same shape before and after a submission, so the layout does not jump.
+  if (!submitted)
+    return (
+      <Callout
+        category="neutral"
+        icon={CircleDashed}
+        title={t("notYet")}
+        titleClassName="text-muted font-sans text-sm"
+      />
+    );
   if (!executed)
     return (
-      <p role="region" aria-live="polite" aria-label={t("title")} className="text-sm">
-        {t("notExecuted")}
-      </p>
+      <Callout
+        category="pitfall"
+        live
+        title={t("notExecuted")}
+        titleClassName="font-sans text-sm"
+      />
     );
   const blocking = items.filter((i) => i.severity === "blocking");
   const warnings = items.filter((i) => i.severity === "warning");
   const tips = items.filter((i) => i.severity === "tip");
   return (
     <div className="space-y-4" role="region" aria-live="polite" aria-label={t("title")}>
+      {/* --color-success measures 4.35:1 on the light surface; the -ink token is the text one. */}
       <p
         className={cn(
           "inline-flex items-center gap-2 font-semibold",
-          correct ? "text-success" : "text-danger",
+          correct ? "text-success-ink" : "text-danger",
         )}
       >
         {correct ? (
-          <CheckCircle2 aria-hidden="true" className="size-5" />
+          <CircleCheck aria-hidden="true" className="size-5 shrink-0" />
         ) : (
-          <XCircle aria-hidden="true" className="size-5" />
+          <CircleX aria-hidden="true" className="size-5 shrink-0" />
         )}
         {correct ? t("correct") : t("incorrect")}
       </p>
@@ -164,9 +206,9 @@ export function FeedbackPanel({
           {blocking.map((i, idx) => (
             <li
               key={idx}
-              className="border-danger/30 bg-danger/5 flex gap-2 rounded-md border p-3 text-sm"
+              className="border-danger/45 bg-danger/10 dark:bg-danger/14 flex gap-2 rounded-md border p-3 text-sm"
             >
-              <XCircle aria-hidden="true" className="text-danger mt-0.5 size-4 shrink-0" />
+              <CircleX aria-hidden="true" className="text-danger mt-0.5 size-4 shrink-0" />
               <span>
                 <span className="sr-only">{t("severity.blocking")}: </span>
                 {t(`messages.${i.messageKey}` as never, i.params as never)}
@@ -180,9 +222,12 @@ export function FeedbackPanel({
           {warnings.map((i, idx) => (
             <li
               key={idx}
-              className="border-warning/40 bg-warning/10 flex gap-2 rounded-md border p-3 text-sm"
+              className="border-warning/45 bg-warning/10 dark:bg-warning/14 flex gap-2 rounded-md border p-3 text-sm"
             >
-              <AlertTriangle aria-hidden="true" className="text-warning mt-0.5 size-4 shrink-0" />
+              <TriangleAlert
+                aria-hidden="true"
+                className="text-warning-ink mt-0.5 size-4 shrink-0"
+              />
               <span>
                 <span className="sr-only">{t("severity.warning")}: </span>
                 {t(`messages.${i.messageKey}` as never, i.params as never)}
@@ -192,17 +237,42 @@ export function FeedbackPanel({
         </ul>
       ) : null}
       {tips.length ? (
-        <div>
-          <p className="text-muted mb-1 text-xs font-semibold uppercase">{t("tipsTitle")}</p>
-          <ul className="space-y-1">
-            {tips.map((i, idx) => (
-              <li key={idx} className="text-muted flex gap-2 text-sm">
-                <Info aria-hidden="true" className="text-info mt-0.5 size-4 shrink-0" />
-                <span>{t(`messages.${i.messageKey}` as never, i.params as never)}</span>
-              </li>
-            ))}
+        /* The style detector now sends up to five improvements per submission, so this stopped
+           being a one-line footnote and became its own labelled section. */
+        <Callout category="summary" as="h3" eyebrow={t("tipsTitle")} labelId="feedback-mejoras">
+          <ul className="space-y-3">
+            {tips.map((i, idx) => {
+              const formatted = i.messageKey === FORMATTED_SQL_KEY ? i.params?.formatted : null;
+              const sentenceId = `feedback-tip-${idx}`;
+              return (
+                <li key={idx} className="flex gap-2 text-sm">
+                  <Info aria-hidden="true" className="text-info mt-0.5 size-4 shrink-0" />
+                  <div className="min-w-0 space-y-1.5">
+                    <p id={sentenceId} className="text-muted">
+                      {t(
+                        `messages.${i.messageKey}` as never,
+                        // The formatted query is shown as code below, not inlined in the sentence:
+                        // inside a <span> its newlines collapsed and the tip taught nothing.
+                        (formatted !== null ? { ...i.params, formatted: "" } : i.params) as never,
+                      )}
+                    </p>
+                    {formatted !== null && formatted !== undefined ? (
+                      <pre
+                        // Scrollable regions need a keyboard tab stop and a name (WCAG 2.1.1).
+                        tabIndex={0}
+                        role="region"
+                        aria-labelledby={sentenceId}
+                        className="border-border bg-surface overflow-x-auto rounded-md border p-3 font-mono text-xs leading-relaxed"
+                      >
+                        <code>{formatted}</code>
+                      </pre>
+                    ) : null}
+                  </div>
+                </li>
+              );
+            })}
           </ul>
-        </div>
+        </Callout>
       ) : null}
     </div>
   );
@@ -210,12 +280,18 @@ export function FeedbackPanel({
 
 export function HintPanel({
   hints,
+  collapsedLevels = [],
   onRequest,
   pending,
   maxLevel,
   penaltyPercent,
 }: {
   hints: { level: number; body_md: string }[];
+  /**
+   * Hints already unlocked before this page load. They are shown folded: a hint whose text is
+   * simply there reads as a hint nobody asked for (owner feedback, 2026-09-23).
+   */
+  collapsedLevels?: number[];
   onRequest: (level: number) => void;
   pending: boolean;
   maxLevel: number;
@@ -228,12 +304,26 @@ export function HintPanel({
       <p className="text-muted text-xs">{t("intro", { penalty: penaltyPercent })}</p>
       <ol className="space-y-3">
         {hints.map((h) => (
-          <li key={h.level} className="border-border bg-surface-2/60 rounded-md border p-3 text-sm">
-            <p className="text-muted mb-1 inline-flex items-center gap-1 text-xs font-semibold uppercase">
-              <Lightbulb aria-hidden="true" className="size-3.5" />
-              {t("level", { level: h.level })}
-            </p>
-            <MarkdownClient>{h.body_md}</MarkdownClient>
+          <li key={h.level} className="border-border bg-surface rounded-md border p-3 text-sm">
+            {collapsedLevels.includes(h.level) ? (
+              <details>
+                <summary className="text-warning-ink inline-flex min-h-11 cursor-pointer items-center gap-1.5 text-xs font-semibold tracking-[0.06em] uppercase">
+                  <Lightbulb aria-hidden="true" className="size-3.5 shrink-0" />
+                  {t("alreadyUsed", { level: h.level })}
+                </summary>
+                <div className="mt-2">
+                  <MarkdownClient>{h.body_md}</MarkdownClient>
+                </div>
+              </details>
+            ) : (
+              <>
+                <p className="text-warning-ink mb-1 inline-flex items-center gap-1.5 text-xs font-semibold tracking-[0.06em] uppercase">
+                  <Lightbulb aria-hidden="true" className="size-3.5 shrink-0" />
+                  {t("level", { level: h.level })}
+                </p>
+                <MarkdownClient>{h.body_md}</MarkdownClient>
+              </>
+            )}
           </li>
         ))}
       </ol>
@@ -242,7 +332,7 @@ export function HintPanel({
           type="button"
           disabled={pending}
           onClick={() => onRequest(nextLevel)}
-          className="border-border hover:bg-surface-2 inline-flex h-10 items-center gap-2 rounded-md border px-4 text-sm font-medium disabled:opacity-50"
+          className="border-border bg-surface hover:bg-surface-2 inline-flex h-11 items-center gap-2 rounded-md border px-4 text-sm font-medium disabled:opacity-50"
         >
           <Lightbulb aria-hidden="true" className="size-4" />
           {t("request", { level: nextLevel })}

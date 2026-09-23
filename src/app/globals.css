@@ -24,8 +24,11 @@
   --dataset-delivery: #96590c;
   --dataset-music: #ad3a70;
   --warning: #b7791f;
+  --warning-ink: #8a5e12; /* warning as text/eyebrow (--warning only reaches 3.64:1 on white) */
   --danger: #c53a3a;
   --info: #2e6f9e;
+  --achievement: #6d3fc4; /* badge family «nivel»; same value as --dataset-marketplace on purpose,
+                             kept separate so dataset identity and badge identity can diverge */
   --ring: #2b4fe0;
   --radius-sm: 6px;
   --radius-md: 10px;
@@ -53,8 +56,10 @@
   --dataset-delivery: #e0a93e;
   --dataset-music: #ee87b4;
   --warning: #f0b35a;
+  --warning-ink: #f0b35a; /* already 9.28:1 on the dark surface */
   --danger: #f27474;
   --info: #6fb6e8;
+  --achievement: #b69bf0;
   --ring: #7c93ff;
   color-scheme: dark;
 }
@@ -79,8 +84,10 @@
   --color-dataset-delivery: var(--dataset-delivery);
   --color-dataset-music: var(--dataset-music);
   --color-warning: var(--warning);
+  --color-warning-ink: var(--warning-ink);
   --color-danger: var(--danger);
   --color-info: var(--info);
+  --color-achievement: var(--achievement);
   --color-ring: var(--ring);
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-heading: var(--font-manrope), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
@@ -155,8 +162,9 @@
   .prose-dm h2 {
     @apply mt-8 mb-3 text-2xl;
   }
+  /* h2 and h3 differ by weight as well as size: weight 700 for both flattened the outline. */
   .prose-dm h3 {
-    @apply mt-6 mb-2 text-xl;
+    @apply mt-6 mb-2 text-xl font-semibold;
   }
   .prose-dm p {
     @apply my-4;

@@ -79,19 +79,27 @@ async function answerCurrent(page: Page, service: SupabaseClient, correct: boole
   }
 }
 
+/**
+ * D-34: one question at a time, each graded by the server before the next one is shown, so the
+ * loop answers, checks, reads the feedback and moves on.
+ */
 async function runQuiz(page: Page, service: SupabaseClient, correct: boolean) {
   await page.goto(`/leccion/${QUIZ_SLUG}`);
-  await expect(page.getByRole("button", { name: /Siguiente|Enviar quiz/ })).toBeVisible();
+  const check = page.getByRole("button", { name: "Comprobar respuesta" });
+  await expect(check).toBeVisible();
   for (;;) {
     await answerCurrent(page, service, correct);
-    const submit = page.getByRole("button", { name: "Enviar quiz" });
-    if (await submit.isVisible()) {
-      await submit.click();
+    await check.click();
+    // Feedback for this question arrives from the server and takes focus.
+    await expect(page.getByRole("status").first()).toBeVisible();
+    const finish = page.getByRole("button", { name: "Ver resultado" });
+    if (await finish.isVisible()) {
+      await finish.click();
       break;
     }
-    await page.getByRole("button", { name: "Siguiente" }).click();
+    await page.getByRole("button", { name: "Siguiente pregunta" }).click();
   }
-  await expect(page.getByRole("status")).toBeVisible();
+  await expect(page.getByRole("status").first()).toBeVisible();
 }
 
 /** Journeys 11–12: quiz → section completion → certificate → public verification. */
@@ -144,7 +152,7 @@ test.describe("quizzes and certificates", () => {
   }) => {
     await signInAs(context, learner);
     await runQuiz(page, service, true);
-    await expect(page.getByText("¡Aprobaste!")).toBeVisible();
+    await expect(page.getByText(/Aprobaste/)).toBeVisible();
     await expect(page.getByText("Completaste la sección entera")).toBeVisible();
 
     await page.goto("/certificados");

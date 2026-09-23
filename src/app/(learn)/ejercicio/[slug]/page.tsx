@@ -1,16 +1,15 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Lock } from "lucide-react";
+import { Lock, Unlock } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { track } from "@/lib/analytics/track";
 import { DatasetBadge } from "@/components/datasets/dataset-badge";
 import { ExerciseWorkspace } from "@/components/workspace/exercise-workspace";
-import { Card } from "@/components/ui/card";
-import { buttonVariants } from "@/components/ui/button";
+import { LockedWorkspace } from "@/components/workspace/locked-workspace";
+import { hasActiveEntitlement } from "@/lib/auth/entitlements";
 import { requireOnboardedProfile } from "@/lib/auth/session";
 import { ensureExerciseStarted, getExerciseWorkspace } from "@/lib/exercises/service";
 import { createClient } from "@/lib/supabase/server";
-import { cn } from "@/lib/utils/cn";
 
 export async function generateMetadata({ params }: PageProps<"/ejercicio/[slug]">) {
   const { slug } = await params;
@@ -38,6 +37,13 @@ export default async function ExercisePage({ params }: PageProps<"/ejercicio/[sl
   }
 
   const difficulty = data.exercise.difficulty ?? "easy";
+  // A learner who paid has no allowance to report; showing a count to them is noise.
+  const entitled = await hasActiveEntitlement(profile);
+  // A locked exercise means the allowance is spent; an unopened one is about to spend a slot.
+  const usedSlots = Math.min(
+    data.access === "locked" ? data.freeLimit : data.freeUsed + (data.progress ? 0 : 1),
+    data.freeLimit,
+  );
   if (data.access === "locked")
     await track(
       "paywall_viewed",
@@ -66,38 +72,36 @@ export default async function ExercisePage({ params }: PageProps<"/ejercicio/[sl
           <h1 className="text-3xl">{data.exercise.title}</h1>
           <DatasetBadge slug={data.dataset.slug} title={data.dataset.title} />
         </div>
-        {/* The counter is only true for gated exercises; on a free one it wrongly suggested the
-            learner was spending an allowance. */}
-        {data.access === "ok" && !data.gated ? (
-          <p className="border-success/40 bg-success/10 text-success-ink rounded-full border px-3 py-1 text-xs font-medium">
-            {t("freeExercise")}
-          </p>
-        ) : data.access === "ok" &&
-          data.gated &&
-          data.freeLimit > 0 &&
-          !profile.role.includes("admin") ? (
-          <p className="text-muted text-xs">
-            {t("freeCounter", {
-              used: Math.min(data.freeUsed + (data.progress ? 0 : 1), data.freeLimit),
-              limit: data.freeLimit,
-            })}
-          </p>
+        {/* Two regimes coexist (limits.ts): exercises in the free sections never consume the
+            allowance, gated ones do. The badge used to show only a bare count, which made a
+            learner with nine finished exercises think the limit was broken. */}
+        {data.gated && !entitled ? (
+          <div className="space-y-1 text-right">
+            <p className="border-border bg-surface-2 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium">
+              <Lock aria-hidden="true" className="size-3.5" />
+              {t("regime.countedBadge", { used: usedSlots, limit: data.freeLimit })}
+            </p>
+            <p className="text-muted max-w-xs text-xs">{t("regime.countedDetail")}</p>
+          </div>
+        ) : !data.gated ? (
+          <div className="space-y-1 text-right">
+            <p className="border-success/40 bg-success/10 text-success-ink inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium">
+              <Unlock aria-hidden="true" className="size-3.5" />
+              {t("regime.freeBadge")}
+            </p>
+            <p className="text-muted max-w-xs text-xs">{t("regime.freeDetail")}</p>
+          </div>
         ) : null}
       </header>
 
       {data.access === "locked" ? (
-        <Card className="space-y-3">
-          <p className="inline-flex items-center gap-2 text-sm font-semibold">
-            <Lock aria-hidden="true" className="size-4" />
-            {t("locked.title")}
-          </p>
-          <p className="text-muted">{t("locked.body", { limit: data.freeLimit })}</p>
-          <Link href="/precios" className={cn(buttonVariants(), "w-fit")}>
-            {t("locked.cta")}
-          </Link>
-        </Card>
+        <LockedWorkspace
+          scenarioMd={data.exercise.scenario_md ?? ""}
+          businessQuestionMd={data.exercise.business_question_md ?? ""}
+          freeLimit={data.freeLimit}
+        />
       ) : (
-        <ExerciseWorkspace data={data} />
+        <ExerciseWorkspace data={data} userId={profile.id} />
       )}
     </div>
   );

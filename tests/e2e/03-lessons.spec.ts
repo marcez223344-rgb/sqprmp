@@ -54,7 +54,9 @@ test.describe("curriculum and lessons", () => {
 
     test("quiz lessons show the question count and unpublished lessons 404", async ({ page }) => {
       await page.goto("/leccion/select-quiz");
-      await expect(page.getByText(/10 preguntas/)).toBeVisible();
+      await expect(page.getByText(/preguntas/).first()).toBeVisible();
+      // D-33: the attempt serves a sample of the bank, so the counter is the attempt size.
+      await expect(page.getByText("Pregunta 1 de 6")).toBeVisible();
       // The route streams its shell before notFound() runs, so the HTTP status stays 200;
       // what matters to the learner is that the not-found page is rendered.
       await page.goto("/leccion/no-existe");

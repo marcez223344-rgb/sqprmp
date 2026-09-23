@@ -12,6 +12,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { limits } from "@/config/limits";
 import { CompleteLessonButton } from "@/components/learn/complete-lesson-button";
 import { Markdown } from "@/components/learn/markdown";
 import { QuizRunner } from "@/components/quiz/quiz-runner";
@@ -103,21 +104,34 @@ export default async function LessonPage({ params }: PageProps<"/leccion/[slug]"
       </header>
 
       {access === "locked" ? (
-        <Card className="space-y-3">
-          <p className="inline-flex items-center gap-2 text-sm font-semibold">
+        /* Same paywall shape as the workspace: the thin card did not say what had happened. */
+        <section
+          aria-labelledby="paywall-title"
+          className="border-primary/40 bg-primary/5 space-y-4 rounded-lg border-2 p-6"
+        >
+          <p className="text-primary inline-flex items-center gap-2 text-xs font-semibold tracking-wide uppercase">
             <Lock aria-hidden="true" className="size-4" />
-            {t("locked.title")}
+            {t("locked.eyebrow")}
           </p>
-          <p className="text-muted">{t("locked.body")}</p>
-          <Link href="/precios" className={cn(buttonVariants(), "w-fit")}>
-            {t("locked.cta")}
-          </Link>
-        </Card>
+          <h2 id="paywall-title" className="text-2xl">
+            {t("locked.title")}
+          </h2>
+          <p className="max-w-prose">{t("locked.body")}</p>
+          <p className="text-muted max-w-prose text-sm">{t("locked.freeSections")}</p>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/precios" className={cn(buttonVariants())}>
+              {t("locked.cta")}
+            </Link>
+            <Link href="/ruta" className={cn(buttonVariants({ variant: "ghost" }))}>
+              {t("locked.secondaryCta")}
+            </Link>
+          </div>
+        </section>
       ) : lesson.kind === "quiz" && quiz ? (
         <section className="space-y-4" aria-labelledby="quiz-heading">
           <p id="quiz-heading" className="inline-flex items-center gap-2 text-sm font-semibold">
             <ListChecks aria-hidden="true" className="size-4" />
-            {t("quiz.title", { count: questionCount })}
+            {t("quiz.title", { count: Math.min(limits.quiz.questionsPerAttempt, questionCount) })}
           </p>
           <p className="text-muted text-sm">
             {t("quiz.intro", { percent: quiz.passThresholdPercent })}

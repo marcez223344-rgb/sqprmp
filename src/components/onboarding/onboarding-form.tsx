@@ -250,7 +250,7 @@ export function OnboardingForm({ avatars, next, defaults }: Props) {
               className="border-border grid max-h-72 grid-cols-4 gap-3 overflow-y-auto rounded-md border p-3 sm:grid-cols-6 md:grid-cols-8"
             >
               {avatars.map((a) => (
-                <label key={a.id} className="cursor-pointer">
+                <label key={a.id} className="relative cursor-pointer">
                   <input
                     type="radio"
                     value={a.id}
@@ -365,7 +365,9 @@ export function OnboardingForm({ avatars, next, defaults }: Props) {
               {weeklyGoals.map((m) => (
                 <label
                   key={m}
-                  className="border-border has-checked:border-primary has-checked:bg-primary/10 has-focus-visible:ring-ring flex cursor-pointer items-center justify-center rounded-md border px-3 py-3 text-sm has-focus-visible:ring-2"
+                  // `relative`: the sr-only radio is absolutely positioned, and without a
+                  // positioned ancestor focusing it scrolled the page away from the field.
+                  className="border-border has-checked:border-primary has-checked:bg-primary/10 has-focus-visible:ring-ring relative flex cursor-pointer items-center justify-center rounded-md border px-3 py-3 text-sm has-focus-visible:ring-2"
                 >
                   <input
                     type="radio"

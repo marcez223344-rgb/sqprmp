@@ -98,7 +98,7 @@ export function ProfileForm({
           className="border-border grid max-h-72 grid-cols-4 gap-3 overflow-y-auto rounded-md border p-3 sm:grid-cols-6 md:grid-cols-8"
         >
           {avatars.map((a) => (
-            <label key={a.id} className="cursor-pointer">
+            <label key={a.id} className="relative cursor-pointer">
               <input
                 type="radio"
                 value={a.id}

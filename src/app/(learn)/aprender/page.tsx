@@ -6,14 +6,20 @@ import {
   Flame,
   Gauge,
   RefreshCw,
-  Snowflake,
+  ShieldCheck,
+  SquareTerminal,
   Star,
   Target,
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { badgeContainerClasses } from "@/components/progress/badge-styles";
 import { GoalsForm } from "@/components/progress/goals-form";
+import { Meter, StatTile } from "@/components/progress/stat-tile";
 import { Card } from "@/components/ui/card";
+import { SectionHeader } from "@/components/ui/section-header";
 import { buttonVariants } from "@/components/ui/button";
+import { getBadgeVisual } from "@/config/badges";
+import { limits } from "@/config/limits";
 import { requireOnboardedProfile } from "@/lib/auth/session";
 import { getDashboard } from "@/lib/progress/queries";
 import { cn } from "@/lib/utils/cn";
@@ -27,6 +33,13 @@ export default async function DashboardPage() {
   const profile = await requireOnboardedProfile("/aprender");
   const [d, t] = await Promise.all([getDashboard(profile), getTranslations("dashboard")]);
   const earnedBadges = d.badges.filter((b) => b.earned_at);
+  // Built from the parts that actually have a value: a learner with no history used to see a
+  // dangling "·" because the longest-streak half of the line was meaningless at zero.
+  const streakFacts = [
+    t("streak.protectionCount", { count: d.streak.freezesAvailable }),
+    d.streak.longest > 0 ? t("streak.longest", { days: d.streak.longest }) : null,
+  ].filter((part): part is string => Boolean(part));
+  const xpToNextLevel = Math.max(d.level.needed - d.level.current, 0);
 
   return (
     <div className="container-page space-y-8 py-10">
@@ -37,27 +50,71 @@ export default async function DashboardPage() {
         <p className="text-muted">{t("subtitle", { level: d.level.level })}</p>
       </header>
 
-      {/* Four numbers the learner checks every visit, before anything else on the page. */}
-      <dl className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {[
-          { key: "level", value: d.level.level, Icon: Gauge },
-          { key: "xp", value: d.xpTotal, Icon: Star },
-          { key: "coins", value: d.coins, Icon: Coins },
-          { key: "streakDays", value: d.streak.length, Icon: Flame },
-        ].map(({ key, value, Icon }) => (
-          <div key={key} className="border-border bg-surface rounded-lg border p-4">
-            <dt className="text-muted inline-flex items-center gap-2 text-sm">
-              <Icon aria-hidden="true" className="text-primary size-4" />
-              {t(`tiles.${key}`)}
-            </dt>
-            <dd className="font-heading mt-1 text-3xl font-bold">{value}</dd>
-          </div>
-        ))}
+      {/*
+        The five numbers the learner checks every visit, and the only place they appear: level, XP
+        and coins used to be printed here *and* in a stats card at the same weight, so nothing said
+        which was the summary. A bare number does not motivate; the distance to the next threshold
+        does, so each tile that has a real threshold carries it in words (and, where a threshold
+        exists, a meter). Coins have no threshold and deliberately stay a plain number.
+      */}
+      <dl className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+        <StatTile
+          label={t("tiles.level")}
+          value={d.level.level}
+          icon={Gauge}
+          tone="achievement"
+          meter={
+            xpToNextLevel > 0 ? (
+              <Meter
+                tone="achievement"
+                percent={d.level.percent}
+                label={t("stats.levelProgress")}
+                valueText={t("tiles.toNextLevel", {
+                  xp: xpToNextLevel,
+                  level: d.level.level + 1,
+                })}
+              />
+            ) : null
+          }
+          caption={
+            xpToNextLevel > 0
+              ? t("tiles.toNextLevel", { xp: xpToNextLevel, level: d.level.level + 1 })
+              : null
+          }
+        />
+        <StatTile
+          label={t("tiles.xp")}
+          value={d.xpTotal}
+          icon={Star}
+          tone="primary"
+          caption={t("tiles.xpToday", { xp: d.today.xp })}
+        />
+        <StatTile label={t("tiles.coins")} value={d.coins} icon={Coins} tone="neutral" />
+        <StatTile
+          label={t("tiles.streakDays")}
+          value={d.streak.length}
+          icon={Flame}
+          tone="warm"
+          caption={
+            d.streak.activeToday
+              ? t("streak.activeToday")
+              : d.streak.length > 0
+                ? t("tiles.streakNext", { days: d.streak.length + 1 })
+                : t("streak.start")
+          }
+        />
+        <StatTile
+          label={t("stats.exercises")}
+          value={d.exercisesCompleted}
+          icon={SquareTerminal}
+          tone="primary"
+        />
       </dl>
 
       <div className="grid gap-6 md:grid-cols-3">
-        {/* Continue */}
-        <Card className="space-y-3 md:col-span-2">
+        {/* The focal card: the only action on this page that matters, with the same treatment the
+            continuable section gets on /ruta. */}
+        <Card className="ring-primary/45 space-y-3 ring-2 md:col-span-2">
           <h2 className="text-xl">{t("continue.title")}</h2>
           {d.continueTarget ? (
             <>
@@ -94,10 +151,7 @@ export default async function DashboardPage() {
 
         {/* Review is a finished feature that nobody found behind a nav link. */}
         <Card className="space-y-3">
-          <h2 className="inline-flex items-center gap-2 text-lg">
-            <RefreshCw aria-hidden="true" className="text-info size-5" />
-            {t("review.title")}
-          </h2>
+          <SectionHeader as="h2" icon={RefreshCw} title={t("review.title")} />
           <p className="text-muted text-sm">{t("review.body")}</p>
           <Link href="/repaso" className={cn(buttonVariants({ variant: "secondary" }), "w-fit")}>
             {t("review.cta")}
@@ -105,60 +159,11 @@ export default async function DashboardPage() {
           </Link>
         </Card>
 
-        {/* Level + XP */}
-        <Card className="space-y-3">
-          <h2 className="text-lg">{t("stats.title")}</h2>
-          <dl className="grid grid-cols-2 gap-3 text-sm">
-            <div>
-              <dt className="text-muted">{t("stats.level")}</dt>
-              <dd className="font-heading text-2xl font-bold">{d.level.level}</dd>
-            </div>
-            <div>
-              <dt className="text-muted">{t("stats.xp")}</dt>
-              <dd className="font-heading text-2xl font-bold">{d.xpTotal}</dd>
-            </div>
-            <div>
-              <dt className="text-muted">{t("stats.coins")}</dt>
-              <dd className="font-heading text-2xl font-bold">{d.coins}</dd>
-            </div>
-            <div>
-              <dt className="text-muted">{t("stats.exercises")}</dt>
-              <dd className="font-heading text-2xl font-bold">{d.exercisesCompleted}</dd>
-            </div>
-          </dl>
-          <div>
-            <div className="text-muted mb-1 flex justify-between text-xs">
-              <span>{t("stats.nextLevel", { level: d.level.level + 1 })}</span>
-              <span>
-                {d.level.current}/{d.level.needed} XP
-              </span>
-            </div>
-            <div
-              className="bg-surface-2 h-2 rounded-full"
-              role="progressbar"
-              aria-valuenow={d.level.percent}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-label={t("stats.levelProgress")}
-            >
-              <div
-                className="bg-primary h-2 rounded-full"
-                style={{ width: `${d.level.percent}%` }}
-              />
-            </div>
-          </div>
-        </Card>
-
-        {/* Streak */}
+        {/* Streak: the day count is in the tile row, so this card carries only what the tile
+            cannot — today's state and how the protection works. */}
         <Card className="space-y-2">
-          <h2 className="inline-flex items-center gap-2 text-lg">
-            <Flame aria-hidden="true" className="text-accent size-5" />
-            {t("streak.title")}
-          </h2>
-          <p className="font-heading text-3xl font-bold">
-            {t("streak.days", { days: d.streak.length })}
-          </p>
-          <p className="text-muted text-sm">
+          <SectionHeader as="h2" icon={Flame} title={t("streak.title")} />
+          <p className="text-sm font-medium">
             {d.streak.activeToday
               ? t("streak.activeToday")
               : d.streak.protectedByFreeze
@@ -168,18 +173,17 @@ export default async function DashboardPage() {
                   : t("streak.start")}
           </p>
           <p className="text-muted inline-flex items-center gap-1 text-xs">
-            <Snowflake aria-hidden="true" className="size-3.5" />
-            {t("streak.freezes", { count: d.streak.freezesAvailable })} ·{" "}
-            {t("streak.longest", { days: d.streak.longest })}
+            <ShieldCheck aria-hidden="true" className="size-3.5 shrink-0" />
+            {streakFacts.join(" · ")}
+          </p>
+          <p className="text-muted text-xs">
+            {t("streak.protectionHow", { max: limits.streaks.freezesPerMonth })}
           </p>
         </Card>
 
         {/* Goals */}
         <Card className="space-y-3">
-          <h2 className="inline-flex items-center gap-2 text-lg">
-            <Target aria-hidden="true" className="text-primary size-5" />
-            {t("goals.title")}
-          </h2>
+          <SectionHeader as="h2" icon={Target} title={t("goals.title")} />
           <Goal label={t("goals.daily")} value={d.today.xp} target={d.today.target} unit="XP" />
           <Goal
             label={t("goals.weekly")}
@@ -190,25 +194,32 @@ export default async function DashboardPage() {
           <GoalsForm goals={d.goals} />
         </Card>
 
-        {/* Badges */}
+        {/* Badges: the same identity as /logros, so one badge looks like itself everywhere. The
+            pills used to be text-only with a `title` attribute nobody on a keyboard could read. */}
         <Card className="space-y-3">
-          <h2 className="inline-flex items-center gap-2 text-lg">
-            <Award aria-hidden="true" className="text-warning size-5" />
-            {t("badges.title")}
-          </h2>
+          <SectionHeader as="h2" icon={Award} title={t("badges.title")} />
           <p className="text-muted text-sm">
             {t("badges.count", { earned: earnedBadges.length, total: d.badges.length })}
           </p>
           <ul className="flex flex-wrap gap-2">
-            {earnedBadges.slice(0, 6).map((b) => (
-              <li
-                key={b.slug}
-                className="border-border bg-surface-2 rounded-full border px-3 py-1 text-xs"
-                title={b.description}
-              >
-                {b.title}
-              </li>
-            ))}
+            {earnedBadges.slice(0, 6).map((b) => {
+              const visual = getBadgeVisual(b.slug);
+              const BadgeIcon = visual.icon;
+              return (
+                <li key={b.slug}>
+                  <Link
+                    href={{ pathname: "/logros", hash: b.slug }}
+                    aria-label={t("badges.chipLabel", { title: b.title })}
+                    className={cn(
+                      "flex size-11 items-center justify-center rounded-full border",
+                      badgeContainerClasses(visual.category, visual.tier, true),
+                    )}
+                  >
+                    <BadgeIcon aria-hidden="true" className="size-5" strokeWidth={1.75} />
+                  </Link>
+                </li>
+              );
+            })}
             {earnedBadges.length === 0 ? (
               <li className="text-muted text-xs">{t("badges.none")}</li>
             ) : null}
@@ -238,16 +249,7 @@ export default async function DashboardPage() {
                       {m.completed}/{m.total} · {pct}%
                     </span>
                   </div>
-                  <div
-                    className="bg-surface-2 h-2 rounded-full"
-                    role="progressbar"
-                    aria-valuenow={pct}
-                    aria-valuemin={0}
-                    aria-valuemax={100}
-                    aria-label={m.sectionTitle}
-                  >
-                    <div className="bg-success h-2 rounded-full" style={{ width: `${pct}%` }} />
-                  </div>
+                  <Meter tone="success" percent={pct} label={m.sectionTitle} />
                 </li>
               );
             })}
@@ -290,16 +292,7 @@ function Goal({
           {value}/{target} {unit}
         </span>
       </div>
-      <div
-        className="bg-surface-2 h-2 rounded-full"
-        role="progressbar"
-        aria-valuenow={pct}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-label={label}
-      >
-        <div className="bg-accent h-2 rounded-full" style={{ width: `${pct}%` }} />
-      </div>
+      <Meter tone="warm" percent={pct} label={label} valueText={`${value}/${target} ${unit}`} />
     </div>
   );
 }

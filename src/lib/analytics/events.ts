@@ -49,6 +49,11 @@ export const analyticsEvents = {
   hint_requested: z.object({ exercise_slug: slug, level: z.number().int().min(1).max(3) }),
   solution_revealed: z.object({ exercise_slug: slug, reason: z.string().max(40) }),
   lesson_viewed: z.object({ lesson_slug: slug, kind: z.string().max(20) }),
+  quiz_question_answered: z.object({
+    lesson_slug: slug,
+    question_type: z.string().max(30),
+    correct: z.boolean(),
+  }),
   quiz_submitted: z.object({
     lesson_slug: slug,
     score: z.number().int().nonnegative(),
