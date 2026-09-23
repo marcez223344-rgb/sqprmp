@@ -66,6 +66,8 @@ export function SqlEditor({
   const view = useRef<EditorView | null>(null);
   const callbacks = useRef({ onChange, onRun, onSubmit });
   const editable = useRef(new Compartment());
+  /** Last document the editor itself emitted, to tell an echo of `value` from a real change. */
+  const lastEmitted = useRef(value);
   useEffect(() => {
     callbacks.current = { onChange, onRun, onSubmit };
   });
@@ -94,7 +96,10 @@ export function SqlEditor({
           ...historyKeymap,
         ]),
         EditorView.updateListener.of((u) => {
-          if (u.docChanged) callbacks.current.onChange(u.state.doc.toString());
+          if (!u.docChanged) return;
+          const doc = u.state.doc.toString();
+          lastEmitted.current = doc;
+          callbacks.current.onChange(doc);
         }),
         EditorView.contentAttributes.of({
           "aria-label": ariaLabel,
@@ -113,12 +118,23 @@ export function SqlEditor({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // External value changes (reset, draft restore) are applied without re-creating the editor.
+  /**
+   * External value changes (reset, draft restore) are applied without re-creating the editor.
+   *
+   * While the learner types, React state lags behind the keystrokes: this effect runs with the
+   * `value` of a render that is already one or more characters old. Writing it back into the
+   * document deleted text the learner had just typed — on a loaded CI machine
+   * "select id from customers order by id limit 10" reached the engine as "seid frcustomerid li".
+   * So the document, not the prop, wins while the editor has focus; every external reset in the
+   * app happens with the focus on another control (reset button, page load).
+   */
   useEffect(() => {
     const v = view.current;
     if (!v) return;
     const current = v.state.doc.toString();
-    if (current !== value) v.dispatch({ changes: { from: 0, to: current.length, insert: value } });
+    if (current === value || value === lastEmitted.current || v.hasFocus) return;
+    lastEmitted.current = value;
+    v.dispatch({ changes: { from: 0, to: current.length, insert: value } });
   }, [value]);
 
   useEffect(() => {

@@ -46,6 +46,46 @@ export const DENIED_FUNCTIONS = Object.freeze([
   "pg_stop_backup",
 ]);
 
+/**
+ * Catalog reads have three spellings, and a name list only closes the one it enumerates. The
+ * relation spelling (`select * from pg_settings`) and the cast spelling (`::regclass`) are denied
+ * by `src/lib/sandbox/gate.ts`; this is the **function** spelling of the same reads
+ * (`pg_show_all_settings()` returns the 380 rows behind `pg_settings`, `pg_get_userbyid()` a role
+ * name, `to_regclass('customers')` an OID). Denied by prefix rather than by enumeration so a
+ * PGlite upgrade that adds a function cannot silently reopen the channel (SEC-08, D-22).
+ *
+ * `pg_` covers every catalog/system function in `pg_catalog` (447 in PGlite 0.5.8 / PG 18.3);
+ * `to_reg` covers the ten OID-name resolvers, which do not start with `pg_`. Nothing a learner
+ * legitimately writes starts with either prefix: no authored exercise or solution references one,
+ * and a learner cannot create functions (`revoke create on schema public`).
+ */
+export const CATALOG_FUNCTION_PREFIXES = Object.freeze(["pg_", "to_reg"]);
+
+/**
+ * The OID alias types. A cast to one is a catalog read (`'customers'::regclass::oid`) and so is
+ * its function spelling (`regclass('customers')`) — shared here because the gate needs both, and
+ * kept in one place so the drift test in `tests/sandbox/catalog.test.ts` has a single list to
+ * compare against the engine's own `pg_type`.
+ *
+ * Note for layer 5: these names are **not** revocable. PostgreSQL parses `regclass('customers')`
+ * as a cast written in function syntax, not as a function call, so no EXECUTE privilege is
+ * checked (verified: with `regclass` revoked, the call still returned `customers`). The gate is
+ * the only layer that can block this spelling.
+ */
+export const OID_ALIAS_TYPES = Object.freeze([
+  "regclass",
+  "regcollation",
+  "regconfig",
+  "regdictionary",
+  "regnamespace",
+  "regoper",
+  "regoperator",
+  "regproc",
+  "regprocedure",
+  "regrole",
+  "regtype",
+]);
+
 /** Common Postgres OIDs → readable type names. */
 const TYPE_NAMES = {
   16: "boolean",

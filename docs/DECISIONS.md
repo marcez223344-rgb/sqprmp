@@ -84,6 +84,228 @@ Recommendation: **USD 29 founder / USD 49 regular**, and **ARS 39.900 founder / 
 
 Open: the owner's answer. Unverified in the research: Udemy's actual ARS pricing, Coderhouse "SQL Flex" self-paced price, Digital House's price, and whether the 30 % Ganancias perception on USD card spend still applies in 2026.
 
+### D-18 · Parser gate rewrites INTERSECT/EXCEPT for analysis
+
+Status: **Accepted (2026-09-22)** — reviewed twice by `security-engineer`
+(`docs/reviews/2026-09-23-security.md`, review and re-review): no finding against
+`normalizeSetOperators` in either pass; the set-operator positions are now also covered by the
+standing traversal corpus.
+
+`pgsql-ast-parser` 12 (the gate's parser) implements `UNION` / `UNION ALL` but has **no grammar for `INTERSECT` or `EXCEPT`**: every query using them failed the gate with a parse error, which made section 23 (operaciones de conjuntos) impossible to author or to practice. `src/lib/sandbox/gate.ts` now runs `normalizeSetOperators()` before `parse()`: outside string literals, dollar-quoted strings, quoted identifiers and comments, it replaces those keywords with a `UNION` variant of the **same length** (`INTERSECT` → `UNION` + padding, `EXCEPT ALL` → `UNION ALL`, …), so branches are parsed and visited exactly as written and the parser's line/column positions still match the learner's SQL.
+
+Why this is safe: the rewrite only ever swaps one set-operator keyword for another, never changes structure, and execution always uses the **original** SQL (PGlite is real PostgreSQL and supports all four operators). Set-operator semantics are irrelevant to what the gate checks — statement kind, single statement, schemas, denied functions, locking clauses. Concept detection keeps working because both map to `set_operations`. Two known limitations: `INTERSECT`/`EXCEPT` split across lines from their `ALL`/`DISTINCT` modifier are handled as the plain form, and an `EXCEPT
+DISTINCT` written across a line break would still fail to parse (educational error, no security impact).
+
+Alternative considered and rejected for now: replacing the parser or writing a dedicated set-operation splitter — more code in the security-critical path for the same guarantee. Revisit if the parser gains the grammar upstream.
+
+### D-19 · Parser gate supports named windows and interval frame bounds; OVER clauses are now analysed
+
+Status: **Proposed (2026-09-22)** — needs review by `security-engineer`.
+
+Three gaps in `src/lib/sandbox/gate.ts` blocked SQL that the published curriculum teaches (sections 25 and 27) and, in one case, let learner SQL through unchecked.
+
+1. **Named windows.** `pgsql-ast-parser` has no grammar for `WINDOW w AS (...)` / `OVER w`, so every query using them got a parse error. `rewriteNamedWindows()` now blanks the clause (same length, line breaks preserved) and rewrites `OVER w` into `OVER ( )` of the same length, **only** for names actually declared in the clause, never inside literals, quoted identifiers or comments, never across a line break. The blanked definitions are **not** dropped: each one is parsed separately as `select count(*) over (<definition>)` and goes through the same statement-kind, schema and denied-function analysis, with its functions and tables merged into `GateResult` for concept detection. A definition that does not parse rejects the query (fail closed). The definition text is extracted with a depth-balanced scan, so it can never close its own parenthesis early and inject a second statement.
+2. **Interval frame bounds.** `FRAME_BOUND` in `stripWindowFrames()` now also accepts `INTERVAL '…' PRECEDING|FOLLOWING`, `'…'::interval PRECEDING|FOLLOWING` and decimal numeric offsets. The grammar stays closed: the only learner-controlled part is a single-quoted literal with no embedded quote or newline, which is a complete token — no call, identifier or subexpression can hide inside, and a literal with `''` simply ends the match, leaves the frame in place and fails the parse. Frame matches that start inside a literal or a comment are now ignored, and blanking preserves line breaks (both were latent position bugs).
+3. **Vulnerability fixed: `OVER (...)` was never visited.** `astVisitor`'s default traversal does not descend into a call's `over` node, so `select count(*) over (partition by pg_sleep(1))` **passed the gate** — no named window needed. The call handler now visits `over.partitionBy` and `over.orderBy` explicitly. Layers 1–2 and 5–7 (read-only role, ephemeral instance, statement timeout, hard worker kill) meant this was never a full escape, but it defeated layer 4 for any denied function or system-schema subquery placed in a window specification. Regression tests cover both the inline and the named-window form.
+
+Execution always uses the **original** SQL; all rewrites are analysis-only. Known limitations (verified, no security impact): concept detection for a named window matches the inline form exactly (`over: {}` is still a window function), but AST-shape concepts that live **only inside** a blanked definition (a CASE in PARTITION BY, say) are not detected — function names are, because they are merged into `gate.functions`; and the gate drops frame clauses from the AST, so `required_concepts` cannot assert anything about frames — a "frame" concept would need a validator change (not done here).
+
+**Review outcome (2026-09-23, `docs/reviews/2026-09-23-security.md`): changes required.** The
+mandated review accepted D-18 unchanged and confirmed the `over` fix, but found two further
+bypasses of the same class (the parser's default traversal skips a node) plus one control gap:
+
+- **SEC-01 (High) — `DISTINCT ON (...)`** holds a full `Expr[]` that `AstDefaultMapper.selection()`
+  never visits, so `select distinct on (pg_sleep(1)) a from t` passed the gate.
+- **SEC-02 (High) — `FromCall.join`** is dropped by `AstDefaultMapper.fromCall()`, so the `ON`
+  predicate of a JOIN hanging off a set-returning function was never analysed. Demonstrated end to
+  end against PGlite with the `learner` role: the row count of `pg_catalog.pg_class` left the
+  sandbox through the join column, a general numeric/oracle read channel.
+- **SEC-03 (Low) — `FOR UPDATE/SHARE` inside a sublink** was missed by the hand-rolled
+  `hasLockingClause()` walk (not exploitable: the `learner` role has `SELECT` only).
+
+Fixed on 2026-09-23 in `analyzeStatement()`, all in the same `astVisitor` pass and with the same
+ordering rule as the `over` fix (explicit `visitor.expr(...)` before `map.super()`): a `selection`
+handler visits `distinct` when it is an array and records `for`; a `fromCall` handler visits
+`join.on`. `hasLockingClause()` was deleted — locking is now detected wherever a select node
+appears, including sublinks. **Two more unvisited nodes were found while building the regression
+test** and fixed in the same change: `ExprRef.table` (a schema-qualified column reference such as
+`pg_catalog.pg_tables.tablename` never reached the `tableRef` handler; not exploitable on its own,
+since PostgreSQL still requires the table in `FROM`, but it defeated the schema allowlist as a
+control) and `OnConflictAction.where` (the predicate of `INSERT ... ON CONFLICT DO UPDATE ... WHERE`
+was not visited — relevant for the write exercises, where `insert` is in `allowed_statements`).
+
+New standing regression: `tests/sandbox/traversal.test.ts` drives the gate from a list of **87
+expression positions and 16 table positions**, asserting for each that (a) a harmless call planted
+there is reported in `GateResult.functions`, (b) a denied function is rejected, (c) a system-schema
+subquery or qualified reference is rejected, and (d) a reflection walk of the accepted AST finds no
+call, table or schema the gate did not report. Adding a newly discovered position is one line. The
+malicious corpus grew to 237 inputs (256 after the re-review fixes below) with every proof of concept from the review.
+
+**Re-review outcome (2026-09-22, same file, section "Re-review — parser gate fixes"): Accepted**,
+conditional on logging SEC-05 — satisfied by the fix below. SEC-01, SEC-02, the statement-level part
+of SEC-03 and the two nodes found while building the regression are confirmed closed against the
+real worker; no control was weakened; error-code priority is unchanged. The re-review raised three
+new items, none of them caused by D-19:
+
+- **SEC-05 (Low) — a locking clause inside a named window definition.** `analyzeStatement()` returned
+  `locking`, but `gateSql()` kept only `inner.violation` from each window-definition analysis and
+  discarded `inner.locking`, and the check ran before the definitions loop, so
+  `select rank() over w from t window w as (partition by (select a from u for update))` returned
+  `ok: true`. Not a regression (the old hand-rolled walk never saw window definitions either) and not
+  exploitable (layer 5 answers `permission denied for table …`). **Fixed 2026-09-22:** `locking` is
+  threaded through the definitions loop and the check moved after it, still ahead of the `violation`
+  return so a locking clause keeps priority over a schema or function violation found in the same
+  statement. Both proofs of concept are in the corpus.
+- **SEC-06 (Medium)** — the schema allowlist did not deny the system catalog; see D-21.
+- **SEC-07 (Info)** — three traversal positions did not plant their payload where their name said.
+  `"AT TIME ZONE operand"`, `"JOIN USING, where"` and `"WITH ORDINALITY FROM item"` all wrote into
+  `WHERE`, so they duplicated `"binary right operand"` instead of covering their node. No gap behind
+  any of them (`AT TIME ZONE` is an ordinary `ExprBinary` with both operands visited, `using` is
+  `Name[]`, `withOrdinality` is a boolean), but a coverage file whose labels are wrong is worse than a
+  shorter one. **Fixed 2026-09-22:** `AT TIME ZONE` is now two positions that plant into the real left
+  and zone operands; the other two are renamed for what they actually cover (the `WHERE` of a
+  `USING` join) or re-targeted to the node's only expression (`FromCall.args`). The unnecessary
+  `noQualifiedRef` flag was dropped, and the file header now states that the 87 positions map to
+  roughly 55 distinct AST fields, plus an inventory of the fields that are unvisited and carry no
+  expression (`ExprBinary.opSchema` / `ExprUnary.opSchema`, `OnConflictOnConstraint.constraint`,
+  `SelectFromStatement.skip`, `JoinClause.using`, `FromCall.withOrdinality`).
+
+Status: **Accepted (2026-09-22)**.
+
+### D-20 · The sandbox session time zone is pinned to UTC
+
+Status: **Proposed (2026-09-23)** — bug fix; recorded as a decision because it fixes the value of
+already-published expected results and changes what a dataset's `timestamptz` columns mean.
+
+Nothing pinned PostgreSQL's `TimeZone` in any of the three sandbox execution paths, so PGlite
+inherited it from the host at initdb: `Etc/GMT+3` on the owner's machine (Argentina), `Etc/GMT0` on
+GitHub Actions and on Vercel. `timestamptz` arithmetic and rendering are resolved in the session
+zone, so the same correct query returned different rows depending on where it ran — most visibly
+month arithmetic, where `TIMESTAMPTZ '2025-07-01 00:00:00+00' + INTERVAL '1 month'` is
+`2025-08-01 00:00Z` under UTC and `2025-07-31 21:00-03` under `Etc/GMT+3`.
+
+The damage ran through `content:verify`, not through grading: expected results were generated on
+the owner's machine at `Etc/GMT+3` and committed, while the graded worker on Vercel runs at UTC.
+Three exercises already in the committed seed carried expected results a UTC learner can never
+produce (`cumplimiento-de-entregas-de-septiembre`, `dias-de-entrega-por-envio`,
+`bebidas-por-ciudad-y-cocina`) — a correct answer was marked wrong. Three more were affected in
+uncommitted content.
+
+Decision: `sandbox-runtime/engine-core.mjs` pins the zone to `SANDBOX_TIME_ZONE = "UTC"`, as a
+database default and on the open session at dataset load, and again on the session immediately
+before every graded statement. That one file is the only PGlite setup path: the browser worker
+imports a byte copy of it (`scripts/copy-pglite-assets.ts`), the `worker_threads` worker imports it
+directly, and `scripts/content-verify.ts` imports it directly.
+
+Alternatives rejected: setting `process.env.TZ=UTC` in npm scripts and CI (does not cover the
+browser, and the value would then depend on the host again on a developer machine that missed it);
+storing the authoring zone alongside each expected result (keeps three behaviours instead of
+removing the variable); pinning per call site (three copies, which is how this was missed).
+
+Consequences: UTC is now the sandbox's meaning of "local time", so an exercise about business hours
+must say which zone it means in the statement rather than rely on the session. Datasets whose
+`timestamptz` values were authored assuming an Argentine session will read three hours earlier in
+wall-clock terms. Regression: `tests/sandbox/timezone.test.ts` (setting plus a zone-sensitive
+result, per path); production can be checked with `GET /api/health/sandbox`, which now reports the
+observed zone.
+
+### D-21 · The parser gate denies the system catalog by relation name and by OID-alias cast, not only by schema
+
+Status: **Accepted (2026-09-22)** — closes SEC-06 from the re-review in
+`docs/reviews/2026-09-23-security.md`; enforcement chosen by the owner over acceptance.
+
+Layer 4's documented control was "schema references outside `public` rejected", and the gate
+implemented exactly that: it rejected an **explicit** schema. But `pg_catalog` is implicitly first in
+every session's `search_path`, so a learner never has to write it. `select * from pg_tables`,
+`select count(*) from pg_class`, `pg_settings`, `pg_roles`, `pg_type` and
+`select * from t join generate_series(1,5000) g on g = (select count(*) from pg_class)` all passed
+the gate and executed as `learner` on the real worker: 461 `pg_class` rows, 380 settings including
+`listen_addresses`, `port` and `ssl`, 18 role names, 3413 `pg_proc` rows. Credentials were never
+reachable — `pg_authid` and `pg_shadow` are denied by the role, and `current_setting` by the layer-5
+`REVOKE` — and the instance is ephemeral, single-tenant and holds only public dataset data, which is
+why the re-review rated it Medium. It also means the earlier SEC-02 exploit had a schema-free twin
+that the SEC-02 fix did not touch.
+
+Decision: enforce the control the docs claimed. `tableRef` now rejects an **unqualified** relation
+name matching `^pg_` (and one literally named `information_schema`), with the Spanish message "El
+catálogo del sistema (…) no está disponible; usa las tablas del dataset." Verified against all four
+dataset snapshots (38 tables: TiendaViva, Bolsillo, Pídelo, Ritmo) — none is named `pg_*`, and no
+authored exercise or solution references `pg_` or `information_schema`, so nothing legitimate is
+rejected. `npm run content:verify` stays green.
+
+The same decision covers the smaller channel the re-review named alongside it: the OID-alias cast
+family. `select 'customers'::regclass::oid`, `select 'public'::regnamespace::text` and
+`select 1::oid::regrole::text` read the catalog while naming neither a schema nor a relation.
+**Blocked**, for the same reason: resolving a name against the system catalog is the _only_ thing
+`regclass`/`regnamespace`/`regrole`/`regproc`/… do, so there is no legitimate analytics use to lose;
+leaving them would have kept open exactly the channel just closed for `pg_*` relations. The list is
+enumerated explicitly rather than matched as `^reg`, so a dataset column, alias or type named
+`region`, `registro`, … is never caught (covered by a test). Implementing it required visiting
+`ExprCast.to`, which the default traversal drops, so the cast target's **schema** is now checked too
+(`select '1'::information_schema.cardinal_number` was previously accepted).
+
+Alternative rejected: accept the exposure and soften the §4 wording. The information is not secret,
+but "system schemas denied" is a control learners, reviewers and the next engineer rely on, and the
+enforcement costs one comparison per table reference with a provably empty false-positive set.
+Residual risk, accepted and explicit: this is a **name-based** rule at layer 4, not a permission. A
+future catalog relation not named `pg_*` would slip past it; layer 5 (`learner` role, `REVOKE
+EXECUTE`, ephemeral instance) remains the control that actually holds. Corpus: 17 new inputs in
+`tests/sandbox/gate.test.ts`.
+
+### D-22 · The catalog is denied by function name too, by prefix rather than by list
+
+Status: **Accepted (2026-09-22)** — closes SEC-08 from the final pass in
+`docs/reviews/2026-09-23-security.md`.
+
+D-21 closed two of the three spellings of a catalog read: the relation (`pg_settings`) and the cast
+(`::regclass`). The third, the **function**, was untouched, because the gate's `call` handler only
+ever checked `DENIED_FUNCTIONS` plus an explicit schema. Executed as `learner` on PGlite 0.5.8 /
+PG 18.3 with `lockDown()` applied, the gate said `ok` and the engine answered:
+`pg_show_all_settings()` → the same 380 settings as `pg_settings`, including
+`listen_addresses = localhost`, `port = 5432` and `ssl = off`; `pg_get_userbyid(10)` → `postgres`;
+`to_regclass('customers')::oid` → `16384`; `regclass('customers')` → `customers`;
+`pg_stat_get_activity(null)` → 1 row. Pre-existing, not a D-21 regression — but it made the §4
+sentence read as if the catalog were closed when it was closed only against two of three names.
+
+Decision: deny catalog functions **by prefix**, `pg_` and `to_reg`, unqualified or
+`pg_catalog`-qualified, plus the eleven OID alias types written in function syntax. A prefix rule
+rather than the enumeration the review suggested, for one reason: an enumeration reopens silently
+on a PGlite upgrade that adds a function, which is the same drift the review flagged for the alias
+list. `pg_` alone is insufficient (`to_reg*` does not match it) and the two prefixes together cover
+all 416 catalog-resolver functions this engine ships. The prefixes live in
+`sandbox-runtime/denied-functions.mjs`, so the layer-5 `REVOKE EXECUTE` applies the same rule
+(`permission denied for function pg_show_all_settings` as `learner`, verified) and the two layers
+cannot disagree.
+
+Verified before shipping, because the review warned about it: the broadened `REVOKE` does **not**
+break `lockDown()`. Its `p.oid::regprocedure` is a cast, not a call — no EXECUTE is checked — and
+the block runs as the instance owner, whose privileges a `REVOKE ... from public, learner` cannot
+reduce. `lockDown()` was run twice on the same instance (idempotent), and after it the learner
+still runs ordinary SQL: `content:verify` re-executes all **202** authored solutions against the
+four snapshots, green, and `tests/sandbox` is 41/41.
+
+Over-blocking is bounded and checked: no authored exercise calls a `pg_*` or `to_reg*` function, a
+learner cannot create one (`revoke create on schema public`), the alias block is an exact-name match
+so `region`, `registro`, `regexp_*` and the `regr_*` statistical aggregates are untouched, and
+`to_char` / `to_date` / `to_timestamp` / `to_number` do not match `to_reg`. All are in the corpus.
+
+Residual risk, accepted and explicit, and the same shape as D-21's: this is still a **name** rule at
+layer 4. A catalog function named outside `pg_*` / `to_reg*` would slip past it; layer 5 (`learner`
+role, prefix `REVOKE EXECUTE`, ephemeral single-tenant instance) is the control that actually holds.
+One spelling has **no** layer-5 control at all: PostgreSQL parses `regclass('customers')` as a cast
+in function syntax, so no EXECUTE privilege is consulted — verified by revoking the function and
+watching the call still succeed. For that one the gate is the only line, and it is a name match.
+Drift is now a test rather than a promise: `tests/sandbox/catalog.test.ts` boots the real engine and
+fails if `pg_type` holds an OID alias the gate would accept, or if `pg_catalog` holds a resolver
+function it would let through.
+
+SEC-09 (Info, same report) is answered in the message, not in the rule: a CTE named `pg_x` stays
+rejected — exempting CTE names would mean tracking declared names through every scope in the
+security-critical path, and a CTE that shadows a catalog name is worth rejecting anyway — and the
+Spanish message now adds "los nombres que empiezan con pg_ están reservados: tampoco puedes usarlos
+para nombrar un CTE". Corpus: 23 new malicious inputs and 8 new legitimate ones in
+`tests/sandbox/gate.test.ts` (279 total).
+
 ## Pending owner decisions (need an answer before the referenced phase)
 
 | #    | Question                                                                                                                                                                                                                                                                                                                       | Needed by       | Default if no answer               |

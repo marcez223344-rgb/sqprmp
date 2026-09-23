@@ -516,6 +516,7 @@
     "feedback": {
       "title": "Retroalimentación",
       "notYet": "Envía tu respuesta para recibir retroalimentación detallada.",
+      "notExecuted": "Tu consulta no llegó a ejecutarse, así que no hay nada que comparar todavía. Revisa el error en Resultados y vuelve a enviarla.",
       "correct": "¡Correcto! Tu consulta devuelve exactamente lo esperado.",
       "incorrect": "Todavía no: revisa los puntos siguientes.",
       "tipsTitle": "Mejoras sugeridas",

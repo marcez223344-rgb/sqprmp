@@ -43,3 +43,14 @@ public/pglite/
 public/sandbox-core/
 # Vercel CLI link + downloaded env
 .vercel
+
+# Scratch directories used by content-authoring agents; never committed.
+.tmp-*/
+
+# Scratch files left by content/sandbox agents. Never committed; swept before release.
+.tmpq/
+*.tmp.ts
+checkwords.ts
+qtmp.ts
+scratch-out.txt
+tests/**/_scratch.test.ts

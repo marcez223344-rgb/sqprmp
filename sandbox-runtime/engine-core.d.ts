@@ -19,6 +19,8 @@ export class PgQueryError extends Error {
   position?: number;
   hint?: string;
 }
+export const SANDBOX_TIME_ZONE: "UTC";
+export function pinSessionTimeZone(pg: PGlite): Promise<void>;
 export function loadDatasetInto(pg: PGlite, files: DatasetFiles): Promise<void>;
 export function lockDown(pg: PGlite): Promise<void>;
 export function toPgQueryError(err: unknown): PgQueryError;

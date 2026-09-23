@@ -400,7 +400,7 @@ const outlines: Outline[] = [
       "Elegir UNION ALL cuando los duplicados son válidos por rendimiento",
     ],
     is_free_theory: false,
-    is_published: false,
+    is_published: true,
     certificate: null,
   },
   {
@@ -417,7 +417,7 @@ const outlines: Outline[] = [
       "Comparar la agregación condicional con múltiples consultas separadas",
     ],
     is_free_theory: false,
-    is_published: false,
+    is_published: true,
     certificate: null,
   },
   {
@@ -451,7 +451,7 @@ const outlines: Outline[] = [
       "Elegir el criterio de desempate correcto para el negocio",
     ],
     is_free_theory: false,
-    is_published: false,
+    is_published: true,
     certificate: null,
   },
   {
@@ -468,7 +468,7 @@ const outlines: Outline[] = [
       "Explicar la diferencia entre ROWS y RANGE en acumulados",
     ],
     is_free_theory: false,
-    is_published: false,
+    is_published: true,
     certificate: null,
   },
   {
@@ -485,7 +485,7 @@ const outlines: Outline[] = [
       "Detectar cambios de estado en secuencias de eventos",
     ],
     is_free_theory: false,
-    is_published: false,
+    is_published: true,
     certificate: "sql-analitico-avanzado",
   },
   // N5 · Analítica aplicada --------------------------------------------------------
@@ -503,7 +503,7 @@ const outlines: Outline[] = [
       "Interpretar una matriz de cohortes para el negocio",
     ],
     is_free_theory: false,
-    is_published: false,
+    is_published: true,
     certificate: null,
   },
   {
@@ -520,7 +520,7 @@ const outlines: Outline[] = [
       "Comparar funnels por segmento (país, canal, dispositivo)",
     ],
     is_free_theory: false,
-    is_published: false,
+    is_published: true,
     certificate: null,
   },
   {
@@ -537,7 +537,7 @@ const outlines: Outline[] = [
       "Documentar el impacto de la deduplicación en las métricas",
     ],
     is_free_theory: false,
-    is_published: false,
+    is_published: true,
     certificate: null,
   },
   {
@@ -554,7 +554,7 @@ const outlines: Outline[] = [
       "Comunicar hallazgos de calidad con evidencia reproducible",
     ],
     is_free_theory: false,
-    is_published: false,
+    is_published: true,
     certificate: null,
   },
   {
@@ -571,7 +571,7 @@ const outlines: Outline[] = [
       "Validar resultados contra cifras conocidas del negocio",
     ],
     is_free_theory: false,
-    is_published: false,
+    is_published: true,
     certificate: null,
   },
   {
@@ -588,7 +588,7 @@ const outlines: Outline[] = [
       "Medir tiempos y comparar alternativas con criterio",
     ],
     is_free_theory: false,
-    is_published: false,
+    is_published: true,
     certificate: null,
   },
   {
@@ -623,7 +623,7 @@ const outlines: Outline[] = [
       "Estructurar consultas largas de forma mantenible",
     ],
     is_free_theory: false,
-    is_published: false,
+    is_published: true,
     certificate: null,
   },
   {
@@ -640,7 +640,7 @@ const outlines: Outline[] = [
       "Iterar con el solicitante a partir de resultados preliminares",
     ],
     is_free_theory: false,
-    is_published: false,
+    is_published: true,
     certificate: null,
   },
   {
@@ -657,7 +657,7 @@ const outlines: Outline[] = [
       "Reconocer patrones recurrentes de problemas",
     ],
     is_free_theory: false,
-    is_published: false,
+    is_published: true,
     certificate: null,
   },
   {
@@ -674,7 +674,7 @@ const outlines: Outline[] = [
       "Comunicar conclusiones y recomendaciones con evidencia",
     ],
     is_free_theory: false,
-    is_published: false,
+    is_published: true,
     certificate: "analista-sql-profesional",
   },
 ];

@@ -26,6 +26,7 @@ import {
   submitExerciseAction,
 } from "@/lib/exercises/actions";
 import type { ExerciseWorkspaceData, SubmitResult } from "@/lib/exercises/service";
+import { solutionUnlockableNow } from "@/lib/exercises/unlock";
 import { BrowserEngine, type BrowserEngineState } from "@/lib/sandbox/browser-engine";
 import type { SandboxOutcome } from "@/lib/sandbox/types";
 import { MarkdownClient } from "./markdown-client";
@@ -161,8 +162,13 @@ export function ExerciseWorkspace({ data }: { data: ExerciseWorkspaceData }) {
     });
   };
 
-  const unlockable =
-    submitResult?.solutionUnlockable ?? (progress ? progressUnlockable(progress) : false);
+  // Recomputed on every render: hints opened after the page loaded count toward the unlock rule
+  // and are known only to the browser until the next submission.
+  const unlockable = solutionUnlockableNow({
+    progress,
+    lastSubmissionUnlockable: submitResult?.solutionUnlockable ?? null,
+    hintsTaken: hints.length,
+  });
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
@@ -420,6 +426,7 @@ export function ExerciseWorkspace({ data }: { data: ExerciseWorkspaceData }) {
             items={submitResult?.feedback ?? []}
             correct={submitResult?.correct ?? null}
             submitted={Boolean(submitResult)}
+            executed={submitResult ? submitResult.outcome.ok : true}
           />
           {completed ? (
             <div className="border-success/40 bg-success/10 mt-4 flex flex-wrap items-center gap-3 rounded-md border p-3 text-sm">
@@ -456,20 +463,5 @@ export function ExerciseWorkspace({ data }: { data: ExerciseWorkspaceData }) {
         </div>
       </section>
     </div>
-  );
-}
-
-function progressUnlockable(p: {
-  genuine_attempts_count: number;
-  hints_used: number;
-  started_at: string;
-  status: string;
-}): boolean {
-  if (p.status === "completed") return true;
-  const u = limits.solutionUnlock;
-  return (
-    p.genuine_attempts_count >= u.minGenuineAttempts ||
-    p.hints_used >= u.minHintsRequested ||
-    (Date.now() - Date.parse(p.started_at)) / 60_000 >= u.minMinutesElapsed
   );
 }

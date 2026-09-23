@@ -17,6 +17,7 @@ import { buildFeedback, type FeedbackItem } from "@/lib/validation/feedback";
 import { awardExerciseCompletion, touchActivity, type AwardOutcome } from "@/lib/rewards/service";
 import { settleSectionCompletion } from "@/lib/quizzes/service";
 import { track } from "@/lib/analytics/track";
+import { isSolutionUnlockable } from "./unlock";
 import type { Database, Json, Profile } from "@/types/database";
 
 type ExercisePublic = Database["public"]["Views"]["exercises_public"]["Row"];
@@ -440,19 +441,6 @@ export async function submitExercise(
     solutionUnlockable: progress ? isSolutionUnlockable(progress) : false,
     reward,
   };
-}
-
-export function isSolutionUnlockable(
-  p: Pick<ProgressRow, "genuine_attempts_count" | "hints_used" | "started_at" | "status">,
-): boolean {
-  if (p.status === "completed") return true;
-  const u = limits.solutionUnlock;
-  const minutes = (Date.now() - Date.parse(p.started_at)) / 60_000;
-  return (
-    p.genuine_attempts_count >= u.minGenuineAttempts ||
-    p.hints_used >= u.minHintsRequested ||
-    minutes >= u.minMinutesElapsed
-  );
 }
 
 export async function requestHint(

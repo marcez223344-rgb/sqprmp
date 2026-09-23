@@ -124,13 +124,23 @@ export function FeedbackPanel({
   items,
   correct,
   submitted,
+  executed = true,
 }: {
   items: FeedbackItem[];
   correct: boolean | null;
   submitted: boolean;
+  /** False when the engine rejected the submission (gate, syntax, timeout): there is nothing to
+      compare, so the panel must say so instead of announcing points it cannot list. */
+  executed?: boolean;
 }) {
   const t = useTranslations("workspace.feedback");
   if (!submitted) return <p className="text-muted text-sm">{t("notYet")}</p>;
+  if (!executed)
+    return (
+      <p role="region" aria-live="polite" aria-label={t("title")} className="text-sm">
+        {t("notExecuted")}
+      </p>
+    );
   const blocking = items.filter((i) => i.severity === "blocking");
   const warnings = items.filter((i) => i.severity === "warning");
   const tips = items.filter((i) => i.severity === "tip");

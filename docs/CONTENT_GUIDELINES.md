@@ -63,6 +63,23 @@ Content is code-reviewed data in `src/content/`: `course.ts`, `sections.ts` (39 
 - Internal consistency checks run in `npm run datasets:verify`: order totals = sum(items) − discounts + shipping; refunds ≤ payments; timestamps chronological; status transitions valid; FKs resolve except documented exceptions; currency matches country.
 - Realistic distributions: power-law sellers, weekly/seasonal patterns, weekend peaks for delivery, monthly salary cycles for wallet top-ups.
 
+## 7b. Time zones
+
+- The sandbox session runs at **UTC** everywhere — browser preview, the graded server engine and
+  `npm run content:verify` (D-20, `docs/SQL_SANDBOX.md` → Session settings). Before that pin, PGlite
+  inherited the host's zone and an exercise authored in Argentina could not be solved on Vercel;
+  three shipped exercises were affected.
+- Writing `AT TIME ZONE 'UTC'` explicitly is still the recommended style: it says in the SQL which
+  zone a `timestamptz` is being reduced to, which is what the learner needs to read. It is no longer
+  **load-bearing** — an exercise that omits it is now deterministic rather than host-dependent — so
+  do not add it where it obscures the point being taught, and do not treat its absence as a defect.
+- What is a defect: an exercise whose intended answer depends on a zone that is not UTC (business
+  hours, "today", a local calendar month) without saying so in the statement. Name the zone in the
+  SQL (`AT TIME ZONE 'America/Argentina/Buenos_Aires'`) and in the prompt; never rely on the session.
+- Pinned-zone consequence for datasets: `timestamptz` values authored assuming an Argentine session
+  read three hours earlier in wall-clock terms. Check any exercise that buckets by day or month
+  near a boundary.
+
 ## 8. Review checklist (used by `review-sql-accuracy` skill)
 
 - [ ] Runs on Postgres 17 (PGlite) with the exact dataset version

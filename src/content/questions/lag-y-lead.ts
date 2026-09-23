@@ -1,0 +1,490 @@
+import type { QuestionDef } from "../schemas/question";
+
+const section = "lag-y-lead";
+const basico = "lag-y-lead-basico";
+const variaciones = "variaciones-entre-periodos";
+const brechas = "brechas-y-valores-de-referencia";
+
+export const questions: QuestionDef[] = [
+  {
+    slug: "laglead-q01-que-devuelve-lag",
+    section,
+    lesson: basico,
+    type: "single",
+    difficulty: "easy",
+    topic: "Qué devuelve LAG",
+    tags: ["lag_lead", "window_function"],
+    estimated_seconds: 40,
+    prompt_md:
+      "Una consulta devuelve una fila por mes con la columna `ventas` y calcula `lag(ventas) OVER (ORDER BY mes)`. ¿Qué valor muestra esa columna en la **primera** fila del resultado?",
+    code_md: null,
+    options: [
+      { key: "a", body_md: "`NULL`, porque no existe una fila anterior.", is_correct: true },
+      {
+        key: "b",
+        body_md: "`0`, porque Postgres rellena con cero cuando no hay fila anterior.",
+        is_correct: false,
+        why_incorrect_md:
+          "El valor por omisión es `NULL`. Solo obtienes `0` si lo pides explícitamente con el tercer argumento: `lag(ventas, 1, 0)`.",
+      },
+      {
+        key: "c",
+        body_md: "El mismo valor de `ventas` de esa fila.",
+        is_correct: false,
+        why_incorrect_md:
+          "`lag` nunca devuelve la fila actual; para eso alcanza con nombrar la columna. Devuelve la fila desplazada hacia atrás, y si no existe, `NULL`.",
+      },
+      {
+        key: "d",
+        body_md: "El valor de la última fila de la partición, cerrando el círculo.",
+        is_correct: false,
+        why_incorrect_md:
+          "Las ventanas no son circulares: antes de la primera fila no hay nada, y la función devuelve el valor por omisión.",
+      },
+    ],
+    explanation_md:
+      "`lag(x)` mira una fila hacia atrás dentro de la partición, según el `ORDER BY` de la ventana. En la primera fila no hay nada que mirar, así que devuelve el valor por omisión, que es `NULL` salvo que indiques otro con el tercer argumento.",
+    is_published: true,
+  },
+  {
+    slug: "laglead-q02-lead-fill-blank",
+    section,
+    lesson: basico,
+    type: "fill_blank",
+    difficulty: "very_easy",
+    topic: "LAG frente a LEAD",
+    tags: ["lag_lead", "sintaxis"],
+    estimated_seconds: 30,
+    prompt_md:
+      "Para traer el valor de la fila **siguiente** dentro de la partición usas la función `___`. Escribe solo el nombre de la función.",
+    code_md: null,
+    answer: { accepted: ["LEAD", "lead"], case_sensitive: false },
+    explanation_md:
+      "`LEAD` mira hacia adelante y `LAG` hacia atrás. Ambas aceptan el desplazamiento como segundo argumento y un valor por omisión como tercero.",
+    is_published: true,
+  },
+  {
+    slug: "laglead-q03-partition-obligatorio",
+    section,
+    lesson: basico,
+    type: "scenario",
+    difficulty: "intermediate",
+    topic: "PARTITION BY en comparaciones",
+    tags: ["lag_lead", "partition_by"],
+    estimated_seconds: 60,
+    prompt_md:
+      "Tienes una serie mensual de reproducciones por país, ordenada por país y por mes. Calculas `reproducciones - lag(reproducciones) OVER (ORDER BY country, mes)` y entregas el informe. ¿Qué problema tiene ese resultado?",
+    code_md: null,
+    options: [
+      {
+        key: "a",
+        body_md:
+          "La primera fila de cada país se compara con la última del país anterior, y esa variación es falsa.",
+        is_correct: true,
+      },
+      {
+        key: "b",
+        body_md: "Ninguno: incluir `country` en el `ORDER BY` equivale a particionar por país.",
+        is_correct: false,
+        why_incorrect_md:
+          "Ordenar agrupa las filas visualmente, pero la ventana sigue siendo una sola partición: `lag` cruza el límite entre países sin avisar.",
+      },
+      {
+        key: "c",
+        body_md: "La consulta falla porque `lag` no admite dos columnas en su `ORDER BY`.",
+        is_correct: false,
+        why_incorrect_md:
+          "El `ORDER BY` de una ventana admite varias columnas sin problema. El error es de significado, no de sintaxis.",
+      },
+      {
+        key: "d",
+        body_md: "Todas las filas devuelven `NULL` porque falta `PARTITION BY`.",
+        is_correct: false,
+        why_incorrect_md:
+          "Sin `PARTITION BY` la ventana trata toda la tabla como una sola partición: devuelve valores, y ahí está el peligro.",
+      },
+    ],
+    explanation_md:
+      "`PARTITION BY country` es lo único que reinicia la comparación en cada país. Con solo ordenar, una fila de Chile puede tomar como «mes anterior» una de Brasil; el número resultante parece plausible y por eso el error sobrevive a las revisiones.",
+    is_published: true,
+  },
+  {
+    slug: "laglead-q04-division-entera",
+    section,
+    lesson: variaciones,
+    type: "error_diagnosis",
+    difficulty: "intermediate",
+    topic: "Variación porcentual",
+    tags: ["lag_lead", "numeric", "division"],
+    estimated_seconds: 60,
+    prompt_md:
+      "La columna `ventas` es `integer` y la serie no tiene meses en cero. La consulta corre sin error, pero `variacion_pct` muestra `0` en casi todos los meses. ¿Cuál es la causa?",
+    code_md:
+      "SELECT\n  mes,\n  ventas,\n  100 * (ventas - lag(ventas) OVER (ORDER BY mes))\n    / lag(ventas) OVER (ORDER BY mes) AS variacion_pct\nFROM ventas_mensuales\nORDER BY mes;",
+    options: [
+      {
+        key: "a",
+        body_md:
+          "Los tres operandos son enteros, así que la división es entera y trunca los decimales; hay que forzar `numeric`, por ejemplo con `100.0`.",
+        is_correct: true,
+      },
+      {
+        key: "b",
+        body_md: "Falta `PARTITION BY` en la ventana.",
+        is_correct: false,
+        why_incorrect_md:
+          "La serie es única (no hay grupos), así que no hace falta particionar. El problema está en los tipos.",
+      },
+      {
+        key: "c",
+        body_md: "`lag` no puede usarse dos veces en la misma expresión.",
+        is_correct: false,
+        why_incorrect_md:
+          "Puedes repetir la misma llamada a `lag` tantas veces como quieras; Postgres la evalúa una sola vez por fila.",
+      },
+      {
+        key: "d",
+        body_md: "Falta `round`, y sin redondeo Postgres devuelve 0.",
+        is_correct: false,
+        why_incorrect_md:
+          "`round` solo cambia cómo se presenta un número que ya es decimal; acá el valor ya se truncó antes, en la división.",
+      },
+    ],
+    explanation_md:
+      "En Postgres, `integer / integer` devuelve `integer`: `3 / 4` da `0`. Multiplicar por `100.0` (o convertir con `::numeric`) hace que toda la expresión se evalúe en decimal. Como la multiplicación ocurre antes que la división, `100.0 * (...)` ya alcanza.",
+    is_published: true,
+  },
+  {
+    slug: "laglead-q05-nullif-division-cero",
+    section,
+    lesson: variaciones,
+    type: "single",
+    difficulty: "intermediate",
+    topic: "División por cero",
+    tags: ["lag_lead", "null_handling"],
+    estimated_seconds: 45,
+    prompt_md:
+      "En una variación porcentual, ¿qué logra escribir el divisor como `nullif(lag(ventas) OVER (ORDER BY mes), 0)`?",
+    code_md: null,
+    options: [
+      {
+        key: "a",
+        body_md:
+          "Que un mes anterior en cero produzca `NULL` en esa fila en lugar de hacer fallar toda la consulta.",
+        is_correct: true,
+      },
+      {
+        key: "b",
+        body_md: "Que los meses con valor cero se excluyan del resultado.",
+        is_correct: false,
+        why_incorrect_md:
+          "`nullif` no filtra filas: la fila sigue ahí, solo que su variación queda en `NULL`. Para excluirla necesitas un `WHERE` en un nivel externo.",
+      },
+      {
+        key: "c",
+        body_md: "Que el cero se reemplace por 1 para que la división sea posible.",
+        is_correct: false,
+        why_incorrect_md:
+          "Eso sería `coalesce(nullif(x, 0), 1)`, y además inventaría un porcentaje. `nullif` solo convierte el cero en `NULL`.",
+      },
+      {
+        key: "d",
+        body_md: "Que la división entera se convierta en decimal.",
+        is_correct: false,
+        why_incorrect_md:
+          "El tipo no cambia: `nullif` devuelve el mismo tipo de su primer argumento. Para el decimal necesitas `100.0` o un `::numeric`.",
+      },
+    ],
+    explanation_md:
+      "`nullif(x, 0)` devuelve `NULL` cuando `x` vale 0. Dividir por `NULL` da `NULL`, y eso es exactamente lo que quieres reportar: «no se puede calcular». Sin esa protección, un solo mes en cero aborta la consulta completa con *division by zero*.",
+    is_published: true,
+  },
+  {
+    slug: "laglead-q06-lag-12-serie-incompleta",
+    section,
+    lesson: variaciones,
+    type: "true_false",
+    difficulty: "advanced",
+    topic: "Comparación interanual",
+    tags: ["lag_lead", "offset", "series"],
+    estimated_seconds: 45,
+    prompt_md:
+      "«`lag(ventas, 12) OVER (ORDER BY mes)` siempre devuelve el valor del mismo mes del año anterior.» ¿Verdadero o falso?",
+    code_md: null,
+    options: [
+      {
+        key: "a",
+        body_md: "Falso: retrocede doce **filas**, y si a la serie le falta un mes se desalinea.",
+        is_correct: true,
+      },
+      {
+        key: "b",
+        body_md: "Verdadero: el desplazamiento se calcula sobre la fecha del `ORDER BY`.",
+        is_correct: false,
+        why_incorrect_md:
+          "El segundo argumento de `lag` cuenta filas, no unidades de tiempo. La ventana no sabe que tu clave de orden son meses.",
+      },
+    ],
+    explanation_md:
+      "`lag(x, 12)` toma la fila que está doce posiciones atrás dentro de la partición. Coincide con «hace un año» solo si la serie tiene todos los meses. Si un mes no tuvo actividad y por eso no existe la fila, comparas contra el mes equivocado sin ningún aviso. Para comparar por calendario, une la serie consigo misma con `mes = otro.mes + interval '1 year'`.",
+    is_published: true,
+  },
+  {
+    slug: "laglead-q07-interpretar-brechas",
+    section,
+    lesson: brechas,
+    type: "query_interpretation",
+    difficulty: "intermediate",
+    topic: "Brechas entre eventos",
+    tags: ["lag_lead", "date_functions"],
+    estimated_seconds: 70,
+    prompt_md: "¿Qué mide la columna `d` de esta consulta?",
+    code_md:
+      "SELECT\n  user_id,\n  played_at,\n  extract(epoch FROM played_at\n    - lag(played_at) OVER (PARTITION BY user_id ORDER BY played_at)) / 86400 AS d\nFROM plays;",
+    options: [
+      {
+        key: "a",
+        body_md:
+          "Los días transcurridos entre cada reproducción y la reproducción anterior del mismo oyente.",
+        is_correct: true,
+      },
+      {
+        key: "b",
+        body_md: "Los días transcurridos desde la primera reproducción de ese oyente.",
+        is_correct: false,
+        why_incorrect_md:
+          "Eso requeriría `first_value(played_at)` o `min(played_at)` sobre la partición; `lag` solo mira una fila hacia atrás.",
+      },
+      {
+        key: "c",
+        body_md: "Los segundos entre reproducciones consecutivas de cualquier oyente.",
+        is_correct: false,
+        why_incorrect_md:
+          "`extract(epoch ...)` da segundos, pero la división entre 86 400 los convierte en días; y `PARTITION BY user_id` impide mezclar oyentes.",
+      },
+      {
+        key: "d",
+        body_md: "La cantidad de reproducciones que el oyente hizo ese día.",
+        is_correct: false,
+        why_incorrect_md:
+          "No hay ninguna agregación por día; la consulta devuelve una fila por reproducción, no un conteo.",
+      },
+    ],
+    explanation_md:
+      "`played_at - lag(played_at)` da un `interval`; `extract(epoch FROM ...)` lo pasa a segundos y dividir entre 86 400 lo convierte en días. `PARTITION BY user_id` garantiza que la comparación sea contra la reproducción anterior de la misma persona. La primera reproducción de cada oyente devuelve `NULL`.",
+    is_published: true,
+  },
+  {
+    slug: "laglead-q08-last-value-marco",
+    section,
+    lesson: brechas,
+    type: "error_diagnosis",
+    difficulty: "advanced",
+    topic: "LAST_VALUE y el marco",
+    tags: ["lag_lead", "first_value", "last_value", "frame"],
+    estimated_seconds: 75,
+    prompt_md:
+      "Esta consulta debería mostrar, en cada fila, el total del último mes de cada país. En cambio, `ultimo` siempre coincide con `total`. ¿Por qué?",
+    code_md:
+      "SELECT\n  country,\n  mes,\n  total,\n  last_value(total) OVER (PARTITION BY country ORDER BY mes) AS ultimo\nFROM serie_mensual;",
+    options: [
+      {
+        key: "a",
+        body_md:
+          "Con `ORDER BY` y sin marco explícito, la ventana termina en la fila actual; hay que abrirla con `ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING`.",
+        is_correct: true,
+      },
+      {
+        key: "b",
+        body_md: "`last_value` no admite `PARTITION BY` y por eso ignora el país.",
+        is_correct: false,
+        why_incorrect_md:
+          "Sí lo admite, y de hecho aquí funciona: el problema no es la partición sino hasta dónde llega el marco dentro de ella.",
+      },
+      {
+        key: "c",
+        body_md: "Falta ordenar la consulta externa por `country, mes`.",
+        is_correct: false,
+        why_incorrect_md:
+          "El `ORDER BY` final solo cambia la presentación; los valores calculados por la ventana serían los mismos.",
+      },
+      {
+        key: "d",
+        body_md: "`last_value` devuelve siempre la fila actual: es su comportamiento definido.",
+        is_correct: false,
+        why_incorrect_md:
+          "Devuelve la última fila **del marco**. Como el marco por omisión termina en la fila actual, parece hacer eso; con el marco abierto devuelve la última de la partición.",
+      },
+    ],
+    explanation_md:
+      "Con `ORDER BY` y sin cláusula de marco, Postgres aplica `RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`. La «última fila» de ese marco es la fila actual. Abrir el marco hasta `UNBOUNDED FOLLOWING` resuelve el problema; una alternativa igual de válida y más legible es `first_value(total) OVER (PARTITION BY country ORDER BY mes DESC)`.",
+    is_published: true,
+  },
+  {
+    slug: "laglead-q09-filtrar-por-lag",
+    section,
+    lesson: basico,
+    type: "single",
+    difficulty: "advanced",
+    topic: "Orden de evaluación",
+    tags: ["lag_lead", "where", "cte"],
+    estimated_seconds: 55,
+    prompt_md:
+      "Quieres quedarte solo con los meses que cayeron respecto del anterior. ¿Cuál es la forma correcta de filtrar?",
+    code_md: null,
+    options: [
+      {
+        key: "a",
+        body_md:
+          "Calcular el `lag` en una CTE o subconsulta y aplicar el `WHERE` en la consulta externa.",
+        is_correct: true,
+      },
+      {
+        key: "b",
+        body_md: "Escribir `WHERE ventas < lag(ventas) OVER (ORDER BY mes)` en la misma consulta.",
+        is_correct: false,
+        why_incorrect_md:
+          "No es válido: el `WHERE` se evalúa antes que las funciones de ventana, así que Postgres rechaza la consulta con «window functions are not allowed in WHERE».",
+      },
+      {
+        key: "c",
+        body_md: "Usar `HAVING ventas < lag(ventas) OVER (ORDER BY mes)`.",
+        is_correct: false,
+        why_incorrect_md:
+          "`HAVING` también se evalúa antes que las ventanas, y además está pensado para condiciones sobre agregados de un `GROUP BY`.",
+      },
+      {
+        key: "d",
+        body_md: "Agregar `FILTER (WHERE ventas < 0)` a la llamada de `lag`.",
+        is_correct: false,
+        why_incorrect_md:
+          "`FILTER` solo se aplica a funciones de agregación, no a funciones de ventana puras como `lag`, y tampoco expresa esa condición.",
+      },
+    ],
+    explanation_md:
+      "El orden lógico es `FROM` → `WHERE` → `GROUP BY` → `HAVING` → funciones de ventana → `SELECT` → `ORDER BY`. Para filtrar por el resultado de una ventana necesitas un nivel más: CTE o subconsulta, y el `WHERE` afuera.",
+    is_published: true,
+  },
+  {
+    slug: "laglead-q10-emparejar-funciones",
+    section,
+    lesson: brechas,
+    type: "matching",
+    difficulty: "intermediate",
+    topic: "Funciones de posición",
+    tags: ["lag_lead", "first_value", "last_value"],
+    estimated_seconds: 80,
+    prompt_md:
+      "Relaciona cada función de ventana con lo que devuelve dentro de su partición (asumiendo el marco por omisión salvo que se indique otra cosa).",
+    code_md: null,
+    pairs: [
+      { left: "lag(x)", right: "El valor de x en la fila anterior" },
+      { left: "lead(x)", right: "El valor de x en la fila siguiente" },
+      { left: "first_value(x)", right: "El valor de x en la primera fila de la partición" },
+      {
+        left: "last_value(x) con marco hasta UNBOUNDED FOLLOWING",
+        right: "El valor de x en la última fila de la partición",
+      },
+      { left: "nth_value(x, 3)", right: "El valor de x en la tercera fila del marco" },
+    ],
+    explanation_md:
+      "`lag` y `lead` son relativas a la fila actual; `first_value`, `last_value` y `nth_value` son absolutas dentro del marco. Por eso `last_value` depende tanto de la cláusula de marco: sin abrirla, «la última del marco» es la fila actual.",
+    is_published: true,
+  },
+  {
+    slug: "laglead-q11-sesiones-null",
+    section,
+    lesson: brechas,
+    type: "multiple",
+    difficulty: "advanced",
+    topic: "Detección de sesiones",
+    tags: ["lag_lead", "null_handling", "case"],
+    estimated_seconds: 90,
+    prompt_md:
+      "Marcas el inicio de sesión con `CASE WHEN played_at - lag(played_at) OVER (PARTITION BY user_id ORDER BY played_at) > interval '30 minutes' THEN 1 ELSE 0 END`. ¿Qué afirmaciones sobre esa expresión son correctas? (Puede haber más de una.)",
+    code_md: null,
+    options: [
+      {
+        key: "a",
+        body_md:
+          "La primera reproducción de cada oyente queda marcada con 0, porque comparar con `NULL` no da verdadero.",
+        is_correct: true,
+      },
+      {
+        key: "b",
+        body_md:
+          "Se corrige agregando una rama `WHEN lag(...) IS NULL THEN 1` antes de la comparación.",
+        is_correct: true,
+      },
+      {
+        key: "c",
+        body_md:
+          "La consulta falla con error porque no se puede restar `NULL` de un `timestamptz`.",
+        is_correct: false,
+        why_incorrect_md:
+          "No falla: la resta devuelve `NULL` y la comparación también. El problema es silencioso, que es lo que lo hace peligroso.",
+      },
+      {
+        key: "d",
+        body_md:
+          "Sin `PARTITION BY user_id`, la brecha se mediría contra la reproducción de otra persona.",
+        is_correct: true,
+      },
+      {
+        key: "e",
+        body_md: "Usar `>=` en lugar de `>` no cambiaría ningún resultado.",
+        is_correct: false,
+        why_incorrect_md:
+          "Cambia el caso límite: una pausa de exactamente 30 minutos pasaría a contar como sesión nueva. Con datos al segundo es raro, pero la definición del negocio debe decidirlo.",
+      },
+    ],
+    explanation_md:
+      "En lógica de tres valores, `NULL > interval '30 minutes'` es `NULL`, y `CASE` solo toma la rama cuando la condición es verdadera. Por eso el patrón correcto es `WHEN anterior IS NULL OR played_at - anterior > interval '30 minutes' THEN 1`: la primera actividad de cada persona siempre abre sesión.",
+    is_published: true,
+  },
+  {
+    slug: "laglead-q12-periodo-incompleto",
+    section,
+    lesson: variaciones,
+    type: "scenario",
+    difficulty: "intermediate",
+    topic: "Períodos incompletos",
+    tags: ["lag_lead", "date_boundary", "reporting"],
+    estimated_seconds: 60,
+    prompt_md:
+      "Hoy es 15 de septiembre. Tu informe de variación mensual muestra septiembre con −54 % contra agosto y Dirección pregunta qué pasó. ¿Cuál es la respuesta correcta y qué conviene hacer?",
+    code_md: null,
+    options: [
+      {
+        key: "a",
+        body_md:
+          "El mes está a la mitad: hay que excluirlo del informe o marcarlo como incompleto, no compararlo como si fuera un mes cerrado.",
+        is_correct: true,
+      },
+      {
+        key: "b",
+        body_md: "Multiplicar el valor de septiembre por 2 para dejarlo comparable.",
+        is_correct: false,
+        why_incorrect_md:
+          "Proyectar puede tener sentido como estimación **declarada**, pero nunca sustituyendo el dato real en la misma columna: mezcla un hecho con un supuesto.",
+      },
+      {
+        key: "c",
+        body_md: "Cambiar `lag(x)` por `lag(x, 2)` para comparar contra julio.",
+        is_correct: false,
+        why_incorrect_md:
+          "Comparar medio septiembre contra julio completo tiene el mismo defecto, y además cambia la métrica sin avisar a quien la lee.",
+      },
+      {
+        key: "d",
+        body_md: "Es una caída real del negocio y hay que investigar el producto.",
+        is_correct: false,
+        why_incorrect_md:
+          "Antes de investigar el producto conviene descartar el artefacto de corte de datos, que explica la caída por completo.",
+      },
+    ],
+    explanation_md:
+      "Un período en curso siempre se ve como una caída enorme. Las dos salidas honestas son filtrarlo (`played_at < date_trunc('month', current_date)`) o marcarlo con una bandera de «incompleto» para que la variación no se lea como un hecho del negocio.",
+    is_published: true,
+  },
+];

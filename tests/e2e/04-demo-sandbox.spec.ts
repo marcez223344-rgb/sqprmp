@@ -45,4 +45,26 @@ test.describe("browser SQL sandbox (demo)", () => {
     // The engine's message is Postgres's; the line under it is the one a learner can act on.
     await expect(page.getByText(/La columna nombre no existe/)).toBeVisible();
   });
+
+  test("runs with the session time zone pinned to UTC", async ({ page }) => {
+    test.setTimeout(120_000);
+    // D-20: PGlite takes `TimeZone` from the host, and the browser's host is the learner's own
+    // machine — anywhere in LATAM. Unpinned, the preview would disagree with the graded engine on
+    // any timestamptz result, which is worse than being wrong: it is wrong only for some learners.
+    await page.goto("/demo");
+    await expect(page.getByTestId("engine-state")).toHaveText(/listo/i, { timeout: 90_000 });
+    const editor = page.getByRole("textbox", { name: /demostración/ });
+    await editor.click();
+    await page.keyboard.press("Control+A");
+    await page.keyboard.type(
+      "select (timestamptz '2025-07-01 00:00:00+00' + interval '1 month')::text as t",
+    );
+    await page.getByRole("button", { name: "Ejecutar" }).click();
+    const table = page.getByRole("table", { name: /demostración/ });
+    await expect(table).toBeVisible({ timeout: 30_000 });
+    // The first cell is the row number, so match on the table: the value is unambiguous.
+    await expect(table).toContainText("2025-08-01 00:00:00+00");
+    // What Etc/GMT+3 returned before the pin — the failure this test exists to rule out.
+    await expect(table).not.toContainText("2025-07-31 21:00:00-03");
+  });
 });
