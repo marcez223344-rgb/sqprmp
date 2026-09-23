@@ -40,7 +40,7 @@ Three trust zones:
 | SQL editor       | CodeMirror 6 + `@codemirror/lang-sql`                                                                                                                                       | Lighter than Monaco, good mobile behavior, accessible                                                            |
 | SQL engine       | PGlite (browser Run + server Submit); see [SQL_SANDBOX.md](SQL_SANDBOX.md)                                                                                                  | Isolation without extra infra                                                                                    |
 | SQL gate         | `pgsql-ast-parser`                                                                                                                                                          | Pure TS parser for statement allowlisting (browser + server)                                                     |
-| Sandbox core     | plain ESM in `src/lib/sandbox/core/*.mjs`                                                                                                                                   | One implementation shared by the browser Web Worker, the server `worker_threads` worker and the content verifier |
+| Sandbox core     | plain ESM in `sandbox-runtime/*.mjs`, deliberately **outside** `src/` (see SQL_SANDBOX.md → Runtime notes: bundled, PGlite's wasm loader throws)                            | One implementation shared by the browser Web Worker, the server `worker_threads` worker and the content verifier |
 | i18n             | `next-intl` with `es-419` catalog                                                                                                                                           | No hardcoded strings                                                                                             |
 | Markdown         | `react-markdown` + `remark-gfm` (server components, HTML disabled)                                                                                                          | Lessons, prompts, explanations                                                                                   |
 | PDF              | `@react-pdf/renderer` (server)                                                                                                                                              | Certificates                                                                                                     |
@@ -63,7 +63,7 @@ src/
   lib/
     auth/                   # session, authorize(), roles
     supabase/               # client (browser), server (cookies), admin (secret, server-only)
-    sandbox/                # gate.ts, executor.ts, worker.ts, browser-engine.ts
+    sandbox/                # gate.ts, engines/, browser-engine.ts (the engine core itself lives in sandbox-runtime/)
     validation/             # result comparator, feedback rules
     learning/               # progress, hints, solution unlock, quizzes
     rewards/                # xp, coins, streaks, badges (idempotent)
@@ -72,6 +72,8 @@ src/
     analytics/
     env/                    # server.ts / client.ts zod-validated env
   messages/es-419.json      # UI strings
+sandbox-runtime/            # plain ESM engine core + workers, outside src/ so Next never bundles PGlite
+scripts/                    # content/dataset build + validate, db:validate, content:apply
 supabase/
   migrations/               # timestamped SQL, RLS in the same migration as the table
   seed/                     # dev seed (content + test users)

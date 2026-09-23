@@ -32,7 +32,7 @@ Status: **Approved (owner, 2026-09-18)** · Lifetime access ≈ **US$20** equiva
 
 ### D-07 · Content volume at launch
 
-Status: Proposed · 8 fully authored sections, 38 exercises + 8 challenges, ~104 questions, 3 datasets; all 39 sections visible as outlines. See [CURRICULUM.md](CURRICULUM.md).
+Status: **Superseded by delivery (2026-09-23)**. The launch target was 8 fully authored sections, 38 exercises + 8 challenges, ~104 questions and 3 datasets, with the remaining 31 sections visible as outlines. What actually shipped is the whole course: `npm run content:validate` reports `sections 39 (39 published), lessons 347, questions 414, exercises 209, datasets 4`. There is no longer a launch-volume question to decide. See [CURRICULUM.md](CURRICULUM.md) §3.
 
 ### D-08 · Analytics
 
@@ -60,11 +60,11 @@ Status: **Approved (owner, 2026-09-18)** · Proceed with [DESIGN_SYSTEM.md](DESI
 
 ### D-13 · Leaderboards deferred
 
-Status: Proposed · Schema supports opt-in; UI not in MVP.
+Status: **Superseded by D-35 (2026-09-23).** The MVP shipped without a board, as decided here, but the profile kept asking for consent to it, so `/ranking` was built opt-in and behind the `leaderboards` flag rather than removing the question. Rationale, privacy model and what is still pending: [D-35](#d-35--build-the-opt-in-ranking-the-profile-already-asks-about-weekly-by-default).
 
 ### D-14 · Curated avatars, no uploads
 
-Status: Proposed · 24 illustrated avatars; uploads require moderation + storage security, deferred.
+Status: **Accepted**, and the set has grown since: 116 illustrated avatars (D-26), all generated SVG in-repo. Uploads stay out — they require moderation and storage security for no learning value.
 
 ### D-15 · Analytics scope at launch
 
@@ -470,6 +470,182 @@ The displayed holder is **Marcelo Pisner**, the personal name the alias resolves
 name — a learner comparing it against what their banking app shows has to see a match. Change it
 only if the account is actually held in the company's name.
 
+### D-33 · A section quiz asks six questions drawn from its bank, not the whole bank
+
+Status: Accepted (owner feedback, 2026-09-23).
+
+Ten to twelve questions read as an exam, and the owner said so. `limits.quiz.questionsPerAttempt`
+is 6; `getQuiz()` serves a stratified sample and the bank stays at 8–12 questions per section (414
+across the 39 sections, per `content:validate` on 2026-09-23) so that **a retry asks a different
+set**. That is the pedagogical reason to prefer a short quiz over a long one, and it is why no
+question was deleted.
+
+Why stratified and not six at random: six uniform draws from a ten-question bank can easily be six
+easy questions on one topic, which would make the quiz both easier and less representative than
+what it replaces. `sampleQuestions()` picks round-robin across the difficulties present and prefers
+the least-used topic inside each difficulty (unit-tested in `tests/unit/quiz-sampling.test.ts`).
+
+What a shorter quiz changes downstream:
+
+- **Passing** needs 5 of 6 (83 %) instead of 8 of 10 (80 %). The bar in percent went up slightly.
+- **Certificates** are unaffected in rule terms — any passing attempt still clears
+  `certificates.minQuizScorePercent` = 80 — but they are easier to reach by luck: guessing 5 of 6
+  four-option questions is roughly 1 in 220, against 1 in 13 000 for 8 of 10. With unlimited
+  retries that is a real difference. It is accepted for now because the sample changes on every
+  attempt; if it ever matters, the cheapest fix is a cooldown between attempts rather than a longer
+  quiz.
+- **XP** per quiz falls (maximum 50 instead of about 73), so quizzes weigh less than exercises than
+  they did. The daily cap and the level curve are untouched.
+- **`quiz_attempts.total`** is 6 for new rows and 8–12 for old ones, so any comparison across
+  attempts has to use the percentage, never the raw score.
+- **Section completion and mastery** are unaffected: completion reads `passed`, mastery counts
+  exercises.
+- The lesson header used to announce the bank size ("Quiz de la sección · 10 preguntas"), which
+  would have been wrong the moment the sample shrank. **Done in the same session:**
+  `src/app/(learn)/leccion/[slug]/page.tsx` now passes `min(limits.quiz.questionsPerAttempt,
+questionCount)` to `quiz.title`, so the header states the attempt size and still tells the truth
+  for a section whose bank is smaller than six.
+
+### D-34 · Immediate per-question feedback, graded one question at a time on the server
+
+Status: Accepted (owner feedback, 2026-09-23).
+
+The quiz used to be answered entirely in the browser and graded in one submission, so a learner
+finished six questions without ever learning whether the first one was right. Feedback is now
+immediate: answer → server grades that question → correct answer and the authored explanation
+appear at once.
+
+The constraint that shapes the design: correct answers, `question_options.is_correct` and
+explanations must never reach the browser before submission (CLAUDE.md rule 7). Immediate feedback
+therefore cannot be a client-side comparison; it is one server round-trip per question, and the
+answer is recorded **before** the feedback is returned and can never be replaced. Without that,
+revealing the answer would just be a free retry.
+
+The in-progress attempt lives in `quiz_attempts` (`status`, `question_ids`) with the answers in the
+existing `quiz_answers` child table, rather than in a new table. `quiz_answers` already had exactly
+the columns an answer needs, is already the source the review queue reads, and a parallel table
+would have split grading across two places. The added cost is a nullable `submitted_at` and a
+`status` column on rows that previously were always final, which the migration backfills as
+`'submitted'`.
+
+Storing the sample on the attempt also fixes a subtler problem: a sample that lives only in the
+page render can be re-rolled by reloading until an easy set appears. Resuming returns the stored
+sample and ignores any proposal.
+
+The score is recomputed in SQL from the recorded answers when the attempt closes
+(`finalize_quiz_attempt`), so no client tally is trusted, and the reward keeps its
+`quiz_passed:<lesson_id>` key, so an abandoned or repeated attempt pays nothing extra.
+
+Two pre-existing leaks had to be closed for that argument to hold, both found by the security review
+of 2026-09-23 (F-1, F-2): `theory_questions.pairs` — the grading key of every `matching` question —
+was a column of `questions_public` and a column grant to `anon`, and `gradeReviewQuestion` revealed
+the correct answer of any published question without requiring that the learner had ever answered
+it. `pairs` is now service-role only and delivered as two shuffled lists, `questions_public` is
+`authenticated`-only, and review practice reveals a question only if a `quiz_answers` row exists for
+that learner. Revealing one answer at a time is only a safe design while those are the only two ways
+to obtain an answer.
+
+### D-35 · Build the opt-in ranking the profile already asks about; weekly by default
+
+Status: Accepted (2026-09-23), pending the owner turning the `leaderboards` flag on (OA-20). The
+consent wording was the other blocker and is settled: he chose the full version the same day
+(OA-21), and it is live in `profile.hints.leaderboardOptIn`. Originally filed as D-41 by a parallel
+agent that left a gap for entries in flight; renumbered to D-35 on 2026-09-23 so the register stays
+contiguous.
+
+The profile has asked every learner "¿Participar en tablas de posiciones?" since Phase 2 and no such
+table existed anywhere — a consent question with no feature behind it, which CLAUDE.md rule 9
+forbids (owner feedback, item 12). Two honest options existed: delete the question, or build the
+board. **Recommendation: build it, and this is what shipped** — the opt-in is genuinely useful
+(it is also what `public_profiles` is for) and a working page the owner can delete is a better
+artifact than a proposal. If he decides the product is better without comparison, the removal is
+three deletions: the checkbox in the profile form, the column, and `/ranking`.
+
+**Windows: both, weekly first.** An all-time board is decided by whoever started first and tells a
+new learner nothing except that they are last; a 7-day board is winnable this week by everyone, so
+`/ranking` opens on "Últimos 7 días" and offers "Histórico" as a second tab. The weekly window ends
+on the caller's own current date in their profile timezone, so it lines up with the streak and the
+daily goal they see elsewhere. The learner's own row is always returned by the RPC and pinned at the
+bottom when it falls outside the visible top, so the page never asks them to hunt for themselves.
+
+**Privacy is the constraint, not a detail.** `profiles.leaderboard_opt_in` is the consent record:
+the filter lives inside `leaderboard()` / `leaderboard_participants()`, security-definer functions
+with `anon` revoked, so no query shape reaches a learner who did not opt in — not listed, not
+counted in the participant total, not inferable from a gap in the ranking. Only alias, avatar,
+level and XP are exposed (never `display_name`, email, country or gender), and no RLS policy was
+widened to build the board: a learner still cannot read another learner's `profiles`, `user_totals`
+or `daily_activity` row. `supabase/tests/0010_leaderboard.test.sql` fails if a non-participant ever
+appears.
+
+**Almost-empty is the normal case at this stage.** With fewer than `limits.leaderboard.minParticipants`
+ranked learners the page says there are too few to compare and shows the learner their own XP,
+instead of rendering a two-row ranking that makes the product look abandoned.
+
+**No reward is attached.** No XP, coins or badge depends on the board, so nobody who opts out is
+paying for their privacy, and the ranking cannot become a reason to grind.
+
+**Amendment, same day, after the security review (F-3 · Medium).** Two things were wrong and are
+fixed in `20260923171000_leaderboard_consent_and_gating.sql`:
+
+1. _The flag was not an access control._ `grant execute … to authenticated` meant a signed-in learner
+   could read the board straight through PostgREST while `/ranking` returned 404. Execute is now
+   revoked from `authenticated` as well as `anon`; the server calls both functions with the admin
+   client after `isLeaderboardEnabled()`, passing the caller as a parameter (the admin client has no
+   JWT, so `auth.uid()` is unavailable — it drove both `is_self` and the timezone of the weekly
+   window). That matches how every other data-bearing RPC in this codebase is gated. The functions
+   **also** check `leaderboards_enabled()` themselves and return nothing while it is off: the review
+   offered these as alternatives, and both were implemented, because the revoke is what stops a
+   learner reading an _enabled_ board before the page exists for them, while the in-function check is
+   what saves a future caller who forgets the flag. Neither is redundant.
+2. _The disclosure exceeded the consent text._ The board publishes level and XP, and the weekly view
+   also reveals recency — none of which "solo tu alias y avatar" covers. `docs/SECURITY.md` §7.2 now
+   states exactly what is disclosed and to whom; the checkbox copy is owner-approved text, so the
+   proposed rewording goes to him through `OWNER_ACTIONS.md` instead of being changed quietly.
+   **Resolved the same day:** he chose the full wording (OA-21) and it is applied. One precondition
+   remains before the flag goes on (OA-20): clear the opt-ins that were ticked under the older,
+   narrower sentence, so consent is only acted on where it was given against accurate wording.
+
+**Consent is now dateable.** `profiles.leaderboard_opt_in` had no timestamp while terms and privacy
+consent in this product are both versioned and dated; a consent record you cannot date is hard to
+defend. `leaderboard_opt_in_at` is stamped by a trigger on every change in either direction,
+preserved across unrelated profile edits, and unforgeable (the trigger overwrites any supplied
+value, and the column is not in the learner update grant). Existing rows stay **null** on purpose:
+inventing a date for consent already given would be worse than recording that it is unknown.
+
+### D-36 · The assistant applies content and runs the project's own tooling without asking
+
+**Status:** Accepted (owner, 2026-09-23).
+
+The owner asked for the assistant to work "as autonomous as possible in this project forever", and
+specifically to stop walking him through `npm run content:build` / `npm run content:apply`. He is
+right about the first one especially: `content:build` only writes a generated file inside the repo,
+so it never needed approval at all, and asking for it was pure friction.
+
+**Pre-authorised, standing, not to be re-asked in a later conversation:**
+
+- every read-only or local command — `content:build`, `content:validate`, `content:verify`,
+  `datasets:build`, `datasets:verify`, `db:validate`, `quality`, `lint`, `typecheck`, the test suites;
+- `npm run content:apply`. It upserts authored content into the linked project with
+  `on conflict do update`, writes no learner row, and is idempotent. Applied this way on
+  2026-09-23: 4949 statements, 5 chunks, every chunk `ok`.
+
+**Still needs the owner, deliberately:**
+
+- **Applying migrations to the linked project — permanently his, by his own choice** (asked and
+  answered 2026-09-23, when he was offered the option of letting the assistant do it too). The
+  assistant writes and verifies migrations and hands him the exact command; it never applies a
+  schema change. `.claude/hooks/guard-bash.mjs` stays as it is and must not be relaxed to get
+  around this: that hook is the mechanism of this decision, not an obstacle to it. The reasoning he
+  accepted: schema changes are the one class of work here that is genuinely hard to undo.
+- Anything needing his account, his money or his signature, anything that changes what a learner
+  has consented to, and anything that changes what the product charges.
+- The rest of CLAUDE.md → Prohibited, which this entry does not widen.
+
+**Corollary for how the remaining questions get asked.** When something genuinely needs him it is
+asked with `AskUserQuestion`, in plain language, with enough context to decide and the options
+spelled out — not filed in a doc and left for him to discover. Filing is the record; it is not the
+asking.
+
 ## Owner-only follow-ups from 2026-09-23
 
 - **`SUPABASE_SECRET_KEY` is invalid in production** (see the runbook note in
@@ -493,4 +669,4 @@ api-keys` returns it masked and the masked string is what is currently deployed.
 
 ## Rejected alternatives (summary)
 
-Monaco editor · Prisma/Drizzle · Redis for rate limits · Stripe · Lemon Squeezy (no AR payouts) · subscriptions-first · RPC-based learner SQL in the app DB · third-party analytics by default · avatar uploads · leaderboards at launch.
+Monaco editor · Prisma/Drizzle · Redis for rate limits · Stripe · Lemon Squeezy (no AR payouts) · subscriptions-first · RPC-based learner SQL in the app DB · third-party analytics by default · avatar uploads · leaderboards at launch (superseded by D-35: built post-launch, behind a flag).

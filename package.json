@@ -27,7 +27,10 @@
     "assets:pglite": "tsx scripts/copy-pglite-assets.ts",
     "predev": "npm run assets:pglite && npm run datasets:build",
     "prebuild": "npm run assets:pglite && npm run datasets:build",
-    "content:apply": "node scripts/apply-content-seed.mjs"
+    "content:apply": "npm run content:apply:content && npm run content:apply:expected",
+    "content:apply:content": "node scripts/apply-content-seed.mjs supabase/seed/0002_content.sql",
+    "content:apply:expected": "node scripts/apply-content-seed.mjs supabase/seed/0003_expected_results.sql",
+    "content:apply:dry": "node scripts/apply-content-seed.mjs supabase/seed/0002_content.sql --dry-run && node scripts/apply-content-seed.mjs supabase/seed/0003_expected_results.sql --dry-run"
   },
   "dependencies": {
     "@codemirror/commands": "^6.11.1",

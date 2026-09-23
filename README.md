@@ -4,12 +4,14 @@ Plataforma de aprendizaje de SQL para adultos de habla hispana en América Latin
 
 **Organización:** Data Minds Solutions · **Fundador e instructor:** Marcelo Pisner
 
-> Estado actual: **contenido MVP completo** — 13 secciones publicadas (fundamentos, agregación, joins, ventanas), 49 ejercicios verificados sobre 3 datasets (TiendaViva, Bolsillo, Pídelo), quizzes, certificados y panel de administración; Fase 9 (calidad y lanzamiento) en curso. Ver [docs/ROADMAP.md](docs/ROADMAP.md).
+> Estado actual (2026-09-23): **curso completo** — las 39 secciones están publicadas, con 347 lecciones, 414 preguntas de teoría y 209 ejercicios verificados sobre 4 datasets (TiendaViva, Bolsillo, Pídelo, Ritmo), además de quizzes con corrección por pregunta, certificados, ranking opcional y panel de administración. Cifras de `npm run content:validate`. El contenido ya está aplicado al proyecto Supabase; **las ocho migraciones del 2026-09-23 y el código de esa sesión todavía no están aplicados ni desplegados**. Ver [docs/ROADMAP.md](docs/ROADMAP.md) y [docs/OWNER_ACTIONS.md](docs/OWNER_ACTIONS.md).
 
 ## Documentación
 
 | Documento                                                    | Contenido                                                                      |
 | ------------------------------------------------------------ | ------------------------------------------------------------------------------ |
+| [docs/OWNER_ACTIONS.md](docs/OWNER_ACTIONS.md)               | Todo lo que espera al propietario (decisiones y tareas) — empezar por aquí     |
+| [docs/ROADMAP.md](docs/ROADMAP.md)                           | Estado del proyecto por fase, con fechas y lo que queda                        |
 | [docs/PRODUCT_REQUIREMENTS.md](docs/PRODUCT_REQUIREMENTS.md) | Requisitos, alcance del MVP, contradicciones resueltas, métricas               |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)                 | Stack, zonas de confianza, flujos, estructura del repositorio, costos, riesgos |
 | [docs/SQL_SANDBOX.md](docs/SQL_SANDBOX.md)                   | Comparación y diseño del motor seguro de SQL (PGlite híbrido)                  |
@@ -28,7 +30,7 @@ Plataforma de aprendizaje de SQL para adultos de habla hispana en América Latin
 
 ## Requisitos locales (Fase 1 en adelante)
 
-Node.js ≥ 22 (probado con 24), npm ≥ 10, Docker Desktop (para Supabase local), Supabase CLI (`npx supabase`), Git. Vercel CLI opcional.
+Node.js ≥ 24 (`package.json` → `engines`; CI y Vercel usan 24), npm ≥ 10, Docker Desktop (para Supabase local), Supabase CLI (`npx supabase`), Git. Vercel CLI opcional.
 
 ## Puesta en marcha
 

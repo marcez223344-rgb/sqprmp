@@ -1,8 +1,8 @@
 # Product Requirements — Data Minds SQL Academy
 
-**Status:** Phase 0 (approved requirements summary, pending owner decisions listed in [DECISIONS.md](DECISIONS.md#pending-owner-decisions))
+**Status:** Every "Must" is built and the content volume target is exceeded; what is left is owner-side (apply migrations, deploy, legal, domain) plus a Lighthouse run and a real screen-reader pass, both of which need a deployed URL. Tracked in [ROADMAP.md](ROADMAP.md); pending decisions in [DECISIONS.md](DECISIONS.md), pending owner tasks in [OWNER_ACTIONS.md](OWNER_ACTIONS.md).
 **Owner:** Marcelo Pisner (Data Minds Solutions)
-**Last updated:** 2026-09-18
+**Last updated:** 2026-09-23
 
 ## 1. Mission
 
@@ -25,33 +25,33 @@ Adults ~25–35 in LATAM: first job in data, junior analysts, career changers, b
 
 ## 4. Functional requirements (MVP scope = "Must")
 
-| Area          | Requirement                                                                                                                                                    | MVP                         |
-| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- |
-| Public site   | Landing, curriculum, how it works, pricing, about (company + founder), FAQ, terms, privacy, login, certificate verification                                    | Must                        |
-| Auth          | Supabase Auth + Google OAuth; architecture ready for magic-link email                                                                                          | Must                        |
-| Onboarding    | Form above; unique moderated alias; curated avatars; consent recorded with timestamp/version                                                                   | Must                        |
-| Curriculum    | Courses → sections → lessons/exercises/quizzes; prerequisites; 39-section path defined, ~8 sections fully authored at launch                                   | Must                        |
-| Sandbox       | Safe SQL execution (see [SQL_SANDBOX.md](SQL_SANDBOX.md)); results table; timing; row count; sanitized errors                                                  | Must                        |
-| Validation    | Structured result comparison (columns, types, rows, tolerance, optional order, duplicates, required/prohibited concepts)                                       | Must                        |
-| Feedback      | Categorized diagnostics beyond correct/incorrect                                                                                                               | Must                        |
-| Hints         | 3 progressive hints + gated solution reveal with step-by-step explanation                                                                                      | Must                        |
-| Gamification  | XP, coins, levels, streaks + freeze, daily/weekly goals, badges; server-side, idempotent                                                                       | Must (leaderboards: Later)  |
-| Monetization  | Free limit, paywall, one product (lifetime access), test-mode checkout, verified idempotent webhook, entitlements, admin grant/revoke, promo/scholarship codes | Must (subscriptions: Later) |
-| Assessments   | Theory question bank (8 types), quizzes, review-from-mistakes                                                                                                  | Must                        |
-| Certificates  | Server-generated, unique ID, verification page, PDF, revocation                                                                                                | Must (1 path)               |
-| Admin         | Entitlement management, content publish toggle, audit log, payment event review; everything else via Supabase Studio                                           | Must (minimal)              |
-| Analytics     | First-party event table with documented spec                                                                                                                   | Must                        |
-| Accessibility | WCAG 2.2 AA target, keyboard, focus, reduced motion, no color-only meaning                                                                                     | Must                        |
-| i18n          | `es-419` only, but all UI strings in message catalogs                                                                                                          | Must                        |
-| Testing       | Unit (Vitest), integration (Supabase local), E2E (Playwright) for the 12 critical journeys                                                                     | Must                        |
-| Deployment    | Vercel + Supabase, GitHub Actions quality gate, documented setup                                                                                               | Must                        |
+| Area          | Requirement                                                                                                                                                                   | MVP                                                     |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| Public site   | Landing, curriculum, how it works, pricing, about (company + founder), FAQ, terms, privacy, login, certificate verification                                                   | Must                                                    |
+| Auth          | Supabase Auth + Google OAuth; architecture ready for magic-link email                                                                                                         | Must                                                    |
+| Onboarding    | Form above; unique moderated alias; curated avatars; consent recorded with timestamp/version                                                                                  | Must                                                    |
+| Curriculum    | Courses → sections → lessons/exercises/quizzes; prerequisites; 39-section path, **all 39 fully authored** (2026-09-23: 347 lessons, 414 questions, 209 exercises, 4 datasets) | Must — exceeded                                         |
+| Sandbox       | Safe SQL execution (see [SQL_SANDBOX.md](SQL_SANDBOX.md)); results table; timing; row count; sanitized errors                                                                 | Must                                                    |
+| Validation    | Structured result comparison (columns, types, rows, tolerance, optional order, duplicates, required/prohibited concepts)                                                      | Must                                                    |
+| Feedback      | Categorized diagnostics beyond correct/incorrect                                                                                                                              | Must                                                    |
+| Hints         | 3 progressive hints + gated solution reveal with step-by-step explanation                                                                                                     | Must                                                    |
+| Gamification  | XP, coins, levels, streaks + freeze, daily/weekly goals, badges; server-side, idempotent                                                                                      | Must; leaderboard shipped post-MVP behind a flag (D-35) |
+| Monetization  | Free limit, paywall, one product (lifetime access), test-mode checkout, verified idempotent webhook, entitlements, admin grant/revoke, promo/scholarship codes                | Must (subscriptions: Later)                             |
+| Assessments   | Theory question bank (8 types), quizzes, review-from-mistakes                                                                                                                 | Must                                                    |
+| Certificates  | Server-generated, unique ID, verification page, PDF, revocation                                                                                                               | Must (1 path; 4 paths seeded and all now attainable)    |
+| Admin         | Entitlement management, content publish toggle, audit log, payment event review; everything else via Supabase Studio                                                          | Must (minimal)                                          |
+| Analytics     | First-party event table with documented spec                                                                                                                                  | Must                                                    |
+| Accessibility | WCAG 2.2 AA target, keyboard, focus, reduced motion, no color-only meaning                                                                                                    | Must                                                    |
+| i18n          | `es-419` only, but all UI strings in message catalogs                                                                                                                         | Must                                                    |
+| Testing       | Unit (Vitest), integration (Supabase local), E2E (Playwright) for the 13 critical journeys                                                                                    | Must                                                    |
+| Deployment    | Vercel + Supabase, GitHub Actions quality gate, documented setup                                                                                                              | Must                                                    |
 
 ## 5. Non-functional requirements
 
 - Learner SQL never reaches the application database (hard rule).
 - Authorization and rewards are computed server-side only; browser state is never trusted.
 - p95 "Run" latency < 300 ms (browser engine) and "Submit" < 2.5 s (server engine, warm).
-- No PII in analytics; PII minimized; export and deletion supported (see [SECURITY.md](SECURITY.md#privacy)).
+- No PII in analytics; PII minimized; export and deletion supported (see [SECURITY.md](SECURITY.md) §7).
 - All branding, pricing, founder info and limits in `src/config/*` (single source).
 - Light and dark themes; responsive down to 360 px.
 
@@ -66,7 +66,9 @@ Adults ~25–35 in LATAM: first job in data, junior analysts, career changers, b
 
 ## 7. Out of scope for MVP
 
-Leaderboards, avatar uploads, email/passwordless login, subscriptions, multi-language UI, mobile native apps, AI-generated feedback, team/enterprise plans, affiliate program, community features.
+Avatar uploads, email/passwordless login, subscriptions, multi-language UI, mobile native apps, AI-generated feedback, team/enterprise plans, affiliate program, community features.
+
+Leaderboards were on this list and came off it on 2026-09-23: the profile had been asking for consent to a feature that did not exist, which CLAUDE.md rule 9 forbids, so `/ranking` was built opt-in and behind a flag rather than deleting the question (D-35).
 
 ## 8. Success metrics (first 90 days after launch)
 

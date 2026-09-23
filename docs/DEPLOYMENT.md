@@ -26,7 +26,7 @@ npx supabase start         # local DB (Docker)
 npx supabase db reset      # apply migrations + seed locally (local only; blocked against linked projects by hook)
 npx supabase db push       # apply migrations to the linked remote project (requires explicit approval)
 npm run quality            # full gate (includes db:validate on PGlite)
-npm run db:validate        # apply migrations to in-memory Postgres 17, assert RLS (no Docker needed)
+npm run db:validate        # apply migrations to in-memory PostgreSQL (PGlite), assert RLS (no Docker needed)
 npx vercel --prod          # BLOCKED by hook unless owner approval recorded in the session
 ```
 
@@ -42,9 +42,11 @@ See `.claude/templates/release-checklist.md`. Highlights: migrations applied to 
 
 Every step below is performed by the **owner** (or by the assistant only with explicit approval in the conversation, per CLAUDE.md). Order matters.
 
+State as of 2026-09-23: steps 1–4 are partly done already — the site is live on `dataminds-sql-academy.vercel.app` against the existing linked Supabase project on the free tier, with the content seed applied. What is outstanding is in [OWNER_ACTIONS.md](OWNER_ACTIONS.md): the eight 2026-09-23 migrations (OA-19) and a deploy of the 2026-09-23 code (OA-24). Read this runbook as the checklist for a full production project, not as work still entirely ahead.
+
 1. **Decisions closed**: D-09 (legal data in `src/config/brand.ts`, drafts reviewed), P-1 (domain), P-4 (Supabase Pro + Vercel Pro approved). Rotate any credential ever pasted in chat.
-2. **Supabase production project**: create → link the CLI to the project ref → push the reviewed migrations 0001–0008 (forward-only) → run seeds `0001–0003` once (`0002_content.sql` is idempotent on slugs) → enable the custom access token hook (`docs/SECURITY.md §3`) → Google provider with the production redirect URL → enable PITR/backups (Pro).
-3. **Vercel project**: import the GitHub repo → Node 22 → env vars from `.env.example` (server secrets only as _Sensitive_) → `NEXT_PUBLIC_APP_URL` = production URL → custom domain + HTTPS → Deployment Protection off for production only.
+2. **Supabase production project**: create → link the CLI to the project ref → push the reviewed migrations in timestamp order (forward-only; 19 of them as of 2026-09-23, the last eight still unapplied — OA-19) → run seeds `0001–0003` once (`0002_content.sql` is idempotent on slugs) → enable the custom access token hook (`docs/SECURITY.md §3`) → Google provider with the production redirect URL → enable PITR/backups (Pro).
+3. **Vercel project**: import the GitHub repo → Node 24 (`package.json` engines is `>=24`, and CI pins 24) → env vars from `.env.example` (server secrets only as _Sensitive_) → `NEXT_PUBLIC_APP_URL` = production URL → custom domain + HTTPS → Deployment Protection off for production only.
 4. **Preview deploy first**: open a PR, confirm the preview builds (`prebuild` regenerates dataset snapshots and PGlite assets), run the smoke list: landing, `/demo` runs a query, Google login, onboarding, 1 free exercise submit, `/precios`, `/verificar/<known code>`, `/certificados/<id>/pdf`.
 5. **Payments**: register the Hotmart **sandbox** webhook URL (`/api/webhooks/hotmart`) and replay a sandbox event; verify `/admin/pagos` shows it processed. Switch to production credentials **only** after a written go from the owner; keep `HOTMART_SKIP_REFETCH` unset.
 6. **Go live** (merge to `main`). Immediately: create the first admin (`update public.profiles set role = 'admin' where id = '<owner uuid>'` in the SQL editor — note it in DECISIONS.md), open `/admin/metricas`, and verify a real Google sign-in.
@@ -87,7 +89,7 @@ From then on, `/admin` is visible in the app header for that account only, with:
 
 Scholarships in practice: for a handful of people use `/admin/accesos` (immediate, one learner). For a campaign — "20 becas para egresados de X" — create a `scholarship` promo code in `/admin/promos` with a redemption cap and an expiry, share the code, and deactivate it when the cap is reached. Both paths write to `audit_logs`.
 
-## 5e. Applying the content seed (lessons, questions, exercises)
+## 5d. Applying the content seed (lessons, questions, exercises)
 
 Lesson and exercise text is served from the database, not from `src/content`, so a prose change
 is invisible in production until the seed is applied. `content:build` regenerates
@@ -103,7 +105,26 @@ idempotent and an interrupted run is fixed by running it again.
 
 Order matters and is preserved: course → sections → lessons → questions → exercises.
 
-## 5d. Runbook: "No pudimos verificar tu acceso ahora mismo"
+**There are two content seeds, and applying only the first silently breaks grading.**
+`0002_content.sql` carries the authored content; `0003_expected_results.sql` carries
+`exercise_expected_results`, written by `npm run content:verify`. `submitExercise`
+(`src/lib/exercises/service.ts`) returns `not_found` when an exercise has no expected-result row, so
+a newly published exercise **cannot be graded at all** until the second seed lands, and a rewritten
+one keeps grading against its old baseline — marking correct answers wrong. This happened on
+2026-09-23: `0002` was applied alone and seven new section-35 exercises went live ungradeable for a
+few minutes. Three changes make the mistake hard to repeat:
+
+- `npm run content:apply` now applies **both**, in order (`content:apply:content` then
+  `content:apply:expected`, which remain available individually).
+- `node scripts/apply-content-seed.mjs` with no path is now a hard error naming both files, instead
+  of quietly defaulting to `0002`.
+- `npm run content:apply:dry` dry-runs both. Do not reach for `npm run content:apply -- --dry-run`:
+  npm does not forward `--` args through a composite script, so that form **applies for real**.
+
+After any content change the full sequence is `npm run content:verify` (regenerates `0003`) →
+`npm run content:build` (regenerates `0002`) → `npm run content:apply`.
+
+## 5e. Runbook: "No pudimos verificar tu acceso ahora mismo"
 
 Symptom: hints and submissions fail with that message, while lessons and exercise pages render
 normally. Cause: the page reads access through the learner's own client, but `requestHint`,

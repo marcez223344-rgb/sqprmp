@@ -20,7 +20,7 @@ Progress rules; reward calculations and caps; free-exercise limit; entitlement l
 
 ## 3. Critical E2E journeys (must pass before release)
 
-1. New user signs in with Google (mocked provider) → 2. completes onboarding → 3. completes first free exercise → 4. requests hints → 5. submits an incorrect query → 6. receives categorized feedback → 7. completes the 5 free exercises → 8. the 6th (gated) exercise shows the paywall (server-enforced: direct URL and API also blocked) → 9. sandbox payment grants access (webhook simulated with valid signature) → 10. paid user continues → 11. completes a section → 12. receives certificate and public verification works. Plus: responsive layouts (360/768/1280), keyboard-only workspace, error states (engine timeout, network failure), unauthorized access (admin routes, other users' data by id).
+1. New user signs in with Google (mocked provider) → 2. completes onboarding → 3. completes first free exercise → 4. requests hints → 5. submits an incorrect query → 6. receives categorized feedback → 7. completes the 5 free exercises → 8. the 6th (gated) exercise shows the paywall (server-enforced: direct URL and API also blocked) → 9. sandbox payment grants access (webhook simulated with valid signature) → 10. paid user continues → 11. completes a section → 12. receives certificate and public verification works → 13. the owner reviews a payment and an entitlement in `/admin` while a learner is denied every admin route. Plus: responsive layouts (360/768/1280), keyboard-only workspace, error states (engine timeout, network failure), unauthorized access (admin routes, other users' data by id).
 
 ## 4. Rules
 
@@ -31,4 +31,13 @@ Progress rules; reward calculations and caps; free-exercise limit; entitlement l
 
 ## 5. Quality gate (`npm run quality`)
 
-`prettier --check` → `eslint` → `tsc --noEmit` → `vitest run` → `content:verify` → `datasets:verify` → `next build`. E2E runs in CI after the build. See `.github/workflows/ci.yml` (Phase 1).
+`format:check` (prettier) → `lint` → `typecheck` (`tsc --noEmit`) → `test` (vitest run) → `db:validate` → `content:validate` → `datasets:verify` → `build`. `content:verify` is **not** in the gate — it executes every reference solution against the dataset snapshots and is run when content changes. E2E runs in CI after the build. The script itself is the source of truth (`package.json`); see `.github/workflows/ci.yml`.
+
+## 6. What has and has not actually run
+
+Stated because "a suite exists" and "a suite passed" are different claims.
+
+- **Vitest and `next build`**: green on 2026-09-23 (33 test files).
+- **`db:validate`**: green on 2026-09-23 — 19 migrations applied in-process on PGlite (real PostgreSQL), 51 tables, all with RLS. It exercises behaviour and constraints; it does **not** exercise role grants, because everything runs as one role.
+- **pgTAP**: the twelve suites (208 planned assertions; 123 of them in the six files touched or added on 2026-09-23) run in CI via `supabase test db` and locally via `npx supabase db reset`, both of which need Docker. There is no Docker in the assistant's environment, and the 2026-09-23 work has not been pushed, so **the new and changed suites have never executed anywhere** — not locally, not in CI. Owner actions OA-19 (local run first) and OA-23 (install Docker) exist for exactly this.
+- **Playwright**: runs in CI against local Supabase; same caveat about the unpushed working tree.

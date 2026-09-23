@@ -15,7 +15,16 @@
  * applied in file order, which preserves the generator's course → sections → lessons →
  * questions → exercises dependency order.
  *
- * Usage: node scripts/apply-content-seed.mjs [path-to-seed] [--dry-run]
+ * Usage: node scripts/apply-content-seed.mjs <path-to-seed> [--dry-run]
+ *
+ * Prefer `npm run content:apply`, which applies BOTH seeds in order. There are two, and
+ * applying only the first leaves the product broken in a way that is easy to miss:
+ * `0002_content.sql` carries the authored content, while `0003_expected_results.sql` carries
+ * `exercise_expected_results` — and `submitExercise` returns `not_found` when an exercise has
+ * no expected-result row, so a newly published exercise cannot be graded at all until the
+ * second seed lands. This happened on 2026-09-23: 0002 was applied on its own and seven new
+ * exercises went live ungradeable. Hence the default below is now a hard error rather than
+ * 0002, so nobody can apply 'the seed' and believe they are done.
  */
 import { execFileSync, execSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -24,7 +33,17 @@ import { join } from "node:path";
 
 const args = process.argv.slice(2);
 const dryRun = args.includes("--dry-run");
-const seedPath = args.find((a) => !a.startsWith("--")) ?? "supabase/seed/0002_content.sql";
+const seedPath = args.find((a) => !a.startsWith("--"));
+if (!seedPath) {
+  console.error(
+    [
+      "name the seed explicitly, or run `npm run content:apply` to apply both:",
+      "  supabase/seed/0002_content.sql            authored content",
+      "  supabase/seed/0003_expected_results.sql   grading baselines",
+    ].join("\n"),
+  );
+  process.exit(1);
+}
 const MAX_BYTES = 900_000;
 
 /** Splits SQL into statements, ignoring semicolons inside dollar-quoted literals. */

@@ -36,7 +36,8 @@ Related: [SQL_SANDBOX.md](SQL_SANDBOX.md) (learner SQL), [DATABASE_DESIGN.md](DA
 ## 5. Input validation and abuse prevention
 
 - Zod schemas on every boundary (server actions, route handlers, webhooks, RPC parameters).
-- Rate limits (Postgres token bucket): submit 30/5 min, hint 20/5 min, alias check 10/min, checkout 5/10 min, webhook 600/min per provider, verification page 60/min per IP.
+- Rate limits (Postgres token bucket): submit 30/5 min, hint 20/5 min, quiz answer **and** quiz finish 20/5 min (`quiz_answer:<uid>`, `quiz_finish:<uid>` — a 6-question attempt costs 6, so this is three full attempts and far short of farming a bank), quiz review 30/5 min (`quiz_review:<uid>`), alias check 10/min, checkout 5/10 min, webhook 600/min per provider, verification page 60/min per IP. Buckets are keyed per feature so quiz answers and SQL submissions never share a budget (security review F-6/F-7, 2026-09-23).
+- Answer keys: `theory_questions.answer`, `explanation_md`, `question_options.is_correct` and `theory_questions.pairs` (the `matching` key) are readable only by the service role; `questions_public` carries prompts and is granted to `authenticated` only. A learner sees the correct answer of one question only after that answer is recorded and final (`quiz_answers`), and review practice reveals a question only if the learner has already answered it (F-1/F-2).
 - Alias policy: 3–20 chars, `[a-z0-9_]`, normalized (lowercase, confusables folded), blocklist of slurs/impersonation terms (`admin`, `dataminds`, `marcelo`), uniqueness enforced by DB constraint on `alias_normalized`.
 - Avatars: curated set only; no uploads in MVP.
 - Reward abuse: idempotent `event_key`, daily XP cap, `suspicious_activity` on anomalies (e.g. > 20 correct submissions in 10 min, identical SQL across accounts), admin review.
@@ -55,23 +56,43 @@ Related: [SQL_SANDBOX.md](SQL_SANDBOX.md) (learner SQL), [DATABASE_DESIGN.md](DA
 
 ### 7.1 Data inventory and purpose
 
-| Data                                     | Purpose                                                                         | Retention                                           |
-| ---------------------------------------- | ------------------------------------------------------------------------------- | --------------------------------------------------- |
-| Email (from Google)                      | Account identity, receipts, transactional email                                 | Account lifetime                                    |
-| Display name, alias, avatar              | Product identity; alias/avatar may be public if the user opts into leaderboards | Account lifetime                                    |
-| Date of birth                            | Age verification (18+), coarse cohort analytics (age band only)                 | Account lifetime; only birth year kept in analytics |
-| Country                                  | Pricing/currency, localization, aggregate analytics                             | Account lifetime                                    |
-| Gender (optional, "Prefiero no decirlo") | Aggregate diversity metrics only                                                | Account lifetime                                    |
-| SQL level, goal, weekly goal             | Personalization                                                                 | Account lifetime                                    |
-| Attempts / SQL text                      | Learner's own review, feedback quality                                          | Account lifetime; deleted on account deletion       |
-| Payment references                       | Entitlement, refunds, accounting                                                | Legal retention (invoicing)                         |
-| Analytics events                         | Product improvement; no PII, pseudonymous ids                                   | 24 months                                           |
+| Data                                     | Purpose                                                                                                                                                                                     | Retention                                           |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| Email (from Google)                      | Account identity, receipts, transactional email                                                                                                                                             | Account lifetime                                    |
+| Display name, alias, avatar              | Product identity. Display name is never published. Alias + avatar are shown to other signed-in learners on the ranking if the learner opted in, together with their level and XP (see §7.2) | Account lifetime                                    |
+| Date of birth                            | Age verification (18+), coarse cohort analytics (age band only)                                                                                                                             | Account lifetime; only birth year kept in analytics |
+| Country                                  | Pricing/currency, localization, aggregate analytics                                                                                                                                         | Account lifetime                                    |
+| Gender (optional, "Prefiero no decirlo") | Aggregate diversity metrics only                                                                                                                                                            | Account lifetime                                    |
+| SQL level, goal, weekly goal             | Personalization                                                                                                                                                                             | Account lifetime                                    |
+| Attempts / SQL text                      | Learner's own review, feedback quality                                                                                                                                                      | Account lifetime; deleted on account deletion       |
+| Payment references                       | Entitlement, refunds, accounting                                                                                                                                                            | Legal retention (invoicing)                         |
+| Analytics events                         | Product improvement; no PII, pseudonymous ids                                                                                                                                               | 24 months                                           |
+| Unsent SQL drafts (browser)              | Not losing typed work on navigation, crash or back/forward                                                                                                                                  | Until the session ends (swept), see below           |
+
+**Unsent SQL drafts in `localStorage`.** The editor keeps a copy of the current query in the browser
+under `dms.draft.<userId>.<slug>` (`{sql, savedAt}`), alongside the authoritative copy in
+`exercise_progress.draft_sql`. It holds the learner's own work only: no credentials, no tokens, no
+third party's data. Two rules keep it safe on a shared machine (security review 2026-09-23, F-8):
+
+- **Keys are namespaced by user id**, so a second account signing in on the same browser can never
+  read or resume the first one's drafts, even if the sweep below fails. The id is a storage key
+  only; it is never used for an authorization decision.
+- **Drafts are swept when a session ends.** `/auth/signout` is a server POST and cannot touch
+  browser storage, so the sweep runs in the client that triggers it (`SignOutForm.onSubmit`) and
+  again on mount of the sign-in page, which covers sessions that ended without a clean sign-out.
+  Keys written before namespacing existed are deleted, not migrated: an un-namespaced draft has no
+  identifiable owner, and handing it to whoever signs in next is the leak this closes.
+
+Every access is wrapped in `try/catch`: `localStorage` throws in private mode and when the quota is
+full, and a lost browser copy is never fatal because the server copy is the durable one.
 
 ### 7.2 Consent and rights
 
 - Terms and privacy versions recorded with timestamps at onboarding; re-consent on material changes.
 - Self-service: edit profile, request export (JSON), request deletion (30-day grace, then `delete_user_data()`).
-- Public surfaces (leaderboards, certificate verification) show alias or chosen certificate name only, never email, DOB, country or gender.
+- Certificate verification (public, by code) shows the chosen certificate name, the requirement title, skills, issue date and revocation status. No user id, no email, no other profile data.
+- **Ranking (`/ranking`, opt-in, `leaderboards` flag).** What is disclosed, stated exactly because the consent text has to match it: **alias, avatar, level and XP** — lifetime XP on the "Histórico" board and XP earned in the last 7 days on the default board, which also reveals _how recently_ someone practised. Never display name, email, date of birth, country or gender. **To whom:** other signed-in learners only, and only those who also loaded the page; the RPCs are `security definer` with execute revoked from `anon` and from `authenticated` (the server calls them with the admin client after checking the flag), and they return nothing while the flag is off. A learner who did not opt in is absent from the rows and from the participant count, and cannot be inferred from either.
+- Ranking consent is a record, not a setting: `profiles.leaderboard_opt_in` carries `leaderboard_opt_in_at`, stamped by a database trigger on every change (opt-in and opt-out) and not writable by the learner or by application code. Null means the choice predates the column (2026-09-23); no date was invented for consent already given. Opting out removes the learner from the board on the next read — there is no cached copy.
 - Third-party analytics is disabled by default (D-08); enabling it requires an explicit privacy decision and consent banner.
 - Legal basis and jurisdiction wording (Argentina Ley 25.326, Brazil LGPD, Mexico LFPDPPP, etc.) are drafted in the Privacy Policy page and need owner/legal review (pending decision D-09).
 
@@ -79,4 +100,4 @@ Related: [SQL_SANDBOX.md](SQL_SANDBOX.md) (learner SQL), [DATABASE_DESIGN.md](DA
 
 `review-security` skill before each phase sign-off and before any deployment to production; `release-reviewer` agent produces a written report saved under `docs/reviews/`.
 
-Reviews are stored under `docs/reviews/` (latest: `2026-09-18-security.md`).
+Reviews are stored under `docs/reviews/` (latest: `2026-09-23-security.md`, alongside `2026-09-23-visual-hierarchy.md`). A dated review is a record of what was true when it was written: where later work superseded a finding, the later state is documented here or in the relevant doc, and the review file is left as written.

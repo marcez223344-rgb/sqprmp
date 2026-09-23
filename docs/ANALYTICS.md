@@ -16,6 +16,7 @@ Storage: `analytics_events (user_id NULL, anonymous_id, name, properties jsonb, 
 | `hint_requested`            | exercise_slug, level                                                                   | learning     |
 | `solution_revealed`         | exercise_slug, reason                                                                  | learning     |
 | `lesson_viewed`             | lesson_slug, kind                                                                      | learning     |
+| `quiz_question_answered`    | lesson_slug, question_type, correct                                                    | assessment   |
 | `quiz_submitted`            | lesson_slug, score, total, passed                                                      | assessment   |
 | `review_session_started`    | question_count                                                                         | assessment   |
 | `section_completed`         | section_slug                                                                           | progression  |

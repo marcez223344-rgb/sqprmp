@@ -29,7 +29,7 @@ Content is code-reviewed data in `src/content/`: `course.ts`, `sections.ts` (39 
 - Reference solution runs against the dataset snapshot and is verified by the content build (`npm run content:verify`); alternative solutions must produce identical results.
 - Include ≥ 3 common mistakes tied to the feedback engine categories (missing filter, wrong join, aggregation level, NULL handling, date boundary, duplicates, wrong columns, wrong order).
 - Expert explanation: why the query works, alternatives, performance/readability note.
-- Rewards follow [Gamification](#6-rewards) defaults; deviations need a reason.
+- Rewards follow [§6 Rewards](#6-rewards-defaults) defaults, which restate the values from [GAMIFICATION.md](GAMIFICATION.md); deviations need a reason.
 
 ## 4. Hints and solutions
 
@@ -82,7 +82,7 @@ Content is code-reviewed data in `src/content/`: `course.ts`, `sections.ts` (39 
 
 ## 8. Review checklist (used by `review-sql-accuracy` skill)
 
-- [ ] Runs on Postgres 17 (PGlite) with the exact dataset version
+- [ ] Runs on the sandbox engine (PGlite 0.5.8 = PostgreSQL 18.3) with the exact dataset version
 - [ ] Business question unambiguous or ambiguity intentional and explained in solution
 - [ ] Output columns and order rule explicit
 - [ ] Alternatives verified equal
