@@ -1,7 +1,10 @@
 import type { Statement } from "pgsql-ast-parser";
 import type { FeedbackCategory, SqlConcept } from "@/content/schemas/common";
 import type { CompareOutcome } from "./compare";
-import { detectConcepts, detectImprovements } from "./concepts";
+import { limits } from "@/config/limits";
+import { detectConcepts } from "./concepts";
+import { formatSql } from "./format-sql";
+import { detectStyleIssues } from "./style";
 
 export interface FeedbackItem {
   category: FeedbackCategory;
@@ -119,14 +122,33 @@ export function buildFeedback(input: FeedbackInput): {
     });
   }
 
-  const improvements = detectImprovements(input.sql, input.statement, concepts);
-  for (const cond of improvements) {
-    const configured = input.improvementConditions.find((c) => c.condition === cond);
+  // Style feedback from the learner's own query. Ordered most important first in style.ts and
+  // capped here, so the panel stays a short review and not a wall of nitpicks. Category is always
+  // `readability` (including the LIMIT warning) to keep the comparator categories meaning exactly
+  // what the comparator found; severity is what the UI groups by.
+  const styleIssues = detectStyleIssues(input.sql, input.statement, concepts).slice(
+    0,
+    limits.sandbox.feedback.maxStyleItems,
+  );
+  for (const issue of styleIssues) {
+    const configured = input.improvementConditions.find((c) => c.condition === issue.condition);
     items.push({
       category: "readability",
-      messageKey: configured?.message_key ?? `improve.${cond}`,
-      severity: "tip",
+      messageKey: configured?.message_key ?? `improve.${issue.condition}`,
+      severity: issue.severity,
     });
+  }
+  // Shown on top of the cap: the learner's own query re-indented is the one tip that teaches by
+  // showing rather than telling, and it replaces no other item.
+  if (styleIssues.length) {
+    const formatted = formatSql(input.sql);
+    if (formatted)
+      items.push({
+        category: "readability",
+        messageKey: "improve.formatted_version",
+        params: { formatted },
+        severity: "tip",
+      });
   }
 
   const correct = input.compare.correct && !items.some((i) => i.severity === "blocking");

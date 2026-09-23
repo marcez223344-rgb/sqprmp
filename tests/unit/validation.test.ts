@@ -107,8 +107,10 @@ describe("compareResults", () => {
     };
     const r = compareResults(wrong, expected, expectedCols, rules);
     expect(r.findings.map((f) => f.messageKey)).toContain("cell_values");
-    expect(r.findings.find((f) => f.messageKey === "cell_values")?.details).toMatchObject({
-      columns: ["country", "total"],
+    // The finding names the column whose values diverge (see tests/unit/compare-cell-values.test.ts).
+    expect(r.findings.find((f) => f.messageKey === "cell_values")?.params).toEqual({
+      columns: "total",
+      count: 1,
     });
   });
   it("enforces order only when it matters", () => {

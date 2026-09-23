@@ -143,6 +143,89 @@ export function sanitizeCell(value, maxBytes) {
 }
 
 /**
+ * Prefix the SELECT wrapper adds before the learner's own SQL. Its length is the offset every
+ * `position` reported by Postgres has to be shifted back by, or the editor would underline a
+ * character 16 places to the right of the real mistake.
+ */
+export const WRAPPER_PREFIX = "select * from (\n";
+
+/**
+ * Removes the statement terminator without touching anything inside a literal or a comment.
+ *
+ * `/;+\s*$/` looked equivalent and was not: `select 1; -- nota` keeps its semicolon (the regex
+ * only anchors at the end of the string), the wrapper then produced
+ * `select * from (\nselect 1; -- nota\n)` and Postgres answered `syntax error at or near ";"`.
+ * The gate accepts that input — one statement plus a trailing comment — so the learner got an
+ * error about a character they were entitled to write. Trailing comments are kept: they are the
+ * learner's text and the wrapper no longer depends on what the last line looks like.
+ * @param {string} sql
+ * @returns {string}
+ */
+export function stripTrailingSemicolon(sql) {
+  let lastCode = -1;
+  let i = 0;
+  while (i < sql.length) {
+    const c = sql[i];
+    const next = sql[i + 1];
+    if (c === "-" && next === "-") {
+      const nl = sql.indexOf("\n", i);
+      i = nl === -1 ? sql.length : nl + 1;
+      continue;
+    }
+    if (c === "/" && next === "*") {
+      // Block comments nest in PostgreSQL.
+      let depth = 1;
+      i += 2;
+      while (i < sql.length && depth > 0) {
+        if (sql[i] === "/" && sql[i + 1] === "*") {
+          depth += 1;
+          i += 2;
+        } else if (sql[i] === "*" && sql[i + 1] === "/") {
+          depth -= 1;
+          i += 2;
+        } else i += 1;
+      }
+      continue;
+    }
+    if (c === "'" || c === '"') {
+      i += 1;
+      while (i < sql.length) {
+        if (sql[i] === "\\" && c === "'") i += 2;
+        else if (sql[i] === c && sql[i + 1] === c) i += 2;
+        else if (sql[i] === c) {
+          i += 1;
+          break;
+        } else i += 1;
+      }
+      continue;
+    }
+    if (!/\s/.test(/** @type {string} */ (c))) lastCode = i;
+    i += 1;
+  }
+  if (lastCode === -1 || sql[lastCode] !== ";") return sql;
+  return `${sql.slice(0, lastCode)}${sql.slice(lastCode + 1)}`;
+}
+
+/**
+ * Maps a `position` reported for the wrapped statement back to the learner's own SQL, so the
+ * caret the UI shows points at the character the learner actually typed.
+ * @param {number | undefined} position 1-based position in the wrapped statement
+ * @param {string} original the SQL as the learner wrote it
+ * @param {string} inner the text that was substituted into the wrapper
+ * @returns {number | undefined}
+ */
+export function unwrapErrorPosition(position, original, inner) {
+  if (position === undefined || !Number.isFinite(position)) return undefined;
+  const innerOffset = position - WRAPPER_PREFIX.length;
+  // Outside the learner's own text (the wrapper's own prefix or suffix): no honest caret.
+  if (innerOffset < 1 || innerOffset > inner.length) return undefined;
+  // The only other edit the wrapper makes is `trim()` plus a removed terminator near the end,
+  // so adding back the leading whitespace is enough to land on the original character.
+  const leading = original.length - original.trimStart().length;
+  return innerOffset + leading;
+}
+
+/**
  * Executes learner SQL as `learner` and caps the result. SELECT-like statements are wrapped
  * in `select * from (…) limit n+1` so unbounded results are never materialized.
  * @param {import("@electric-sql/pglite").PGlite} pg
@@ -152,16 +235,24 @@ export function sanitizeCell(value, maxBytes) {
  * @returns {Promise<SandboxResult>}
  */
 export async function runLearnerQuery(pg, sql, limits, isSelect = true) {
-  const cleaned = sql.trim().replace(/;+\s*$/, "");
+  const cleaned = stripTrailingSemicolon(sql.trim());
+  // The closing paren and the LIMIT go on their own lines: a learner query ending in a `--`
+  // comment (a very normal thing to write) otherwise commented them out and the whole query
+  // failed with a syntax error that had nothing to do with what the learner wrote.
   const wrapped = isSelect
-    ? `select * from (${cleaned}) as __consulta limit ${limits.maxRows + 1}`
+    ? `${WRAPPER_PREFIX}${cleaned}
+) as __consulta
+limit ${limits.maxRows + 1}`
     : cleaned;
   const t0 = performance.now();
   // Re-pinned per query, not only at load: this is the statement that grades the learner, so
   // the zone must be guaranteed here and not inherited from whatever ran before.
   await pg.exec(`set TimeZone to '${SANDBOX_TIME_ZONE}'; set role learner`);
   try {
-    const result = await pg.query(wrapped);
+    // `rowMode: "array"` and not the default object mode: two columns with the same output name
+    // (`select id, customer_id as id ...`) collapse into one key in object mode, so the second
+    // value was reported for both and the comparator saw values the engine never returned.
+    const result = await pg.query(wrapped, [], { rowMode: "array" });
     const durationMs = Math.round(performance.now() - t0);
     const fields = result.fields.slice(0, limits.maxColumns);
     const rowsRaw = result.rows.slice(0, limits.maxRows);
@@ -171,9 +262,7 @@ export async function runLearnerQuery(pg, sql, limits, isSelect = true) {
       dataTypeId: f.dataTypeID,
     }));
     const rows = rowsRaw.map((r) =>
-      fields.map((f) =>
-        sanitizeCell(/** @type {Record<string, unknown>} */ (r)[f.name], limits.maxCellBytes),
-      ),
+      fields.map((_f, i) => sanitizeCell(/** @type {unknown[]} */ (r)[i], limits.maxCellBytes)),
     );
     return {
       columns,
@@ -183,7 +272,9 @@ export async function runLearnerQuery(pg, sql, limits, isSelect = true) {
       durationMs,
     };
   } catch (err) {
-    throw toPgQueryError(err);
+    const error = toPgQueryError(err);
+    if (isSelect) error.position = unwrapErrorPosition(error.position, sql, cleaned);
+    throw error;
   } finally {
     await pg.exec("reset role").catch(() => undefined);
   }

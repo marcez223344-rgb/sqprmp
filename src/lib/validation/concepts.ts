@@ -1,5 +1,6 @@
 import type { Statement } from "pgsql-ast-parser";
 import type { SqlConcept } from "@/content/schemas/common";
+import { detectStyleIssues } from "./style";
 
 const AGGREGATES = new Set([
   "count",
@@ -183,39 +184,15 @@ export function collectTables(statement: Statement): string[] {
   return out;
 }
 
-/** Heuristic readability checks that map to improvement_feedback conditions. */
+/**
+ * Heuristic readability checks that map to `improvement_feedback` conditions.
+ * Kept as a thin wrapper over `detectStyleIssues` (src/lib/validation/style.ts), which owns the
+ * checks and their order, so callers that only need the condition names do not carry severities.
+ */
 export function detectImprovements(
   sql: string,
   statement: Statement,
   concepts: Set<SqlConcept>,
 ): string[] {
-  const out: string[] = [];
-  const s = statement as unknown as Record<string, unknown>;
-  if (/select\s+\*/i.test(sql)) out.push("uses_select_star");
-  if (concepts.has("aggregate") && Array.isArray(s.columns)) {
-    const cols = s.columns as { expr?: { type?: string }; alias?: unknown }[];
-    if (cols.some((c) => c.expr?.type === "call" && !c.alias))
-      out.push("missing_alias_on_aggregate");
-  }
-  if ((concepts.has("inner_join") || concepts.has("outer_join")) && Array.isArray(s.from)) {
-    const froms = s.from as { alias?: unknown; type?: string }[];
-    if (froms.some((f) => f.type === "table" && !f.alias)) out.push("no_table_alias_in_join");
-  }
-  if (
-    /between\s+(date|timestamp|')/i.test(sql) &&
-    /created_at|paid_at|shipped_at|delivered_at|signup_at|_at\b/i.test(sql)
-  )
-    out.push("uses_between_for_timestamps");
-  if (
-    Array.isArray(s.from) &&
-    (s.from as unknown[]).length > 1 &&
-    !concepts.has("inner_join") &&
-    !concepts.has("outer_join")
-  )
-    out.push("uses_implicit_join");
-  const keywords = sql.match(/\b(select|from|where|group by|order by|having|join|limit)\b/gi) ?? [];
-  const upper = keywords.filter((k) => k === k.toUpperCase()).length;
-  if (keywords.length >= 3 && upper > 0 && upper < keywords.length)
-    out.push("uppercase_inconsistent");
-  return out;
+  return detectStyleIssues(sql, statement, concepts).map((i) => i.condition);
 }

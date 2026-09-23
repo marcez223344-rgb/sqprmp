@@ -31,3 +31,10 @@ export function runLearnerQuery(
   limits: RunLimits,
   isSelect?: boolean,
 ): Promise<SandboxResult>;
+export const WRAPPER_PREFIX: string;
+export function stripTrailingSemicolon(sql: string): string;
+export function unwrapErrorPosition(
+  position: number | undefined,
+  original: string,
+  inner: string,
+): number | undefined;
