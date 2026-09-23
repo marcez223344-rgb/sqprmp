@@ -85,7 +85,9 @@ test.describe("exercise workspace (journeys 3–8)", () => {
     });
     await solutionPanel.evaluate((el: HTMLDetailsElement) => (el.open = true));
     await page.getByRole("button", { name: "Ver la solución explicada" }).click();
-    await expect(page.locator("pre", { hasText: "ORDER BY id" })).toBeVisible();
+    // The alternatives carry their own <pre> and may use the same clause, so match the reference
+    // solution by position — the panel's own <pre> — rather than by text that is not unique.
+    await expect(solutionPanel.locator("> div > pre")).toHaveText(/ORDER BY id/);
 
     // Correct submission (order matters here).
     await typeSql(page, "SELECT id, full_name, country FROM customers ORDER BY id LIMIT 10");
