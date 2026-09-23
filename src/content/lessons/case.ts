@@ -16,7 +16,7 @@ export const lessons: LessonDef[] = [
     dataset: "tiendaviva",
     body_md: `## Por qué importa
 
-La base de datos guarda códigos: \`status = 'delivered'\`, \`country = 'MX'\`, \`rating = 4.7\`. El negocio habla en etiquetas: «entregado», «Norteamérica», «vendedor destacado». \`CASE\` es la expresión que traduce una cosa en la otra **dentro de la consulta**, sin exportar a una planilla y sin pedirle un cambio al equipo de sistemas.
+La base de datos guarda códigos: \`status = 'delivered'\`, \`country = 'MX'\`, \`rating = 4.7\`. Quien lee el reporte habla en etiquetas: «entregado», «Norteamérica», «vendedor destacado». \`CASE\` es la construcción de SQL que traduce lo primero en lo segundo **dentro de la misma consulta**, así que no necesitas exportar los datos a una planilla ni pedirle al equipo de sistemas que agregue una columna a la tabla.
 
 ## CASE buscada: condiciones libres
 
@@ -58,7 +58,7 @@ La expresión va **una sola vez**, después de \`CASE\`, y cada \`WHEN\` solo in
 
 ## La primera coincidencia gana
 
-PostgreSQL evalúa los \`WHEN\` **en orden** y se detiene en el primero que sea verdadero. El resto ni se mira. Por eso este \`CASE\` está mal escrito:
+PostgreSQL evalúa los \`WHEN\` **en orden**, de arriba hacia abajo, y se detiene en el primero que resulta verdadero; las ramas siguientes ni siquiera se evalúan. Por eso este \`CASE\` está mal escrito:
 
 \`\`\`sql
 CASE
@@ -68,7 +68,7 @@ CASE
 END
 \`\`\`
 
-Un vendedor con 4.8 cumple la primera condición y sale como «Confiable». La segunda rama es código muerto. Regla práctica: ordena los umbrales de más exigente a menos exigente (o al revés, de forma consistente), nunca mezclados.
+Un vendedor con 4.8 cumple la primera condición y sale etiquetado como «Confiable». La segunda rama no se alcanza nunca, para ninguna fila, así que la etiqueta «Destacado» jamás aparece en el reporte. Regla práctica: ordena los umbrales de más exigente a menos exigente, o al revés, pero siempre de forma consistente y nunca mezclados.
 
 ## Sin ELSE el resultado es NULL
 
@@ -78,7 +78,7 @@ Un vendedor con 4.8 cumple la primera condición y sale como «Confiable». La s
 CASE WHEN status = 'delivered' THEN 'Entregado' END
 \`\`\`
 
-Un pedido cancelado devuelve NULL en esa columna. A veces es lo que quieres; la mayoría de las veces es un olvido que después aparece como huecos en un reporte. Escribe siempre el \`ELSE\`, aunque sea \`ELSE 'Otro'\`.
+Un pedido cancelado devuelve NULL en esa columna. A veces ese NULL es justamente lo que buscas; la mayoría de las veces es un olvido que después aparece como celdas vacías en el reporte y obliga a rehacerlo. Escribe siempre el \`ELSE\`, aunque sea \`ELSE 'Otro'\`.
 
 ## Todas las ramas, el mismo tipo
 
@@ -88,7 +88,7 @@ Los resultados de los \`THEN\` y del \`ELSE\` deben ser de tipos compatibles. Es
 CASE WHEN rating >= 4.5 THEN 'Destacado' ELSE 0 END
 \`\`\`
 
-PostgreSQL intenta unificar texto con número y devuelve un error. Decide si la columna es texto (etiqueta) o número (puntaje) y sé consistente en todas las ramas.
+PostgreSQL intenta encontrar un tipo común entre texto y número, no lo encuentra y devuelve un error que corta la consulta. Decide antes de escribir si esa columna va a ser texto (una etiqueta) o número (un puntaje) y mantén esa decisión en todas las ramas, incluido el \`ELSE\`.
 
 ## Resumen
 
@@ -110,7 +110,7 @@ PostgreSQL intenta unificar texto con número y devuelve un error. Decide si la 
     dataset: "tiendaviva",
     body_md: `## Por qué importa
 
-Casi todo análisis empieza agrupando: pedidos chicos y grandes, clientes nuevos y recurrentes, entregas a tiempo y tarde. Esos cortes rara vez existen como columna en la base: los define el negocio y los construye quien analiza. \`CASE\` es la herramienta para escribirlos una vez y que todo el equipo use la misma definición.
+Casi todo análisis empieza agrupando: pedidos chicos y grandes, clientes nuevos y recurrentes, entregas a tiempo y entregas tarde. Esos cortes rara vez existen como una columna de la base de datos: los define el área de negocio y los construye quien analiza, consulta por consulta. \`CASE\` es la herramienta para escribirlos una sola vez, de modo que todo el equipo use la misma definición y los reportes cierren entre sí.
 
 ## Tramos numéricos sin huecos ni solapamientos
 
@@ -130,13 +130,13 @@ FROM orders
 WHERE currency = 'UYU';
 \`\`\`
 
-No hace falta escribir \`WHEN total_amount >= 2000 AND total_amount < 10000\`: si la fila llegó a la segunda rama es porque ya no cumplió la primera. Escribir los dos límites no está mal, pero es más largo y más fácil de romper.
+No hace falta escribir \`WHEN total_amount >= 2000 AND total_amount < 10000\`: si la fila llegó a la segunda rama es porque ya no cumplió la primera. Escribir los dos límites tampoco está mal, pero es más largo y, cuando alguien ajusta un umbral, es fácil corregir un solo lado y dejar un hueco o un solapamiento entre tramos.
 
 Define siempre si el límite es inclusivo o exclusivo y déjalo documentado en el nombre de la etiqueta o en el pedido. «Hasta 2000» y «menos de 2000» son cosas distintas para quien recibe el reporte.
 
 ## NULL no cumple ninguna condición
 
-Un NULL no es mayor, ni menor, ni igual a nada: la comparación da «desconocido», que no es verdadero. Entonces una fila con \`rating\` NULL **cae en el \`ELSE\`**:
+Un NULL es un valor ausente: no es mayor, ni menor, ni igual a nada, ni siquiera a otro NULL. Cualquier comparación con él devuelve «desconocido», y «desconocido» no es verdadero, así que ningún \`WHEN\` lo acepta. El resultado es que una fila con \`rating\` en NULL **cae en el \`ELSE\`**:
 
 \`\`\`sql
 CASE
@@ -146,7 +146,7 @@ CASE
 END
 \`\`\`
 
-Eso etiqueta como «a mejorar» a vendedores que nunca fueron calificados: un error de negocio, no de sintaxis. La solución es una rama explícita:
+Eso etiqueta como «a mejorar» a vendedores que nunca recibieron una calificación, lo que pone un dato falso en el reporte: la consulta se ejecuta sin error, pero la conclusión que sacará quien la lea es incorrecta. La solución es darles una rama propia:
 
 \`\`\`sql
 CASE
@@ -177,11 +177,11 @@ ORDER BY
   id;
 \`\`\`
 
-Alfabéticamente, \`cancelled\` iría antes que \`paid\`; con \`CASE\` defines el orden real del ciclo de vida del pedido. También puedes ordenar por el alias de una columna calculada, que suele ser más legible.
+Si ordenaras directamente por \`status\`, el resultado saldría alfabético y \`cancelled\` aparecería antes que \`paid\`, un orden que no le dice nada a quien lee el reporte. Con \`CASE\` defines el orden real del ciclo de vida del pedido. También puedes ordenar por el alias de una columna calculada, que suele leerse mejor.
 
 ## Lo que viene después
 
-Cuando combinas \`CASE\` con funciones de agregación obtienes «conteos por categoría en una sola fila» (por ejemplo, cuántos pedidos hay en cada tramo). Eso se llama agregación condicional y tiene su propia sección más adelante; por ahora quédate con la idea de clasificar fila por fila.
+Cuando combinas \`CASE\` con funciones de agregación puedes obtener varios conteos por categoría en una sola fila de resultado, por ejemplo cuántos pedidos hay en cada tramo, uno al lado del otro. Esa técnica se llama agregación condicional y tiene su propia sección más adelante; por ahora quédate con la idea de clasificar fila por fila.
 
 ## Resumen
 
@@ -203,7 +203,7 @@ Cuando combinas \`CASE\` con funciones de agregación obtienes «conteos por cat
     dataset: "bolsillo",
     body_md: `## Por qué importa
 
-Dos de los \`CASE\` que más se escriben son siempre iguales: «si esto es NULL, muestra otra cosa» y «si esto vale X, trátalo como NULL». SQL tiene un atajo para cada uno. Conocerlos hace tus consultas más cortas y, sobre todo, más fáciles de leer para quien las revise.
+Dos de los \`CASE\` que más se escriben repiten siempre la misma forma: «si esto es NULL, muestra otra cosa» y «si esto vale tal valor, trátalo como si fuera NULL». SQL tiene un atajo para cada uno: \`COALESCE\` y \`NULLIF\`. Conocerlos acorta tus consultas y, sobre todo, hace más fácil entenderlas para quien las revise.
 
 ## COALESCE: el primer valor no nulo
 
@@ -226,7 +226,7 @@ CASE WHEN description IS NULL THEN 'sin detalle' ELSE description END
 COALESCE(note, description, 'sin concepto')
 \`\`\`
 
-Recuerda que rellenar con un valor tiene consecuencias: \`COALESCE(rating, 0)\` está bien para un listado, pero convierte «sin datos» en «puntaje cero» y arruina cualquier promedio posterior.
+Recuerda que rellenar un NULL con un valor tiene consecuencias. \`COALESCE(rating, 0)\` está bien para un listado que solo se mira, pero convierte «sin datos» en «puntaje cero»: si después calculas un promedio, esos ceros lo bajan y el número deja de ser cierto.
 
 ## NULLIF: producir un NULL a propósito
 
@@ -240,7 +240,7 @@ NULLIF(trim(description), '')
 amount / NULLIF(installments, 0)
 \`\`\`
 
-En el segundo caso el resultado es NULL en lugar de un error que corta toda la consulta.
+En el segundo caso, cuando \`installments\` vale 0 el divisor se convierte en NULL y la división devuelve NULL, en lugar de provocar el error «division by zero» («división por cero») que cortaría toda la consulta.
 
 ## Cuándo usar cada uno
 
@@ -267,8 +267,8 @@ WHERE is_flagged;
 
 ## Resumen
 
-- \`COALESCE\` y \`NULLIF\` son \`CASE\` especializados en NULL; no agregan poder, agregan claridad.
-- Rellenar NULL cambia el significado del dato: hazlo para mostrar, piénsalo dos veces para calcular.
+- \`COALESCE\` y \`NULLIF\` son \`CASE\` especializados en NULL: no permiten hacer nada que \`CASE\` no haga, pero se leen mucho mejor.
+- Rellenar un NULL cambia el significado del dato: hazlo cuando solo vas a mostrarlo y piénsalo dos veces si ese valor va a entrar en un cálculo.
 - Con tres o más categorías, vuelve a \`CASE\`.
 `,
   },

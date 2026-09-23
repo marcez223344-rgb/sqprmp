@@ -16,11 +16,11 @@ export const lessons: LessonDef[] = [
     dataset: "ritmo",
     body_md: `## Por qué importa
 
-Muchísimas preguntas de negocio se responden comparando una fila con su vecina: ¿vendimos más que el mes pasado?, ¿cuánto tardó este cliente en volver?, ¿cambió de plan? Sin funciones de ventana, esa comparación exige unir la tabla consigo misma con una condición de «la fila inmediatamente anterior», que es incómoda de escribir y lenta de ejecutar.
+Muchísimas preguntas de negocio se responden comparando una fila con la que tiene al lado: ¿vendimos más que el mes pasado?, ¿cuánto tardó este cliente en volver a comprar?, ¿cambió de plan? Sin funciones de ventana, esa comparación exige unir la tabla consigo misma con una condición que describa «la fila inmediatamente anterior», algo incómodo de escribir y lento de ejecutar.
 
-\`LAG\` y \`LEAD\` resuelven eso en una línea: traen el valor de otra fila de la misma partición, sin agrupar y sin perder ninguna fila.
+\`LAG\` («retraso» en inglés) y \`LEAD\` («adelanto») son funciones de ventana, es decir, funciones que miran otras filas relacionadas con la fila actual sin agruparlas. Traen a tu fila el valor de otra fila del mismo grupo, y el resultado conserva todas las filas originales.
 
-Seguimos con **Ritmo**, el servicio de streaming: \`users\` (oyentes), \`plays\` (reproducciones), \`albums\`, \`artists\` y \`subscriptions\`.
+Seguimos con **Ritmo**, el servicio de streaming musical. Sus tablas son \`users\` (los oyentes), \`plays\` (una fila por reproducción), \`albums\`, \`artists\` y \`subscriptions\` (las suscripciones pagas).
 
 ## La forma básica
 
@@ -41,13 +41,13 @@ FROM mensual
 ORDER BY mes;
 \`\`\`
 
-\`lag(x)\` devuelve el valor de \`x\` en la fila **anterior** según el \`ORDER BY\` de la ventana; \`lead(x)\`, el de la fila **siguiente**. En la primera fila no hay anterior, así que \`lag\` devuelve \`NULL\`; en la última pasa lo mismo con \`lead\`.
+\`lag(x)\` devuelve el valor que tiene \`x\` en la fila **anterior**, según el \`ORDER BY\` escrito dentro de \`OVER\`. \`lead(x)\` devuelve el valor de esa misma columna en la fila **siguiente**. La primera fila no tiene ninguna anterior, así que su \`lag\` es \`NULL\`, y a la última le pasa lo mismo con \`lead\`.
 
-El \`AT TIME ZONE 'UTC'\` fija el huso con el que se corta el calendario: sin él, el mes al que cae cada marca de tiempo depende de la zona de la sesión (UTC en el sandbox, pero lo que el administrador haya configurado en un servidor real). Aquí no vas a notar la diferencia porque el sandbox fija UTC justamente para que los resultados sean reproducibles; en producción, una reproducción del 1 de marzo a las 00:30 UTC se le suma a febrero si la sesión corre en Bogotá, y con \`lag\` ese corrimiento arrastra toda la columna de comparación.
+El \`AT TIME ZONE 'UTC'\` fija el huso horario con el que se corta el calendario. UTC (por *coordinated universal time*) es el huso de referencia mundial, y sin esa indicación el mes al que cae cada marca de tiempo depende de la zona horaria configurada en la sesión. En este sandbox no vas a notar la diferencia, porque la sesión está fijada en UTC justamente para que los resultados sean reproducibles. En un servidor real, en cambio, una reproducción del 1 de marzo a las 00:30 UTC se cuenta en febrero si la sesión corre en Bogotá. Y como \`lag\` compara cada mes con el anterior, ese corrimiento de unas pocas filas desplaza toda la columna de comparación.
 
 ## El ORDER BY de la ventana es obligatorio
 
-\`LAG\` y \`LEAD\` responden «la fila anterior **en qué orden**». Sin \`ORDER BY\` dentro de \`OVER\` no hay un orden definido y el resultado queda a merced del plan de ejecución. Postgres no te avisa: simplemente devuelve algo. Considéralo obligatorio.
+\`LAG\` y \`LEAD\` tienen que saber «la fila anterior **en qué orden**». Si no escribes \`ORDER BY\` dentro de \`OVER\`, no existe ningún orden definido y el valor que devuelven depende de cómo el motor haya decidido leer las filas esa vez. Postgres no emite ninguna advertencia: devuelve un número, y ese número puede cambiar entre ejecuciones. Trátalo como obligatorio.
 
 Ese \`ORDER BY\` es independiente del \`ORDER BY\` final de la consulta. Puedes mirar hacia atrás por fecha y mostrar el resultado de mayor a menor; los valores de \`lag\` no cambian.
 
@@ -60,9 +60,9 @@ lag(reproducciones, 12) OVER (ORDER BY mes)        -- el mismo mes del año pasa
 lag(reproducciones, 1, 0) OVER (ORDER BY mes)      -- 0 en lugar de NULL en la primera fila
 \`\`\`
 
-El segundo argumento es cuántas filas retroceder (o avanzar); el tercero, qué devolver cuando esa fila no existe. Cuidado con el valor por omisión: poner \`0\` es cómodo para restar, pero convierte «no hay dato» en «había cero», y eso puede mentir en un informe. Úsalo solo cuando el cero sea verdad en el negocio.
+El segundo argumento indica cuántas filas hay que retroceder o avanzar. El tercero indica qué valor devolver cuando esa fila no existe. Ten cuidado con ese tercer argumento: poner \`0\` es cómodo porque permite restar sin obtener NULL, pero convierte «no tenemos dato de ese período» en «ese período valió cero», y quien lea el informe va a interpretar lo segundo. Úsalo solo cuando el cero sea cierto en términos del negocio.
 
-Y una advertencia importante sobre \`lag(x, 12)\`: retrocede **doce filas**, no doce meses. Si a la serie le falta un mes porque no hubo actividad, la comparación se desalinea sin avisar.
+Una advertencia importante sobre \`lag(x, 12)\`: retrocede **doce filas**, no doce meses. Si a la serie le falta un mes porque en ese período no hubo actividad, la función compara contra un mes equivocado y no hay ningún aviso de que eso ocurrió.
 
 ## Partir por grupo
 
@@ -87,13 +87,13 @@ FROM mensual
 ORDER BY country, mes;
 \`\`\`
 
-Sin \`PARTITION BY\`, la primera fila de Chile se compararía con la última de Brasil: un número sin ningún sentido que además parece plausible.
+Sin \`PARTITION BY\`, todas las filas forman una sola secuencia y la primera fila de Chile se compara con la última de Brasil. El resultado es una variación entre dos países distintos, que no significa nada y que además tiene el aspecto de un número razonable.
 
 ## Dónde no se puede usar
 
 Como toda función de ventana, \`LAG\` se evalúa **después** de \`WHERE\`, \`GROUP BY\` y \`HAVING\`. Por eso:
 
-- No puedes filtrar por \`lag(...)\` en el \`WHERE\` de la misma consulta. Calcúlalo en una CTE o subconsulta y filtra en el nivel de afuera.
+- No puedes filtrar por \`lag(...)\` en el \`WHERE\` de la misma consulta, porque en ese momento el valor todavía no está calculado. Calcúlalo dentro de una CTE (por *common table expression*, el bloque \`WITH\` que nombra un paso intermedio) o de una subconsulta, y filtra en el nivel de afuera.
 - Lo que el \`WHERE\` descarta, la ventana no lo ve. Si filtras un mes y pides el mes anterior, la primera fila devuelve \`NULL\`: el dato existía, pero lo quitaste antes.
 
 ## Errores comunes
@@ -123,7 +123,7 @@ Como toda función de ventana, \`LAG\` se evalúa **después** de \`WHERE\`, \`G
     dataset: "ritmo",
     body_md: `## Por qué importa
 
-«Creció 12 % contra el mes anterior» es probablemente la frase más repetida en cualquier reunión de resultados. Detrás hay una cuenta simple —valor actual contra valor anterior— y varias trampas que arruinan el número sin que nadie lo note.
+«Creció 12 % contra el mes anterior» es probablemente la frase más repetida en cualquier reunión de resultados. Detrás hay una cuenta simple, el valor actual comparado con el valor anterior, y varias trampas que arruinan el número sin que nadie lo note en la reunión.
 
 ## Variación absoluta y porcentual
 
@@ -150,11 +150,11 @@ ORDER BY mes;
 
 Tres detalles que hacen la diferencia:
 
-- **\`100.0\` y no \`100\`.** Con dos enteros, la división en Postgres es entera: \`3 / 4\` da \`0\`. Basta con que un operando sea \`numeric\` para que la cuenta sea decimal.
+- **\`100.0\` y no \`100\`.** Cuando los dos operandos son enteros, Postgres hace una división entera y corta los decimales: \`3 / 4\` da \`0\`. Basta con que uno de los dos sea \`numeric\` para que la cuenta se resuelva con decimales.
 - **\`nullif(..., 0)\`.** Si el mes anterior fue 0, la división falla con *division by zero*. \`nullif\` la convierte en \`NULL\`, que es la respuesta honesta: «no se puede calcular».
 - **\`round(..., 1)\`.** Redondea al final, nunca en pasos intermedios.
 
-Repetir tres veces la misma expresión \`lag(...)\` funciona, pero se lee mal. Una CTE intermedia deja la fórmula limpia:
+Repetir tres veces la misma expresión \`lag(...)\` funciona y da el resultado correcto, pero obliga a quien lee a verificar que las tres copias sean idénticas. Calcular el valor anterior una sola vez en una CTE intermedia deja la fórmula a la vista:
 
 \`\`\`sql
 WITH mensual AS (
@@ -182,25 +182,25 @@ ORDER BY mes;
 
 ## Contra el mes anterior o contra el mismo mes del año pasado
 
-No son la misma pregunta. La variación mes a mes mezcla crecimiento real con estacionalidad: diciembre casi siempre sube y febrero casi siempre baja. La variación interanual compara períodos comparables y aísla la tendencia.
+No son la misma pregunta. La variación mes a mes mezcla el crecimiento real con la **estacionalidad**, que es el patrón que se repite todos los años por el calendario: diciembre casi siempre sube y febrero casi siempre baja, sin que el negocio haya cambiado. La variación interanual compara cada mes contra el mismo mes del año anterior, así que la estacionalidad afecta por igual a los dos valores y lo que queda a la vista es la tendencia.
 
 \`\`\`sql
 lag(reproducciones, 12) OVER (ORDER BY mes) AS mismo_mes_ano_pasado
 \`\`\`
 
-Solo es correcto si la serie tiene **todos** los meses. Si falta uno, \`lag(x, 12)\` retrocede doce filas y compara contra el mes equivocado. Cuando no puedas garantizar la serie completa, une la tabla consigo misma por \`mes = otro.mes + interval '1 year'\`, que compara por calendario y no por posición.
+Eso solo es correcto si la serie tiene **todos** los meses. Si falta uno, \`lag(x, 12)\` retrocede doce filas y termina comparando contra un mes que no corresponde. Cuando no puedas garantizar que la serie esté completa, une la tabla consigo misma con la condición \`mes = otro.mes + interval '1 year'\`, que empareja por fecha de calendario en lugar de por posición en la lista.
 
 ## Períodos incompletos
 
-El último período casi siempre está a medio llenar: si el corte de datos es el 15 de septiembre, ese mes muestra medio mes. La variación contra agosto dará una caída enorme que no existe.
+El último período casi siempre está a medio llenar. Si los datos llegan hasta el 15 de septiembre, ese mes contiene quince días y agosto contiene treinta y uno. La variación entre ambos va a mostrar una caída enorme que no ocurrió: solo refleja que estás comparando medio mes contra un mes entero.
 
 Dos salidas honestas: excluir el período en curso con un filtro, o marcarlo con una bandera para que quien lea el informe sepa que no es comparable. Lo que nunca conviene es publicarlo como si fuera una caída real.
 
 ## Bases pequeñas y números negativos
 
-Un porcentaje sobre una base chica es ruido: pasar de 2 a 6 es «+200 %» y no significa nada. En los tableros se suele ocultar la variación cuando la base está por debajo de un mínimo acordado con el negocio.
+Un porcentaje calculado sobre una base chica no informa nada útil: pasar de 2 reproducciones a 6 es «+200 %», y ese titular describe cuatro reproducciones de diferencia. Por eso en los tableros se suele ocultar la variación cuando la base está por debajo de un mínimo acordado con el negocio.
 
-Y si la base puede ser negativa (resultados, márgenes), la variación porcentual cambia de signo y deja de ser interpretable. Ahí se reporta la diferencia absoluta.
+Y si la base puede ser negativa, como ocurre con resultados o márgenes, la variación porcentual cambia de signo y deja de poder interpretarse: pasar de −100 a −50 da «−50 %» aunque la situación mejoró. En esos casos se informa la diferencia absoluta, no el porcentaje.
 
 ## Errores comunes
 
@@ -230,7 +230,7 @@ Y si la base puede ser negativa (resultados, márgenes), la variación porcentua
     dataset: "ritmo",
     body_md: `## Por qué importa
 
-\`LAG\` no sirve solo para series mensuales. Aplicado a una tabla de eventos responde preguntas que el negocio hace todo el tiempo: ¿cuánto pasa entre una compra y la siguiente?, ¿cuándo se corta una sesión?, ¿en qué momento cambió de plan este cliente?
+\`LAG\` no sirve solo para series mensuales. Aplicado a una tabla de eventos, donde cada fila es algo que pasó en un instante, responde preguntas que el negocio hace todo el tiempo: ¿cuánto tiempo pasa entre una compra y la siguiente?, ¿en qué punto se corta una sesión?, ¿en qué momento cambió de plan este cliente?
 
 ## Tiempo entre eventos consecutivos
 
@@ -248,11 +248,11 @@ WHERE user_id = 496
 ORDER BY played_at;
 \`\`\`
 
-Restar dos \`timestamptz\` da un \`interval\`. Un intervalo se muestra bien pero se agrega mal, así que para promediar o comparar conviene pasarlo a un número: \`extract(epoch FROM ...)\` devuelve segundos, y divides por 3600 para horas o por 86400 para días.
+Restar dos valores \`timestamptz\` devuelve un \`interval\`, que es una duración. Un intervalo se muestra bien en pantalla, pero es incómodo de promediar y de comparar, así que conviene convertirlo a número: \`extract(epoch FROM ...)\` devuelve la duración en segundos, y a partir de ahí divides entre 3600 para obtener horas o entre 86400 para obtener días.
 
 Con fechas (\`date\`) es más simple todavía: \`released_on - lag(released_on) OVER (...)\` devuelve directamente un entero de días.
 
-La primera fila de cada partición no tiene anterior: su brecha es \`NULL\`, y eso es correcto. Rellenarla con 0 diría «volvió al instante», que es falso.
+La primera fila de cada partición no tiene ninguna fila anterior, así que su brecha es \`NULL\`, y ese NULL es la respuesta correcta: no hubo un evento previo que medir. Rellenarlo con 0 afirmaría que la persona volvió de inmediato, y además bajaría cualquier promedio que calcules después.
 
 ## Sesionizar: agrupar eventos cercanos
 
@@ -276,9 +276,9 @@ SELECT
 FROM marcadas;
 \`\`\`
 
-\`anterior IS NULL\` cubre la primera reproducción de cada oyente, que siempre abre sesión. A partir de ahí, contar sesiones es sumar esa bandera; y si necesitas un identificador de sesión, un \`sum(inicia_sesion) OVER (PARTITION BY user_id ORDER BY played_at)\` numera las sesiones de cada persona.
+La condición \`anterior IS NULL\` cubre la primera reproducción de cada oyente, que siempre abre una sesión porque no hay nada antes. A partir de ahí, contar sesiones es simplemente sumar esa bandera. Y si necesitas un identificador de sesión para agrupar los eventos de cada una, \`sum(inicia_sesion) OVER (PARTITION BY user_id ORDER BY played_at)\` va numerando las sesiones de cada persona: el número solo avanza cuando empieza una nueva.
 
-El mismo patrón detecta cambios de estado: si \`lag(plan)\` es distinto del plan actual, esa fila es un cambio de plan. Compáralo con \`IS DISTINCT FROM\` en vez de \`<>\` para que un \`NULL\` cuente como diferencia y no desaparezca.
+El mismo patrón detecta cambios de estado: si el plan que devuelve \`lag(plan)\` es distinto del plan de la fila actual, esa fila marca un cambio de plan. Compáralos con \`IS DISTINCT FROM\` en lugar de \`<>\`, porque \`<>\` devuelve NULL cuando alguno de los dos valores es NULL y ese cambio quedaría sin detectar; \`IS DISTINCT FROM\` trata el NULL como un valor más y responde verdadero o falso siempre.
 
 ## FIRST_VALUE y LAST_VALUE
 
@@ -288,7 +288,7 @@ A veces no quieres la fila vecina sino un punto de referencia de toda la partici
 first_value(reproducciones) OVER (PARTITION BY country ORDER BY mes) AS primer_mes
 \`\`\`
 
-\`FIRST_VALUE\` funciona como esperas. \`LAST_VALUE\` **no**, y es una de las trampas más frecuentes de SQL: con \`ORDER BY\` y sin marco explícito, la ventana llega hasta la fila actual, así que \`last_value\` devuelve el valor de la fila actual, no el último de la partición. Hay que abrir el marco:
+\`FIRST_VALUE\` devuelve el primer valor de la partición, que es lo que uno espera. \`LAST_VALUE\` **no** devuelve el último, y esa es una de las trampas más frecuentes de SQL. Cuando la ventana tiene \`ORDER BY\` y no declaras un marco, el marco por omisión llega solo hasta la fila actual, así que \`last_value\` devuelve el valor de esa misma fila en lugar del último de la partición. Para obtener el último hay que abrir el marco hasta el final:
 
 \`\`\`sql
 last_value(reproducciones) OVER (
@@ -298,9 +298,9 @@ last_value(reproducciones) OVER (
 ) AS ultimo_mes
 \`\`\`
 
-Una alternativa que muchos prefieren por lo explícita: \`first_value(...) OVER (PARTITION BY country ORDER BY mes DESC)\`. Da lo mismo y no depende de recordar el marco.
+Hay una alternativa que muchos equipos prefieren por ser más explícita: \`first_value(...) OVER (PARTITION BY country ORDER BY mes DESC)\`, es decir, pedir el primer valor de la serie invertida. Devuelve exactamente lo mismo y no depende de recordar la regla del marco.
 
-Con esa referencia, un índice base 100 sale solo: \`round(100.0 * reproducciones / ultimo_mes, 1)\`.
+Con una referencia de ese tipo se arma un índice base 100, que expresa cada período como un porcentaje del período de referencia y permite comparar series de tamaños muy distintos: \`round(100.0 * reproducciones / ultimo_mes, 1)\`.
 
 ## Errores comunes
 

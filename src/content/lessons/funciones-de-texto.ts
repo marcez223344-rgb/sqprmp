@@ -14,9 +14,11 @@ export const lessons: LessonDef[] = [
     dataset: "tiendaviva",
     body_md: `## Por qué importa
 
-El texto que cargan las personas nunca llega limpio: \`ana@ejemplo.lat\` y \`ANA@EJEMPLO.LAT\` son el mismo correo para el negocio, pero dos valores distintos para la base de datos. En \`customers\` de TiendaViva hay 39 correos guardados en mayúsculas; si los cuentas sin normalizar, tu informe muestra clientes que no existen.
+El texto que cargan las personas nunca llega limpio. Para el negocio, \`ana@ejemplo.lat\` y \`ANA@EJEMPLO.LAT\` son el mismo correo de la misma persona; para la base de datos son dos valores distintos, y al contarlos dan dos clientes.
 
-Normalizar significa llevar un texto a una forma única antes de compararlo, contarlo o mostrarlo.
+En la tabla \`customers\` de TiendaViva hay 39 correos guardados en mayúsculas. Si cuentas los correos distintos sin normalizarlos, tu informe muestra clientes que en realidad no existen y cualquier tasa calculada sobre ese total queda mal.
+
+**Normalizar** significa llevar un texto a una forma única y predecible antes de compararlo, contarlo o mostrarlo.
 
 ## Mayúsculas y minúsculas
 
@@ -28,11 +30,11 @@ SELECT
 FROM customers;
 \`\`\`
 
-- \`LOWER\` pasa todo a minúsculas; es la forma estándar de normalizar correos e identificadores.
-- \`UPPER\` pasa todo a mayúsculas; útil para códigos de país o monedas.
-- \`INITCAP\` pone en mayúscula la primera letra de cada palabra y el resto en minúscula: \`INITCAP('maría josé')\` devuelve \`María José\`.
+- \`LOWER\` pasa todo el texto a minúsculas. Es la forma estándar de normalizar correos e identificadores, porque para esos datos las mayúsculas nunca cambian el significado.
+- \`UPPER\` pasa todo a mayúsculas. Sirve para códigos de país o de moneda, que por convención se escriben así: \`MX\`, \`ARS\`.
+- \`INITCAP\` pone en mayúscula la primera letra de cada palabra y el resto en minúscula, útil para mostrar nombres propios: \`INITCAP('maría josé')\` devuelve \`María José\`.
 
-Las tres funciones respetan los acentos: \`UPPER('café')\` devuelve \`CAFÉ\`.
+Las tres funciones respetan los acentos, así que \`UPPER('café')\` devuelve \`CAFÉ\` y no \`CAFE\`.
 
 ## Comparar sin importar la capitalización
 
@@ -42,17 +44,21 @@ FROM customers
 WHERE email <> LOWER(email);
 \`\`\`
 
-Esa consulta te muestra exactamente los registros con problema de capitalización. Para comparar dos textos "como el negocio los entiende", normaliza **los dos lados**:
+Esa consulta compara cada correo con su propia versión en minúsculas: si son distintos, es porque el correo tiene alguna mayúscula. Te muestra exactamente los registros con problema de capitalización.
+
+Cuando quieras comparar dos textos como los entiende el negocio, normaliza **los dos lados** de la igualdad:
 
 \`\`\`sql
 WHERE LOWER(email) = LOWER('ANA@EJEMPLO.LAT')
 \`\`\`
 
-En la sección 6 viste \`ILIKE\`, que ignora mayúsculas en patrones. \`LOWER\` en ambos lados es el equivalente para igualdades exactas.
+Si normalizas solo uno, la comparación sigue siendo sensible a las mayúsculas del otro y vas a perder filas. En la sección 6 viste \`ILIKE\`, que ignora las mayúsculas al buscar patrones; \`LOWER\` en ambos lados es el equivalente para comparaciones de igualdad exacta.
 
 ## Los acentos no se ignoran
 
-Esta es la trampa que más reportes rompe: \`'José' = 'Jose'\` es **falso**, y \`LOWER\` no cambia eso. Mayúsculas y acentos son cosas distintas: normalizar la capitalización no normaliza la escritura. Si necesitas tratar \`Córdoba\` y \`Cordoba\` como la misma ciudad, hace falta quitar las tildes explícitamente (por ejemplo con \`TRANSLATE\`), y conviene decidirlo con el área de negocio: en español la tilde puede cambiar el significado.
+Esta es la trampa que más reportes rompe: \`'José' = 'Jose'\` es **falso**, y \`LOWER\` no cambia eso, porque las mayúsculas y los acentos son dos cosas distintas. Normalizar la capitalización no normaliza la escritura.
+
+La consecuencia práctica es que el mismo cliente, cargado una vez con tilde y otra sin ella, se cuenta como dos, y una ciudad se parte en dos filas del informe. Si necesitas tratar \`Córdoba\` y \`Cordoba\` como la misma ciudad, tienes que quitar las tildes de forma explícita, por ejemplo con la función \`TRANSLATE\`. Conviene decidirlo junto al área de negocio, porque en español la tilde a veces cambia el significado de la palabra.
 
 ## Espacios: TRIM
 
@@ -61,9 +67,11 @@ SELECT TRIM('  Bazar Urbano  ');            -- 'Bazar Urbano'
 SELECT RTRIM('Rincón Urbano 14', ' 0123456789'); -- 'Rincón Urbano'
 \`\`\`
 
-\`TRIM\` sin argumentos elimina espacios al principio y al final (nunca los del medio). Con un segundo argumento elimina **cualquiera de esos caracteres** en los extremos: \`LTRIM\` por la izquierda, \`RTRIM\` por la derecha, \`TRIM\` por ambos lados. Es la forma más corta de sacar sufijos numéricos o símbolos sobrantes.
+\`TRIM\` sin más argumentos elimina los espacios del principio y del final del texto, y nunca los del medio.
 
-Un espacio invisible al final es la causa clásica de un filtro que "no encuentra nada": \`'Lima ' = 'Lima'\` es falso.
+Con un segundo argumento elimina de los extremos **cualquiera de los caracteres** que le indiques, en cualquier orden, hasta encontrar uno que no esté en esa lista. Hay tres variantes: \`LTRIM\` limpia por la izquierda, \`RTRIM\` por la derecha y \`TRIM\` por ambos lados. Es la forma más corta de sacar sufijos numéricos o símbolos que sobran.
+
+Un espacio invisible al final del texto es la causa clásica de un filtro que «no encuentra nada»: \`'Lima ' = 'Lima'\` es falso, y como el espacio no se ve en pantalla, puedes pasar media hora revisando una consulta que está bien escrita.
 
 ## LENGTH cuenta caracteres, no bytes
 
@@ -72,15 +80,15 @@ SELECT LENGTH('Rincón Urbano')       AS caracteres,  -- 13
        OCTET_LENGTH('Rincón Urbano') AS bytes;       -- 14
 \`\`\`
 
-\`LENGTH\` devuelve **caracteres**: la \`ó\` cuenta 1, aunque en UTF-8 ocupe 2 bytes. Si validas "máximo 20 caracteres", \`LENGTH\` es lo correcto; si dimensionas almacenamiento, mira \`OCTET_LENGTH\`.
+\`LENGTH\` devuelve la cantidad de **caracteres**: la \`ó\` cuenta como uno solo, aunque al guardarse en la codificación UTF-8 ocupe dos bytes, que es lo que cuenta \`OCTET_LENGTH\`. Si validas una regla del tipo «máximo 20 caracteres», \`LENGTH\` es lo correcto; si estás calculando cuánto espacio de almacenamiento ocupa una columna, mira \`OCTET_LENGTH\`.
 
-Y recuerda la regla de NULL de la sección 8: \`LENGTH(NULL)\` es NULL, no 0. Toda función de texto aplicada a NULL devuelve NULL; usa \`COALESCE\` si necesitas un valor por defecto.
+Y recuerda la regla de NULL que viste en la sección 8: \`LENGTH(NULL)\` devuelve NULL, no 0. Toda función de texto aplicada a NULL devuelve NULL, porque si no sabes cuál es el texto tampoco puedes saber su longitud. Usa \`COALESCE\` si necesitas un valor por defecto.
 
 ## Resumen
 
-- \`LOWER\`/\`UPPER\`/\`INITCAP\` unifican la capitalización; los acentos siguen siendo distintos.
-- \`TRIM\` limpia los extremos y acepta un conjunto de caracteres a eliminar.
-- \`LENGTH\` cuenta caracteres y devuelve NULL si el texto es NULL.
+- \`LOWER\`, \`UPPER\` e \`INITCAP\` unifican la capitalización, pero los acentos siguen marcando diferencia.
+- \`TRIM\` limpia los extremos del texto y acepta un conjunto de caracteres a eliminar.
+- \`LENGTH\` cuenta caracteres y devuelve NULL cuando el texto es NULL.
 `,
   },
   {
@@ -96,7 +104,9 @@ Y recuerda la regla de NULL de la sección 8: \`LENGTH(NULL)\` es NULL, no 0. To
     dataset: "tiendaviva",
     body_md: `## Por qué importa
 
-Muchos datos útiles viven **dentro** de un texto: el dominio de un correo, el número de referencia de una transferencia, el prefijo de un código. Extraerlos con SQL evita exportar a una planilla y pegar fórmulas a mano.
+Muchos datos útiles no están en una columna propia: viven **dentro** de un texto más largo. El dominio de un correo electrónico (lo que va después del \`@\`) sirve para separar clientes corporativos de particulares; el prefijo de un código de producto indica la línea a la que pertenece; el número de referencia está en el medio de la descripción de una transferencia.
+
+Extraer esas partes con SQL evita el circuito habitual de exportar a una planilla, pegar fórmulas a mano y perder la trazabilidad de cómo se calculó cada dato.
 
 ## Cortar por posición: LEFT, RIGHT y SUBSTRING
 
@@ -107,9 +117,9 @@ SELECT LEFT(store_name, 6)            AS primeros_6,
 FROM sellers;
 \`\`\`
 
-\`LEFT(texto, n)\` toma los primeros \`n\` caracteres, \`RIGHT(texto, n)\` los últimos. \`SUBSTRING(texto FROM inicio FOR largo)\` corta desde una posición (la primera es **1**, no 0). Si omites \`FOR\`, corta hasta el final.
+\`LEFT(texto, n)\` toma los primeros \`n\` caracteres y \`RIGHT(texto, n)\` los últimos \`n\`. \`SUBSTRING(texto FROM inicio FOR largo)\` corta un pedazo a partir de una posición, teniendo en cuenta que el primer carácter de un texto es la posición **1** y no la 0. Si omites la parte \`FOR\`, corta desde esa posición hasta el final.
 
-Sirven cuando la posición es fija (un código de 3 letras, un año al inicio). Cuando la posición depende del contenido, necesitas buscarla.
+Estas tres funciones sirven cuando la posición es siempre la misma: un código de país de tres letras al inicio, un año en los primeros cuatro caracteres. Cuando la posición depende del contenido de cada fila, primero hay que buscarla.
 
 ## Buscar una posición: POSITION
 
@@ -118,14 +128,14 @@ SELECT POSITION('@' IN email) AS pos_arroba
 FROM customers;
 \`\`\`
 
-Devuelve la posición del primer carácter buscado, o **0** si no aparece. Combinado con los cortes anteriores extrae partes variables:
+\`POSITION\` devuelve en qué posición aparece por primera vez el texto buscado, o **0** si no aparece nunca. Combinada con los cortes anteriores, permite extraer partes cuya posición cambia en cada fila:
 
 \`\`\`sql
 SELECT LEFT(email, POSITION('@' IN email) - 1) AS usuario
 FROM customers;
 \`\`\`
 
-Ojo con el 0: si el texto no contiene \`@\`, \`POSITION\` devuelve 0 y el corte queda \`LEFT(email, -1)\`, que en PostgreSQL devuelve el texto **sin su último carácter**. No hay error: hay un valor silenciosamente incorrecto. Verifica siempre que el separador exista.
+Presta atención a ese 0. Si un correo no contiene \`@\`, \`POSITION\` devuelve 0 y el corte queda escrito como \`LEFT(email, -1)\`, que en PostgreSQL devuelve el texto **sin su último carácter**. La consulta no falla y el resultado parece razonable, pero esas filas traen un dato incorrecto. Verifica siempre que el separador exista antes de cortar por él.
 
 ## Partir por un separador: SPLIT_PART
 
@@ -135,7 +145,9 @@ SELECT SPLIT_PART(email, '@', 1) AS usuario,
 FROM customers;
 \`\`\`
 
-\`SPLIT_PART(texto, separador, n)\` corta el texto por el separador y devuelve el trozo número \`n\` (empezando en 1). Es más legible que \`POSITION\` + \`SUBSTRING\` y no falla cuando el separador no está: devuelve una cadena vacía. Ambas formas son válidas; elige la que se lea mejor en tu equipo.
+\`SPLIT_PART(texto, separador, n)\` parte el texto cada vez que encuentra el separador y devuelve el pedazo número \`n\`, empezando a contar en 1.
+
+Es más legible que combinar \`POSITION\` con \`SUBSTRING\` y no tiene el problema anterior: cuando el separador no aparece, devuelve una cadena vacía en lugar de un valor engañoso. Las dos formas son válidas; elige la que se lea mejor para el equipo que va a mantener la consulta.
 
 ## Reemplazar: REPLACE
 
@@ -144,13 +156,13 @@ SELECT REPLACE(kind, '_', ' ') AS tipo
 FROM transactions;
 \`\`\`
 
-\`REPLACE\` cambia **todas** las apariciones del texto buscado. Se puede anidar para traducir varios valores:
+\`REPLACE\` cambia **todas** las apariciones del texto buscado, no solo la primera. Se puede anidar una llamada dentro de otra para traducir varios valores:
 
 \`\`\`sql
 REPLACE(REPLACE(kind, 'transfer_out', 'Enviada'), 'transfer_in', 'Recibida')
 \`\`\`
 
-Cuando las reglas son muchas, \`CASE\` (sección 12) es más claro. \`REPLACE\` brilla para limpiezas simples: sacar puntos de un número, cambiar guiones por espacios.
+Esa forma anidada se vuelve difícil de leer en cuanto hay más de dos o tres reglas; en ese caso conviene usar \`CASE\` (sección 12), que las pone una debajo de la otra. \`REPLACE\` se aprovecha mejor en limpiezas simples: sacar los puntos de un número, cambiar guiones bajos por espacios.
 
 ## Concatenar: el operador ||
 
@@ -159,18 +171,18 @@ SELECT UPPER(country) || ' · ' || city AS ubicacion
 FROM customers;
 \`\`\`
 
-\`||\` une textos. Dos detalles que sorprenden:
+El operador \`||\` une varios textos en uno solo. Dos comportamientos que conviene tener presentes:
 
-1. Si **cualquier** operando es NULL, el resultado completo es NULL. Protege con \`COALESCE(city, 'sin ciudad')\`.
-2. \`CONCAT(a, b, c)\` hace lo mismo pero trata los NULL como cadena vacía. Elige según lo que quieras que pase con los faltantes.
+1. Si **cualquiera** de los operandos es NULL, el resultado completo es NULL. Un cliente sin ciudad no aparece con el país solo: aparece con la celda vacía. Protégete con \`COALESCE(city, 'sin ciudad')\`.
+2. La función \`CONCAT(a, b, c)\` hace lo mismo pero trata los NULL como cadena vacía, así que el resto del texto se conserva. Elige una u otra según lo que quieras que ocurra con los datos faltantes.
 
-Puedes concatenar un número directamente (\`'Pedido ' || id\`): PostgreSQL lo convierte a texto.
+También puedes concatenar un número directamente, como en \`'Pedido ' || id\`: PostgreSQL lo convierte a texto por su cuenta.
 
 ## Resumen
 
-- \`LEFT\`/\`RIGHT\`/\`SUBSTRING\` cortan por posición; \`POSITION\` la encuentra.
-- \`SPLIT_PART\` parte por separador y es lo más legible para correos, códigos y referencias.
-- \`||\` concatena pero propaga NULL; \`CONCAT\` no.
+- \`LEFT\`, \`RIGHT\` y \`SUBSTRING\` cortan por posición; \`POSITION\` encuentra esa posición cuando es variable.
+- \`SPLIT_PART\` parte por un separador y es la opción más legible para correos, códigos y referencias.
+- \`||\` concatena pero deja todo en NULL si algún operando lo es; \`CONCAT\` no.
 `,
   },
 ];

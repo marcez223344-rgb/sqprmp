@@ -306,6 +306,100 @@ Spanish message now adds "los nombres que empiezan con pg_ están reservados: ta
 para nombrar un CTE". Corpus: 23 new malicious inputs and 8 new legitimate ones in
 `tests/sandbox/gate.test.ts` (279 total).
 
+### D-23 · Prose is rewritten for a reader meeting the idea for the first time
+
+Status: Accepted (owner feedback, 2026-09-23). See `docs/CONTENT_GUIDELINES.md` §9.
+
+The owner rejected two passages as "not clear enough and lacking context" and supplied his own
+rewrites. Both originals were factually correct; what failed was that they used a term in the
+sentence that introduced it ("leer su esquema"), left acronyms and qualified identifiers
+unexpanded (`PK`, `orders.customer_id`), and closed on a compressed contrast instead of naming the
+consequence ("uno que no, multiplica filas sin darse cuenta").
+
+Seven rules follow from those two examples and are now binding on all authored prose. The reference
+implementation is the "Por qué importa" paragraph and the PK/FK bullets of
+`anatomia-de-una-tabla` in `src/content/lessons/tablas-filas-columnas-tipos.ts`. All 37 lesson files
+were passed against the rules.
+
+One correction to the owner's own example, applied deliberately: he wrote that
+`orders.customer_id` "apunta a la columna `customer_id` en la tabla `customers`". A foreign key
+points at the _primary key_ of the other table, which in TiendaViva is `customers.id`. The
+published text uses the correct target with his explicit-naming style.
+
+Cost: lessons grew roughly 20–35 % and several now sit close to the 900-word cap that
+`content:validate` enforces. That cap is the brake on this rule turning into padding.
+
+### D-24 · The learning path recommends an order; it does not enforce one
+
+Status: Accepted (owner feedback, 2026-09-23).
+
+`/ruta` told the learner "Avanza en orden: cada sección desbloquea la siguiente." No such gate
+exists: `canReadLesson` and `can_access_exercise` decide on published/free/entitled/free-limit
+only, never on whether the previous section was completed. The owner asked what happens to someone
+who wants to start with an advanced topic — the honest answer is "nothing stops them", so the copy
+now says the order is a recommendation and that any section can be entered directly.
+
+Rejected: adding real sequential locking. The audience is working adults who often arrive to fill
+one specific gap (window functions, a join they keep getting wrong); making them replay
+fundamentals to reach it would cost more than the pedagogical tidiness is worth. Prerequisites
+stay visible as guidance in each lesson.
+
+### D-25 · The login screen does not advertise the free limit
+
+Status: Accepted (owner feedback, 2026-09-23).
+
+The subtitle read "Los primeros 5 ejercicios son gratis." Two problems: login is a post-decision
+moment, where naming a ceiling reads as a restriction rather than an offer; and the number is
+wrong in the learner's favour — `limits.freeExerciseSections` makes two whole sections free on top
+of the five gated exercises, so "the first 5" understates what they get. The subtitle now explains
+that the account is created on the spot and that no card is needed. The free offer is still stated
+on the landing, pricing, FAQ and "cómo funciona" pages, where the learner is actually deciding.
+
+Open: the same understatement is on the landing page (`home.hero.note`) and the pricing page
+intro. Changing marketing copy about the offer is the owner's call, so it is left as it is and
+raised in the pending table.
+
+### D-26 · The avatar set grows to 116, appended rather than reshuffled
+
+Status: Accepted (owner feedback, 2026-09-23). Extends D-14.
+
+Added 8 abstract compositions × 4 palettes (32), 5 character styles × 4 skin tones (20) and 8
+mascots with a Latin American accent (8): 56 → 116. Still generated SVG only — no third-party art,
+no licensing question, deterministic output.
+
+The new entries are emitted by separate arrays (`extraShapes`, `extraCharacterAvatars()`) that run
+_after_ everything that existed before, so every pre-existing slug keeps its `sort_order` and no
+learner's grid position moves. Verified: the first 56 rows of `supabase/seed/0001_avatars.sql` are
+byte-identical to the previous version.
+
+The picker is now a scrollable region capped at `max-h-72`; 116 tiles in an 8-column grid would
+otherwise have buried the rest of the onboarding step.
+
+Deployment note: avatars live in a table, so the new rows only appear after
+`npx supabase db query --linked --file supabase/seed/0001_avatars.sql` is run. The seed is
+idempotent on `slug`.
+
+### D-27 · Revealing the solution with no hints spent warns first
+
+Status: Accepted (owner feedback, 2026-09-23).
+
+The owner asked whether offering the solution to someone who has not tried a single hint makes
+sense. The escape hatch stays — a learner stuck at midnight who cannot see the answer simply
+leaves — but the confirmation now points at the cheaper option when `hints.length === 0`: a hint
+costs 10 % of the exercise XP and leaves the exercise solvable, revealing costs 75 % of it.
+
+Rejected: requiring a hint before the reveal. It converts a nudge into a wall, and the learner who
+genuinely already knows the answer and wants to check it is punished for the learner who does not.
+
+## Owner-only follow-ups from 2026-09-23
+
+- **`SUPABASE_SECRET_KEY` is invalid in production** (see the runbook note in
+  `docs/DEPLOYMENT.md`). `/api/health/access` returns `read_exercise: "Invalid API key"`, which is
+  why every hint request and every submission shows "No pudimos verificar tu acceso ahora mismo":
+  `can_access_exercise` runs through the service-role client and fails, and the action reports
+  `unavailable`. The value must be copied from the Supabase dashboard; `npx supabase projects
+api-keys` returns it masked and the masked string is what is currently deployed.
+
 ## Pending owner decisions (need an answer before the referenced phase)
 
 | #    | Question                                                                                                                                                                                                                                                                                                                       | Needed by       | Default if no answer               |
@@ -316,6 +410,8 @@ para nombrar un CTE". Corpus: 23 new malicious inputs and 8 new legitimate ones 
 | P-4  | Free tiers for soft launch. **Owner, 2026-09-22: stay on Vercel Hobby while testing with first customers, upgrade later.** Hobby's terms forbid commercial use, so the risk (project suspension on review, no SLA) is accepted knowingly; Supabase Free pauses after 7 days idle — the nightly keep-alive covers it.           | Before scaling  | Free tiers, keep-alive workflow on |
 | P-5  | Content style: use "tú" (recommended) or "usted"?                                                                                                                                                                                                                                                                              | Phase 3         | "tú"                               |
 | D-17 | Launch price: USD 29 founder / USD 49 regular, ARS 39.900 / ARS 69.900 (recommended above) — or a different number                                                                                                                                                                                                             | Before selling  | Current USD 20 stays               |
+| D-28 | Refund window: keep the 10-day refund promise in the terms? In Argentina the 10-day revocation right for online consumer sales is **mandatory** (Ley 24.240 art. 34), so removing the sentence removes the disclosure, not the obligation. Recommendation: keep it, reworded as the legal right rather than a company promise. | Before charging | Text stays as it is                |
+| D-29 | Landing and pricing copy says "{free} ejercicios gratis", which understates the offer (two whole sections are free on top of the five gated exercises). Restate it?                                                                                                                                                            | Before launch   | Current wording stays              |
 | P-6  | Certificate name shown: founder as "Instructor" and company as issuer?                                                                                                                                                                                                                                                         | Phase 7         | Yes                                |
 
 ## Rejected alternatives (summary)

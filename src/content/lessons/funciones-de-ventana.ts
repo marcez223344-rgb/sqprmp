@@ -16,9 +16,11 @@ export const lessons: LessonDef[] = [
     dataset: "bolsillo",
     body_md: `## Por qué importa
 
-\`GROUP BY\` responde «cuánto por grupo», pero pierde el detalle: una fila por grupo y nada más. Muchas preguntas necesitan **las dos cosas a la vez**: cada movimiento **y** el promedio de su tipo; cada categoría **y** su participación en el total; cada pago **y** el saldo acumulado hasta ese momento. Las **funciones de ventana** calculan un agregado «al lado» de cada fila, sin colapsarla.
+\`GROUP BY\` responde «cuánto por grupo», pero para lograrlo descarta el detalle: deja una sola fila por grupo y las filas originales desaparecen del resultado. Muchas preguntas de negocio necesitan **las dos cosas a la vez**: cada movimiento **y** el promedio de los movimientos de su tipo; cada categoría **y** cuánto representa dentro del total; cada pago **y** el saldo acumulado hasta ese momento.
 
-Trabajas con **Bolsillo**, una billetera digital: \`transactions\` (movimientos), \`accounts\`, \`merchants\`, \`fx_rates\`.
+Para eso existen las **funciones de ventana**: calculan un valor agregado mirando un conjunto de filas relacionadas con la fila actual y escriben ese resultado en una columna nueva, al lado de esa misma fila, sin eliminarla ni fusionarla con las demás. Piénsalo como una planilla en la que, junto a cada movimiento, agregas a mano una columna con el promedio de su categoría: la planilla conserva todas sus líneas y gana una columna. Eso es una función de ventana.
+
+Trabajas con **Bolsillo**, una billetera digital. Sus tablas principales son \`transactions\` (un movimiento de dinero por fila), \`accounts\` (las cuentas), \`merchants\` (los comercios donde se paga) y \`fx_rates\` (las cotizaciones de cada moneda, una por día).
 
 ## La sintaxis
 
@@ -32,9 +34,11 @@ FROM transactions
 WHERE account_id = 2364;
 \`\`\`
 
-\`OVER (...)\` convierte \`avg\` en función de ventana. \`PARTITION BY kind\` define la **ventana**: todas las filas con el mismo \`kind\`. Cada movimiento sigue siendo una fila y recibe el promedio de su partición.
+La palabra \`OVER\` es la que convierte a \`avg\` en función de ventana. Sin ella, \`avg(amount)\` resumiría todas las filas en un único promedio y el detalle se perdería; con ella, \`avg\` se calcula para cada fila sobre el conjunto de filas que \`OVER\` describe entre paréntesis.
 
-Sin \`PARTITION BY\` (\`OVER ()\`), la ventana es **toda** la consulta:
+Ese conjunto es la **ventana**, y \`PARTITION BY\` es lo que la define. \`PARTITION BY kind\` —\`kind\` es la columna \`kind\` de la tabla \`transactions\`, que indica el tipo de movimiento: recarga, pago con QR, pago con tarjeta— parte la tabla en bloques, uno por cada tipo, y para cada fila la ventana es su propio bloque. Así, cada movimiento sigue apareciendo como una fila y recibe en la columna nueva el promedio de los movimientos de su mismo tipo.
+
+Si escribes \`OVER ()\` sin \`PARTITION BY\`, no hay bloques: la ventana son **todas** las filas que devuelve la consulta.
 
 \`\`\`sql
 round(100 * amount / sum(amount) OVER (), 2) AS pct_del_total
@@ -55,13 +59,15 @@ WHERE t.status = 'completed'
 GROUP BY m.category;
 \`\`\`
 
-\`sum(sum(t.amount)) OVER ()\` se lee de adentro hacia afuera: primero el total por categoría (\`GROUP BY\`), luego la suma de esos totales sobre toda la ventana.
+En esa consulta, \`m.category\` es la columna \`category\` de la tabla \`merchants\`, el rubro del comercio (supermercado, transporte, entretenimiento), y \`t.merchant_id\` es la columna \`merchant_id\` de la tabla \`transactions\`, que apunta a \`merchants.id\` e indica en qué comercio se hizo el movimiento.
+
+\`sum(sum(t.amount)) OVER ()\` se lee de adentro hacia afuera: el \`sum\` interno calcula el total gastado en cada categoría, porque hay un \`GROUP BY m.category\`; el \`sum\` externo, con su \`OVER ()\`, suma esos totales de categoría y obtiene el total general. Al dividir uno por otro sale la participación de cada categoría, que es lo que muestra la columna \`pct\`.
 
 ## Orden de evaluación
 
 \`FROM\` → \`WHERE\` → \`GROUP BY\` → \`HAVING\` → **ventanas** → \`SELECT\` (alias) → \`ORDER BY\` → \`LIMIT\`.
 
-Consecuencias: una ventana **ve las filas ya filtradas** por \`WHERE\` (para «participación sobre el total general» no filtres antes), y **no puedes usar el resultado de una ventana en \`WHERE\`** de la misma consulta; necesitas una subconsulta o CTE (secciones 21–22).
+De ese orden salen dos consecuencias prácticas. La primera: una ventana solo **ve las filas que sobrevivieron al \`WHERE\`**, así que si necesitas la participación sobre el total general no puedes filtrar antes de calcularla. La segunda: **no puedes usar el resultado de una ventana dentro del \`WHERE\`** de la misma consulta, porque cuando el \`WHERE\` se evalúa la ventana todavía no se calculó. Para filtrar por ese resultado hay que envolver la consulta en una subconsulta o en una CTE (por *Common Table Expression*, expresión de tabla común: una consulta con nombre que se escribe con \`WITH\` y se usa después como si fuera una tabla; secciones 21–22).
 
 ## Ejemplo resuelto
 
@@ -96,7 +102,7 @@ Como el \`WHERE\` ya deja solo los pagos con QR, \`OVER ()\` promedia exactament
     dataset: "bolsillo",
     body_md: `## Acumulados
 
-Con \`ORDER BY\` dentro de \`OVER\`, el agregado se calcula **hasta la fila actual** en ese orden:
+Cuando escribes un \`ORDER BY\` dentro del \`OVER\`, la ventana deja de ser el bloque completo y pasa a ser «desde la primera fila hasta la fila actual» según ese orden. El agregado se convierte entonces en un acumulado:
 
 \`\`\`sql
 SELECT
@@ -112,11 +118,11 @@ WHERE account_id = 2364
 ORDER BY created_at, id;
 \`\`\`
 
-Cada fila muestra el saldo de la cuenta **después** de ese movimiento. El \`CASE\` da signo a los débitos. Incluir \`id\` en el \`ORDER BY\` de la ventana evita ambigüedad si dos movimientos comparten timestamp.
+Cada fila muestra el saldo de la cuenta **después** de ese movimiento. El \`CASE\` le pone signo a cada importe: suma los créditos (el dinero que entra) y resta los débitos (el dinero que sale), porque en \`transactions\` la columna \`amount\` siempre guarda un número positivo y el sentido lo indica la columna \`direction\`. Incluir \`id\` como segundo criterio del \`ORDER BY\` de la ventana evita que el acumulado quede indefinido cuando dos movimientos tienen exactamente el mismo valor en \`created_at\`.
 
 ## PARTITION BY + ORDER BY
 
-Combinados, reinician el acumulado por grupo: saldo por cuenta, acumulado por mes, etc.
+Usados juntos, \`PARTITION BY\` arma los bloques y \`ORDER BY\` acumula dentro de cada bloque, de modo que el acumulado vuelve a empezar en cada grupo: un saldo por cuenta, un total acumulado por mes.
 
 \`\`\`sql
 sum(...) OVER (PARTITION BY account_id ORDER BY created_at, id)
@@ -124,7 +130,7 @@ sum(...) OVER (PARTITION BY account_id ORDER BY created_at, id)
 
 ## Marcos de ventana
 
-\`ORDER BY\` implica por defecto el marco \`RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW\`. Puedes definir otro marco, por ejemplo una **media móvil de 7 días**:
+El **marco** es la porción de la partición que entra en el cálculo de cada fila. Cuando escribes un \`ORDER BY\` dentro del \`OVER\` y no indicas nada más, PostgreSQL usa el marco \`RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW\`, es decir, «desde el comienzo de la partición hasta la fila actual»: por eso el resultado es un acumulado. Puedes escribir otro marco, por ejemplo uno que mire solo las últimas siete filas para calcular una **media móvil de 7 días**:
 
 \`\`\`sql
 SELECT
@@ -140,11 +146,11 @@ WHERE currency = 'ARS'
 ORDER BY rate_date;
 \`\`\`
 
-\`ROWS\` cuenta filas físicas; \`RANGE\` agrupa valores iguales del \`ORDER BY\`. Para series diarias sin huecos, \`ROWS\` es lo esperado. Las primeras 6 filas promedian menos de 7 valores (el marco se recorta al inicio).
+\`ROWS\` cuenta las filas una por una, tal como están; \`RANGE\` trata como una sola unidad a todas las filas que comparten el mismo valor en el \`ORDER BY\`. En una serie diaria sin días faltantes, \`ROWS\` es lo que esperas. Ten presente que las primeras seis filas promedian menos de siete valores, porque el marco se recorta al comienzo de la serie: antes de la primera fecha no hay filas que incluir.
 
 ## Ventanas con nombre
 
-Cuando repites la misma ventana en varias columnas, nómbrala con \`WINDOW\`:
+Cuando repites la misma ventana en varias columnas, dale un nombre con la cláusula \`WINDOW\` y reutilízalo; así la definición vive en un solo lugar y no corres el riesgo de cambiar una copia y olvidar la otra:
 
 \`\`\`sql
 SELECT
@@ -159,11 +165,11 @@ WINDOW w AS (ORDER BY created_at, id);
 
 ## Rendimiento
 
-Cada ventana con \`ORDER BY\` distinto implica un ordenamiento. Reutiliza ventanas y filtra en \`WHERE\` lo que no necesites antes de calcular.
+Cada ventana con un \`ORDER BY\` distinto obliga al motor a ordenar las filas otra vez, y ordenar es una de las operaciones más costosas. Reutiliza la misma ventana cuando puedas y descarta en el \`WHERE\` las filas que no necesitas antes de calcular.
 
 ## Ejemplo resuelto
 
-Pedido: «Para cada intento KYC de las personas de Uruguay, cuántos intentos totales tuvo esa persona».
+Pedido: «Para cada intento de verificación de identidad (KYC, por *Know Your Customer*, el proceso con el que una billetera confirma quién es su cliente) de las personas de Uruguay, cuántos intentos totales tuvo esa persona».
 
 \`\`\`sql
 SELECT
@@ -177,7 +183,7 @@ WHERE u.country = 'UY'
 ORDER BY k.user_id, k.event_at;
 \`\`\`
 
-\`count(*) OVER (PARTITION BY ...)\` sin \`ORDER BY\` da el total de la partición en cada fila; con \`ORDER BY\` daría el acumulado.
+Como el \`OVER\` no lleva \`ORDER BY\`, la ventana es la partición completa y cada fila recibe el total de intentos de esa persona. Si le agregaras un \`ORDER BY\`, cada fila mostraría en cambio cuántos intentos llevaba hasta ese momento.
 `,
   },
 ];

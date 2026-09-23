@@ -14,9 +14,9 @@ export const lessons: LessonDef[] = [
     dataset: "pidelo",
     body_md: `## Por qué importa
 
-«¿Cuántos pedidos entregamos?», «¿cuál es el ticket promedio?», «¿cuándo fue el primer pedido?». Las **funciones de agregación** toman muchas filas y devuelven un valor. Son la base de cualquier indicador de negocio.
+«¿Cuántos pedidos entregamos?», «¿cuál es el ticket promedio?», «¿cuándo fue el primer pedido?». Todas esas preguntas se responden con **funciones de agregación**, es decir, funciones que recorren muchas filas y devuelven un solo valor que las resume. Funcionan como la fila de totales al pie de una planilla: en lugar de mirar los pedidos uno por uno, obtienes la cifra que los representa. Son la base de cualquier indicador de negocio.
 
-En esta sección trabajas con **Pídelo**, una plataforma de delivery: \`orders\` (pedidos), \`ratings\` (calificaciones), \`restaurants\`, \`couriers\`.
+En esta sección trabajas con **Pídelo**, una plataforma de delivery. Sus tablas principales son \`orders\` (una fila por pedido), \`ratings\` (las calificaciones que deja cada cliente), \`restaurants\` (los locales que cocinan) y \`couriers\` (las personas que reparten).
 
 ## Las cinco básicas
 
@@ -31,7 +31,7 @@ FROM orders
 WHERE status = 'delivered';
 \`\`\`
 
-Sin \`GROUP BY\` (sección 15), la consulta devuelve **una sola fila**. \`WHERE\` filtra antes de agregar: aquí solo cuentan los entregados.
+Cuando la consulta solo pide funciones de agregación y no lleva \`GROUP BY\` —la cláusula que parte la tabla en grupos y calcula un resultado por grupo, que verás en la sección 15—, el resultado es **una sola fila** que resume la tabla entera. El \`WHERE\` se aplica antes de agregar, así que estas cinco cifras describen únicamente los pedidos entregados y dejan afuera los cancelados.
 
 ## COUNT tiene tres formas
 
@@ -47,19 +47,19 @@ SELECT
 FROM ratings;
 \`\`\`
 
-En \`ratings\`, algunas filas no tienen puntaje de restaurante o de repartidor: las tres cifras difieren.
+En \`ratings\` hay filas sin puntaje de restaurante y filas sin puntaje de repartidor, porque el cliente puede calificar solo una parte del servicio. Por eso las tres cifras dan distinto, y si informas \`count(*)\` como «calificaciones al restaurante» estarás contando también las que quedaron vacías.
 
 ## NULL y los promedios
 
-\`avg\`, \`sum\`, \`min\` y \`max\` **ignoran NULL**. \`avg(restaurant_rating)\` promedia solo las calificaciones existentes. Si reemplazas los NULL por 0 con \`COALESCE\` antes de promediar, el promedio baja artificialmente. Decide con el negocio qué significa la ausencia.
+\`avg\`, \`sum\`, \`min\` y \`max\` **ignoran los valores NULL**, es decir, las celdas que quedaron sin dato. \`avg(restaurant_rating)\` promedia solo las calificaciones que alguien escribió y divide por esa misma cantidad. Si antes de promediar reemplazas los NULL por 0 con \`COALESCE\`, estás afirmando que esas personas calificaron con un cero y el promedio baja sin que nadie haya puesto esa nota. Acuerda con el área de negocio qué significa la ausencia antes de decidir.
 
-Si **todas** las filas son NULL (o no hay filas), \`sum\` y \`avg\` devuelven NULL, no 0. \`count\` siempre devuelve un número.
+Si **todas** las filas son NULL, o si no hay ninguna fila, \`sum\` y \`avg\` devuelven NULL y no 0, porque sumar un conjunto vacío no da cero: no hay nada que sumar. \`count\`, en cambio, siempre devuelve un número, aunque ese número sea 0.
 
 ## Promedios engañosos
 
-- Mezclar monedas: en Pídelo los totales están en la moneda de cada ciudad. Un promedio de \`total\` sobre todas las ciudades mezcla pesos mexicanos con soles. Filtra por ciudad o convierte antes.
-- Promediar promedios: el promedio de las calificaciones por restaurante no es la calificación promedio de todas las calificaciones.
-- Enteros: \`avg\` de una columna entera devuelve \`numeric\`; \`sum\` de enteros devuelve \`bigint\`. Redondea con \`round(x, 2)\` para presentar.
+- **Mezclar monedas.** La columna \`total\` de la tabla \`orders\` guarda el importe del pedido en la moneda de su ciudad. Si promedias \`total\` sobre todas las ciudades a la vez, estás combinando pesos mexicanos con soles peruanos y el resultado no corresponde a ningún importe real. Filtra por una ciudad o convierte los importes a una moneda común antes de promediar.
+- **Promediar promedios.** Si primero calculas la calificación promedio de cada restaurante y después promedias esos promedios, un local con 3 calificaciones pesa lo mismo que uno con 300. Ese número no es la calificación promedio de la plataforma; para obtenerla hay que promediar todas las calificaciones juntas.
+- **Tipos enteros.** \`avg\` sobre una columna de enteros devuelve un valor \`numeric\` con muchos decimales, y \`sum\` sobre enteros devuelve un \`bigint\`. Para presentar el resultado, redondea con \`round(x, 2)\`.
 
 ## Ejemplo resuelto
 
@@ -74,13 +74,13 @@ FROM orders
 WHERE status = 'delivered';
 \`\`\`
 
-\`delivered_at - placed_at\` es un intervalo; \`extract(epoch FROM ...)\` lo convierte a segundos, y \`/ 60\` a minutos.
+Restar dos marcas de tiempo, \`delivered_at\` menos \`placed_at\`, devuelve un valor de tipo \`interval\`, que es una duración y no un número. \`extract(epoch FROM ...)\` convierte esa duración a segundos, que sí es un número que se puede promediar, y dividir entre 60 la deja en minutos, que es la unidad en la que el negocio promete la entrega.
 
 ## Errores comunes
 
-- Mezclar una columna sin agregar con agregados (\`SELECT customer_id, count(*) FROM orders\`): error «must appear in the GROUP BY clause». Lo resuelves en la sección 15.
-- Usar \`count(columna)\` esperando contar filas cuando la columna tiene NULL.
-- Olvidar \`round\` y entregar 14 decimales.
+- Pedir en el mismo \`SELECT\` una columna sin agregar y una función de agregación (\`SELECT customer_id, count(*) FROM orders\`). PostgreSQL responde «must appear in the GROUP BY clause», porque no sabe qué \`customer_id\` mostrar al lado de un conteo que resume miles de filas. La solución es \`GROUP BY\`, en la sección 15.
+- Usar \`count(columna)\` creyendo que cuenta filas, cuando en realidad deja afuera todas las filas donde esa columna es NULL.
+- Entregar un promedio con catorce decimales por no haber usado \`round\` al presentar.
 `,
   },
 ];

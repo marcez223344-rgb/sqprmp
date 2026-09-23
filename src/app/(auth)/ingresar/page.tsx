@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Logo } from "@/components/layout/logo";
 import { Card } from "@/components/ui/card";
-import { limits } from "@/config/limits";
 import { signInWithGoogle } from "@/lib/auth/actions";
 import { safeNextPath } from "@/lib/auth/redirect";
 import { getCurrentUser } from "@/lib/auth/session";
@@ -33,7 +32,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/ingresar">
         </Link>
         <div className="space-y-2">
           <h1 className="text-2xl">{t("title")}</h1>
-          <p className="text-muted">{t("subtitle", { count: limits.freeExerciseLimit })}</p>
+          <p className="text-muted">{t("subtitle")}</p>
         </div>
 
         {errorKey ? (

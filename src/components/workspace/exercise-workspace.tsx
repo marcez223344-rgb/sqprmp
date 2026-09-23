@@ -273,6 +273,17 @@ export function ExerciseWorkspace({ data }: { data: ExerciseWorkspaceData }) {
                 <p className="text-muted">
                   {t("revealWarning", { percent: limits.solutionUnlock.xpPercentAfterReveal })}
                 </p>
+                {/* A learner who has not spent a single hint is almost always better served by
+                    one: a hint costs a tenth of the XP that revealing the solution costs, and it
+                    leaves the exercise solvable. The escape hatch stays open either way. */}
+                {hints.length === 0 ? (
+                  <p className="text-muted">
+                    {t("revealWithoutHints", {
+                      hintPenalty: limits.hints.xpPenaltyPercentPerHint,
+                      percent: limits.solutionUnlock.xpPercentAfterReveal,
+                    })}
+                  </p>
+                ) : null}
                 <div className="flex gap-2">
                   <Button
                     variant="danger"

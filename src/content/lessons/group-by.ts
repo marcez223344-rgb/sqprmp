@@ -16,7 +16,9 @@ export const lessons: LessonDef[] = [
     dataset: "pidelo",
     body_md: `## Por qué importa
 
-«Pedidos por estado», «clientes por ciudad», «ventas por mes». Casi todo reporte es una agregación **por categoría**. \`GROUP BY\` divide las filas en grupos y aplica las funciones de agregación a cada grupo.
+«Pedidos por estado», «clientes por ciudad», «ventas por mes»: casi todo reporte pide un número calculado **por categoría**. \`GROUP BY\` hace exactamente eso: reparte las filas en grupos según el valor de una o varias columnas y después aplica a cada grupo una función de agregación, es decir, una función que resume muchas filas en un solo valor, como \`count\`, \`sum\` o \`avg\`.
+
+Trabajas con **Pídelo**, una aplicación de pedidos de comida. En su tabla \`orders\` cada fila es un pedido, y te interesan tres de sus columnas: \`status\` (el estado del pedido: \`delivered\`, \`cancelled\` y similares), \`payment_method\` (el medio de pago con el que se abonó) y \`placed_at\` (el instante en que se hizo el pedido).
 
 ## El concepto
 
@@ -27,11 +29,11 @@ GROUP BY status
 ORDER BY pedidos DESC;
 \`\`\`
 
-Resultado: una fila por cada valor distinto de \`status\`, con la cantidad de pedidos de ese grupo. El orden de las filas de un \`GROUP BY\` **no está garantizado**: agrega \`ORDER BY\` siempre que importe.
+El resultado tiene una fila por cada valor distinto que aparezca en \`status\`, la columna \`status\` de la tabla \`orders\`, y en cada fila la cantidad de pedidos que están en ese estado. El orden en que salen esos grupos **no está garantizado** y puede cambiar entre ejecuciones, así que agrega \`ORDER BY\` siempre que el orden importe para quien lea el reporte.
 
 ## La regla de oro
 
-Toda columna del \`SELECT\` debe estar **en el \`GROUP BY\`** o **dentro de una función de agregación**. Si no, PostgreSQL falla con «must appear in the GROUP BY clause or be used in an aggregate function». No es un capricho: para una columna sin agrupar, el motor no sabe cuál de los valores del grupo mostrar.
+Toda columna que aparezca en el \`SELECT\` tiene que estar **en el \`GROUP BY\`** o **dentro de una función de agregación**. Si no, PostgreSQL rechaza la consulta con el mensaje «must appear in the GROUP BY clause or be used in an aggregate function» («debe aparecer en la cláusula GROUP BY o usarse en una función de agregación»). La razón es concreta: si el grupo de los pedidos entregados reúne 800 filas con 800 valores distintos en \`customer_id\` —la columna \`customer_id\` de la tabla \`orders\`, que indica qué cliente hizo el pedido—, el motor no tiene forma de decidir cuál de esos 800 valores mostrar en la única fila que le corresponde al grupo.
 
 ## Orden de evaluación
 
@@ -43,7 +45,7 @@ GROUP BY payment_method        -- 2. agrupa
 ORDER BY pedidos DESC;         -- 3. ordena grupos
 \`\`\`
 
-\`WHERE\` filtra **filas** antes de agrupar. Para filtrar **grupos** (por ejemplo, métodos con más de 1000 pedidos) existe \`HAVING\`, en la sección 16.
+\`WHERE\` filtra **filas** antes de que se formen los grupos, así que las filas descartadas no cuentan para ninguna agregación. Para filtrar **grupos** ya formados, por ejemplo quedarte solo con los medios de pago que superan los 1000 pedidos, existe otra cláusula, \`HAVING\`, que verás en la sección 16.
 
 ## Agrupar por varias columnas
 
@@ -54,7 +56,7 @@ GROUP BY status, payment_method
 ORDER BY status, payment_method;
 \`\`\`
 
-Una fila por **combinación**. El número de filas es como máximo el producto de valores distintos.
+Ahora el resultado tiene una fila por cada **combinación** de estado y medio de pago que exista en los datos. La cantidad de filas es, como máximo, el producto entre la cantidad de estados distintos y la cantidad de medios de pago distintos; será menor si alguna combinación no ocurre nunca.
 
 ## Agrupar por expresiones
 
@@ -67,11 +69,11 @@ GROUP BY date_trunc('month', placed_at)
 ORDER BY mes;
 \`\`\`
 
-En PostgreSQL también puedes escribir \`GROUP BY mes\` (el alias) o \`GROUP BY 1\` (la posición). El alias es legible; la posición es frágil si reordenas columnas.
+En PostgreSQL también puedes agrupar escribiendo \`GROUP BY mes\`, con el alias que le diste a la columna, o \`GROUP BY 1\`, con la posición que ocupa en la lista del \`SELECT\`. El alias se lee mejor. La posición es riesgosa: si mañana reordenas las columnas del \`SELECT\`, la consulta sigue ejecutándose sin error pero pasa a agrupar por otra columna.
 
 ## NULL forma su propio grupo
 
-Como en \`DISTINCT\`, los NULL de la columna agrupada quedan juntos en un grupo. \`GROUP BY promotion_id\` produce un grupo NULL con los pedidos sin promoción.
+Como en \`DISTINCT\`, todas las filas que tienen NULL en la columna agrupada quedan juntas en un mismo grupo. Al escribir \`GROUP BY promotion_id\` —\`promotion_id\` es la columna de la tabla \`orders\` que indica qué promoción se aplicó al pedido— aparece un grupo cuyo valor es NULL: son los pedidos que no usaron ninguna promoción.
 
 ## Ejemplo resuelto
 
@@ -102,7 +104,7 @@ ORDER BY pedidos DESC;
     dataset: "pidelo",
     body_md: `## Series temporales
 
-El patrón «métrica por mes» es el más frecuente en analítica:
+El patrón «una métrica por mes» es el más frecuente del análisis de datos:
 
 \`\`\`sql
 SELECT
@@ -115,7 +117,7 @@ GROUP BY mes
 ORDER BY mes;
 \`\`\`
 
-\`date_trunc('month', ts)\` devuelve el primer instante del mes; \`::date\` lo deja como fecha limpia. Para semanas usa \`'week'\`, para días \`'day'\`. Cuidado con la zona horaria: \`date_trunc\` sobre \`timestamptz\` usa la zona de la sesión (UTC en el sandbox).
+\`date_trunc('month', ts)\` recorta un instante al primer momento de su mes: cualquier pedido de marzo se convierte en \`2025-03-01 00:00\`, y por eso todos los pedidos de marzo caen en el mismo grupo. Agregar \`::date\` convierte ese resultado en una fecha sin hora, más cómoda de leer en un reporte. Para agrupar por semana usa \`'week'\` y por día \`'day'\`. Ten en cuenta la zona horaria: sobre una columna \`timestamptz\`, que guarda un instante absoluto, \`date_trunc\` usa la zona horaria de la sesión, y en este entorno de práctica esa zona es siempre UTC (por *Coordinated Universal Time*, el tiempo universal coordinado).
 
 ## Ranking de entidades
 
@@ -130,15 +132,15 @@ ORDER BY entregados DESC, restaurant_id
 LIMIT 10;
 \`\`\`
 
-El segundo criterio de orden (\`restaurant_id\`) desempata de forma determinista: sin él, dos restaurantes con la misma cantidad podrían intercambiar posición entre ejecuciones.
+El segundo criterio de orden es \`restaurant_id\`, la columna \`restaurant_id\` de la tabla \`orders\`, que identifica al restaurante que recibió el pedido. Está ahí para desempatar: sin él, dos restaurantes con la misma cantidad de entregas pueden intercambiar posición entre una ejecución y otra, y el top 10 dejaría de ser reproducible.
 
 ## Unidades comparables
 
-Antes de sumar o promediar por grupo, verifica que todas las filas del grupo estén en la misma unidad. En Pídelo cada ciudad tiene su moneda: \`sum(total)\` por ciudad tiene sentido; \`sum(total)\` por método de pago (que mezcla ciudades) no.
+Antes de sumar o promediar por grupo, verifica que todas las filas del grupo estén expresadas en la misma unidad. En Pídelo cada ciudad opera con su propia moneda, así que sumar la columna \`total\` de \`orders\` agrupando por ciudad da un importe con sentido. En cambio, sumar \`total\` agrupando por medio de pago junta ciudades y, con ellas, monedas distintas: el número que sale no representa nada, aunque la consulta se ejecute sin error.
 
 ## Leer el resultado
 
-Un \`GROUP BY\` correcto responde: ¿cuántas filas esperaba? Si agrupas por mes desde enero de 2025 hasta septiembre, esperas 9 filas. Si aparecen 10, revisa el rango; si aparecen 8, algún mes no tuvo datos (los grupos vacíos **no** aparecen; para mostrarlos necesitas un LEFT JOIN contra un calendario, sección 18).
+Antes de mirar los números, pregúntate cuántas filas esperabas. Si agrupas por mes desde enero de 2025 hasta septiembre, esperas 9 filas. Si aparecen 10, revisa los extremos del rango de fechas. Si aparecen 8, es que algún mes no tuvo ni un pedido: un grupo sin filas **no** aparece en el resultado, y para mostrarlo con un cero hay que unir contra una tabla de calendario con \`LEFT JOIN\` (sección 18).
 
 ## Ejemplo resuelto
 
@@ -155,7 +157,7 @@ GROUP BY promotion_id
 ORDER BY usos DESC;
 \`\`\`
 
-Si \`usos\` supera a \`clientes\` en una promoción de un solo uso por cliente, encontraste abuso: alguien la usó más de una vez.
+Si en una promoción pensada para un solo uso por persona la columna \`usos\` resulta mayor que \`clientes\`, significa que alguien la aplicó más de una vez: encontraste un uso indebido que conviene reportar.
 `,
   },
 ];

@@ -1359,30 +1359,47 @@ on conflict (table_id, name) do update set data_type = excluded.data_type, descr
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1677$introduccion-bases-de-datos$c1677$), $c1678$que-es-una-base-de-datos$c1678$, $c1679$theory$c1679$, $c1680$Qué es una base de datos y por qué las empresas la necesitan$c1680$, 0, 6, $c1681$## Por qué importa
 
-Imagina un marketplace como **TiendaViva**: miles de clientes en México, Argentina y Colombia compran a cientos de vendedores todos los días. Cada pedido genera decenas de datos: quién compró, qué, cuánto pagó, en cuántas cuotas, a dónde se envió. Guardar eso en hojas de cálculo sueltas dura poco: se pierden versiones, se duplican clientes y nadie sabe cuál es «la cifra correcta».
+Imagina un marketplace como **TiendaViva**, es decir, un sitio donde muchos vendedores distintos ofrecen sus productos a muchos compradores. Miles de clientes en México, Argentina y Colombia compran a cientos de vendedores todos los días. Cada compra deja registrados decenas de datos: quién compró, qué producto, cuánto pagó, en cuántas cuotas y a qué dirección se envió.
 
-Una **base de datos** resuelve ese problema: es un sistema que guarda la información de forma organizada, consistente y compartida, y que responde preguntas sobre ella con rapidez.
+Si guardas todo eso en hojas de cálculo sueltas, a los pocos meses tienes varias versiones del mismo archivo, el mismo cliente cargado dos veces y ninguna forma de saber cuál es la cifra correcta. Una **base de datos** es el programa que resuelve ese problema: guarda la información de forma organizada y única, permite que varias personas la usen al mismo tiempo sin pisarse y responde preguntas sobre esos datos en segundos.
 
-## El concepto
+## El concepto: tablas, filas y columnas
 
-Una base de datos **relacional** organiza los datos en **tablas**. Cada tabla representa un tipo de cosa del negocio (clientes, pedidos, productos) y cada fila es un caso concreto (un cliente, un pedido). Las tablas se **relacionan** entre sí mediante identificadores: un pedido guarda el `customer_id` del cliente que lo hizo, no su nombre completo repetido.
+La mayoría de las bases de datos de empresa son **relacionales**, lo que significa que guardan los datos en **tablas**, parecidas a las de una hoja de cálculo pero con reglas más estrictas.
 
-Esa separación evita duplicar información y permite combinar tablas cuando hace falta: «los pedidos de clientes de Colombia» une `orders` con `customers`.
+- Una **tabla** representa un tipo de cosa del negocio: una tabla de clientes, una de pedidos, una de productos.
+- Una **columna** es un dato que se guarda de todos ellos: el nombre del cliente, su país, la fecha en que se registró.
+- Una **fila** es un caso concreto: un cliente puntual, con su nombre y su país.
+
+Así se ve una tabla de clientes con dos filas:
+
+| id | full_name | country |
+|---|---|---|
+| 1 | Valentina Rojas | CO |
+| 2 | Mateo Fernández | AR |
+
+Lo que hace «relacional» a esta forma de guardar datos es que las tablas se conectan entre sí mediante identificadores. Cada cliente tiene un número que lo identifica, su `id`. Cuando ese cliente hace un pedido, la tabla de pedidos no repite su nombre completo: guarda ese número en la columna `customer_id` de la tabla `orders`, que en términos de negocio significa «el cliente que hizo este pedido».
+
+Esa separación tiene dos ventajas concretas. Si el cliente corrige su nombre, se corrige en un solo lugar. Y cuando necesitas los datos juntos, puedes combinar las dos tablas: para responder «los pedidos de clientes de Colombia» combinas la tabla `orders` con la tabla `customers`.
 
 ## Datos operativos y datos analíticos
 
-Las empresas usan bases de datos con dos fines distintos:
+Las empresas usan sus bases de datos con dos fines distintos:
 
 | Uso | Ejemplo en TiendaViva | Preguntas típicas |
 |---|---|---|
 | **Operativo** | La app registra un pedido nuevo | ¿Cuál es el estado del pedido 8123? |
 | **Analítico** | El equipo de finanzas cierra el mes | ¿Cuánto vendimos por país en agosto? |
 
-Como analista trabajarás sobre todo con el segundo tipo, pero los datos nacen en el primero. Entender de dónde vienen te ayuda a interpretar problemas: un pedido «cancelado» a las 3 a. m. probablemente lo canceló el sistema, no una persona.
+El uso operativo hace funcionar el negocio día a día: anota cada pedido, cada pago y cada envío. El uso analítico responde preguntas sobre todo ese historial acumulado.
 
-## Qué hace SQL
+Como analista vas a trabajar sobre todo con el segundo uso, pero los datos nacen en el primero, y saber de dónde vienen te ayuda a interpretarlos. Por ejemplo, si ves un pedido cancelado a las 3 de la mañana, lo más probable es que lo haya cancelado un proceso automático del sistema y no una persona.
 
-**SQL** (Structured Query Language) es el lenguaje con el que le pides datos a una base relacional. No describes *cómo* buscar: describes *qué* quieres, y el motor decide cómo obtenerlo.
+## Qué es una consulta y qué hace SQL
+
+Una **consulta** es una pregunta escrita que le haces a la base de datos, y que la base responde devolviéndote una tabla de resultados.
+
+Esas preguntas se escriben en **SQL** (por *Structured Query Language*, lenguaje de consulta estructurado, su nombre en inglés), el lenguaje estándar para pedirle datos a una base relacional. Su particularidad es que no describes *cómo* buscar la información, recorriendo filas una por una: describes *qué* quieres obtener, y el motor de la base de datos se encarga de encontrar la manera más rápida de dártelo.
 
 ```sql
 SELECT country, COUNT(*) AS customers
@@ -1390,33 +1407,37 @@ FROM customers
 GROUP BY country;
 ```
 
-Esa consulta responde «cuántos clientes hay por país». Con una hoja de cálculo harías una tabla dinámica; con SQL escribes tres líneas que funcionan igual con mil o con cien millones de filas, y que puedes guardar, versionar y compartir.
+Esa consulta responde «cuántos clientes hay por país». Se lee así: de la tabla `customers`, agrupa las filas según el valor de la columna `country` y, para cada país, cuenta cuántas filas hay. El resultado es una tabla con una fila por país. No te preocupes todavía por la sintaxis: la vas a aprender palabra por palabra en las próximas secciones.
+
+En una hoja de cálculo harías lo mismo con una tabla dinámica. La diferencia es que estas tres líneas funcionan igual con mil filas o con cien millones, y además puedes guardarlas, versionarlas y compartirlas para que otra persona obtenga exactamente el mismo número.
 
 ## Quiénes usan SQL
 
-En una empresa de la región lo usan analistas de datos, de producto, de marketing y de finanzas; también ingenieros de datos, científicos de datos y muchas personas de operaciones. En procesos de selección para roles de datos, SQL es casi siempre la primera prueba técnica.
+En una empresa de la región usan SQL los analistas de datos, de producto, de marketing y de finanzas, y también los ingenieros de datos, los científicos de datos y muchas personas del área de operaciones. En los procesos de selección para roles de datos, SQL es casi siempre la primera prueba técnica que te van a tomar.
 
 ## En resumen
 
-- Una base de datos relacional guarda información en tablas relacionadas por identificadores.
-- Los datos operativos alimentan el negocio; los analíticos responden preguntas sobre él.
-- SQL es el lenguaje para pedir esos datos: describes qué quieres, no cómo buscarlo.
+- Una base de datos relacional guarda información en tablas, y las tablas se conectan entre sí por identificadores.
+- Los datos operativos hacen funcionar el negocio; los analíticos responden preguntas sobre él.
+- SQL es el lenguaje con el que escribes consultas: describes qué datos quieres y el motor decide cómo buscarlos.
 $c1681$, null, null, true, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1682$introduccion-bases-de-datos$c1682$), $c1683$como-piensa-un-analista$c1683$, $c1684$theory$c1684$, $c1685$Cómo piensa un analista antes de escribir SQL$c1685$, 1, 5, $c1686$## Por qué importa
 
-La mayoría de los errores en análisis de datos no son de sintaxis: son de **definición**. «¿Cuánto vendimos en agosto?» parece simple hasta que preguntas: ¿pedidos creados o entregados? ¿incluye cancelados? ¿en qué moneda? Un buen analista aclara eso *antes* de escribir la consulta.
+La mayoría de los errores en análisis de datos no son errores de sintaxis: esos los marca el motor apenas ejecutas la consulta. Son errores de **definición**, es decir, la consulta funciona y devuelve un número, pero ese número responde una pregunta distinta de la que te hicieron.
+
+«¿Cuánto vendimos en agosto?» parece simple hasta que preguntas: ¿cuentas los pedidos creados en agosto o los entregados en agosto? ¿Incluyes los cancelados? ¿En qué moneda, si vendemos en varios países? Un buen analista aclara todo eso *antes* de escribir la consulta, porque después ya es tarde: el número existe y alguien lo va a usar para decidir.
 
 ## El método en cuatro preguntas
 
-1. **¿Qué pregunta el negocio?** Reescríbela con tus palabras. «Ventas de agosto» → «Suma del importe total de pedidos entregados cuyo pedido se creó en agosto de 2025, por país, en moneda local».
-2. **¿Qué tablas la responden?** En TiendaViva: `orders` (pedidos) y `customers` (país del cliente).
-3. **¿Qué filas participan?** Solo las que cumplen las condiciones: estado entregado, rango de fechas.
-4. **¿Qué forma tiene el resultado?** Una fila por país con dos columnas: `country` y `total_sales`.
+1. **¿Qué pregunta el negocio?** Reescríbela con tus palabras, sin ambigüedad. «Ventas de agosto» se convierte en «suma del importe total de los pedidos entregados que se crearon en agosto de 2025, separada por país y en moneda local».
+2. **¿Qué tablas la responden?** En TiendaViva son dos: `orders`, que guarda un pedido por fila, y `customers`, que guarda el país de cada cliente.
+3. **¿Qué filas participan?** Solo las que cumplen las condiciones que definiste: estado entregado y fecha de creación dentro de agosto.
+4. **¿Qué forma tiene el resultado?** Una fila por país, con dos columnas: `country` y `total_sales`.
 
-Con esas respuestas, la consulta casi se escribe sola:
+Con esas cuatro respuestas, la consulta casi se escribe sola:
 
 ```sql
 SELECT c.country, SUM(o.total_amount) AS total_sales
@@ -1428,55 +1449,55 @@ WHERE o.status = 'delivered'
 GROUP BY c.country;
 ```
 
-No te preocupes si todavía no entiendes cada palabra: en las próximas secciones aprenderás `SELECT`, `WHERE`, `JOIN` y `GROUP BY` paso a paso. Lo importante ahora es el **orden de razonamiento**.
+No te preocupes si todavía no entiendes cada palabra: en las próximas secciones vas a aprender `SELECT`, `WHERE`, `JOIN` y `GROUP BY` paso a paso. Lo que importa ahora es el **orden de razonamiento**, porque ese orden es el mismo sin importar qué tan complicada sea la consulta.
 
 ## Ejemplo resuelto
 
-Pedido de marketing: «Quiero saber qué tan bien funcionó el Hot Sale».
+Llega un pedido del área de marketing: «Quiero saber qué tan bien funcionó el Hot Sale».
 
-- Pregunta precisa: número de pedidos y ventas totales durante la semana del Hot Sale (12 al 18 de mayo de 2025), comparados con la semana anterior.
-- Tablas: `orders`.
-- Filas: pedidos creados en esas dos semanas, excluyendo cancelados.
-- Forma: dos filas (semana previa, semana Hot Sale) con pedidos y ventas.
+- **Pregunta precisa**: cantidad de pedidos y ventas totales durante la semana del Hot Sale (del 12 al 18 de mayo de 2025), comparadas con las de la semana anterior.
+- **Tablas**: alcanza con `orders`.
+- **Filas**: los pedidos creados en esas dos semanas, excluyendo los cancelados.
+- **Forma del resultado**: dos filas, una por semana, con la cantidad de pedidos y las ventas.
 
-Escribir esa definición y confirmarla con quien pidió el dato evita rehacer el trabajo.
+Escribir esa definición y confirmarla con quien te pidió el dato toma cinco minutos, y evita que tengas que rehacer todo el trabajo cuando esa persona vea el resultado y te diga que esperaba otra cosa.
 
 ## Errores comunes
 
-- Empezar a escribir SQL sin definir qué significa la métrica.
-- Asumir que «fecha del pedido» y «fecha de entrega» son intercambiables.
-- Olvidar preguntar por la moneda cuando hay varios países.
+- Empezar a escribir SQL sin haber definido qué significa exactamente la métrica que te pidieron.
+- Dar por hecho que «fecha del pedido» y «fecha de entrega» son lo mismo: un pedido de fin de mes se entrega al mes siguiente y cae en otro período.
+- No preguntar por la moneda cuando la empresa vende en varios países, y terminar sumando importes de monedas distintas como si fueran comparables.
 
 ## En resumen
 
-- Antes de escribir SQL, define pregunta, tablas, filas y forma del resultado.
-- Las métricas de negocio necesitan definiciones explícitas (estado, fechas, moneda).
-- Confirmar la definición con quien pide el dato ahorra tiempo y errores.
+- Antes de escribir SQL define cuatro cosas: la pregunta, las tablas, las filas y la forma del resultado.
+- Las métricas de negocio necesitan una definición explícita de estado, fechas y moneda.
+- Confirmar esa definición con quien pide el dato ahorra tiempo y evita entregar el número equivocado.
 $c1686$, null, null, true, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1687$tablas-filas-columnas-tipos$c1687$), $c1688$anatomia-de-una-tabla$c1688$, $c1689$theory$c1689$, $c1690$Anatomía de una tabla: filas, columnas y claves$c1690$, 0, 7, $c1691$## Por qué importa
 
-Antes de consultar datos necesitas leer su **esquema**: qué tablas existen, qué columnas tienen y cómo se conectan. Un analista que entiende el modelo escribe consultas correctas a la primera; uno que no, multiplica filas sin darse cuenta.
+Antes de consultar los datos necesitas leer su **esquema**, es decir, cómo están estructurados: qué tablas existen, cuáles son las columnas de cada tabla y cómo se conectan entre sí. Un analista que entiende el modelo escribe consultas correctas desde la primera vez; uno que no lo entiende comete errores que producen resultados incorrectos o inesperados, muchas veces sin darse cuenta.
 
 ## El concepto
 
-Una **tabla** tiene un nombre (`customers`), **columnas** con nombre y tipo (`email text`, `signup_at timestamptz`) y **filas**, una por registro.
+Una **tabla** tiene un nombre (`customers`, la tabla de clientes), **columnas** que a su vez tienen nombre y tipo de dato (`email text` es la columna `email`, que guarda texto; `signup_at timestamptz` es la columna `signup_at`, que guarda el instante del alta) y **filas**: una por cada registro, en este caso una por cada cliente.
 
 | id | full_name | country | signup_at |
 |---|---|---|---|
 | 1 | Valentina Rojas | CO | 2024-03-02 10:15 |
 | 2 | Mateo Fernández | AR | 2024-03-02 11:40 |
 
-Dos tipos de columnas especiales sostienen las relaciones:
+Las tablas tienen dos tipos de columnas especiales que sirven para definir relaciones entre ellas:
 
-- **Clave primaria (PK)**: identifica de forma única cada fila. En TiendaViva es `id` en todas las tablas. Nunca se repite y nunca es NULL.
-- **Clave foránea (FK)**: guarda la clave primaria de otra tabla para relacionarlas. `orders.customer_id` apunta a `customers.id`: «este pedido lo hizo este cliente».
+- **Clave primaria** (PK, por *primary key*, su nombre en inglés): es la columna que identifica de forma única cada fila. En TiendaViva es `id` en todas las tablas. Su valor nunca se repite y nunca es NULL. Funciona como el número de documento de identidad de la fila.
+- **Clave foránea** (FK, por *foreign key*): es una columna que guarda la clave primaria de otra tabla, y de esa forma relaciona las dos. Por ejemplo, `orders.customer_id` es la columna `customer_id` de la tabla `orders`, y apunta a la columna `id` de la tabla `customers`. En términos de negocio eso significa: «este pedido lo hizo este cliente».
 
 ## Cardinalidad: uno a muchos
 
-Un cliente puede tener muchos pedidos; un pedido pertenece a un solo cliente. Esa relación **uno a muchos** es la más común. Implica algo crucial: si combinas `customers` con `orders`, cada cliente aparecerá **tantas veces como pedidos tenga**. Si además sumas importes, cuidado con contar de más.
+Un cliente puede tener muchos pedidos, y cada pedido pertenece a un solo cliente. Esa forma de relación se llama **uno a muchos** y es la más frecuente en cualquier base de datos. Tiene una consecuencia que conviene tener presente desde ahora: si combinas la tabla `customers` con la tabla `orders`, cada cliente aparecerá en el resultado **tantas veces como pedidos tenga**. Si después sumas importes sobre esas filas, estarás sumando varias veces el mismo dato y el total quedará más alto que el real.
 
 ## Ejemplo ejecutable
 
@@ -1499,26 +1520,26 @@ HAVING COUNT(*) > 1;
 
 ## Cómo leer el panel de esquema
 
-En cada ejercicio verás el panel **Esquema** con las tablas disponibles. Para cada columna se indica el tipo y una descripción; las FK muestran a qué tabla apuntan. Léelo antes de escribir: te dice qué existe, cómo se llama y qué significa.
+En cada ejercicio verás el panel **Esquema** con las tablas disponibles. Para cada columna se indica su tipo de dato y una descripción en español, y en cada clave foránea se indica a qué tabla apunta. Léelo antes de escribir la consulta: ahí está qué tablas existen, cómo se llama cada columna y qué significa en términos de negocio.
 
 ## Errores comunes
 
-- Suponer que dos tablas se unen por columnas que «se llaman parecido» en lugar de por la FK documentada.
-- Usar `full_name` como identificador: dos personas pueden llamarse igual; el `id` no.
-- Olvidar que una relación uno a muchos multiplica filas al combinar tablas.
+- Suponer que dos tablas se unen por columnas que «se llaman parecido», en lugar de usar la clave foránea que indica el esquema. El resultado trae filas que no se corresponden entre sí.
+- Usar `full_name`, el nombre completo, como identificador de un cliente: dos personas distintas pueden llamarse igual, mientras que el valor de `id` nunca se repite.
+- Olvidar que una relación uno a muchos repite filas al combinar tablas, y entregar totales más altos que los reales.
 
 ## En resumen
 
-- Tabla = columnas con tipo + filas. La PK identifica cada fila; la FK conecta tablas.
-- Uno a muchos es la relación más común y la fuente de la mayoría de duplicados accidentales.
-- Lee el esquema antes de consultar.
+- Una tabla son columnas con tipo de dato más filas. La clave primaria (PK) identifica cada fila y la clave foránea (FK) conecta una tabla con otra.
+- La relación uno a muchos es la más común y la causa de la mayoría de las filas repetidas que aparecen por accidente.
+- Lee el esquema antes de escribir la consulta.
 $c1691$, null, (select id from public.datasets where slug = $c1692$tiendaviva$c1692$), true, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1693$tablas-filas-columnas-tipos$c1693$), $c1694$tipos-de-datos$c1694$, $c1695$theory$c1695$, $c1696$Tipos de datos: texto, números, fechas y booleanos$c1696$, 1, 8, $c1697$## Por qué importa
 
-El tipo de una columna determina qué operaciones tienen sentido: puedes sumar importes, pero no correos; puedes restar fechas, pero no nombres. También determina errores silenciosos: un «precio» guardado como texto se ordena alfabéticamente («1000» antes que «200»).
+Cada columna tiene un **tipo de dato**, es decir, la clase de valor que puede guardar: texto, número entero, fecha, verdadero o falso. Ese tipo determina qué operaciones tienen sentido: puedes sumar importes porque son números, pero no puedes sumar direcciones de correo. También explica errores que no muestran ningún mensaje: si un precio se guardó como texto en lugar de como número, al ordenar se compara carácter por carácter y «1000» aparece antes que «200», porque el primer carácter «1» va antes que el «2».
 
 ## Los tipos que usarás a diario
 
@@ -1533,12 +1554,12 @@ El tipo de una columna determina qué operaciones tienen sentido: puedes sumar i
 
 Dos detalles que importan en el trabajo real:
 
-- **Dinero va en `numeric`**, nunca en `double precision`: los decimales binarios acumulan errores de redondeo en sumas largas.
-- **`timestamptz`** guarda un instante absoluto y lo muestra en la zona horaria de la sesión. Un pedido creado a las 23:30 en Buenos Aires puede aparecer al día siguiente si lo miras en UTC. Volveremos a esto en la sección de fechas.
+- **El dinero se guarda en `numeric`**, nunca en `double precision`. `numeric` guarda los decimales de forma exacta; `double precision` los aproxima en binario, y esas aproximaciones se acumulan hasta que una suma larga cierra con algunos centavos de diferencia.
+- **`timestamptz`** (por *timestamp with time zone*, marca de tiempo con zona horaria) guarda un instante absoluto y lo muestra en la zona horaria de la sesión desde la que consultas. Un pedido creado a las 23:30 en Buenos Aires figura como del día siguiente si lo miras en UTC (por *Coordinated Universal Time*, el tiempo universal coordinado), porque allí ya son las 02:30. Volveremos a esto en la sección de fechas.
 
 ## Ejemplo ejecutable
 
-Los literales se escriben distinto según el tipo:
+Un **literal** es un valor escrito directamente en la consulta, en lugar de tomarlo de una columna. Cada tipo se escribe de una forma distinta:
 
 ```sql
 SELECT
@@ -1560,18 +1581,18 @@ LIMIT 5;
 
 ## Conversión de tipos
 
-A veces necesitas cambiar el tipo: `CAST(list_price AS integer)` o la forma corta de PostgreSQL `list_price::integer`. Úsalo con criterio: convertir texto sucio a número puede fallar, y redondear dinero cambia cifras.
+A veces necesitas cambiar el tipo de un valor. Eso se llama conversión (en inglés, *cast*) y se escribe `CAST(list_price AS integer)` o, en la forma abreviada de PostgreSQL, `list_price::integer`. Úsalo con criterio: si el texto que conviertes a número trae símbolos o espacios, la conversión falla y corta la consulta; y convertir un importe a entero descarta los centavos, así que el total deja de coincidir con la contabilidad.
 
 ## Errores comunes
 
 - Comparar un número con un texto (`quantity = '3'` funciona por conversión implícita, pero `quantity = 'tres'` falla).
-- Guardar fechas como texto en formato local (`'02/03/2025'`: ¿febrero o marzo?). Usa siempre ISO: `'2025-03-02'`.
-- Sumar `double precision` para importes financieros.
+- Guardar fechas como texto en formato local (`'02/03/2025'`: ¿es 2 de marzo o 3 de febrero?). Usa siempre el formato ISO 8601, la norma internacional que escribe año-mes-día: `'2025-03-02'`.
+- Sumar importes financieros guardados en `double precision` y entregar un total con centavos de diferencia.
 
 ## En resumen
 
 - Cada columna tiene un tipo; el tipo define qué operaciones son válidas.
-- Dinero en `numeric`; instantes en `timestamptz`; fechas en formato ISO.
+- El dinero va en `numeric`, los instantes en `timestamptz` y las fechas se escriben en formato ISO (año-mes-día).
 - Convierte tipos solo cuando lo necesitas y sabiendo qué puede fallar.
 $c1697$, null, (select id from public.datasets where slug = $c1698$tiendaviva$c1698$), true, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
@@ -1579,7 +1600,7 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1699$select$c1699$), $c1700$select-columnas$c1700$, $c1701$theory$c1701$, $c1702$SELECT: elegir columnas de una tabla$c1702$, 0, 7, $c1703$## Por qué importa
 
-Casi toda tarea de análisis empieza igual: mirar qué hay en una tabla. `SELECT` es la instrucción que devuelve columnas de una tabla y la base sobre la que se construye todo lo demás.
+Casi toda tarea de análisis empieza de la misma forma: mirar qué hay guardado en una tabla. Una **tabla** es un conjunto de datos organizado como una planilla dentro de la base de datos: tiene columnas con nombre (por ejemplo `full_name`, el nombre completo del cliente) y una fila por cada registro. Para pedirle datos a esa tabla escribes una **consulta**, es decir, una instrucción en SQL (por *Structured Query Language*, lenguaje estructurado de consultas) que describe qué quieres ver. `SELECT` es la palabra con la que empieza esa instrucción, y todo lo que aprendas más adelante se apoya en ella.
 
 ## El concepto
 
@@ -1588,17 +1609,17 @@ SELECT full_name, country
 FROM customers;
 ```
 
-Se lee: «dame las columnas `full_name` y `country` de la tabla `customers`». El resultado es una nueva tabla con esas dos columnas y **todas** las filas de `customers`. El orden de las columnas en el resultado es el orden en que las escribes.
+Esa consulta se lee así: «dame las columnas `full_name` y `country` de la tabla `customers`». En TiendaViva, `customers` es la tabla de clientes: `full_name` guarda el nombre completo de la persona y `country` el país donde vive. El resultado es una tabla nueva, que existe solo mientras miras el resultado, con esas dos columnas y **todas** las filas de `customers`. Las columnas salen en el mismo orden en que las escribiste.
 
-Tres partes:
+La consulta tiene tres partes:
 
-- `SELECT`: la lista de columnas que quieres ver.
-- `FROM`: la tabla de donde salen.
-- `;`: fin de la consulta (opcional cuando envías una sola, pero es buena costumbre).
+- `SELECT`: la lista de columnas que quieres ver, separadas por comas.
+- `FROM`: la tabla de donde salen esas columnas.
+- `;`: el punto y coma marca el final de la consulta. Puedes omitirlo cuando envías una sola, pero conviene escribirlo desde la primera vez.
 
 ## SELECT * con criterio
 
-`SELECT *` devuelve todas las columnas. Es útil para explorar una tabla nueva:
+El asterisco `*` significa «todas las columnas», así que `SELECT *` devuelve la tabla completa sin que tengas que escribir un nombre por columna. Es útil cuando estás explorando una tabla que todavía no conoces:
 
 ```sql
 SELECT *
@@ -1606,11 +1627,11 @@ FROM sellers
 LIMIT 5;
 ```
 
-Pero en reportes y en código que otros van a leer conviene listar columnas: el resultado es más claro, más liviano y no cambia si alguien agrega columnas a la tabla. En los ejercicios, la consigna te dirá qué columnas se esperan; `SELECT *` normalmente devolverá columnas de más y la validación lo marcará.
+En un reporte, o en código que otras personas van a leer, conviene escribir la lista de columnas. El resultado queda más claro, viaja menos información y la consulta sigue devolviendo lo mismo aunque mañana alguien agregue una columna nueva a la tabla. En los ejercicios de este curso la consigna te dirá qué columnas se esperan, así que `SELECT *` normalmente devolverá columnas de más y la validación lo marcará como incorrecto.
 
 ## Leer el resultado
 
-Cada resultado muestra el nombre de las columnas, su tipo y las filas. Fíjate en tres cosas: cuántas filas volvieron, si alguna celda dice **NULL** (valor desconocido, lo verás en la sección 8) y si los números y fechas tienen el tipo esperado.
+Cada resultado muestra el nombre de las columnas, su tipo de dato y las filas encontradas. Fíjate en tres cosas: cuántas filas volvieron, si alguna celda dice **NULL**, que es la forma en que SQL representa un valor ausente o desconocido (lo trabajarás en la sección 8), y si los números y las fechas tienen el tipo que esperabas.
 
 ## Ejemplo resuelto
 
@@ -1629,13 +1650,13 @@ FROM customers;
 
 - Palabras clave en mayúsculas (`SELECT`, `FROM`), nombres de columnas en minúsculas.
 - Una cláusula por línea cuando la consulta crece.
-- Nombres de columna separados por coma **sin** coma final antes de `FROM` (error clásico).
+- Nombres de columna separados por coma, **sin** dejar una coma suelta antes de `FROM`. Es uno de los errores más frecuentes y el motor responde con un error de sintaxis.
 
 ## Errores comunes
 
-- Escribir mal el nombre de una columna: el motor responde `column "nombre" does not exist`. Revisa el esquema.
+- Escribir mal el nombre de una columna: el motor responde `column "nombre" does not exist`, que significa «la columna "nombre" no existe». Revisa el esquema y corrige el nombre.
 - Dejar una coma antes de `FROM`: `SELECT full_name, FROM customers` falla.
-- Esperar que las filas vengan en un orden determinado: sin `ORDER BY` (sección 13) el orden no está garantizado.
+- Esperar que las filas vengan en un orden determinado: sin `ORDER BY`, la cláusula que ordena el resultado (sección 13), el motor devuelve las filas en el orden que le resulte más conveniente y ese orden puede cambiar entre una ejecución y otra.
 
 ## En resumen
 
@@ -1648,14 +1669,14 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1705$select$c1705$), $c1706$select-buenas-practicas$c1706$, $c1707$theory$c1707$, $c1708$Escribir consultas que otros puedan leer$c1708$, 1, 5, $c1709$## Por qué importa
 
-En un equipo de datos, una consulta se lee muchas más veces de las que se escribe. Las consultas de un reporte mensual viven años. Escribir con claridad es parte del trabajo, no un adorno.
+En un equipo de datos, una consulta se lee muchas más veces de las que se escribe: la escribes una vez y después la revisan tus colegas, la audita el área de finanzas y tú mismo vuelves a ella meses más tarde. Las consultas de un reporte mensual suelen seguir en uso durante años. Por eso escribir con claridad no es un detalle estético: es lo que evita que alguien interprete mal el número que entregaste.
 
 ## Convenciones que usaremos
 
 1. **Mayúsculas para palabras clave**, minúsculas para tablas y columnas.
 2. **Una cláusula por línea**: `SELECT`, `FROM`, `WHERE`, `GROUP BY`, `ORDER BY` cada una en su línea.
 3. **Una columna por línea** cuando hay más de tres, con la coma al final de cada línea.
-4. **Nombres de columna descriptivos** en el resultado (lo verás con alias en la sección 4).
+4. **Nombres de columna descriptivos** en el resultado. Se consiguen con un alias, es decir, un nombre alternativo que le das a una columna de la salida (sección 4).
 5. **Comentarios breves** cuando la regla de negocio no es obvia.
 
 ```sql
@@ -1669,7 +1690,7 @@ WHERE country = 'MX'
   AND marketing_opt_in = TRUE;
 ```
 
-Todavía no vimos `WHERE` (sección 6), pero fíjate en la forma: cualquier persona entiende qué hace esta consulta sin ejecutarla.
+Todavía no vimos `WHERE`, la cláusula que se queda solo con las filas que cumplen una condición (sección 6), pero fíjate en la forma: cualquier persona entiende qué hace esta consulta sin necesidad de ejecutarla.
 
 ## Comentarios
 
@@ -1686,7 +1707,7 @@ Consulta difícil de leer:
 select ID,FULL_NAME,Email,COUNTRY from Customers
 ```
 
-Funciona (PostgreSQL ignora mayúsculas en nombres no entrecomillados), pero mezcla estilos. Versión legible:
+Funciona, porque PostgreSQL trata igual las mayúsculas y las minúsculas en los nombres escritos sin comillas, pero mezcla estilos y obliga a leer con más atención. Versión legible:
 
 ```sql
 SELECT
@@ -1701,7 +1722,7 @@ FROM customers;
 
 - Entrecomillar nombres con comillas dobles (`"Full_Name"`): PostgreSQL los vuelve sensibles a mayúsculas y la columna deja de encontrarse.
 - Usar comillas dobles para texto: los literales de texto van con comillas **simples** (`'MX'`).
-- Consultas de una sola línea de 200 caracteres.
+- Escribir toda la consulta en una sola línea de 200 caracteres: quien la revise tiene que recorrerla entera para encontrar la cláusula que le interesa.
 
 ## En resumen
 
@@ -1714,11 +1735,13 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1711$alias-y-expresiones$c1711$), $c1712$alias-y-expresiones-basico$c1712$, $c1713$theory$c1713$, $c1714$Alias y columnas calculadas$c1714$, 0, 9, $c1715$## Por qué importa
 
-Los datos crudos rara vez están en la forma que el negocio necesita. Un reporte de ventas no muestra `subtotal` y `discount`: muestra el **neto**. Una lista para el equipo de logística no dice `destination_city`, dice «Ciudad». Con expresiones y alias transformas columnas en respuestas.
+Los datos crudos rara vez están en la forma que el negocio necesita. En TiendaViva, la tabla `orders` guarda por separado la columna `subtotal` (la suma de los productos del pedido) y la columna `discount` (el descuento aplicado). Un reporte de ventas no quiere esas dos columnas: quiere el **neto**, que es la resta de una menos la otra. Y una lista para el equipo de logística no debería encabezarse `destination_city`, sino «Ciudad».
+
+Las dos cosas se resuelven en el `SELECT`: con **expresiones**, que calculan un valor nuevo a partir de las columnas, y con **alias**, que son los nombres que le pones a cada columna del resultado.
 
 ## Columnas calculadas
 
-Dentro de `SELECT` puedes escribir expresiones, no solo nombres de columna:
+Dentro del `SELECT` puedes escribir expresiones, no solamente nombres de columna:
 
 ```sql
 SELECT
@@ -1730,11 +1753,13 @@ FROM orders
 LIMIT 5;
 ```
 
-La cuarta columna se calcula fila por fila. Operadores aritméticos: `+`, `-`, `*`, `/`. Cuidado con la división entre enteros: `7 / 2` da `3` en PostgreSQL; `7 / 2.0` da `3.5`.
+La cuarta columna no existe en la tabla: PostgreSQL la calcula fila por fila, restando en cada pedido su propio descuento a su propio subtotal. Los operadores aritméticos disponibles son `+`, `-`, `*` y `/`.
+
+Presta atención a la división entre enteros: PostgreSQL devuelve un entero y descarta los decimales, así que `7 / 2` da `3` y no `3.5`. Si necesitas decimales, haz que al menos uno de los dos valores lo sea, por ejemplo `7 / 2.0`.
 
 ## Alias: nombres para el resultado
 
-La columna calculada de arriba se llamaría `?column?`. Ponle nombre con `AS`:
+La columna calculada del ejemplo anterior aparece con el encabezado `?column?`, porque el motor no tiene ningún nombre que darle. Para ponerle uno usa `AS`:
 
 ```sql
 SELECT
@@ -1746,15 +1771,15 @@ LIMIT 5;
 
 Reglas prácticas:
 
-- Usa `snake_case` en minúsculas (`neto`, `envio_pct`), sin espacios ni acentos. Si necesitas espacios tendrás que usar comillas dobles (`"Total neto"`) y arrastrarlas en cada consulta que reutilice el resultado. Evítalo.
-- `AS` es opcional en PostgreSQL (`subtotal - discount neto` funciona), pero escribirlo hace la consulta más legible.
-- Un alias **no** se puede usar en el `WHERE` de la misma consulta (lo verás en la sección 6): el filtro se evalúa antes que la lista de columnas.
+- Usa `snake_case` en minúsculas (`neto`, `envio_pct`), sin espacios ni acentos. Si pones espacios vas a necesitar comillas dobles (`"Total neto"`) y tendrás que arrastrarlas en cada consulta que reutilice ese resultado, así que conviene evitarlo.
+- `AS` es opcional en PostgreSQL, de modo que `subtotal - discount neto` también funciona. Escribirlo igual hace que la consulta se lea mejor, sobre todo cuando alguien la revisa rápido.
+- Un alias **no** se puede usar en el `WHERE` de la misma consulta, porque el filtro se evalúa antes que la lista de columnas y en ese momento el alias todavía no existe. Lo verás en la sección 6.
 
-También puedes renombrar tablas (`FROM orders AS o`), útil cuando combinas varias tablas en la sección 17.
+También puedes ponerle un alias a una tabla (`FROM orders AS o`). Eso se vuelve necesario cuando combinas varias tablas en la misma consulta, en la sección 17.
 
 ## Texto: concatenar y dar formato
 
-El operador `||` une textos. Si una parte es número, PostgreSQL la convierte a texto automáticamente en la mayoría de los casos:
+El operador `||` une dos textos en uno solo. Si una de las partes es un número, PostgreSQL lo convierte a texto automáticamente en la mayoría de los casos:
 
 ```sql
 SELECT
@@ -1763,7 +1788,7 @@ SELECT
 FROM categories;
 ```
 
-Funciones útiles: `upper()`, `lower()`, `length()`. Las verás en detalle en la sección 9.
+Así, la categoría con `id` 7 sale como `CAT-7`, que es el formato que espera el catálogo impreso. Otras funciones útiles son `upper()` y `lower()`, que pasan un texto a mayúsculas o a minúsculas, y `length()`, que devuelve su cantidad de caracteres. Las verás en detalle en la sección 9.
 
 ## Redondeo y precedencia
 
@@ -1775,7 +1800,9 @@ FROM orders
 LIMIT 5;
 ```
 
-`ROUND(valor, decimales)` redondea. La precedencia es la de la aritmética escolar: `*` y `/` antes que `+` y `-`. Cuando dudes, **usa paréntesis**: `(subtotal - discount) * 1.21` deja claro qué se multiplica.
+`ROUND(valor, decimales)` redondea el valor a la cantidad de decimales que le indiques, así que este cálculo devuelve qué porcentaje del total del pedido se fue en envío, con un decimal.
+
+La precedencia de los operadores es la misma de la aritmética que ya conoces: primero se resuelven `*` y `/`, después `+` y `-`. Cuando tengas dudas, **usa paréntesis**: escribir `(subtotal - discount) * 1.21` deja explícito que el impuesto se aplica sobre el neto y no solo sobre el descuento.
 
 ## Ejemplo resuelto
 
@@ -1791,21 +1818,23 @@ ORDER BY total_amount DESC
 LIMIT 20;
 ```
 
-Fíjate: `ORDER BY` puede usar `total_amount` aunque no esté en el `SELECT`.
+Fíjate en un detalle: el `ORDER BY` ordena por `total_amount` aunque esa columna no esté en la lista del `SELECT`. Eso es válido porque el ordenamiento se resuelve sobre las filas de la tabla, no sobre las columnas que elegiste mostrar.
 
 ## Errores comunes
 
-- Olvidar el alias y entregar una columna llamada `?column?`.
-- Dividir dos enteros esperando decimales.
-- Usar el alias dentro de `WHERE` (error «column does not exist»).
-- Poner el alias entre comillas simples: `AS 'neto'` no es un alias, es un texto.
+- Olvidar el alias y entregar un reporte con una columna llamada `?column?`.
+- Dividir dos enteros esperando decimales y recibir un resultado truncado.
+- Usar el alias dentro del `WHERE`, que devuelve el error «column does not exist».
+- Poner el alias entre comillas simples: `AS 'neto'` no define un alias, define un texto.
 $c1715$, null, (select id from public.datasets where slug = $c1716$tiendaviva$c1716$), true, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1717$distinct$c1717$), $c1718$distinct-valores-unicos$c1718$, $c1719$theory$c1719$, $c1720$DISTINCT: valores únicos$c1720$, 0, 8, $c1721$## Por qué importa
 
-«¿En qué países vendemos?», «¿qué transportistas usamos?», «¿qué estados puede tener un pedido?». Son preguntas sobre **qué valores existen**, no sobre cuántas filas hay. `DISTINCT` responde exactamente eso y es, además, la herramienta más rápida para conocer una tabla nueva.
+«¿En qué países vendemos?», «¿con qué transportistas trabajamos?», «¿qué estados puede tener un pedido?». Estas preguntas no son sobre cuántas filas hay, sino sobre **qué valores distintos aparecen** en una columna. `DISTINCT` responde exactamente eso: elimina las repeticiones y te deja la lista de valores que existen.
+
+Además es la herramienta más rápida para conocer una tabla que nunca viste: antes de filtrar por `status = 'delivered'` conviene mirar qué estados existen de verdad en los datos, porque el nombre que usa el negocio y el que está guardado en la base no siempre coinciden.
 
 ## El concepto
 
@@ -1814,42 +1843,48 @@ SELECT DISTINCT country
 FROM customers;
 ```
 
-Devuelve cada país **una sola vez**, aunque haya cientos de clientes por país. `DISTINCT` va inmediatamente después de `SELECT` y se aplica a **toda la fila del resultado**, no a una columna en particular:
+Esa consulta devuelve cada país **una sola vez**, aunque haya cientos de clientes en cada uno.
+
+`DISTINCT` se escribe inmediatamente después de `SELECT` y se aplica a **toda la fila del resultado**, no solo a la primera columna. Es decir, dos filas del resultado se consideran repetidas únicamente cuando coinciden en todas las columnas que pediste:
 
 ```sql
 SELECT DISTINCT carrier, destination_city
 FROM shipments;
 ```
 
-Aquí una fila se repite solo si coinciden **ambos** valores. Habrá una fila por cada combinación transportista–ciudad que realmente aparezca en los envíos.
+Aquí una fila se descarta por repetida solo si coinciden **ambos** valores, el transportista y la ciudad. El resultado es una fila por cada combinación de transportista y ciudad que realmente aparece en los envíos: si un mismo transportista entrega en Córdoba y en Rosario, vas a ver dos filas con ese transportista.
 
 ## DISTINCT y NULL
 
-Para `DISTINCT`, todos los NULL son «iguales entre sí»: si una columna tiene valores NULL, el resultado incluye **una** fila NULL.
+Para `DISTINCT`, todos los NULL se consideran iguales entre sí. Por eso, si la columna tiene valores faltantes, el resultado incluye **una sola** fila con NULL.
 
 ```sql
 SELECT DISTINCT parent_id
 FROM categories;
 ```
 
-Devuelve los ids de las categorías que son padre de alguna otra **y** una fila NULL (las categorías raíz no tienen padre). En la sección 8 verás que en comparaciones `NULL = NULL` no es verdadero; `DISTINCT` es una de las excepciones donde NULL se agrupa.
+Esa consulta devuelve los identificadores de las categorías que son padre de alguna otra, **más** una fila con NULL, que corresponde a las categorías de primer nivel, las que no dependen de ninguna otra.
 
-## DISTINCT no es un arreglo
+Vale la pena anotar la excepción, porque en la sección 8 vas a ver que al comparar valores `NULL = NULL` no es verdadero. `DISTINCT` no compara con `=`: agrupa valores idénticos, y para agrupar sí trata a todos los NULL como un mismo caso.
 
-Si una consulta devuelve filas repetidas que no esperabas, agregar `DISTINCT` esconde el síntoma pero no la causa. Las causas típicas:
+## DISTINCT no arregla un resultado mal armado
 
-- Un `JOIN` que multiplica filas (sección 17).
-- Datos duplicados de verdad (por ejemplo, correos con distinta capitalización en `customers`).
+Si una consulta devuelve filas repetidas que no esperabas, agregar `DISTINCT` hace desaparecer las repeticiones de la pantalla, pero el problema que las generó sigue ahí y puede estar alterando tus totales. Las causas habituales son dos:
 
-Antes de escribir `DISTINCT`, pregúntate: ¿la pregunta del negocio es sobre valores únicos? Si la respuesta es no, busca la causa.
+- Un `JOIN` que multiplica filas porque la tabla de la derecha tiene varias filas por cada fila de la izquierda (sección 17).
+- Datos realmente duplicados, por ejemplo el mismo correo cargado dos veces con distinta capitalización en `customers`.
+
+En el primer caso, `DISTINCT` esconde las filas de más pero tus sumas siguen contando importes repetidos, y el informe queda mal sin que nada lo indique. En el segundo, hay un problema de calidad de datos que alguien debería conocer.
+
+Antes de escribir `DISTINCT`, pregúntate si la pregunta del negocio es sobre valores únicos. Si la respuesta es que no, busca la causa de las repeticiones.
 
 ## Costo
 
-Para eliminar duplicados el motor debe ordenar o agrupar todas las filas. En tablas pequeñas no se nota; en millones de filas, sí. Úsalo cuando la pregunta lo pide, no «por si acaso».
+Para eliminar duplicados, el motor necesita ordenar o agrupar todas las filas antes de devolverte el resultado. En tablas chicas no vas a notar la diferencia; sobre millones de filas sí se nota. Úsalo cuando la pregunta lo pide, no por precaución.
 
 ## Ejemplo resuelto
 
-Pedido: «¿Qué monedas se usan en el catálogo?».
+Pedido del área comercial: «¿Qué monedas se usan en el catálogo?».
 
 ```sql
 SELECT DISTINCT currency
@@ -1857,14 +1892,14 @@ FROM products
 ORDER BY currency;
 ```
 
-`ORDER BY` se aplica después de eliminar duplicados, así que el resultado queda ordenado y sin repeticiones.
+`ORDER BY` se aplica después de eliminar los duplicados, así que el resultado queda ordenado alfabéticamente y sin repeticiones.
 $c1721$, null, (select id from public.datasets where slug = $c1722$tiendaviva$c1722$), true, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1723$where$c1723$), $c1724$where-filtros-basicos$c1724$, $c1725$theory$c1725$, $c1726$WHERE: quedarse con las filas que importan$c1726$, 0, 9, $c1727$## Por qué importa
 
-Casi ninguna pregunta de negocio es sobre «todo». Es sobre los clientes de Uruguay, los productos sin stock, los pedidos cancelados. `WHERE` convierte una tabla en la respuesta a una pregunta concreta.
+Casi ninguna pregunta de negocio se responde con la tabla completa. Lo que te piden siempre es un recorte: los clientes de Uruguay, los productos sin stock, los pedidos cancelados. La cláusula `WHERE` es la parte de la consulta que hace ese recorte, porque le indica al motor qué filas conservar y cuáles descartar. Con ella, una tabla de miles de filas se convierte en la respuesta a una pregunta concreta.
 
 ## El concepto
 
@@ -1874,15 +1909,15 @@ FROM customers
 WHERE country = 'UY';
 ```
 
-`WHERE` va después de `FROM` y contiene una **condición** que se evalúa fila por fila. Solo pasan las filas donde la condición es verdadera.
+`WHERE` va después de `FROM` y contiene una **condición**, es decir, una comparación que da como resultado verdadero o falso. PostgreSQL la evalúa una vez por cada fila de la tabla y conserva solo las filas donde el resultado es verdadero. En este ejemplo, de todas las filas de `customers` quedan únicamente aquellas cuya columna `country` contiene el texto `'UY'`, o sea, los clientes de Uruguay.
 
-Comparaciones disponibles: `=`, `<>` (distinto; también `!=`), `<`, `<=`, `>`, `>=`.
+Las comparaciones que puedes usar son `=` (igual), `<>` (distinto, que también se escribe `!=`), `<` (menor), `<=` (menor o igual), `>` (mayor) y `>=` (mayor o igual).
 
 ## Texto, números y booleanos
 
-- Los textos van entre **comillas simples** y distinguen mayúsculas: `'UY'` no es `'uy'`.
+- Los textos van entre **comillas simples** y distinguen mayúsculas de minúsculas, así que `'UY'` y `'uy'` son dos valores diferentes para el motor.
 - Los números van sin comillas: `stock = 0`.
-- Los booleanos se comparan con `TRUE` / `FALSE`, o simplemente se usan: `WHERE is_active` equivale a `WHERE is_active = TRUE`.
+- Los **booleanos** son columnas que solo pueden valer verdadero o falso. Puedes compararlas con `TRUE` o `FALSE`, o escribir la columna sola: `WHERE is_active` significa exactamente lo mismo que `WHERE is_active = TRUE`.
 
 ```sql
 SELECT id, name, stock
@@ -1893,15 +1928,15 @@ WHERE stock = 0
 
 ## Combinar condiciones
 
-- `AND`: ambas deben cumplirse.
-- `OR`: basta con una.
-- `NOT`: invierte la condición.
+- `AND`: ambas condiciones deben cumplirse en la misma fila.
+- `OR`: alcanza con que se cumpla una de las dos.
+- `NOT`: invierte la condición, de verdadero a falso y al revés.
 
-Escribe cada condición en su propia línea, con sangría, para que se lea como una lista. En la sección 7 verás por qué `AND` y `OR` mezclados necesitan paréntesis.
+Escribe cada condición en su propia línea, con sangría, para que la lista se lea de un vistazo. En la sección 7 verás por qué, cuando mezclas `AND` y `OR` en la misma consulta, hacen falta paréntesis para que el resultado sea el que esperas.
 
 ## Alias en WHERE
 
-Los alias del `SELECT` **no existen** todavía cuando se evalúa `WHERE`. Si filtras por una expresión, repítela:
+Un **alias** es el nombre que le das a una columna del resultado con `AS`, por ejemplo `subtotal - discount AS neto`. PostgreSQL evalúa el `WHERE` antes de armar la lista de columnas del `SELECT`, así que en ese momento el alias todavía no existe y no puedes usarlo para filtrar. Cuando necesites filtrar por una expresión, repítela completa dentro del `WHERE`:
 
 ```sql
 SELECT id, subtotal - discount AS neto
@@ -1926,18 +1961,18 @@ WHERE stock = 0
 
 ## Errores comunes
 
-- Comparar texto con comillas dobles (`"UY"`): PostgreSQL lo interpreta como nombre de columna.
-- Escribir `WHERE country = UY` sin comillas: error «column uy does not exist».
-- Usar `=` con NULL: nunca es verdadero (sección 8).
+- Comparar texto usando comillas dobles (`"UY"`). PostgreSQL interpreta las comillas dobles como el nombre de una columna, no como un texto, y la consulta falla.
+- Escribir `WHERE country = UY` sin comillas. El motor busca una columna llamada `uy` y responde «column uy does not exist».
+- Comparar con NULL usando `=`. NULL significa «valor desconocido», y una comparación contra un valor desconocido nunca da verdadero, así que la fila nunca pasa el filtro (lo vemos en detalle en la sección 8).
 $c1727$, null, (select id from public.datasets where slug = $c1728$tiendaviva$c1728$), true, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1729$where$c1729$), $c1730$where-texto-y-fechas$c1730$, $c1731$theory$c1731$, $c1732$Filtrar por patrón de texto y por fechas$c1732$, 1, 10, $c1733$## Patrones con LIKE e ILIKE
 
-Cuando no conoces el valor exacto, usa patrones:
+Cuando no conoces el valor exacto que buscas, en lugar de `=` usas `LIKE` con un **patrón**, es decir, un texto que incluye caracteres comodín:
 
-- `%` representa cualquier secuencia de caracteres (incluida la vacía).
+- `%` representa cualquier secuencia de caracteres, incluida la secuencia vacía.
 - `_` representa exactamente un carácter.
 
 ```sql
@@ -1946,18 +1981,24 @@ FROM sellers
 WHERE store_name LIKE 'Bazar%';
 ```
 
-`LIKE` distingue mayúsculas; `ILIKE` (específico de PostgreSQL) no. `'%urbano%'` encuentra el texto en cualquier posición, pero impide usar índices: en tablas grandes es lento.
+Ese patrón encuentra todas las tiendas cuyo nombre empieza con «Bazar», sin importar cómo siga.
+
+`LIKE` distingue mayúsculas de minúsculas, así que el patrón `'bazar%'` no encontraría «Bazar del Sur». Para ignorar esa diferencia existe `ILIKE`, una extensión propia de PostgreSQL que no está en otros motores y que hace la misma búsqueda sin distinguir mayúsculas de minúsculas.
+
+Un patrón que empieza con `%`, como `'%urbano%'`, encuentra el texto en cualquier posición, y por eso resulta cómodo. El costo aparece en tablas grandes: el motor no puede usar el **índice** de la columna, que es una estructura auxiliar ordenada que le permite saltar directo a los valores buscados en lugar de leer toda la tabla. Sin índice tiene que revisar fila por fila y la consulta se vuelve lenta.
 
 ## Fechas: el problema de los bordes
 
-`orders.created_at` es un `timestamptz`: fecha **y hora**. Comparar con una fecha sola tiene una trampa:
+`orders.created_at` es la columna `created_at` de la tabla `orders`, y guarda el instante en que se creó cada pedido. Su tipo es `timestamptz`, que significa fecha **y hora** con zona horaria. Comparar una columna que tiene hora contra una fecha sola esconde una trampa:
 
 ```sql
 -- MAL: excluye casi todo el 31 de marzo
 WHERE created_at BETWEEN '2025-03-01' AND '2025-03-31'
 ```
 
-`'2025-03-31'` se interpreta como las **00:00:00** de ese día; los pedidos de las 15:00 quedan afuera. La forma robusta es un rango **semiabierto**: mayor o igual al inicio y **menor** que el día siguiente.
+El texto `'2025-03-31'` se convierte en las **00:00:00** de ese día. Un pedido creado a las 15:00 del 31 de marzo es posterior a ese límite superior y queda afuera del resultado. Pierdes casi un día entero de ventas y el motor no te avisa con ningún error.
+
+La forma robusta es usar un rango **semiabierto**: mayor o igual al primer instante del período y **menor** que el primer instante del período siguiente.
 
 ```sql
 -- BIEN: todo marzo, sin importar la hora
@@ -1965,19 +2006,19 @@ WHERE created_at >= '2025-03-01'
   AND created_at <  '2025-04-01'
 ```
 
-Funciona igual con fechas sin hora (`date`) y evita pensar en «23:59:59».
+Este rango funciona igual con columnas de tipo `date` (fecha sin hora) y te evita escribir límites como «23:59:59», que además dejarían afuera los microsegundos posteriores.
 
 ## Funciones de fecha útiles
 
-- `created_at::date` convierte a fecha (descarta la hora).
-- `date_trunc('month', created_at)` devuelve el primer instante del mes.
+- `created_at::date` convierte el valor a fecha y descarta la hora.
+- `date_trunc('month', created_at)` devuelve el primer instante del mes al que pertenece esa fecha, por ejemplo `2025-03-01 00:00` para cualquier pedido de marzo.
 - `extract(year from created_at)` devuelve el año como número.
 
-Cuidado: aplicar una función a la columna en el `WHERE` (`WHERE created_at::date = '2025-03-15'`) es legible, pero impide usar el índice de la columna. Para rangos, prefiere la comparación directa.
+Ten en cuenta algo al filtrar: si aplicas una función a la columna dentro del `WHERE`, como en `WHERE created_at::date = '2025-03-15'`, la consulta se lee bien, pero el motor tiene que calcular esa función en cada fila y no puede usar el índice de la columna. Para acotar períodos, prefiere la comparación directa por rango.
 
 ## Zonas horarias
 
-Un `timestamptz` guarda un instante absoluto. «El 15 de marzo» depende de la zona horaria desde la que se mira; en este curso el sandbox trabaja en UTC. En tu empresa, acuerda con el equipo la zona de referencia para los reportes.
+Un valor `timestamptz` guarda un instante absoluto, el mismo momento para todo el mundo. Qué día del calendario es ese instante depende de la zona horaria desde la que lo mires: un pedido de las 23:30 en Buenos Aires ya pertenece al día siguiente si lo miras en UTC. En este curso el simulador trabaja siempre en UTC, de modo que tus resultados son reproducibles. En tu empresa, acuerda con el equipo cuál es la zona de referencia de los reportes y déjala escrita.
 
 ## Ejemplo resuelto
 
@@ -1990,18 +2031,18 @@ WHERE created_at >= '2025-03-01'
   AND created_at <  '2025-03-16';
 ```
 
-El límite superior es el **16** a las 00:00, excluido: así entra todo el día 15.
+El límite superior es el día **16** a las 00:00 y está excluido, así que entran todos los pedidos del día 15 a cualquier hora.
 $c1733$, null, (select id from public.datasets where slug = $c1734$tiendaviva$c1734$), true, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1735$operadores-comparacion-logicos$c1735$), $c1736$operadores-precedencia-in-between$c1736$, $c1737$theory$c1737$, $c1738$AND, OR, NOT, IN y BETWEEN sin sorpresas$c1738$, 0, 10, $c1739$## Por qué importa
 
-Un filtro mal combinado no da error: devuelve **más o menos filas de las correctas** y nadie lo nota hasta que el reporte llega a la gerencia. Esta sección es sobre escribir condiciones que dicen exactamente lo que quieres.
+Un filtro mal combinado no produce ningún mensaje de error. La consulta corre, devuelve una tabla con buen aspecto y entrega **más filas o menos filas de las correctas**, así que el número que informas está mal y nada lo señala. El problema suele aparecer semanas después, cuando alguien compara tu reporte con otra fuente. Esta sección trata de escribir condiciones que digan exactamente lo que quieres decir.
 
 ## Precedencia: AND antes que OR
 
-SQL evalúa `NOT` primero, luego `AND`, luego `OR`. Esta consulta **no** hace lo que parece:
+Cuando una condición mezcla varios operadores lógicos sin paréntesis, SQL los resuelve en un orden fijo que se llama **precedencia**: primero `NOT`, después `AND` y al final `OR`. Por eso esta consulta **no** hace lo que parece:
 
 ```sql
 -- Parece: (AR o UY) con marketing
@@ -2018,7 +2059,7 @@ WHERE (country = 'AR' OR country = 'UY')
   AND marketing_opt_in
 ```
 
-Regla práctica: cuando mezclas `AND` y `OR`, **siempre** paréntesis, aunque la precedencia por defecto coincida con tu intención. Quien lea después no tendrá que recordarla.
+Regla práctica: cuando mezcles `AND` con `OR`, escribe **siempre** los paréntesis, incluso cuando la precedencia por omisión coincida con lo que querías. Así el resultado deja de depender de que quien lea la consulta —incluido tú dentro de seis meses— recuerde el orden de evaluación.
 
 ## IN: pertenencia a una lista
 
@@ -2026,7 +2067,7 @@ Regla práctica: cuando mezclas `AND` y `OR`, **siempre** paréntesis, aunque la
 WHERE status IN ('cancelled', 'returned')
 ```
 
-Equivale a `status = 'cancelled' OR status = 'returned'`, pero es más corto, más legible y evita el problema de precedencia. `NOT IN` invierte la condición… con una trampa con NULL que verás en la sección 8.
+`IN` significa «el valor está en esta lista». La condición de arriba equivale a `status = 'cancelled' OR status = 'returned'`, pero es más corta, se lee mejor y evita el problema de precedencia, porque toda la lista cuenta como una sola condición. `NOT IN` invierte la pregunta y devuelve las filas cuyo valor no está en la lista; tiene una trampa cuando la lista contiene NULL, y la verás en la sección 8.
 
 ## BETWEEN: rangos inclusivos
 
@@ -2034,11 +2075,11 @@ Equivale a `status = 'cancelled' OR status = 'returned'`, pero es más corto, m�
 WHERE list_price BETWEEN 100000 AND 200000
 ```
 
-Equivale a `list_price >= 100000 AND list_price <= 200000`: **ambos extremos incluidos**. Es ideal para números y fechas sin hora. Para `timestamptz` prefiere el rango semiabierto (`>=` y `<`) que viste en la sección 6.
+Equivale a `list_price >= 100000 AND list_price <= 200000`, con **los dos extremos incluidos**. Es cómodo para números y para fechas sin hora. Para columnas de tipo `timestamptz` (un instante con fecha, hora y huso horario) conviene el rango semiabierto que viste en la sección 6, con `>=` para el inicio y `<` para el fin: si escribes `BETWEEN` con dos fechas, del último día solo entran las filas cuya hora es exactamente 00:00:00 y pierdes el resto de la jornada.
 
 ## NOT y sus equivalentes
 
-`NOT (a AND b)` equivale a `NOT a OR NOT b` (leyes de De Morgan). En la práctica:
+Negar una condición compuesta también invierte el conector: `NOT (a AND b)` equivale a `NOT a OR NOT b`, que es una de las leyes de De Morgan. En la práctica conviene escribir la negación pegada a la comparación, no delante de todo:
 
 - `NOT status = 'delivered'` → escribe `status <> 'delivered'`.
 - `NOT (status IN (...))` → escribe `status NOT IN (...)`.
@@ -2046,7 +2087,7 @@ Equivale a `list_price >= 100000 AND list_price <= 200000`: **ambos extremos inc
 
 ## Elegir la forma más legible
 
-Estas condiciones son equivalentes; la segunda se lee de un vistazo:
+Estas dos condiciones devuelven exactamente las mismas filas. La segunda se entiende en una sola lectura, y por eso es la que conviene escribir:
 
 ```sql
 WHERE status = 'cancelled' OR status = 'returned' OR status = 'pending'
@@ -2072,22 +2113,28 @@ WHERE country IN ('AR', 'UY')
   AND marketing_opt_in;
 ```
 
-`IN` elimina la ambigüedad y los paréntesis dejan de ser necesarios.
+Con `IN`, la lista de países es una sola condición, así que ya no hay ninguna mezcla de `AND` con `OR` que se pueda interpretar de dos maneras y los paréntesis dejan de ser necesarios.
 $c1739$, null, (select id from public.datasets where slug = $c1740$tiendaviva$c1740$), true, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1741$null$c1741$), $c1742$null-logica-de-tres-valores$c1742$, $c1743$theory$c1743$, $c1744$NULL y la lógica de tres valores$c1744$, 0, 10, $c1745$## Por qué importa
 
-En **TiendaViva** hay vendedores sin calificación, reseñas sin comentario y envíos que todavía no llegaron. Eso no es «cero» ni «texto vacío»: es **desconocido** o **no aplica**. SQL lo representa con `NULL`, y casi todos los reportes incorrectos que verás en tu carrera involucran un NULL mal tratado.
+En **TiendaViva** hay vendedores que todavía no recibieron ninguna calificación, reseñas que el cliente dejó sin comentario y envíos que todavía no llegaron. En esos casos la columna no guarda un cero ni un texto vacío: no guarda nada, porque el valor **no se conoce** o **no aplica todavía**.
+
+SQL representa esa ausencia con `NULL`. Aprender cómo se comporta es obligatorio porque una parte muy grande de los reportes incorrectos que vas a ver en tu carrera se explica por un NULL mal tratado, y el síntoma es siempre el mismo: la consulta no falla, simplemente devuelve menos filas de las que debería.
 
 ## Qué es NULL
 
-`NULL` es la ausencia de valor. No es 0, no es `''`, no es `FALSE`. Una columna puede admitirlo (`rating numeric`) o prohibirlo (`store_name text NOT NULL`).
+`NULL` significa «no sabemos el valor». No es el número 0, no es la cadena de texto vacía `''` y no es `FALSE`.
+
+La diferencia es de negocio, no de forma. Un vendedor con `rating = 0` es un vendedor al que sus clientes calificaron pésimo; un vendedor con `rating` en NULL es un vendedor al que todavía nadie calificó. Son dos situaciones distintas y conviene que el reporte las distinga.
+
+Al definir una tabla se decide si cada columna admite la ausencia de valor (`rating numeric`) o la prohíbe (`store_name text NOT NULL`).
 
 ## La regla que rompe la intuición
 
-Cualquier comparación con NULL devuelve **UNKNOWN** (desconocido), no verdadero ni falso:
+Cualquier comparación con NULL devuelve **UNKNOWN** (desconocido), que no es ni verdadero ni falso:
 
 ```sql
 NULL = NULL      -- UNKNOWN
@@ -2095,15 +2142,21 @@ NULL <> 5        -- UNKNOWN
 NULL > 4         -- UNKNOWN
 ```
 
-`WHERE` solo deja pasar filas cuya condición es **TRUE**. UNKNOWN se descarta igual que FALSE. Consecuencias:
+La razón es la misma en los tres casos: si no sabes cuál es el valor, tampoco puedes saber si cumple la comparación. «¿El vendedor sin calificación tiene más de 4 estrellas?» no tiene respuesta, y eso es exactamente lo que devuelve SQL.
 
-- `WHERE rating = NULL` no devuelve nada, nunca.
-- `WHERE rating <> 4.5` **no** incluye a los vendedores sin calificación.
-- `WHERE rating > 4` (70 filas) y `WHERE rating <= 4` (82 filas) **no** suman los 180 vendedores: faltan los 28 con NULL.
+Fíjate en el primero, porque es el que más sorprende: comparar NULL con NULL usando `=` tampoco da verdadero. Dos valores desconocidos no son «iguales»; siguen siendo dos incógnitas.
+
+`WHERE` solo deja pasar las filas cuya condición resulta **TRUE**. Una condición UNKNOWN se descarta igual que una FALSE. Las consecuencias prácticas son estas:
+
+- `WHERE rating = NULL` no devuelve ninguna fila, nunca, ni siquiera las que tienen NULL.
+- `WHERE rating <> 4.5` **no** incluye a los vendedores sin calificación, aunque es evidente que su calificación no es 4.5.
+- `WHERE rating > 4` devuelve 70 filas y `WHERE rating <= 4` devuelve 82, pero entre las dos no suman los 180 vendedores de la tabla: faltan los 28 que tienen NULL, que ninguna de las dos condiciones deja pasar.
+
+Ese tercer caso es el peligroso. Si publicas los dos grupos como «vendedores buenos» y «vendedores regulares», tu informe pierde 28 vendedores sin avisarte.
 
 ## IS NULL e IS NOT NULL
 
-Para preguntar por NULL hay operadores específicos:
+Como `=` no sirve para preguntar por la ausencia de valor, SQL tiene un operador específico:
 
 ```sql
 SELECT id, store_name
@@ -2111,11 +2164,13 @@ FROM sellers
 WHERE rating IS NULL;
 ```
 
-`IS NOT NULL` filtra los que sí tienen valor. Nunca uses `= NULL` o `<> NULL`.
+`IS NULL` es verdadero cuando la columna no tiene valor, e `IS NOT NULL` es verdadero cuando sí lo tiene. Estas dos formas sí devuelven TRUE o FALSE, nunca UNKNOWN. Nunca escribas `= NULL` ni `<> NULL`.
 
 ## NOT y NULL
 
-`NOT UNKNOWN` sigue siendo UNKNOWN. Por eso `WHERE NOT (rating > 4)` **tampoco** incluye los NULL. Si quieres «los que no superan 4, incluidos los sin calificación», dilo explícitamente:
+Negar un valor desconocido deja un valor desconocido: `NOT UNKNOWN` sigue siendo UNKNOWN. Por eso `WHERE NOT (rating > 4)` **tampoco** incluye a los vendedores sin calificación, aunque a primera vista parezca que debería incluir «todo lo demás».
+
+Si lo que quieres es «los que no superan 4 estrellas, incluidos los que todavía no tienen calificación», tienes que pedirlo de forma explícita:
 
 ```sql
 WHERE rating <= 4
@@ -2124,11 +2179,13 @@ WHERE rating <= 4
 
 ## NOT IN con NULL: la trampa clásica
 
-Si la lista de `NOT IN` contiene un NULL, la condición es UNKNOWN para **todas** las filas y la consulta no devuelve nada. Ocurre al usar subconsultas (sección 21) sobre columnas que admiten NULL. Filtra los NULL de la lista o usa `NOT EXISTS`.
+Si la lista que le pasas a `NOT IN` contiene aunque sea un NULL, la condición resulta UNKNOWN para **todas** las filas y la consulta devuelve cero resultados. No hay error ni advertencia: la consulta «funciona» y el resultado es una tabla vacía.
+
+Esto aparece sobre todo al usar subconsultas (sección 21) sobre columnas que admiten NULL. La solución es filtrar los NULL de la lista o reescribir la condición con `NOT EXISTS`.
 
 ## Ejemplo resuelto
 
-Pedido: «Reseñas negativas (1 o 2 estrellas) que no dejaron comentario, para contactar al cliente».
+Pedido del área de atención al cliente: «Quiero las reseñas negativas, de 1 o 2 estrellas, que no dejaron comentario, para contactar al cliente y entender qué pasó».
 
 ```sql
 SELECT id, product_id, customer_id, rating
@@ -2136,13 +2193,15 @@ FROM reviews
 WHERE rating <= 2
   AND comment IS NULL;
 ```
+
+La condición `comment IS NULL` es la única forma de pedir «sin comentario». Escribirla como `comment = NULL` habría devuelto una tabla vacía y te habría hecho creer que todas las reseñas negativas tienen comentario.
 $c1745$, null, (select id from public.datasets where slug = $c1746$tiendaviva$c1746$), true, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1747$null$c1747$), $c1748$null-coalesce-y-nullif$c1748$, $c1749$theory$c1749$, $c1750$Reemplazar y producir NULL: COALESCE y NULLIF$c1750$, 1, 8, $c1751$## COALESCE: el primer valor no nulo
 
-`COALESCE(a, b, c, ...)` devuelve el primer argumento que no sea NULL. Es la forma estándar de mostrar un valor de negocio en lugar de un hueco:
+`COALESCE(a, b, c, ...)` recorre sus argumentos de izquierda a derecha y devuelve el primero que no sea NULL. Es la forma estándar de mostrar un valor con sentido de negocio donde la tabla tiene un hueco:
 
 ```sql
 SELECT
@@ -2152,33 +2211,35 @@ SELECT
 FROM sellers;
 ```
 
-Cuidado con el significado: un 0 «inventado» puede arruinar un promedio. Para un reporte legible está bien; para un cálculo, muchas veces conviene dejar el NULL y que la agregación lo ignore (sección 14).
+Ahí, cada vendedor sin calificación aparece con un 0 en lugar de una celda vacía.
 
-Con texto:
+Ten cuidado con lo que ese 0 significa. Es un valor que inventaste tú, no un dato: si después calculas el promedio de esa columna, los vendedores que todavía nadie calificó van a bajar el promedio como si los hubieran calificado pésimo. Para un reporte que solo se lee está bien; para un cálculo, muchas veces conviene dejar el NULL y que la función de agregación lo ignore por su cuenta (sección 14).
+
+Con texto funciona igual:
 
 ```sql
 COALESCE(comment, '(sin comentario)') AS comentario
 ```
 
-Todos los argumentos deben ser del mismo tipo (o convertibles).
+Todos los argumentos tienen que ser del mismo tipo de dato, o al menos de tipos que PostgreSQL pueda convertir entre sí.
 
 ## NULLIF: convertir un valor en NULL
 
-`NULLIF(a, b)` devuelve NULL si `a = b`; si no, devuelve `a`. Dos usos típicos:
+`NULLIF(a, b)` hace lo contrario: devuelve NULL si `a` es igual a `b`, y en cualquier otro caso devuelve `a`. Sirve para declarar que cierto valor concreto en realidad significa «no hay dato». Dos usos habituales:
 
-- Limpiar cadenas vacías: `NULLIF(trim(comment), '')`.
-- Evitar divisiones por cero: `total / NULLIF(cantidad, 0)` devuelve NULL en lugar de fallar.
+- **Limpiar cadenas vacías**: `NULLIF(trim(comment), '')` convierte en NULL los comentarios que quedaron vacíos o que solo tienen espacios, para que el resto de la consulta tenga que tratar un solo caso de «sin comentario» en lugar de dos.
+- **Evitar divisiones por cero**: `total / NULLIF(cantidad, 0)` devuelve NULL cuando la cantidad es cero, en lugar de cortar la consulta con un error.
 
 ## NULL en operaciones
 
-- Aritmética: `NULL + 1` es NULL. Un descuento NULL vuelve NULL a todo el total.
-- Concatenación: `'Hola ' || NULL` es NULL. `concat()` ignora los NULL.
-- `ORDER BY`: en PostgreSQL los NULL van al final en ascendente y al principio en descendente; ajusta con `NULLS FIRST` / `NULLS LAST`.
-- Agregaciones: `count(columna)` ignora NULL; `count(*)` no. `avg` y `sum` ignoran NULL (sección 14).
+- **Aritmética**: `NULL + 1` es NULL. Si el descuento de un pedido es NULL, el total calculado a partir de él también queda en NULL, y esa fila desaparece de cualquier suma.
+- **Concatenación de texto**: `'Hola ' || NULL` es NULL, así que basta un dato faltante para vaciar toda la cadena. La función `concat()` no tiene ese problema porque ignora los NULL.
+- **Orden**: en PostgreSQL los NULL se ubican al final cuando ordenas de menor a mayor y al principio cuando ordenas de mayor a menor. Puedes cambiarlo con `NULLS FIRST` o `NULLS LAST`.
+- **Agregaciones**: `count(columna)` cuenta solo los valores presentes, mientras que `count(*)` cuenta todas las filas; la resta entre ambos es la cantidad de NULL. `avg` y `sum` también ignoran los NULL (sección 14).
 
 ## Ejemplo resuelto
 
-Pedido: «Lista de vendedores con su calificación; los que no tienen, que muestren 0, y que aparezcan primero los mejor calificados».
+Pedido: «Dame la lista de vendedores con su calificación; los que no tienen calificación que muestren 0, y que aparezcan primero los mejor calificados».
 
 ```sql
 SELECT
@@ -2189,18 +2250,22 @@ FROM sellers
 ORDER BY rating_o_cero DESC, id;
 ```
 
-El alias sí puede usarse en `ORDER BY`. El segundo criterio (`id`) vuelve el orden determinista cuando hay empates.
+Dos detalles de esa consulta. El alias `rating_o_cero` sí se puede usar dentro de `ORDER BY`, aunque no se pueda usar en `WHERE`. Y el segundo criterio de orden, `id`, existe para que el resultado sea siempre el mismo: cuando varios vendedores tienen la misma calificación, sin un criterio de desempate el motor puede devolverlos en cualquier orden y la lista cambia de una ejecución a otra.
 $c1751$, null, (select id from public.datasets where slug = $c1752$tiendaviva$c1752$), true, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1753$inner-join$c1753$), $c1754$inner-join-basico$c1754$, $c1755$theory$c1755$, $c1756$INNER JOIN: combinar dos tablas$c1756$, 0, 11, $c1757$## Por qué importa
 
-Los datos útiles están repartidos: `products` tiene el nombre del producto y `sellers` el de la tienda. Hasta ahora respondías preguntas sobre una tabla; la mayoría de las preguntas reales cruzan dos o más. `JOIN` es la herramienta central del análisis relacional.
+En una base relacional los datos están repartidos en varias tablas a propósito, para no repetir información. En TiendaViva, la tabla `products` guarda el nombre y el precio de cada producto, y la tabla `sellers` guarda el nombre de la tienda que lo vende. Si te piden «el catálogo con el nombre de la tienda», ninguna de las dos tablas alcanza por sí sola.
+
+Hasta ahora respondías preguntas que vivían en una sola tabla. La mayoría de las preguntas de negocio reales necesitan datos de dos o más, y la operación que las combina se llama `JOIN`. Es la herramienta central del análisis relacional.
 
 ## Claves que conectan tablas
 
-`products.seller_id` guarda el `id` del vendedor. Esa columna es una **clave foránea**: apunta a la **clave primaria** de `sellers`. Un JOIN une cada fila de una tabla con las filas de la otra que cumplen una condición, casi siempre la igualdad entre esas claves.
+`products.seller_id` es la columna `seller_id` de la tabla `products`, y guarda el identificador del vendedor que publicó ese producto. Ese valor es el mismo que aparece en la columna `id` de la tabla `sellers`. En términos de negocio, esa columna dice: «este producto lo vende esta tienda».
+
+Una columna así se llama **clave foránea** (FK, por *foreign key*, su nombre en inglés): es una columna que guarda el valor de la **clave primaria** de otra tabla (PK, por *primary key*), que es la columna que identifica de forma única cada fila. Un JOIN une cada fila de una tabla con las filas de la otra que cumplen una condición, y esa condición es casi siempre la igualdad entre la clave foránea de una y la clave primaria de la otra.
 
 ## La sintaxis
 
@@ -2214,21 +2279,25 @@ INNER JOIN sellers AS s
   ON s.id = p.seller_id;
 ```
 
-- `FROM products AS p`: la primera tabla, con alias `p`.
-- `INNER JOIN sellers AS s`: la segunda, con alias `s`.
-- `ON s.id = p.seller_id`: la condición de unión.
+- `FROM products AS p`: la primera tabla, a la que le damos el alias `p`.
+- `INNER JOIN sellers AS s`: la segunda tabla, con el alias `s`.
+- `ON s.id = p.seller_id`: la condición de unión, que empareja la columna `id` de `sellers` con la columna `seller_id` de `products`.
 
-Los alias de tabla evitan escribir el nombre completo y **resuelven ambigüedades**: ambas tablas tienen `id`, así que `id` a secas produce «column reference is ambiguous». Escribe siempre `alias.columna`.
+Un **alias de tabla** es un nombre corto que reemplaza al nombre completo dentro de la consulta. Además de ahorrarte escritura, resuelve las ambigüedades: las dos tablas tienen una columna llamada `id`, así que si escribes `id` a secas PostgreSQL no sabe a cuál te refieres y responde «column reference is ambiguous». Escribe siempre `alias.columna`.
 
-`INNER JOIN` y `JOIN` son sinónimos. `INNER` es explícito y se recomienda mientras aprendes.
+`INNER JOIN` y `JOIN` significan exactamente lo mismo en PostgreSQL. Conviene escribir `INNER` mientras aprendes, porque deja explícito qué tipo de unión elegiste.
 
 ## Qué filas salen
 
-Un INNER JOIN devuelve **solo las combinaciones que cumplen la condición**. Un producto cuyo `seller_id` no exista en `sellers` desaparecería del resultado; un vendedor sin productos tampoco aparece. Para conservar filas «huérfanas» existen los OUTER JOIN (sección 18).
+Un INNER JOIN devuelve **solo las combinaciones de filas que cumplen la condición del `ON`**. Todo lo que no encuentra pareja desaparece del resultado, y desaparece en silencio: no hay error ni advertencia.
+
+Dos casos concretos en TiendaViva. Si un producto tuviera un `seller_id` que no existe en `sellers`, ese producto no aparecería en el catálogo que entregas. Y un vendedor que todavía no publicó ningún producto tampoco aparece, porque no hay ninguna fila de `products` con la que emparejarlo. Eso importa para la respuesta de negocio: si te piden «cuántos vendedores tenemos por país», contar sobre un INNER JOIN con `products` te va a dar un número más bajo que el real, porque deja afuera a los vendedores sin catálogo.
+
+Cuando necesites conservar esas filas sin pareja, existen los OUTER JOIN, que verás en la sección 18.
 
 ## JOIN + WHERE
 
-El `WHERE` se aplica después de unir, y puede usar columnas de cualquiera de las dos tablas:
+El `WHERE` se aplica después de unir las tablas, y puede usar columnas de cualquiera de las dos:
 
 ```sql
 SELECT p.id, p.name, s.store_name
@@ -2239,15 +2308,17 @@ WHERE s.country = 'UY';
 
 ## Filas que se multiplican
 
-Si un pedido tiene **dos** pagos (uno rechazado y uno aprobado), `orders JOIN payments` devuelve **dos filas** para ese pedido. No es un error del JOIN: es la relación uno-a-muchos. Antes de sumar montos de `orders` en una consulta con JOIN, pregúntate si la unión duplicó filas. En este dataset, 2502 pedidos tienen más de un pago.
+Si un pedido tiene **dos** pagos registrados, por ejemplo uno rechazado y uno aprobado, entonces `orders JOIN payments` devuelve **dos filas** para ese pedido, una por cada pago. No es un error del JOIN: es la consecuencia de que la relación sea uno a muchos, o sea, un pedido puede tener varios pagos.
+
+La consecuencia práctica es que sumar `orders.total_amount` sobre ese resultado cuenta el importe del pedido dos veces y el total del reporte queda inflado. Antes de sumar montos en una consulta con JOIN, verifica si la unión multiplicó filas. En este dataset, 2502 pedidos tienen más de un pago.
 
 ## Ejemplo resuelto
 
 Pedido: «Productos de vendedores uruguayos, con el nombre de la tienda».
 
-1. Tablas: `products` (nombre) y `sellers` (tienda, país).
-2. Conexión: `products.seller_id = sellers.id`.
-3. Filtro: `sellers.country = 'UY'`.
+1. Tablas: `products` (nombre del producto) y `sellers` (nombre de la tienda y país).
+2. Conexión: la columna `seller_id` de `products` contra la columna `id` de `sellers`.
+3. Filtro: la columna `country` de `sellers` igual a `'UY'`.
 
 ```sql
 SELECT p.id, p.name, s.store_name
@@ -2258,16 +2329,16 @@ WHERE s.country = 'UY';
 
 ## Errores comunes
 
-- Olvidar el `ON`: PostgreSQL exige la condición (o produce un producto cartesiano con la sintaxis antigua de comas).
-- Unir por columnas equivocadas (`ON s.id = p.id`): filas sin sentido, sin error.
-- Referenciar columnas sin alias en tablas que comparten nombres.
+- Olvidar el `ON`. PostgreSQL exige la condición de unión, y con la sintaxis antigua de comas produce un producto cartesiano, es decir, combina cada fila de una tabla con todas las filas de la otra.
+- Unir por las columnas equivocadas, como `ON s.id = p.id`. El motor no da ningún error y el resultado son filas que emparejan productos con vendedores que no tienen nada que ver.
+- Escribir columnas sin el alias de su tabla cuando las dos tablas comparten ese nombre de columna.
 $c1757$, null, (select id from public.datasets where slug = $c1758$tiendaviva$c1758$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1759$inner-join$c1759$), $c1760$inner-join-varias-tablas$c1760$, $c1761$theory$c1761$, $c1762$Encadenar varios JOIN$c1762$, 1, 9, $c1763$## Un JOIN por relación
 
-Para llegar del cliente al producto que reseñó hay que pasar por `reviews`: `customers → reviews → products`. Cada flecha es un JOIN:
+Una consulta puede unir más de dos tablas, y necesita un `JOIN` por cada relación que atraviesa. Para llegar desde el cliente hasta el producto que reseñó hay que pasar por la tabla `reviews`, que guarda una fila por reseña con la columna `customer_id` (quién la escribió) y la columna `product_id` (sobre qué producto). El camino es `customers → reviews → products`, y cada flecha es un JOIN:
 
 ```sql
 SELECT
@@ -2280,11 +2351,13 @@ INNER JOIN products AS p ON p.id = r.product_id
 WHERE r.rating = 1;
 ```
 
-Empieza por la tabla «central» (la que tiene las claves foráneas) y agrega un JOIN por cada tabla que necesites. El orden de los JOIN no cambia el resultado de un INNER JOIN; elige el que se lea mejor.
+Empieza por la tabla «central», que es la que tiene las claves foráneas (FK, por *foreign key*) hacia las demás, y agrega un JOIN por cada tabla que necesites. En un INNER JOIN el orden en que escribes los JOIN no cambia el resultado, así que elige el orden que se lea mejor.
 
 ## La misma tabla dos veces
 
-`categories` se referencia a sí misma: `parent_id` apunta a otra categoría. Para mostrar la subcategoría y su padre, únela dos veces con **alias distintos**:
+La tabla `categories` se referencia a sí misma: su columna `parent_id` guarda el `id` de otra fila de `categories`, que es la categoría padre. Así se representa que «Zapatillas» está dentro de «Calzado».
+
+Para mostrar en la misma fila la subcategoría y su categoría padre necesitas unir `categories` dos veces, y darle a cada copia un **alias distinto**:
 
 ```sql
 SELECT
@@ -2296,15 +2369,15 @@ INNER JOIN categories AS sub  ON sub.id = p.category_id
 INNER JOIN categories AS raiz ON raiz.id = sub.parent_id;
 ```
 
-Sin alias distintos, PostgreSQL no puede saber a cuál `categories` te refieres. Este patrón se llama self join y tiene su sección (19).
+Sin alias distintos, PostgreSQL no tiene forma de saber a cuál de las dos copias de `categories` te refieres en cada columna. Este patrón se llama self join, o autounión, y tiene su propia sección (19).
 
 ## Elegir columnas con criterio
 
-Con tres tablas, `SELECT *` devuelve decenas de columnas, varias con el mismo nombre (`id`, `name`, `created_at`). Lista las columnas y ponles alias cuando el nombre se repita.
+Con tres tablas unidas, `SELECT *` devuelve decenas de columnas, y varias se llaman igual porque cada tabla tiene su `id`, su `name` y su `created_at`. Quien lea el resultado no puede saber de qué tabla vino cada una. Escribe la lista de columnas que necesitas y ponles un alias cuando el nombre se repita.
 
 ## Verificar el resultado
 
-Después de un JOIN múltiple, comprueba el número de filas contra lo que esperas: ¿hay una fila por reseña? ¿por producto? Si hay más, alguna relación es uno-a-muchos y multiplicó filas.
+Después de un JOIN múltiple, compara la cantidad de filas que obtuviste con la que esperabas. Pregúntate qué representa una fila del resultado: ¿una reseña?, ¿un producto? Si obtuviste más filas de las que esperabas, alguna de las relaciones es uno a muchos y multiplicó filas, y cualquier suma o conteo sobre ese resultado va a estar inflado.
 
 ## Ejemplo resuelto
 
@@ -2319,16 +2392,16 @@ WHERE o.currency = 'ARS'
   AND pay.status = 'approved';
 ```
 
-Un pedido con dos intentos de pago aprobados (no ocurre aquí) aparecería dos veces; `WHERE pay.status = 'approved'` acota la relación a un pago por pedido.
+Un pedido con dos intentos de pago aprobados aparecería dos veces en el resultado. En este dataset eso no ocurre, y además el filtro `pay.status = 'approved'` reduce la relación a un pago aprobado por pedido.
 $c1763$, null, (select id from public.datasets where slug = $c1764$tiendaviva$c1764$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1765$funciones-de-agregacion$c1765$), $c1766$agregacion-count-sum-avg$c1766$, $c1767$theory$c1767$, $c1768$Resumir una tabla en un número$c1768$, 0, 11, $c1769$## Por qué importa
 
-«¿Cuántos pedidos entregamos?», «¿cuál es el ticket promedio?», «¿cuándo fue el primer pedido?». Las **funciones de agregación** toman muchas filas y devuelven un valor. Son la base de cualquier indicador de negocio.
+«¿Cuántos pedidos entregamos?», «¿cuál es el ticket promedio?», «¿cuándo fue el primer pedido?». Todas esas preguntas se responden con **funciones de agregación**, es decir, funciones que recorren muchas filas y devuelven un solo valor que las resume. Funcionan como la fila de totales al pie de una planilla: en lugar de mirar los pedidos uno por uno, obtienes la cifra que los representa. Son la base de cualquier indicador de negocio.
 
-En esta sección trabajas con **Pídelo**, una plataforma de delivery: `orders` (pedidos), `ratings` (calificaciones), `restaurants`, `couriers`.
+En esta sección trabajas con **Pídelo**, una plataforma de delivery. Sus tablas principales son `orders` (una fila por pedido), `ratings` (las calificaciones que deja cada cliente), `restaurants` (los locales que cocinan) y `couriers` (las personas que reparten).
 
 ## Las cinco básicas
 
@@ -2343,7 +2416,7 @@ FROM orders
 WHERE status = 'delivered';
 ```
 
-Sin `GROUP BY` (sección 15), la consulta devuelve **una sola fila**. `WHERE` filtra antes de agregar: aquí solo cuentan los entregados.
+Cuando la consulta solo pide funciones de agregación y no lleva `GROUP BY` —la cláusula que parte la tabla en grupos y calcula un resultado por grupo, que verás en la sección 15—, el resultado es **una sola fila** que resume la tabla entera. El `WHERE` se aplica antes de agregar, así que estas cinco cifras describen únicamente los pedidos entregados y dejan afuera los cancelados.
 
 ## COUNT tiene tres formas
 
@@ -2359,19 +2432,19 @@ SELECT
 FROM ratings;
 ```
 
-En `ratings`, algunas filas no tienen puntaje de restaurante o de repartidor: las tres cifras difieren.
+En `ratings` hay filas sin puntaje de restaurante y filas sin puntaje de repartidor, porque el cliente puede calificar solo una parte del servicio. Por eso las tres cifras dan distinto, y si informas `count(*)` como «calificaciones al restaurante» estarás contando también las que quedaron vacías.
 
 ## NULL y los promedios
 
-`avg`, `sum`, `min` y `max` **ignoran NULL**. `avg(restaurant_rating)` promedia solo las calificaciones existentes. Si reemplazas los NULL por 0 con `COALESCE` antes de promediar, el promedio baja artificialmente. Decide con el negocio qué significa la ausencia.
+`avg`, `sum`, `min` y `max` **ignoran los valores NULL**, es decir, las celdas que quedaron sin dato. `avg(restaurant_rating)` promedia solo las calificaciones que alguien escribió y divide por esa misma cantidad. Si antes de promediar reemplazas los NULL por 0 con `COALESCE`, estás afirmando que esas personas calificaron con un cero y el promedio baja sin que nadie haya puesto esa nota. Acuerda con el área de negocio qué significa la ausencia antes de decidir.
 
-Si **todas** las filas son NULL (o no hay filas), `sum` y `avg` devuelven NULL, no 0. `count` siempre devuelve un número.
+Si **todas** las filas son NULL, o si no hay ninguna fila, `sum` y `avg` devuelven NULL y no 0, porque sumar un conjunto vacío no da cero: no hay nada que sumar. `count`, en cambio, siempre devuelve un número, aunque ese número sea 0.
 
 ## Promedios engañosos
 
-- Mezclar monedas: en Pídelo los totales están en la moneda de cada ciudad. Un promedio de `total` sobre todas las ciudades mezcla pesos mexicanos con soles. Filtra por ciudad o convierte antes.
-- Promediar promedios: el promedio de las calificaciones por restaurante no es la calificación promedio de todas las calificaciones.
-- Enteros: `avg` de una columna entera devuelve `numeric`; `sum` de enteros devuelve `bigint`. Redondea con `round(x, 2)` para presentar.
+- **Mezclar monedas.** La columna `total` de la tabla `orders` guarda el importe del pedido en la moneda de su ciudad. Si promedias `total` sobre todas las ciudades a la vez, estás combinando pesos mexicanos con soles peruanos y el resultado no corresponde a ningún importe real. Filtra por una ciudad o convierte los importes a una moneda común antes de promediar.
+- **Promediar promedios.** Si primero calculas la calificación promedio de cada restaurante y después promedias esos promedios, un local con 3 calificaciones pesa lo mismo que uno con 300. Ese número no es la calificación promedio de la plataforma; para obtenerla hay que promediar todas las calificaciones juntas.
+- **Tipos enteros.** `avg` sobre una columna de enteros devuelve un valor `numeric` con muchos decimales, y `sum` sobre enteros devuelve un `bigint`. Para presentar el resultado, redondea con `round(x, 2)`.
 
 ## Ejemplo resuelto
 
@@ -2386,20 +2459,22 @@ FROM orders
 WHERE status = 'delivered';
 ```
 
-`delivered_at - placed_at` es un intervalo; `extract(epoch FROM ...)` lo convierte a segundos, y `/ 60` a minutos.
+Restar dos marcas de tiempo, `delivered_at` menos `placed_at`, devuelve un valor de tipo `interval`, que es una duración y no un número. `extract(epoch FROM ...)` convierte esa duración a segundos, que sí es un número que se puede promediar, y dividir entre 60 la deja en minutos, que es la unidad en la que el negocio promete la entrega.
 
 ## Errores comunes
 
-- Mezclar una columna sin agregar con agregados (`SELECT customer_id, count(*) FROM orders`): error «must appear in the GROUP BY clause». Lo resuelves en la sección 15.
-- Usar `count(columna)` esperando contar filas cuando la columna tiene NULL.
-- Olvidar `round` y entregar 14 decimales.
+- Pedir en el mismo `SELECT` una columna sin agregar y una función de agregación (`SELECT customer_id, count(*) FROM orders`). PostgreSQL responde «must appear in the GROUP BY clause», porque no sabe qué `customer_id` mostrar al lado de un conteo que resume miles de filas. La solución es `GROUP BY`, en la sección 15.
+- Usar `count(columna)` creyendo que cuenta filas, cuando en realidad deja afuera todas las filas donde esa columna es NULL.
+- Entregar un promedio con catorce decimales por no haber usado `round` al presentar.
 $c1769$, null, (select id from public.datasets where slug = $c1770$pidelo$c1770$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1771$group-by$c1771$), $c1772$group-by-basico$c1772$, $c1773$theory$c1773$, $c1774$GROUP BY: una fila por grupo$c1774$, 0, 10, $c1775$## Por qué importa
 
-«Pedidos por estado», «clientes por ciudad», «ventas por mes». Casi todo reporte es una agregación **por categoría**. `GROUP BY` divide las filas en grupos y aplica las funciones de agregación a cada grupo.
+«Pedidos por estado», «clientes por ciudad», «ventas por mes»: casi todo reporte pide un número calculado **por categoría**. `GROUP BY` hace exactamente eso: reparte las filas en grupos según el valor de una o varias columnas y después aplica a cada grupo una función de agregación, es decir, una función que resume muchas filas en un solo valor, como `count`, `sum` o `avg`.
+
+Trabajas con **Pídelo**, una aplicación de pedidos de comida. En su tabla `orders` cada fila es un pedido, y te interesan tres de sus columnas: `status` (el estado del pedido: `delivered`, `cancelled` y similares), `payment_method` (el medio de pago con el que se abonó) y `placed_at` (el instante en que se hizo el pedido).
 
 ## El concepto
 
@@ -2410,11 +2485,11 @@ GROUP BY status
 ORDER BY pedidos DESC;
 ```
 
-Resultado: una fila por cada valor distinto de `status`, con la cantidad de pedidos de ese grupo. El orden de las filas de un `GROUP BY` **no está garantizado**: agrega `ORDER BY` siempre que importe.
+El resultado tiene una fila por cada valor distinto que aparezca en `status`, la columna `status` de la tabla `orders`, y en cada fila la cantidad de pedidos que están en ese estado. El orden en que salen esos grupos **no está garantizado** y puede cambiar entre ejecuciones, así que agrega `ORDER BY` siempre que el orden importe para quien lea el reporte.
 
 ## La regla de oro
 
-Toda columna del `SELECT` debe estar **en el `GROUP BY`** o **dentro de una función de agregación**. Si no, PostgreSQL falla con «must appear in the GROUP BY clause or be used in an aggregate function». No es un capricho: para una columna sin agrupar, el motor no sabe cuál de los valores del grupo mostrar.
+Toda columna que aparezca en el `SELECT` tiene que estar **en el `GROUP BY`** o **dentro de una función de agregación**. Si no, PostgreSQL rechaza la consulta con el mensaje «must appear in the GROUP BY clause or be used in an aggregate function» («debe aparecer en la cláusula GROUP BY o usarse en una función de agregación»). La razón es concreta: si el grupo de los pedidos entregados reúne 800 filas con 800 valores distintos en `customer_id` —la columna `customer_id` de la tabla `orders`, que indica qué cliente hizo el pedido—, el motor no tiene forma de decidir cuál de esos 800 valores mostrar en la única fila que le corresponde al grupo.
 
 ## Orden de evaluación
 
@@ -2426,7 +2501,7 @@ GROUP BY payment_method        -- 2. agrupa
 ORDER BY pedidos DESC;         -- 3. ordena grupos
 ```
 
-`WHERE` filtra **filas** antes de agrupar. Para filtrar **grupos** (por ejemplo, métodos con más de 1000 pedidos) existe `HAVING`, en la sección 16.
+`WHERE` filtra **filas** antes de que se formen los grupos, así que las filas descartadas no cuentan para ninguna agregación. Para filtrar **grupos** ya formados, por ejemplo quedarte solo con los medios de pago que superan los 1000 pedidos, existe otra cláusula, `HAVING`, que verás en la sección 16.
 
 ## Agrupar por varias columnas
 
@@ -2437,7 +2512,7 @@ GROUP BY status, payment_method
 ORDER BY status, payment_method;
 ```
 
-Una fila por **combinación**. El número de filas es como máximo el producto de valores distintos.
+Ahora el resultado tiene una fila por cada **combinación** de estado y medio de pago que exista en los datos. La cantidad de filas es, como máximo, el producto entre la cantidad de estados distintos y la cantidad de medios de pago distintos; será menor si alguna combinación no ocurre nunca.
 
 ## Agrupar por expresiones
 
@@ -2450,11 +2525,11 @@ GROUP BY date_trunc('month', placed_at)
 ORDER BY mes;
 ```
 
-En PostgreSQL también puedes escribir `GROUP BY mes` (el alias) o `GROUP BY 1` (la posición). El alias es legible; la posición es frágil si reordenas columnas.
+En PostgreSQL también puedes agrupar escribiendo `GROUP BY mes`, con el alias que le diste a la columna, o `GROUP BY 1`, con la posición que ocupa en la lista del `SELECT`. El alias se lee mejor. La posición es riesgosa: si mañana reordenas las columnas del `SELECT`, la consulta sigue ejecutándose sin error pero pasa a agrupar por otra columna.
 
 ## NULL forma su propio grupo
 
-Como en `DISTINCT`, los NULL de la columna agrupada quedan juntos en un grupo. `GROUP BY promotion_id` produce un grupo NULL con los pedidos sin promoción.
+Como en `DISTINCT`, todas las filas que tienen NULL en la columna agrupada quedan juntas en un mismo grupo. Al escribir `GROUP BY promotion_id` —`promotion_id` es la columna de la tabla `orders` que indica qué promoción se aplicó al pedido— aparece un grupo cuyo valor es NULL: son los pedidos que no usaron ninguna promoción.
 
 ## Ejemplo resuelto
 
@@ -2476,7 +2551,7 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1777$group-by$c1777$), $c1778$group-by-reportes$c1778$, $c1779$theory$c1779$, $c1780$Reportes por período y por entidad$c1780$, 1, 8, $c1781$## Series temporales
 
-El patrón «métrica por mes» es el más frecuente en analítica:
+El patrón «una métrica por mes» es el más frecuente del análisis de datos:
 
 ```sql
 SELECT
@@ -2489,7 +2564,7 @@ GROUP BY mes
 ORDER BY mes;
 ```
 
-`date_trunc('month', ts)` devuelve el primer instante del mes; `::date` lo deja como fecha limpia. Para semanas usa `'week'`, para días `'day'`. Cuidado con la zona horaria: `date_trunc` sobre `timestamptz` usa la zona de la sesión (UTC en el sandbox).
+`date_trunc('month', ts)` recorta un instante al primer momento de su mes: cualquier pedido de marzo se convierte en `2025-03-01 00:00`, y por eso todos los pedidos de marzo caen en el mismo grupo. Agregar `::date` convierte ese resultado en una fecha sin hora, más cómoda de leer en un reporte. Para agrupar por semana usa `'week'` y por día `'day'`. Ten en cuenta la zona horaria: sobre una columna `timestamptz`, que guarda un instante absoluto, `date_trunc` usa la zona horaria de la sesión, y en este entorno de práctica esa zona es siempre UTC (por *Coordinated Universal Time*, el tiempo universal coordinado).
 
 ## Ranking de entidades
 
@@ -2504,15 +2579,15 @@ ORDER BY entregados DESC, restaurant_id
 LIMIT 10;
 ```
 
-El segundo criterio de orden (`restaurant_id`) desempata de forma determinista: sin él, dos restaurantes con la misma cantidad podrían intercambiar posición entre ejecuciones.
+El segundo criterio de orden es `restaurant_id`, la columna `restaurant_id` de la tabla `orders`, que identifica al restaurante que recibió el pedido. Está ahí para desempatar: sin él, dos restaurantes con la misma cantidad de entregas pueden intercambiar posición entre una ejecución y otra, y el top 10 dejaría de ser reproducible.
 
 ## Unidades comparables
 
-Antes de sumar o promediar por grupo, verifica que todas las filas del grupo estén en la misma unidad. En Pídelo cada ciudad tiene su moneda: `sum(total)` por ciudad tiene sentido; `sum(total)` por método de pago (que mezcla ciudades) no.
+Antes de sumar o promediar por grupo, verifica que todas las filas del grupo estén expresadas en la misma unidad. En Pídelo cada ciudad opera con su propia moneda, así que sumar la columna `total` de `orders` agrupando por ciudad da un importe con sentido. En cambio, sumar `total` agrupando por medio de pago junta ciudades y, con ellas, monedas distintas: el número que sale no representa nada, aunque la consulta se ejecute sin error.
 
 ## Leer el resultado
 
-Un `GROUP BY` correcto responde: ¿cuántas filas esperaba? Si agrupas por mes desde enero de 2025 hasta septiembre, esperas 9 filas. Si aparecen 10, revisa el rango; si aparecen 8, algún mes no tuvo datos (los grupos vacíos **no** aparecen; para mostrarlos necesitas un LEFT JOIN contra un calendario, sección 18).
+Antes de mirar los números, pregúntate cuántas filas esperabas. Si agrupas por mes desde enero de 2025 hasta septiembre, esperas 9 filas. Si aparecen 10, revisa los extremos del rango de fechas. Si aparecen 8, es que algún mes no tuvo ni un pedido: un grupo sin filas **no** aparece en el resultado, y para mostrarlo con un cero hay que unir contra una tabla de calendario con `LEFT JOIN` (sección 18).
 
 ## Ejemplo resuelto
 
@@ -2529,14 +2604,16 @@ GROUP BY promotion_id
 ORDER BY usos DESC;
 ```
 
-Si `usos` supera a `clientes` en una promoción de un solo uso por cliente, encontraste abuso: alguien la usó más de una vez.
+Si en una promoción pensada para un solo uso por persona la columna `usos` resulta mayor que `clientes`, significa que alguien la aplicó más de una vez: encontraste un uso indebido que conviene reportar.
 $c1781$, null, (select id from public.datasets where slug = $c1782$pidelo$c1782$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1783$left-right-full-join$c1783$), $c1784$left-join-basico$c1784$, $c1785$theory$c1785$, $c1786$LEFT JOIN: conservar lo que no tiene pareja$c1786$, 0, 10, $c1787$## Por qué importa
 
-«Clientes que **nunca** pidieron», «promociones que **nadie** usó», «pedidos **sin** calificación». Un INNER JOIN no puede responderlas: descarta justamente las filas sin correspondencia. Los OUTER JOIN las conservan.
+Hay una familia de preguntas de negocio que se trata justamente de lo que **no** pasó: «clientes que nunca pidieron», «promociones que nadie usó», «pedidos entregados sin calificación». Son las preguntas que alimentan una campaña de reactivación o una revisión de calidad.
+
+Un INNER JOIN no puede responderlas. Un INNER JOIN devuelve solo las filas que encuentran pareja en la otra tabla, así que un cliente sin ningún pedido desaparece del resultado, que es exactamente el cliente que querías listar. Los OUTER JOIN existen para conservar esas filas sin pareja, y el más usado de los tres es `LEFT JOIN`.
 
 ## LEFT JOIN
 
@@ -2546,11 +2623,13 @@ FROM customers AS c
 LEFT JOIN orders AS o ON o.customer_id = c.id;
 ```
 
-Devuelve **todas** las filas de la tabla izquierda (`customers`). Cuando un cliente tiene pedidos, aparece una fila por pedido; cuando no tiene ninguno, aparece **una** fila con las columnas de `orders` en **NULL**.
+La condición `ON o.customer_id = c.id` empareja la columna `customer_id` de la tabla `orders` —que guarda quién hizo cada pedido— con la columna `id` de la tabla `customers`.
+
+`LEFT JOIN` devuelve **todas** las filas de la tabla de la izquierda, que es la que está en el `FROM`, en este caso `customers`. Cuando un cliente tiene pedidos, aparece una fila por cada pedido. Cuando un cliente no tiene ninguno, aparece igual, en **una** fila, y las columnas que vienen de `orders` traen **NULL**, es decir, el marcador de «no hay valor».
 
 ## El patrón «sin correspondencia»
 
-Para quedarte solo con los clientes sin pedidos, filtra los NULL que produjo el JOIN:
+Como las filas sin pareja son las únicas que traen NULL en las columnas de la tabla derecha, filtrar por ese NULL te deja exactamente los clientes que nunca pidieron:
 
 ```sql
 SELECT c.id, c.full_name
@@ -2559,7 +2638,7 @@ LEFT JOIN orders AS o ON o.customer_id = c.id
 WHERE o.id IS NULL;
 ```
 
-Usa una columna **NOT NULL** de la tabla derecha (la clave primaria es ideal): si es NULL, seguro que no hubo pareja.
+Para esa prueba elige una columna de la tabla derecha que nunca pueda ser NULL en los datos reales; la clave primaria (PK, por *primary key*, su nombre en inglés) es la mejor opción. Así, si ves un NULL ahí, la única explicación posible es que no hubo pareja.
 
 ## Contar incluyendo ceros
 
@@ -2571,11 +2650,11 @@ GROUP BY p.code
 ORDER BY usos DESC;
 ```
 
-`count(o.id)` ignora los NULL, así que una promoción sin uso da 0. `count(*)` daría 1 (la fila con NULL): es el error clásico.
+`count(o.id)` cuenta solo los valores que no son NULL, así que una promoción que nadie usó da 0, que es la respuesta correcta. Si escribieras `count(*)` obtendrías 1 para esa promoción, porque `count(*)` cuenta filas y la fila con NULL sigue siendo una fila. Es el error clásico de este patrón, y produce un reporte donde toda promoción parece haberse usado al menos una vez.
 
 ## La trampa del WHERE
 
-Poner una condición sobre la tabla derecha en `WHERE` **convierte el LEFT JOIN en INNER**, porque las filas sin pareja tienen NULL ahí y no pasan el filtro:
+Si pones una condición sobre una columna de la tabla derecha en el `WHERE`, el LEFT JOIN se comporta como un INNER JOIN y vuelves a perder las filas sin pareja. La razón es que esas filas traen NULL en la columna que estás filtrando, y una comparación contra NULL nunca da verdadero, así que no pasan el filtro:
 
 ```sql
 -- MAL: pierde los restaurantes sin pedidos en agosto
@@ -2588,7 +2667,9 @@ LEFT JOIN orders AS o
  AND o.placed_at >= '2025-08-01' AND o.placed_at < '2025-09-01'
 ```
 
-Regla: las condiciones sobre la tabla **derecha** de un LEFT JOIN van en el `ON`; las de la tabla izquierda pueden ir en `WHERE`.
+La diferencia es cuándo se aplica la condición. En el `ON` se usa para decidir qué filas de `orders` se emparejan, y los restaurantes sin pedidos de agosto quedan igual en el resultado con NULL. En el `WHERE` se aplica después de unir y los elimina.
+
+La regla práctica: las condiciones sobre la tabla **derecha** de un LEFT JOIN van en el `ON`, y las condiciones sobre la tabla izquierda pueden ir en el `WHERE` sin problema.
 
 ## Ejemplo resuelto
 
@@ -2603,18 +2684,18 @@ WHERE o.status = 'delivered'
   AND r.id IS NULL;
 ```
 
-Las condiciones sobre `orders` (izquierda) están bien en `WHERE`; la única sobre `ratings` es la prueba de NULL.
+Las dos condiciones sobre `orders`, que es la tabla izquierda, están bien en el `WHERE`. La única condición sobre `ratings` es la prueba de NULL, que es justamente la que necesita que el LEFT JOIN ya se haya aplicado.
 $c1787$, null, (select id from public.datasets where slug = $c1788$pidelo$c1788$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1789$left-right-full-join$c1789$), $c1790$right-full-join-y-cardinalidad$c1790$, $c1791$theory$c1791$, $c1792$RIGHT, FULL y cómo elegir el JOIN$c1792$, 1, 8, $c1793$## RIGHT JOIN
 
-Es un LEFT JOIN escrito al revés: conserva todas las filas de la tabla **derecha**. Cualquier RIGHT JOIN se puede reescribir como LEFT JOIN cambiando el orden de las tablas, y la mayoría de los equipos prefiere LEFT por consistencia. Reconócelo cuando lo leas; evita escribirlo.
+`RIGHT JOIN` es un LEFT JOIN escrito al revés: conserva todas las filas de la tabla **derecha**, la que está después del `JOIN`, y completa con NULL cuando no encuentra pareja en la izquierda. Cualquier RIGHT JOIN se puede reescribir como LEFT JOIN intercambiando el orden de las dos tablas, y la mayoría de los equipos prefiere escribir siempre LEFT para no tener que cambiar de dirección mentalmente al leer. Necesitas reconocerlo cuando lo encuentres en código de otra persona, pero no hace falta que lo escribas.
 
 ## FULL JOIN
 
-Conserva las filas de **ambas** tablas, con NULL donde falte pareja. Sirve para auditorías de conciliación: «qué hay en A y no en B, y qué hay en B y no en A», en una sola consulta.
+`FULL JOIN` conserva las filas de **ambas** tablas y pone NULL del lado donde falta la pareja. Sirve para las auditorías de conciliación, donde la pregunta es «qué hay en A que no está en B, y qué hay en B que no está en A», y quieres las dos respuestas en una sola consulta.
 
 ```sql
 SELECT a.id AS account_id, t.id AS transaction_id
@@ -2623,7 +2704,7 @@ FULL JOIN transactions AS t ON t.account_id = a.id
 WHERE a.id IS NULL OR t.id IS NULL;
 ```
 
-En **Bolsillo** esto lista cuentas sin movimientos y movimientos huérfanos (si los hubiera).
+En **Bolsillo**, la billetera digital, esta consulta lista dos cosas a la vez: las cuentas que no tienen ningún movimiento y los movimientos huérfanos, es decir, los que apuntan a una cuenta que no existe, si los hubiera.
 
 ## Elegir el JOIN
 
@@ -2636,11 +2717,13 @@ En **Bolsillo** esto lista cuentas sin movimientos y movimientos huérfanos (si 
 
 ## Cardinalidad, otra vez
 
-Un LEFT JOIN con relación uno-a-muchos también multiplica filas. «Personas con sus tarjetas» devuelve una fila por tarjeta y una fila (con NULL) por persona sin tarjeta. Antes de contar personas, cuenta con `count(DISTINCT u.id)` o agrega en una subconsulta.
+Un LEFT JOIN también multiplica filas cuando la relación es uno a muchos, o sea, cuando una fila de la izquierda puede emparejarse con varias de la derecha. Si unes personas con sus tarjetas, obtienes una fila por cada tarjeta, así que alguien con tres tarjetas aparece tres veces, y una fila con NULL por cada persona sin ninguna tarjeta.
+
+La consecuencia es que `count(*)` sobre ese resultado cuenta tarjetas, no personas, y el reporte va a decir que tienes más clientes de los que tienes. Para contar personas usa `count(DISTINCT u.id)`, que cuenta identificadores distintos, o agrega primero en una subconsulta y después une.
 
 ## Verificar
 
-Después de un LEFT JOIN, la cantidad de filas nunca es menor que la de la tabla izquierda. Si lo es, alguna condición en `WHERE` lo convirtió en INNER.
+Después de un LEFT JOIN, la cantidad de filas del resultado nunca puede ser menor que la cantidad de filas de la tabla izquierda. Si te da menos, alguna condición del `WHERE` sobre la tabla derecha lo convirtió en un INNER JOIN y estás perdiendo filas sin darte cuenta. Es una verificación de diez segundos que conviene hacer siempre.
 
 ## Ejemplo resuelto
 
@@ -2654,16 +2737,18 @@ WHERE u.country = 'UY'
   AND c.id IS NULL;
 ```
 
-`u.country = 'UY'` es sobre la tabla izquierda: puede ir en `WHERE` sin romper el LEFT JOIN.
+La condición `u.country = 'UY'` es sobre `users`, que es la tabla izquierda, así que puede ir en el `WHERE` sin romper el LEFT JOIN: esas filas existen con valor propio, no dependen de la unión.
 $c1793$, null, (select id from public.datasets where slug = $c1794$bolsillo$c1794$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1795$funciones-de-ventana$c1795$), $c1796$ventana-over-partition$c1796$, $c1797$theory$c1797$, $c1798$OVER: agregar sin colapsar filas$c1798$, 0, 11, $c1799$## Por qué importa
 
-`GROUP BY` responde «cuánto por grupo», pero pierde el detalle: una fila por grupo y nada más. Muchas preguntas necesitan **las dos cosas a la vez**: cada movimiento **y** el promedio de su tipo; cada categoría **y** su participación en el total; cada pago **y** el saldo acumulado hasta ese momento. Las **funciones de ventana** calculan un agregado «al lado» de cada fila, sin colapsarla.
+`GROUP BY` responde «cuánto por grupo», pero para lograrlo descarta el detalle: deja una sola fila por grupo y las filas originales desaparecen del resultado. Muchas preguntas de negocio necesitan **las dos cosas a la vez**: cada movimiento **y** el promedio de los movimientos de su tipo; cada categoría **y** cuánto representa dentro del total; cada pago **y** el saldo acumulado hasta ese momento.
 
-Trabajas con **Bolsillo**, una billetera digital: `transactions` (movimientos), `accounts`, `merchants`, `fx_rates`.
+Para eso existen las **funciones de ventana**: calculan un valor agregado mirando un conjunto de filas relacionadas con la fila actual y escriben ese resultado en una columna nueva, al lado de esa misma fila, sin eliminarla ni fusionarla con las demás. Piénsalo como una planilla en la que, junto a cada movimiento, agregas a mano una columna con el promedio de su categoría: la planilla conserva todas sus líneas y gana una columna. Eso es una función de ventana.
+
+Trabajas con **Bolsillo**, una billetera digital. Sus tablas principales son `transactions` (un movimiento de dinero por fila), `accounts` (las cuentas), `merchants` (los comercios donde se paga) y `fx_rates` (las cotizaciones de cada moneda, una por día).
 
 ## La sintaxis
 
@@ -2677,9 +2762,11 @@ FROM transactions
 WHERE account_id = 2364;
 ```
 
-`OVER (...)` convierte `avg` en función de ventana. `PARTITION BY kind` define la **ventana**: todas las filas con el mismo `kind`. Cada movimiento sigue siendo una fila y recibe el promedio de su partición.
+La palabra `OVER` es la que convierte a `avg` en función de ventana. Sin ella, `avg(amount)` resumiría todas las filas en un único promedio y el detalle se perdería; con ella, `avg` se calcula para cada fila sobre el conjunto de filas que `OVER` describe entre paréntesis.
 
-Sin `PARTITION BY` (`OVER ()`), la ventana es **toda** la consulta:
+Ese conjunto es la **ventana**, y `PARTITION BY` es lo que la define. `PARTITION BY kind` —`kind` es la columna `kind` de la tabla `transactions`, que indica el tipo de movimiento: recarga, pago con QR, pago con tarjeta— parte la tabla en bloques, uno por cada tipo, y para cada fila la ventana es su propio bloque. Así, cada movimiento sigue apareciendo como una fila y recibe en la columna nueva el promedio de los movimientos de su mismo tipo.
+
+Si escribes `OVER ()` sin `PARTITION BY`, no hay bloques: la ventana son **todas** las filas que devuelve la consulta.
 
 ```sql
 round(100 * amount / sum(amount) OVER (), 2) AS pct_del_total
@@ -2700,13 +2787,15 @@ WHERE t.status = 'completed'
 GROUP BY m.category;
 ```
 
-`sum(sum(t.amount)) OVER ()` se lee de adentro hacia afuera: primero el total por categoría (`GROUP BY`), luego la suma de esos totales sobre toda la ventana.
+En esa consulta, `m.category` es la columna `category` de la tabla `merchants`, el rubro del comercio (supermercado, transporte, entretenimiento), y `t.merchant_id` es la columna `merchant_id` de la tabla `transactions`, que apunta a `merchants.id` e indica en qué comercio se hizo el movimiento.
+
+`sum(sum(t.amount)) OVER ()` se lee de adentro hacia afuera: el `sum` interno calcula el total gastado en cada categoría, porque hay un `GROUP BY m.category`; el `sum` externo, con su `OVER ()`, suma esos totales de categoría y obtiene el total general. Al dividir uno por otro sale la participación de cada categoría, que es lo que muestra la columna `pct`.
 
 ## Orden de evaluación
 
 `FROM` → `WHERE` → `GROUP BY` → `HAVING` → **ventanas** → `SELECT` (alias) → `ORDER BY` → `LIMIT`.
 
-Consecuencias: una ventana **ve las filas ya filtradas** por `WHERE` (para «participación sobre el total general» no filtres antes), y **no puedes usar el resultado de una ventana en `WHERE`** de la misma consulta; necesitas una subconsulta o CTE (secciones 21–22).
+De ese orden salen dos consecuencias prácticas. La primera: una ventana solo **ve las filas que sobrevivieron al `WHERE`**, así que si necesitas la participación sobre el total general no puedes filtrar antes de calcularla. La segunda: **no puedes usar el resultado de una ventana dentro del `WHERE`** de la misma consulta, porque cuando el `WHERE` se evalúa la ventana todavía no se calculó. Para filtrar por ese resultado hay que envolver la consulta en una subconsulta o en una CTE (por *Common Table Expression*, expresión de tabla común: una consulta con nombre que se escribe con `WITH` y se usa después como si fuera una tabla; secciones 21–22).
 
 ## Ejemplo resuelto
 
@@ -2732,7 +2821,7 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1801$funciones-de-ventana$c1801$), $c1802$ventana-order-by-y-marcos$c1802$, $c1803$theory$c1803$, $c1804$ORDER BY dentro de la ventana: acumulados y marcos$c1804$, 1, 10, $c1805$## Acumulados
 
-Con `ORDER BY` dentro de `OVER`, el agregado se calcula **hasta la fila actual** en ese orden:
+Cuando escribes un `ORDER BY` dentro del `OVER`, la ventana deja de ser el bloque completo y pasa a ser «desde la primera fila hasta la fila actual» según ese orden. El agregado se convierte entonces en un acumulado:
 
 ```sql
 SELECT
@@ -2748,11 +2837,11 @@ WHERE account_id = 2364
 ORDER BY created_at, id;
 ```
 
-Cada fila muestra el saldo de la cuenta **después** de ese movimiento. El `CASE` da signo a los débitos. Incluir `id` en el `ORDER BY` de la ventana evita ambigüedad si dos movimientos comparten timestamp.
+Cada fila muestra el saldo de la cuenta **después** de ese movimiento. El `CASE` le pone signo a cada importe: suma los créditos (el dinero que entra) y resta los débitos (el dinero que sale), porque en `transactions` la columna `amount` siempre guarda un número positivo y el sentido lo indica la columna `direction`. Incluir `id` como segundo criterio del `ORDER BY` de la ventana evita que el acumulado quede indefinido cuando dos movimientos tienen exactamente el mismo valor en `created_at`.
 
 ## PARTITION BY + ORDER BY
 
-Combinados, reinician el acumulado por grupo: saldo por cuenta, acumulado por mes, etc.
+Usados juntos, `PARTITION BY` arma los bloques y `ORDER BY` acumula dentro de cada bloque, de modo que el acumulado vuelve a empezar en cada grupo: un saldo por cuenta, un total acumulado por mes.
 
 ```sql
 sum(...) OVER (PARTITION BY account_id ORDER BY created_at, id)
@@ -2760,7 +2849,7 @@ sum(...) OVER (PARTITION BY account_id ORDER BY created_at, id)
 
 ## Marcos de ventana
 
-`ORDER BY` implica por defecto el marco `RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`. Puedes definir otro marco, por ejemplo una **media móvil de 7 días**:
+El **marco** es la porción de la partición que entra en el cálculo de cada fila. Cuando escribes un `ORDER BY` dentro del `OVER` y no indicas nada más, PostgreSQL usa el marco `RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`, es decir, «desde el comienzo de la partición hasta la fila actual»: por eso el resultado es un acumulado. Puedes escribir otro marco, por ejemplo uno que mire solo las últimas siete filas para calcular una **media móvil de 7 días**:
 
 ```sql
 SELECT
@@ -2776,11 +2865,11 @@ WHERE currency = 'ARS'
 ORDER BY rate_date;
 ```
 
-`ROWS` cuenta filas físicas; `RANGE` agrupa valores iguales del `ORDER BY`. Para series diarias sin huecos, `ROWS` es lo esperado. Las primeras 6 filas promedian menos de 7 valores (el marco se recorta al inicio).
+`ROWS` cuenta las filas una por una, tal como están; `RANGE` trata como una sola unidad a todas las filas que comparten el mismo valor en el `ORDER BY`. En una serie diaria sin días faltantes, `ROWS` es lo que esperas. Ten presente que las primeras seis filas promedian menos de siete valores, porque el marco se recorta al comienzo de la serie: antes de la primera fecha no hay filas que incluir.
 
 ## Ventanas con nombre
 
-Cuando repites la misma ventana en varias columnas, nómbrala con `WINDOW`:
+Cuando repites la misma ventana en varias columnas, dale un nombre con la cláusula `WINDOW` y reutilízalo; así la definición vive en un solo lugar y no corres el riesgo de cambiar una copia y olvidar la otra:
 
 ```sql
 SELECT
@@ -2795,11 +2884,11 @@ WINDOW w AS (ORDER BY created_at, id);
 
 ## Rendimiento
 
-Cada ventana con `ORDER BY` distinto implica un ordenamiento. Reutiliza ventanas y filtra en `WHERE` lo que no necesites antes de calcular.
+Cada ventana con un `ORDER BY` distinto obliga al motor a ordenar las filas otra vez, y ordenar es una de las operaciones más costosas. Reutiliza la misma ventana cuando puedas y descarta en el `WHERE` las filas que no necesitas antes de calcular.
 
 ## Ejemplo resuelto
 
-Pedido: «Para cada intento KYC de las personas de Uruguay, cuántos intentos totales tuvo esa persona».
+Pedido: «Para cada intento de verificación de identidad (KYC, por *Know Your Customer*, el proceso con el que una billetera confirma quién es su cliente) de las personas de Uruguay, cuántos intentos totales tuvo esa persona».
 
 ```sql
 SELECT
@@ -2813,16 +2902,18 @@ WHERE u.country = 'UY'
 ORDER BY k.user_id, k.event_at;
 ```
 
-`count(*) OVER (PARTITION BY ...)` sin `ORDER BY` da el total de la partición en cada fila; con `ORDER BY` daría el acumulado.
+Como el `OVER` no lleva `ORDER BY`, la ventana es la partición completa y cada fila recibe el total de intentos de esa persona. Si le agregaras un `ORDER BY`, cada fila mostraría en cambio cuántos intentos llevaba hasta ese momento.
 $c1805$, null, (select id from public.datasets where slug = $c1806$bolsillo$c1806$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1807$funciones-de-texto$c1807$), $c1808$texto-normalizar-y-limpiar$c1808$, $c1809$theory$c1809$, $c1810$Normalizar texto: mayúsculas, espacios y longitud$c1810$, 0, 10, $c1811$## Por qué importa
 
-El texto que cargan las personas nunca llega limpio: `ana@ejemplo.lat` y `ANA@EJEMPLO.LAT` son el mismo correo para el negocio, pero dos valores distintos para la base de datos. En `customers` de TiendaViva hay 39 correos guardados en mayúsculas; si los cuentas sin normalizar, tu informe muestra clientes que no existen.
+El texto que cargan las personas nunca llega limpio. Para el negocio, `ana@ejemplo.lat` y `ANA@EJEMPLO.LAT` son el mismo correo de la misma persona; para la base de datos son dos valores distintos, y al contarlos dan dos clientes.
 
-Normalizar significa llevar un texto a una forma única antes de compararlo, contarlo o mostrarlo.
+En la tabla `customers` de TiendaViva hay 39 correos guardados en mayúsculas. Si cuentas los correos distintos sin normalizarlos, tu informe muestra clientes que en realidad no existen y cualquier tasa calculada sobre ese total queda mal.
+
+**Normalizar** significa llevar un texto a una forma única y predecible antes de compararlo, contarlo o mostrarlo.
 
 ## Mayúsculas y minúsculas
 
@@ -2834,11 +2925,11 @@ SELECT
 FROM customers;
 ```
 
-- `LOWER` pasa todo a minúsculas; es la forma estándar de normalizar correos e identificadores.
-- `UPPER` pasa todo a mayúsculas; útil para códigos de país o monedas.
-- `INITCAP` pone en mayúscula la primera letra de cada palabra y el resto en minúscula: `INITCAP('maría josé')` devuelve `María José`.
+- `LOWER` pasa todo el texto a minúsculas. Es la forma estándar de normalizar correos e identificadores, porque para esos datos las mayúsculas nunca cambian el significado.
+- `UPPER` pasa todo a mayúsculas. Sirve para códigos de país o de moneda, que por convención se escriben así: `MX`, `ARS`.
+- `INITCAP` pone en mayúscula la primera letra de cada palabra y el resto en minúscula, útil para mostrar nombres propios: `INITCAP('maría josé')` devuelve `María José`.
 
-Las tres funciones respetan los acentos: `UPPER('café')` devuelve `CAFÉ`.
+Las tres funciones respetan los acentos, así que `UPPER('café')` devuelve `CAFÉ` y no `CAFE`.
 
 ## Comparar sin importar la capitalización
 
@@ -2848,17 +2939,21 @@ FROM customers
 WHERE email <> LOWER(email);
 ```
 
-Esa consulta te muestra exactamente los registros con problema de capitalización. Para comparar dos textos "como el negocio los entiende", normaliza **los dos lados**:
+Esa consulta compara cada correo con su propia versión en minúsculas: si son distintos, es porque el correo tiene alguna mayúscula. Te muestra exactamente los registros con problema de capitalización.
+
+Cuando quieras comparar dos textos como los entiende el negocio, normaliza **los dos lados** de la igualdad:
 
 ```sql
 WHERE LOWER(email) = LOWER('ANA@EJEMPLO.LAT')
 ```
 
-En la sección 6 viste `ILIKE`, que ignora mayúsculas en patrones. `LOWER` en ambos lados es el equivalente para igualdades exactas.
+Si normalizas solo uno, la comparación sigue siendo sensible a las mayúsculas del otro y vas a perder filas. En la sección 6 viste `ILIKE`, que ignora las mayúsculas al buscar patrones; `LOWER` en ambos lados es el equivalente para comparaciones de igualdad exacta.
 
 ## Los acentos no se ignoran
 
-Esta es la trampa que más reportes rompe: `'José' = 'Jose'` es **falso**, y `LOWER` no cambia eso. Mayúsculas y acentos son cosas distintas: normalizar la capitalización no normaliza la escritura. Si necesitas tratar `Córdoba` y `Cordoba` como la misma ciudad, hace falta quitar las tildes explícitamente (por ejemplo con `TRANSLATE`), y conviene decidirlo con el área de negocio: en español la tilde puede cambiar el significado.
+Esta es la trampa que más reportes rompe: `'José' = 'Jose'` es **falso**, y `LOWER` no cambia eso, porque las mayúsculas y los acentos son dos cosas distintas. Normalizar la capitalización no normaliza la escritura.
+
+La consecuencia práctica es que el mismo cliente, cargado una vez con tilde y otra sin ella, se cuenta como dos, y una ciudad se parte en dos filas del informe. Si necesitas tratar `Córdoba` y `Cordoba` como la misma ciudad, tienes que quitar las tildes de forma explícita, por ejemplo con la función `TRANSLATE`. Conviene decidirlo junto al área de negocio, porque en español la tilde a veces cambia el significado de la palabra.
 
 ## Espacios: TRIM
 
@@ -2867,9 +2962,11 @@ SELECT TRIM('  Bazar Urbano  ');            -- 'Bazar Urbano'
 SELECT RTRIM('Rincón Urbano 14', ' 0123456789'); -- 'Rincón Urbano'
 ```
 
-`TRIM` sin argumentos elimina espacios al principio y al final (nunca los del medio). Con un segundo argumento elimina **cualquiera de esos caracteres** en los extremos: `LTRIM` por la izquierda, `RTRIM` por la derecha, `TRIM` por ambos lados. Es la forma más corta de sacar sufijos numéricos o símbolos sobrantes.
+`TRIM` sin más argumentos elimina los espacios del principio y del final del texto, y nunca los del medio.
 
-Un espacio invisible al final es la causa clásica de un filtro que "no encuentra nada": `'Lima ' = 'Lima'` es falso.
+Con un segundo argumento elimina de los extremos **cualquiera de los caracteres** que le indiques, en cualquier orden, hasta encontrar uno que no esté en esa lista. Hay tres variantes: `LTRIM` limpia por la izquierda, `RTRIM` por la derecha y `TRIM` por ambos lados. Es la forma más corta de sacar sufijos numéricos o símbolos que sobran.
+
+Un espacio invisible al final del texto es la causa clásica de un filtro que «no encuentra nada»: `'Lima ' = 'Lima'` es falso, y como el espacio no se ve en pantalla, puedes pasar media hora revisando una consulta que está bien escrita.
 
 ## LENGTH cuenta caracteres, no bytes
 
@@ -2878,22 +2975,24 @@ SELECT LENGTH('Rincón Urbano')       AS caracteres,  -- 13
        OCTET_LENGTH('Rincón Urbano') AS bytes;       -- 14
 ```
 
-`LENGTH` devuelve **caracteres**: la `ó` cuenta 1, aunque en UTF-8 ocupe 2 bytes. Si validas "máximo 20 caracteres", `LENGTH` es lo correcto; si dimensionas almacenamiento, mira `OCTET_LENGTH`.
+`LENGTH` devuelve la cantidad de **caracteres**: la `ó` cuenta como uno solo, aunque al guardarse en la codificación UTF-8 ocupe dos bytes, que es lo que cuenta `OCTET_LENGTH`. Si validas una regla del tipo «máximo 20 caracteres», `LENGTH` es lo correcto; si estás calculando cuánto espacio de almacenamiento ocupa una columna, mira `OCTET_LENGTH`.
 
-Y recuerda la regla de NULL de la sección 8: `LENGTH(NULL)` es NULL, no 0. Toda función de texto aplicada a NULL devuelve NULL; usa `COALESCE` si necesitas un valor por defecto.
+Y recuerda la regla de NULL que viste en la sección 8: `LENGTH(NULL)` devuelve NULL, no 0. Toda función de texto aplicada a NULL devuelve NULL, porque si no sabes cuál es el texto tampoco puedes saber su longitud. Usa `COALESCE` si necesitas un valor por defecto.
 
 ## Resumen
 
-- `LOWER`/`UPPER`/`INITCAP` unifican la capitalización; los acentos siguen siendo distintos.
-- `TRIM` limpia los extremos y acepta un conjunto de caracteres a eliminar.
-- `LENGTH` cuenta caracteres y devuelve NULL si el texto es NULL.
+- `LOWER`, `UPPER` e `INITCAP` unifican la capitalización, pero los acentos siguen marcando diferencia.
+- `TRIM` limpia los extremos del texto y acepta un conjunto de caracteres a eliminar.
+- `LENGTH` cuenta caracteres y devuelve NULL cuando el texto es NULL.
 $c1811$, null, (select id from public.datasets where slug = $c1812$tiendaviva$c1812$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1813$funciones-de-texto$c1813$), $c1814$texto-extraer-y-combinar$c1814$, $c1815$theory$c1815$, $c1816$Extraer y combinar texto$c1816$, 1, 10, $c1817$## Por qué importa
 
-Muchos datos útiles viven **dentro** de un texto: el dominio de un correo, el número de referencia de una transferencia, el prefijo de un código. Extraerlos con SQL evita exportar a una planilla y pegar fórmulas a mano.
+Muchos datos útiles no están en una columna propia: viven **dentro** de un texto más largo. El dominio de un correo electrónico (lo que va después del `@`) sirve para separar clientes corporativos de particulares; el prefijo de un código de producto indica la línea a la que pertenece; el número de referencia está en el medio de la descripción de una transferencia.
+
+Extraer esas partes con SQL evita el circuito habitual de exportar a una planilla, pegar fórmulas a mano y perder la trazabilidad de cómo se calculó cada dato.
 
 ## Cortar por posición: LEFT, RIGHT y SUBSTRING
 
@@ -2904,9 +3003,9 @@ SELECT LEFT(store_name, 6)            AS primeros_6,
 FROM sellers;
 ```
 
-`LEFT(texto, n)` toma los primeros `n` caracteres, `RIGHT(texto, n)` los últimos. `SUBSTRING(texto FROM inicio FOR largo)` corta desde una posición (la primera es **1**, no 0). Si omites `FOR`, corta hasta el final.
+`LEFT(texto, n)` toma los primeros `n` caracteres y `RIGHT(texto, n)` los últimos `n`. `SUBSTRING(texto FROM inicio FOR largo)` corta un pedazo a partir de una posición, teniendo en cuenta que el primer carácter de un texto es la posición **1** y no la 0. Si omites la parte `FOR`, corta desde esa posición hasta el final.
 
-Sirven cuando la posición es fija (un código de 3 letras, un año al inicio). Cuando la posición depende del contenido, necesitas buscarla.
+Estas tres funciones sirven cuando la posición es siempre la misma: un código de país de tres letras al inicio, un año en los primeros cuatro caracteres. Cuando la posición depende del contenido de cada fila, primero hay que buscarla.
 
 ## Buscar una posición: POSITION
 
@@ -2915,14 +3014,14 @@ SELECT POSITION('@' IN email) AS pos_arroba
 FROM customers;
 ```
 
-Devuelve la posición del primer carácter buscado, o **0** si no aparece. Combinado con los cortes anteriores extrae partes variables:
+`POSITION` devuelve en qué posición aparece por primera vez el texto buscado, o **0** si no aparece nunca. Combinada con los cortes anteriores, permite extraer partes cuya posición cambia en cada fila:
 
 ```sql
 SELECT LEFT(email, POSITION('@' IN email) - 1) AS usuario
 FROM customers;
 ```
 
-Ojo con el 0: si el texto no contiene `@`, `POSITION` devuelve 0 y el corte queda `LEFT(email, -1)`, que en PostgreSQL devuelve el texto **sin su último carácter**. No hay error: hay un valor silenciosamente incorrecto. Verifica siempre que el separador exista.
+Presta atención a ese 0. Si un correo no contiene `@`, `POSITION` devuelve 0 y el corte queda escrito como `LEFT(email, -1)`, que en PostgreSQL devuelve el texto **sin su último carácter**. La consulta no falla y el resultado parece razonable, pero esas filas traen un dato incorrecto. Verifica siempre que el separador exista antes de cortar por él.
 
 ## Partir por un separador: SPLIT_PART
 
@@ -2932,7 +3031,9 @@ SELECT SPLIT_PART(email, '@', 1) AS usuario,
 FROM customers;
 ```
 
-`SPLIT_PART(texto, separador, n)` corta el texto por el separador y devuelve el trozo número `n` (empezando en 1). Es más legible que `POSITION` + `SUBSTRING` y no falla cuando el separador no está: devuelve una cadena vacía. Ambas formas son válidas; elige la que se lea mejor en tu equipo.
+`SPLIT_PART(texto, separador, n)` parte el texto cada vez que encuentra el separador y devuelve el pedazo número `n`, empezando a contar en 1.
+
+Es más legible que combinar `POSITION` con `SUBSTRING` y no tiene el problema anterior: cuando el separador no aparece, devuelve una cadena vacía en lugar de un valor engañoso. Las dos formas son válidas; elige la que se lea mejor para el equipo que va a mantener la consulta.
 
 ## Reemplazar: REPLACE
 
@@ -2941,13 +3042,13 @@ SELECT REPLACE(kind, '_', ' ') AS tipo
 FROM transactions;
 ```
 
-`REPLACE` cambia **todas** las apariciones del texto buscado. Se puede anidar para traducir varios valores:
+`REPLACE` cambia **todas** las apariciones del texto buscado, no solo la primera. Se puede anidar una llamada dentro de otra para traducir varios valores:
 
 ```sql
 REPLACE(REPLACE(kind, 'transfer_out', 'Enviada'), 'transfer_in', 'Recibida')
 ```
 
-Cuando las reglas son muchas, `CASE` (sección 12) es más claro. `REPLACE` brilla para limpiezas simples: sacar puntos de un número, cambiar guiones por espacios.
+Esa forma anidada se vuelve difícil de leer en cuanto hay más de dos o tres reglas; en ese caso conviene usar `CASE` (sección 12), que las pone una debajo de la otra. `REPLACE` se aprovecha mejor en limpiezas simples: sacar los puntos de un número, cambiar guiones bajos por espacios.
 
 ## Concatenar: el operador ||
 
@@ -2956,31 +3057,31 @@ SELECT UPPER(country) || ' · ' || city AS ubicacion
 FROM customers;
 ```
 
-`||` une textos. Dos detalles que sorprenden:
+El operador `||` une varios textos en uno solo. Dos comportamientos que conviene tener presentes:
 
-1. Si **cualquier** operando es NULL, el resultado completo es NULL. Protege con `COALESCE(city, 'sin ciudad')`.
-2. `CONCAT(a, b, c)` hace lo mismo pero trata los NULL como cadena vacía. Elige según lo que quieras que pase con los faltantes.
+1. Si **cualquiera** de los operandos es NULL, el resultado completo es NULL. Un cliente sin ciudad no aparece con el país solo: aparece con la celda vacía. Protégete con `COALESCE(city, 'sin ciudad')`.
+2. La función `CONCAT(a, b, c)` hace lo mismo pero trata los NULL como cadena vacía, así que el resto del texto se conserva. Elige una u otra según lo que quieras que ocurra con los datos faltantes.
 
-Puedes concatenar un número directamente (`'Pedido ' || id`): PostgreSQL lo convierte a texto.
+También puedes concatenar un número directamente, como en `'Pedido ' || id`: PostgreSQL lo convierte a texto por su cuenta.
 
 ## Resumen
 
-- `LEFT`/`RIGHT`/`SUBSTRING` cortan por posición; `POSITION` la encuentra.
-- `SPLIT_PART` parte por separador y es lo más legible para correos, códigos y referencias.
-- `||` concatena pero propaga NULL; `CONCAT` no.
+- `LEFT`, `RIGHT` y `SUBSTRING` cortan por posición; `POSITION` encuentra esa posición cuando es variable.
+- `SPLIT_PART` parte por un separador y es la opción más legible para correos, códigos y referencias.
+- `||` concatena pero deja todo en NULL si algún operando lo es; `CONCAT` no.
 $c1817$, null, (select id from public.datasets where slug = $c1818$tiendaviva$c1818$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1819$ordenar-y-limitar$c1819$), $c1820$order-by-varias-claves$c1820$, $c1821$theory$c1821$, $c1822$ORDER BY: una o varias claves$c1822$, 0, 10, $c1823$## Por qué importa
 
-Un reporte no se entrega «como salga». El negocio pide «los pedidos más grandes primero», «el catálogo por vendedor y dentro de cada vendedor del más caro al más barato», «los clientes más nuevos arriba». Ese orden es parte de la respuesta, no un detalle estético.
+Un reporte no se entrega en el orden en que salieron las filas. El negocio pide «los pedidos más grandes primero», «el catálogo por vendedor y, dentro de cada vendedor, del más caro al más barato», «los clientes más nuevos arriba». Ese orden es parte de la respuesta, no una decisión estética.
 
-Y hay algo más importante: **sin `ORDER BY` no hay orden garantizado**. PostgreSQL devuelve las filas en el orden que le resulte conveniente, y ese orden puede cambiar entre ejecuciones, después de un `UPDATE` o al cambiar el plan de ejecución. Si el orden importa, se escribe.
+Hay una segunda razón, más importante: **sin `ORDER BY` no hay ningún orden garantizado**. PostgreSQL devuelve las filas en el orden que le resulte más conveniente para ejecutar la consulta, y ese orden puede cambiar de una ejecución a otra, después de que alguien actualice la tabla o cuando el motor elige otro plan de ejecución. Si hoy «se ve bien» sin ordenar, es una coincidencia que puede romperse mañana sin que nadie toque la consulta. Cuando el orden importa, se escribe.
 
 ## El concepto
 
-`ORDER BY` va al final de la consulta y recibe una lista de claves de ordenamiento:
+`ORDER BY` va al final de la consulta y recibe una lista de **claves de ordenamiento**, es decir, las columnas o expresiones por las que quieres ordenar, en orden de prioridad:
 
 ```sql
 SELECT id, full_name, country, signup_at
@@ -2988,11 +3089,11 @@ FROM customers
 ORDER BY signup_at DESC;
 ```
 
-`ASC` (ascendente) es el valor por omisión: de menor a mayor, de la A a la Z, de la fecha más antigua a la más reciente. `DESC` invierte cada clave **por separado**.
+`ASC` (ascendente) es el valor por omisión, o sea, el que el motor aplica si no escribes nada: de menor a mayor, de la A a la Z y de la fecha más antigua a la más reciente. `DESC` (descendente) invierte ese sentido, y lo hace **en cada clave por separado**.
 
 ## Varias claves
 
-Cuando la primera clave empata, decide la segunda:
+Cuando dos filas tienen el mismo valor en la primera clave, decide la segunda:
 
 ```sql
 SELECT id, seller_id, name, list_price
@@ -3001,11 +3102,13 @@ WHERE is_active
 ORDER BY seller_id ASC, list_price DESC;
 ```
 
-Se leen de izquierda a derecha: primero agrupa visualmente por vendedor y, dentro de cada vendedor, muestra primero el producto más caro. Nota que `ASC` y `DESC` se aplican a cada clave: `ORDER BY a, b DESC` ordena `a` ascendente y `b` descendente.
+Las claves se leen de izquierda a derecha: el resultado queda agrupado visualmente por vendedor y, dentro de cada vendedor, aparece primero el producto más caro. Ten presente que `ASC` y `DESC` se aplican a cada clave de manera independiente, así que `ORDER BY a, b DESC` ordena `a` de forma ascendente y `b` de forma descendente.
 
 ### Desempate determinista
 
-Si dos filas empatan en **todas** las claves, su orden relativo es arbitrario y puede variar entre ejecuciones. Para que un reporte sea reproducible, cierra el `ORDER BY` con una clave única (normalmente la clave primaria):
+Si dos filas tienen el mismo valor en **todas** las claves que escribiste, cuál va primero queda librado al motor y puede cambiar entre ejecuciones. En la práctica eso significa que el mismo reporte, corrido dos veces, entrega las filas en distinto orden y nadie puede comparar una versión con la otra.
+
+Para evitarlo, cierra el `ORDER BY` con una clave que nunca se repita, normalmente la clave primaria (PK, por *primary key*, su nombre en inglés):
 
 ```sql
 ORDER BY list_price DESC, id ASC
@@ -3013,7 +3116,7 @@ ORDER BY list_price DESC, id ASC
 
 ## Ordenar por alias o por expresión
 
-`ORDER BY` se evalúa **después** del `SELECT`, así que puede usar los alias definidos allí:
+`ORDER BY` se evalúa **después** del `SELECT`, así que en ese momento los alias ya existen y puedes usarlos:
 
 ```sql
 SELECT id, total_amount - shipping_fee AS net_amount
@@ -3021,18 +3124,18 @@ FROM orders
 ORDER BY net_amount DESC;
 ```
 
-También acepta la expresión completa (`ORDER BY total_amount - shipping_fee DESC`) o una columna que ni siquiera aparece en el `SELECT`. Esto último es válido y a veces útil, aunque dificulta la lectura: quien mira el resultado no ve por qué está ordenado así.
+También acepta la expresión completa (`ORDER BY total_amount - shipping_fee DESC`) o incluso una columna que no aparece en el `SELECT`. Esta última forma es válida y a veces útil, pero dificulta la lectura: quien recibe el resultado ve las filas ordenadas y no encuentra en el reporte la columna que explica ese orden.
 
-Existe una tercera forma, ordenar por posición (`ORDER BY 2 DESC`, la segunda columna del `SELECT`). Funciona, pero se rompe en silencio apenas alguien agrega o reordena una columna. Prefiere el alias.
+Existe una tercera forma, ordenar por la posición de la columna (`ORDER BY 2 DESC` se refiere a la segunda columna del `SELECT`). Funciona, pero cambia de significado sin avisar apenas alguien agrega o reordena una columna, y el reporte pasa a estar ordenado por otra cosa sin ningún error. Prefiere el alias.
 
 ## Textos, mayúsculas y acentos
 
-El orden de los textos depende de la colación de la base. En la configuración habitual, «árbol» queda junto a «arbol» y las mayúsculas no alteran el orden alfabético, pero no lo des por sentado entre motores distintos. Si necesitas un criterio explícito, normaliza: `ORDER BY lower(name)`.
+El orden de los textos depende de la **colación** de la base (*collation* en inglés), que es la regla de comparación alfabética configurada en el servidor. En la configuración habitual, «árbol» queda junto a «arbol» y las mayúsculas no alteran el orden alfabético, pero eso no es igual en todos los motores ni en todas las instalaciones. Si necesitas un criterio explícito y estable, normaliza el texto dentro del ordenamiento: `ORDER BY lower(name)`.
 
 ## Resumen
 
-- Sin `ORDER BY` el orden no está garantizado, aunque hoy «se vea bien».
-- Las claves se evalúan de izquierda a derecha y cada una tiene su propio `ASC`/`DESC`.
+- Sin `ORDER BY` el orden no está garantizado, aunque hoy se vea correcto.
+- Las claves se evalúan de izquierda a derecha y cada una tiene su propio `ASC` o `DESC`.
 - Cierra con una columna única para que el reporte sea reproducible.
 $c1823$, null, (select id from public.datasets where slug = $c1824$tiendaviva$c1824$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
@@ -3040,22 +3143,22 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1825$ordenar-y-limitar$c1825$), $c1826$order-by-y-nulos$c1826$, $c1827$theory$c1827$, $c1828$NULL en el ordenamiento$c1828$, 1, 8, $c1829$## Por qué importa
 
-Pides «los vendedores mejor calificados primero» y arriba del reporte aparecen doce tiendas **sin calificación**. No es un error del motor: es la regla por omisión de PostgreSQL, y desconocerla produce rankings equivocados que llegan a una reunión.
+Pides «los vendedores mejor calificados primero» y arriba del reporte aparecen doce tiendas **sin calificación**, es decir, tiendas cuya columna `rating` tiene NULL porque todavía nadie las evaluó. No es un error del motor: es la regla que PostgreSQL aplica por omisión cuando no le dices dónde poner los NULL. La consecuencia es un ranking equivocado que puede llegar a una reunión, encabezado justamente por las tiendas de las que no sabes nada.
 
 ## La regla
 
-Para ordenar, PostgreSQL trata a NULL como **mayor que cualquier valor**. De ahí se deduce todo:
+Para ordenar, PostgreSQL trata al NULL como si fuera **mayor que cualquier valor**. De ahí se deduce todo lo demás:
 
 | Cláusula | Posición de los NULL |
 | --- | --- |
 | `ORDER BY rating ASC` | al final (equivale a `NULLS LAST`) |
 | `ORDER BY rating DESC` | al principio (equivale a `NULLS FIRST`) |
 
-Es decir: el caso peligroso es `DESC`, que es justamente el que usan casi todos los rankings.
+El caso peligroso es `DESC`, y `DESC` es justamente el que usan casi todos los rankings, porque casi todos los rankings quieren el valor más alto arriba.
 
 ## Cómo controlarlo
 
-Agrega `NULLS FIRST` o `NULLS LAST` después de la dirección, por cada clave:
+Agrega `NULLS FIRST` o `NULLS LAST` después de la dirección, una vez por cada clave:
 
 ```sql
 SELECT id, store_name, rating
@@ -3063,44 +3166,44 @@ FROM sellers
 ORDER BY rating DESC NULLS LAST, store_name ASC;
 ```
 
-Ahora el ranking empieza por la mejor calificación real y los vendedores sin reseñas quedan al final, que es lo que pedía el negocio.
+Ahora el ranking empieza por la mejor calificación real y los vendedores sin ninguna reseña quedan al final, que es lo que pedía el negocio.
 
 ## Decide qué significa el NULL
 
-Antes de escribir la cláusula, responde una pregunta de negocio: ¿«sin calificación» es lo mismo que «mala calificación»?
+Antes de escribir la cláusula, responde una pregunta de negocio: «sin calificación», ¿es lo mismo que «mala calificación»?
 
-- Si **no** lo es, deja los NULL al final con `NULLS LAST` (o exclúyelos con `WHERE rating IS NOT NULL` si el reporte es solo de tiendas evaluadas).
-- Si quieres verlos primero porque son los casos a revisar, usa `NULLS FIRST` de forma explícita.
+- Si **no** lo es, deja los NULL al final con `NULLS LAST`. También puedes excluirlos con `WHERE rating IS NOT NULL` si el reporte es solo de tiendas ya evaluadas.
+- Si quieres verlos primero, porque son justamente los casos a revisar, escribe `NULLS FIRST` de forma explícita.
 
-Cualquiera de las dos es correcta; lo que no es correcto es que la posición de los NULL sea un accidente.
+Cualquiera de las dos opciones es correcta. Lo que no es correcto es que la posición de los NULL quede decidida por omisión y nadie sepa por qué el reporte se ve así.
 
 ## Alternativas
 
-`NULLS LAST` es la forma directa y la que debes preferir. Conviene conocer dos variantes que aparecen en código heredado:
+`NULLS LAST` es la forma directa y la que conviene usar. Aun así, hay dos variantes que vas a encontrar en código heredado y conviene saber leer:
 
 ```sql
 ORDER BY (rating IS NULL) ASC, rating DESC   -- falso (0) antes que verdadero (1)
 ORDER BY COALESCE(rating, -1) DESC           -- reemplaza el NULL por un valor extremo
 ```
 
-La primera es equivalente y portable. La segunda es riesgosa: elige un valor centinela que puede colisionar con datos reales y cambia el valor mostrado si olvidas separar la columna del criterio de orden.
+La primera hace exactamente lo mismo que `NULLS LAST` y funciona en cualquier motor. La segunda es riesgosa por dos motivos: te obliga a elegir un valor centinela que algún día puede aparecer en los datos reales, y si además muestras esa columna en el reporte, quien lo lea va a ver un `-1` donde debería ver «sin calificación».
 
 ## Un detalle útil
 
-Los NULL también participan del desempate. Si dos filas tienen `rating` NULL, siguen compitiendo por la segunda clave: por eso el ejemplo cierra con `store_name`.
+Los NULL también participan del desempate. Si dos filas tienen NULL en `rating`, siguen empatadas y las ordena la clave siguiente. Por eso el ejemplo cierra con `store_name`: las tiendas sin calificación salen al final, pero en orden alfabético y siempre el mismo.
 
 ## Resumen
 
-- En `ASC` los NULL van al final; en `DESC`, al principio.
-- `NULLS FIRST` / `NULLS LAST` lo hacen explícito, clave por clave.
-- La posición de los NULL es una decisión de negocio; documéntala en la consulta.
+- En `ASC` los NULL van al final; con `DESC` van al principio.
+- `NULLS FIRST` y `NULLS LAST` lo hacen explícito, clave por clave.
+- La posición de los NULL es una decisión de negocio: escríbela en la consulta.
 $c1829$, null, (select id from public.datasets where slug = $c1830$tiendaviva$c1830$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1831$ordenar-y-limitar$c1831$), $c1832$limit-offset-y-top-n$c1832$, $c1833$theory$c1833$, $c1834$LIMIT, OFFSET y top-N$c1834$, 2, 9, $c1835$## Por qué importa
 
-«Dame los 10 pedidos más grandes de México», «muéstrame la página 3 del listado», «quiero espiar 5 filas para entender la tabla». Las tres son pedidos de recorte, y el recorte se hace con `LIMIT`.
+«Dame los 10 pedidos más grandes de México», «muéstrame la página 3 del listado», «quiero ver 5 filas para entender cómo es la tabla». Las tres son pedidos de recorte, y el recorte se hace con `LIMIT`, que indica cuántas filas devolver como máximo. Cuando ese recorte se combina con un orden para quedarte con los mejores, se lo llama **top-N**: las N primeras filas según un criterio.
 
 ## El concepto
 
@@ -3112,7 +3215,7 @@ ORDER BY total_amount DESC, id ASC
 LIMIT 10;
 ```
 
-El orden de ejecución es: `FROM` → `WHERE` → `SELECT` → `ORDER BY` → `LIMIT`. Primero se filtra y se ordena **todo** el conjunto; recién al final se cortan las 10 primeras filas. Por eso `LIMIT` nunca cambia qué filas cumplen el filtro, solo cuántas ves.
+El orden de ejecución es `FROM` → `WHERE` → `SELECT` → `ORDER BY` → `LIMIT`. Primero se filtra y se ordena **todo** el conjunto de filas, y recién al final se cortan las 10 primeras. Por eso `LIMIT` nunca cambia cuáles filas cumplen el filtro, solo cuántas de ellas ves.
 
 ## LIMIT sin ORDER BY: la advertencia
 
@@ -3120,11 +3223,11 @@ El orden de ejecución es: `FROM` → `WHERE` → `SELECT` → `ORDER BY` → `L
 SELECT id, total_amount FROM orders LIMIT 10;
 ```
 
-Esto **no** devuelve «los primeros 10 pedidos» ni «los 10 más grandes»: devuelve 10 filas cualesquiera, las que el motor tenga a mano. Es aceptable para mirar la forma de una tabla; es un error si el resultado va a un reporte. Un top-N sin `ORDER BY` no es un top-N.
+Esta consulta **no** devuelve «los primeros 10 pedidos» ni «los 10 más grandes»: devuelve 10 filas cualesquiera, las que el motor tenga más a mano en ese momento. Es aceptable para espiar la forma de una tabla mientras exploras. En un reporte es un error, porque el resultado no responde ninguna pregunta y además puede cambiar en la próxima ejecución. Si el recorte tiene que significar «los diez más grandes», hace falta un `ORDER BY` que lo diga.
 
 ## Paginar con OFFSET
 
-`OFFSET` descarta filas antes de aplicar el límite. Con páginas de 10 filas:
+`OFFSET` descarta una cantidad de filas antes de aplicar el límite, y con eso se arman las páginas de un listado. Con páginas de 10 filas:
 
 ```sql
 SELECT id, name, cuisine
@@ -3134,40 +3237,40 @@ ORDER BY name ASC, id ASC
 LIMIT 10 OFFSET 20;   -- página 3
 ```
 
-La fórmula es `OFFSET = (página - 1) * tamaño_de_página`. Página 1 → `OFFSET 0`; página 3 con páginas de 10 → `OFFSET 20`.
+La fórmula es `OFFSET = (página - 1) * tamaño_de_página`. La página 1 usa `OFFSET 0` y la página 3, con páginas de 10 filas, usa `OFFSET 20`.
 
 Dos advertencias:
 
-1. **El `ORDER BY` debe ser determinista.** Si hay empates sin desempate, una misma fila puede aparecer en dos páginas y otra en ninguna. Por eso el ejemplo cierra con `id`.
-2. **`OFFSET` grande es caro.** El motor igual produce y descarta las filas saltadas: `OFFSET 100000` lee cien mil filas para devolver diez.
+1. **El `ORDER BY` debe ser determinista**, o sea, tiene que dar siempre el mismo orden. Si hay empates sin una clave que los desempate, el motor puede ordenarlos distinto en cada página y entonces una misma fila aparece en dos páginas mientras otra no aparece en ninguna. Por eso el ejemplo cierra con `id`.
+2. **Un `OFFSET` grande es caro.** El motor igual tiene que producir y descartar todas las filas que salta, así que `OFFSET 100000` lee cien mil filas para devolverte diez.
 
 ## Empates en el borde del top-N
 
-`LIMIT 10` corta en la fila 10 aunque la 11 tenga exactamente el mismo valor. Si el negocio necesita «todos los que empatan en el décimo puesto», `LIMIT` no alcanza: eso se resuelve con funciones de ventana (`RANK`, sección 21). Mientras tanto, sé explícito en el reporte: «10 primeros, desempate por id».
+`LIMIT 10` corta después de la fila 10 aunque la fila 11 tenga exactamente el mismo valor que la 10. Si el negocio necesita «todos los que empatan en el décimo puesto», `LIMIT` no alcanza y el problema se resuelve con funciones de ventana como `RANK` (sección 21). Mientras tanto, deja escrito en el reporte cuál fue el criterio: «10 primeros, desempate por id».
 
 ## La sintaxis estándar
 
-`LIMIT`/`OFFSET` es la forma de PostgreSQL y MySQL. El estándar SQL usa `FETCH FIRST n ROWS ONLY`, que PostgreSQL también acepta:
+`LIMIT` y `OFFSET` son la forma de PostgreSQL y MySQL. El estándar SQL usa `FETCH FIRST n ROWS ONLY`, que PostgreSQL también acepta:
 
 ```sql
 ORDER BY total_amount DESC, id ASC
 OFFSET 20 FETCH NEXT 10 ROWS ONLY;
 ```
 
-Ambas son válidas. En SQL Server verás `TOP n` y en Oracle antiguo, `ROWNUM`.
+Las dos formas son válidas y hacen lo mismo. En SQL Server vas a encontrar `TOP n` y en versiones antiguas de Oracle, `ROWNUM`.
 
 ## Resumen
 
-- `LIMIT` corta después de ordenar: sin `ORDER BY`, las filas son arbitrarias.
+- `LIMIT` corta después de ordenar, así que sin `ORDER BY` las filas que recibes son arbitrarias.
 - `OFFSET = (página - 1) * tamaño`, y siempre con un orden determinista.
-- `LIMIT` ignora los empates del borde; si importan, necesitas ranking.
+- `LIMIT` ignora los empates del borde; si esos empates importan, necesitas funciones de ranking.
 $c1835$, null, (select id from public.datasets where slug = $c1836$tiendaviva$c1836$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1837$case$c1837$), $c1838$case-simple-y-buscada$c1838$, $c1839$theory$c1839$, $c1840$CASE: decidir dentro de la consulta$c1840$, 0, 9, $c1841$## Por qué importa
 
-La base de datos guarda códigos: `status = 'delivered'`, `country = 'MX'`, `rating = 4.7`. El negocio habla en etiquetas: «entregado», «Norteamérica», «vendedor destacado». `CASE` es la expresión que traduce una cosa en la otra **dentro de la consulta**, sin exportar a una planilla y sin pedirle un cambio al equipo de sistemas.
+La base de datos guarda códigos: `status = 'delivered'`, `country = 'MX'`, `rating = 4.7`. Quien lee el reporte habla en etiquetas: «entregado», «Norteamérica», «vendedor destacado». `CASE` es la construcción de SQL que traduce lo primero en lo segundo **dentro de la misma consulta**, así que no necesitas exportar los datos a una planilla ni pedirle al equipo de sistemas que agregue una columna a la tabla.
 
 ## CASE buscada: condiciones libres
 
@@ -3209,7 +3312,7 @@ La expresión va **una sola vez**, después de `CASE`, y cada `WHEN` solo indica
 
 ## La primera coincidencia gana
 
-PostgreSQL evalúa los `WHEN` **en orden** y se detiene en el primero que sea verdadero. El resto ni se mira. Por eso este `CASE` está mal escrito:
+PostgreSQL evalúa los `WHEN` **en orden**, de arriba hacia abajo, y se detiene en el primero que resulta verdadero; las ramas siguientes ni siquiera se evalúan. Por eso este `CASE` está mal escrito:
 
 ```sql
 CASE
@@ -3219,7 +3322,7 @@ CASE
 END
 ```
 
-Un vendedor con 4.8 cumple la primera condición y sale como «Confiable». La segunda rama es código muerto. Regla práctica: ordena los umbrales de más exigente a menos exigente (o al revés, de forma consistente), nunca mezclados.
+Un vendedor con 4.8 cumple la primera condición y sale etiquetado como «Confiable». La segunda rama no se alcanza nunca, para ninguna fila, así que la etiqueta «Destacado» jamás aparece en el reporte. Regla práctica: ordena los umbrales de más exigente a menos exigente, o al revés, pero siempre de forma consistente y nunca mezclados.
 
 ## Sin ELSE el resultado es NULL
 
@@ -3229,7 +3332,7 @@ Un vendedor con 4.8 cumple la primera condición y sale como «Confiable». La s
 CASE WHEN status = 'delivered' THEN 'Entregado' END
 ```
 
-Un pedido cancelado devuelve NULL en esa columna. A veces es lo que quieres; la mayoría de las veces es un olvido que después aparece como huecos en un reporte. Escribe siempre el `ELSE`, aunque sea `ELSE 'Otro'`.
+Un pedido cancelado devuelve NULL en esa columna. A veces ese NULL es justamente lo que buscas; la mayoría de las veces es un olvido que después aparece como celdas vacías en el reporte y obliga a rehacerlo. Escribe siempre el `ELSE`, aunque sea `ELSE 'Otro'`.
 
 ## Todas las ramas, el mismo tipo
 
@@ -3239,7 +3342,7 @@ Los resultados de los `THEN` y del `ELSE` deben ser de tipos compatibles. Esto f
 CASE WHEN rating >= 4.5 THEN 'Destacado' ELSE 0 END
 ```
 
-PostgreSQL intenta unificar texto con número y devuelve un error. Decide si la columna es texto (etiqueta) o número (puntaje) y sé consistente en todas las ramas.
+PostgreSQL intenta encontrar un tipo común entre texto y número, no lo encuentra y devuelve un error que corta la consulta. Decide antes de escribir si esa columna va a ser texto (una etiqueta) o número (un puntaje) y mantén esa decisión en todas las ramas, incluido el `ELSE`.
 
 ## Resumen
 
@@ -3252,7 +3355,7 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1843$case$c1843$), $c1844$case-segmentos-de-negocio$c1844$, $c1845$theory$c1845$, $c1846$Crear segmentos y tramos con CASE$c1846$, 1, 9, $c1847$## Por qué importa
 
-Casi todo análisis empieza agrupando: pedidos chicos y grandes, clientes nuevos y recurrentes, entregas a tiempo y tarde. Esos cortes rara vez existen como columna en la base: los define el negocio y los construye quien analiza. `CASE` es la herramienta para escribirlos una vez y que todo el equipo use la misma definición.
+Casi todo análisis empieza agrupando: pedidos chicos y grandes, clientes nuevos y recurrentes, entregas a tiempo y entregas tarde. Esos cortes rara vez existen como una columna de la base de datos: los define el área de negocio y los construye quien analiza, consulta por consulta. `CASE` es la herramienta para escribirlos una sola vez, de modo que todo el equipo use la misma definición y los reportes cierren entre sí.
 
 ## Tramos numéricos sin huecos ni solapamientos
 
@@ -3272,13 +3375,13 @@ FROM orders
 WHERE currency = 'UYU';
 ```
 
-No hace falta escribir `WHEN total_amount >= 2000 AND total_amount < 10000`: si la fila llegó a la segunda rama es porque ya no cumplió la primera. Escribir los dos límites no está mal, pero es más largo y más fácil de romper.
+No hace falta escribir `WHEN total_amount >= 2000 AND total_amount < 10000`: si la fila llegó a la segunda rama es porque ya no cumplió la primera. Escribir los dos límites tampoco está mal, pero es más largo y, cuando alguien ajusta un umbral, es fácil corregir un solo lado y dejar un hueco o un solapamiento entre tramos.
 
 Define siempre si el límite es inclusivo o exclusivo y déjalo documentado en el nombre de la etiqueta o en el pedido. «Hasta 2000» y «menos de 2000» son cosas distintas para quien recibe el reporte.
 
 ## NULL no cumple ninguna condición
 
-Un NULL no es mayor, ni menor, ni igual a nada: la comparación da «desconocido», que no es verdadero. Entonces una fila con `rating` NULL **cae en el `ELSE`**:
+Un NULL es un valor ausente: no es mayor, ni menor, ni igual a nada, ni siquiera a otro NULL. Cualquier comparación con él devuelve «desconocido», y «desconocido» no es verdadero, así que ningún `WHEN` lo acepta. El resultado es que una fila con `rating` en NULL **cae en el `ELSE`**:
 
 ```sql
 CASE
@@ -3288,7 +3391,7 @@ CASE
 END
 ```
 
-Eso etiqueta como «a mejorar» a vendedores que nunca fueron calificados: un error de negocio, no de sintaxis. La solución es una rama explícita:
+Eso etiqueta como «a mejorar» a vendedores que nunca recibieron una calificación, lo que pone un dato falso en el reporte: la consulta se ejecuta sin error, pero la conclusión que sacará quien la lea es incorrecta. La solución es darles una rama propia:
 
 ```sql
 CASE
@@ -3319,11 +3422,11 @@ ORDER BY
   id;
 ```
 
-Alfabéticamente, `cancelled` iría antes que `paid`; con `CASE` defines el orden real del ciclo de vida del pedido. También puedes ordenar por el alias de una columna calculada, que suele ser más legible.
+Si ordenaras directamente por `status`, el resultado saldría alfabético y `cancelled` aparecería antes que `paid`, un orden que no le dice nada a quien lee el reporte. Con `CASE` defines el orden real del ciclo de vida del pedido. También puedes ordenar por el alias de una columna calculada, que suele leerse mejor.
 
 ## Lo que viene después
 
-Cuando combinas `CASE` con funciones de agregación obtienes «conteos por categoría en una sola fila» (por ejemplo, cuántos pedidos hay en cada tramo). Eso se llama agregación condicional y tiene su propia sección más adelante; por ahora quédate con la idea de clasificar fila por fila.
+Cuando combinas `CASE` con funciones de agregación puedes obtener varios conteos por categoría en una sola fila de resultado, por ejemplo cuántos pedidos hay en cada tramo, uno al lado del otro. Esa técnica se llama agregación condicional y tiene su propia sección más adelante; por ahora quédate con la idea de clasificar fila por fila.
 
 ## Resumen
 
@@ -3336,7 +3439,7 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1849$case$c1849$), $c1850$case-coalesce-y-nullif$c1850$, $c1851$theory$c1851$, $c1852$COALESCE y NULLIF: los CASE abreviados$c1852$, 2, 6, $c1853$## Por qué importa
 
-Dos de los `CASE` que más se escriben son siempre iguales: «si esto es NULL, muestra otra cosa» y «si esto vale X, trátalo como NULL». SQL tiene un atajo para cada uno. Conocerlos hace tus consultas más cortas y, sobre todo, más fáciles de leer para quien las revise.
+Dos de los `CASE` que más se escriben repiten siempre la misma forma: «si esto es NULL, muestra otra cosa» y «si esto vale tal valor, trátalo como si fuera NULL». SQL tiene un atajo para cada uno: `COALESCE` y `NULLIF`. Conocerlos acorta tus consultas y, sobre todo, hace más fácil entenderlas para quien las revise.
 
 ## COALESCE: el primer valor no nulo
 
@@ -3359,7 +3462,7 @@ CASE WHEN description IS NULL THEN 'sin detalle' ELSE description END
 COALESCE(note, description, 'sin concepto')
 ```
 
-Recuerda que rellenar con un valor tiene consecuencias: `COALESCE(rating, 0)` está bien para un listado, pero convierte «sin datos» en «puntaje cero» y arruina cualquier promedio posterior.
+Recuerda que rellenar un NULL con un valor tiene consecuencias. `COALESCE(rating, 0)` está bien para un listado que solo se mira, pero convierte «sin datos» en «puntaje cero»: si después calculas un promedio, esos ceros lo bajan y el número deja de ser cierto.
 
 ## NULLIF: producir un NULL a propósito
 
@@ -3373,7 +3476,7 @@ NULLIF(trim(description), '')
 amount / NULLIF(installments, 0)
 ```
 
-En el segundo caso el resultado es NULL en lugar de un error que corta toda la consulta.
+En el segundo caso, cuando `installments` vale 0 el divisor se convierte en NULL y la división devuelve NULL, en lugar de provocar el error «division by zero» («división por cero») que cortaría toda la consulta.
 
 ## Cuándo usar cada uno
 
@@ -3400,8 +3503,8 @@ WHERE is_flagged;
 
 ## Resumen
 
-- `COALESCE` y `NULLIF` son `CASE` especializados en NULL; no agregan poder, agregan claridad.
-- Rellenar NULL cambia el significado del dato: hazlo para mostrar, piénsalo dos veces para calcular.
+- `COALESCE` y `NULLIF` son `CASE` especializados en NULL: no permiten hacer nada que `CASE` no haga, pero se leen mucho mejor.
+- Rellenar un NULL cambia el significado del dato: hazlo cuando solo vas a mostrarlo y piénsalo dos veces si ese valor va a entrar en un cálculo.
 - Con tres o más categorías, vuelve a `CASE`.
 $c1853$, null, (select id from public.datasets where slug = $c1854$bolsillo$c1854$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
@@ -3409,7 +3512,7 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1855$fechas-y-horas$c1855$), $c1856$fechas-tipos-y-partes$c1856$, $c1857$theory$c1857$, $c1858$Fechas y horas: tipos, EXTRACT y DATE_TRUNC$c1858$, 0, 10, $c1859$## Por qué importa
 
-Casi todo reporte de negocio tiene una dimensión temporal: ventas del mes, tiempo de entrega, antigüedad de un cliente. Si te equivocas con el tipo de dato o con el borde de un rango, el número que entregas queda mal por poco... y nadie lo nota hasta que alguien audita.
+Casi todo reporte de negocio tiene una dimensión temporal: las ventas del mes, el tiempo de entrega, la antigüedad de un cliente. Si te equivocas con el tipo de dato o con el extremo de un rango de fechas, el número que entregas queda mal por poco: lo bastante parecido al correcto como para que nadie lo note hasta que alguien audite el reporte.
 
 ## DATE, TIMESTAMP y TIMESTAMPTZ
 
@@ -3417,13 +3520,13 @@ PostgreSQL distingue tres tipos que se ven parecidos:
 
 - `date` guarda **solo el día**: `2025-09-15`.
 - `timestamp` guarda día y hora, **sin zona horaria**: `2025-09-15 23:54:47`.
-- `timestamptz` guarda un instante absoluto y lo **muestra** en la zona horaria de la sesión.
+- `timestamptz` (por *timestamp with time zone*, marca de tiempo con zona horaria) guarda un instante absoluto y lo **muestra** en la zona horaria de la sesión desde la que consultas.
 
 En TiendaViva, `sellers.joined_at` es `date` (solo interesa el día del alta), mientras que `orders.created_at`, `payments.paid_at` y `shipments.delivered_at` son `timestamptz`: un pedido ocurre en un instante, no en un día.
 
-Esa diferencia es la fuente número uno de errores en reportes. Un valor `date` equivale a ese día **a las 00:00**, así que `created_at <= DATE '2025-08-31'` deja fuera casi todo el 31 de agosto. Lo veremos en detalle en la tercera lección.
+Esa diferencia es la causa número uno de errores en los reportes. Cuando comparas un `timestamptz` con un valor `date`, ese `date` se entiende como el **primer instante** de ese día, las 00:00, así que `created_at <= DATE '2025-08-31'` deja fuera todo lo que ocurrió el 31 de agosto después de la medianoche, o sea casi todo el día. Lo veremos en detalle en la tercera lección.
 
-Con `timestamptz` el motor convierte al mostrar: el mismo instante se ve como `2025-09-13 22:43` en UTC y como `2025-09-13 19:43` en Buenos Aires. El dataset se ejecuta en UTC, así que todos los ejemplos son directos, pero en producción conviene fijar la zona horaria con `AT TIME ZONE` cuando el reporte es «por día local».
+Con `timestamptz` el motor hace la conversión al mostrar el valor: el mismo instante se ve como `2025-09-13 22:43` en UTC (por *Coordinated Universal Time*, el tiempo universal coordinado, la referencia horaria mundial) y como `2025-09-13 19:43` en Buenos Aires. El entorno de práctica trabaja siempre en UTC, así que todos los ejemplos dan el mismo resultado para cualquier persona. En un sistema real, cuando el reporte se pide «por día local», conviene fijar la zona horaria de forma explícita con `AT TIME ZONE` en lugar de confiar en la de la sesión.
 
 ## EXTRACT: obtener una parte
 
@@ -3436,9 +3539,9 @@ SELECT store_name,
 FROM sellers;
 ```
 
-Campos habituales: `YEAR`, `MONTH`, `DAY`, `HOUR`, `MINUTE`, `DOW` (día de la semana, 0 = domingo), `DOY` (día del año), `QUARTER`, `EPOCH` (segundos desde 1970). `DATE_PART('year', joined_at)` hace exactamente lo mismo con otra sintaxis; usa la que prefieras y sé consistente.
+Campos habituales: `YEAR` (año), `MONTH` (mes), `DAY` (día), `HOUR` (hora), `MINUTE` (minuto), `DOW` (por *day of week*, el día de la semana, donde 0 es domingo), `DOY` (por *day of year*, el día del año), `QUARTER` (el trimestre) y `EPOCH` (la cantidad de segundos transcurridos desde el 1 de enero de 1970, la referencia de tiempo que usan los sistemas informáticos). `DATE_PART('year', joined_at)` hace exactamente lo mismo con otra sintaxis; elige una y úsala de forma consistente.
 
-Detalle importante: `EXTRACT(MONTH FROM created_at)` devuelve `8` tanto para agosto de 2024 como para agosto de 2025. Sirve para analizar estacionalidad, no para armar una serie mensual.
+Detalle importante: `EXTRACT(MONTH FROM created_at)` devuelve `8` tanto para agosto de 2024 como para agosto de 2025, porque solo mira el número de mes. Sirve para analizar la estacionalidad, o sea, en qué meses del año se vende más sin importar el año; no sirve para armar una serie mensual, donde cada mes de cada año tiene que ser un punto distinto.
 
 ## DATE_TRUNC: quedarse con el período
 
@@ -3467,13 +3570,13 @@ FROM orders;
 | ¿Qué días de la semana hay más pedidos? | `EXTRACT(DOW ...)` |
 | ¿Cuántos pedidos hubo cada semana? | `DATE_TRUNC('week', ...)` |
 
-La regla corta: `EXTRACT` responde «qué parte»; `DATE_TRUNC` responde «qué período».
+La regla corta es esta: `EXTRACT` responde «qué parte de la fecha es» y `DATE_TRUNC` responde «a qué período pertenece esta fecha».
 
 ## Errores comunes
 
 - Usar `EXTRACT(MONTH ...)` para una serie temporal: enero de 2024 y enero de 2025 se mezclan en un solo `1`.
 - Suponer que `DATE_TRUNC('week', ...)` empieza el domingo: en PostgreSQL empieza el lunes (ISO).
-- Comparar el resultado de `EXTRACT` con un texto: devuelve un número, así que compara con `2025`, no con `'2025'`.
+- Comparar el resultado de `EXTRACT` con un texto: `EXTRACT` devuelve un número, así que compara con `2025` y no con `'2025'`, que es texto.
 
 ## Resumen
 
@@ -3503,7 +3606,7 @@ SELECT TIMESTAMP '2025-09-10 08:00' - TIMESTAMP '2025-09-01 20:00';
 -- 8 days 12:00:00
 ```
 
-Las dos respuestas son correctas, pero miden cosas distintas: 9 días calendario frente a 8 días y medio reales. Antes de escribir la consulta, define qué pide el negocio. Para «días de entrega» en TiendaViva usamos días calendario, así que llevamos ambos extremos a `date`:
+Las dos respuestas son correctas, pero miden cosas distintas: 9 días de calendario frente a 8 días y medio de tiempo real transcurrido. Antes de escribir la consulta, define cuál de las dos pide quien te hizo el pedido. Para los «días de entrega» en TiendaViva usamos días de calendario, así que convertimos los dos extremos a `date`:
 
 ```sql
 SELECT order_id,
@@ -3512,7 +3615,7 @@ FROM shipments
 WHERE delivered_at IS NOT NULL;
 ```
 
-El `::date` es la sintaxis corta de `CAST(delivered_at AS date)`. Y el filtro `IS NOT NULL` importa: 1110 envíos todavía no se entregaron, y cualquier operación con NULL devuelve NULL.
+El `::date` es la forma abreviada de `CAST(delivered_at AS date)`, que convierte el instante en una fecha sin hora. El filtro `IS NOT NULL` también importa: hay 1110 envíos que todavía no se entregaron y tienen `delivered_at` en NULL. Como cualquier operación que incluye un NULL devuelve NULL, esas filas aparecerían con la columna `delivery_days` vacía y ensuciarían el reporte.
 
 ## Convertir un interval en un número
 
@@ -3524,9 +3627,9 @@ FROM shipments
 WHERE delivered_at IS NOT NULL;
 ```
 
-`EPOCH` sobre un interval devuelve su duración total en segundos: divide entre 60 para minutos, 3600 para horas, 86 400 para días.
+`EPOCH` aplicado a un interval devuelve su duración total en segundos. A partir de ahí divides según la unidad que necesites: entre 60 para minutos, entre 3600 para horas y entre 86 400 para días.
 
-Cuidado con `EXTRACT(DAY FROM ...)`: devuelve **solo el componente de días** del interval. Para `8 days 12:00:00` da `8` y descarta las 12 horas restantes; no es un redondeo, es un truncamiento por componente.
+Cuidado con `EXTRACT(DAY FROM ...)`: devuelve **solo el componente de días** del interval. Para `8 days 12:00:00` devuelve `8` y descarta las 12 horas restantes. No las redondea ni las suma: simplemente lee el componente «días» y olvida el resto, así que tu promedio de entrega sale más bajo que el real.
 
 ## AGE: la diferencia «humana»
 
@@ -3536,7 +3639,7 @@ Cuidado con `EXTRACT(DAY FROM ...)`: devuelve **solo el componente de días** de
 SELECT AGE(DATE '2025-09-15', DATE '2022-02-06');  -- 3 years 7 mons 9 days
 ```
 
-Es ideal para antigüedades. Combinado con `EXTRACT` te da los años cumplidos:
+Es la función indicada para calcular antigüedades. Combinada con `EXTRACT` te da los años cumplidos:
 
 ```sql
 SELECT store_name,
@@ -3575,7 +3678,7 @@ SELECT TO_CHAR(created_at, 'YYYY-MM')            AS periodo,     -- 2025-08
 FROM orders;
 ```
 
-Úsalo para presentar, no para ordenar ni comparar: el resultado es texto, y `'31/08/2025'` se ordena alfabéticamente. `'YYYY-MM'` es la excepción práctica, porque su orden alfabético coincide con el cronológico.
+Úsalo solo para presentar el dato, nunca para ordenarlo ni compararlo. El resultado es texto, y el texto se ordena carácter por carácter: con el formato `'DD/MM/YYYY'`, la fecha `'01/09/2025'` queda antes que `'31/08/2025'` aunque sea un día posterior. El formato `'YYYY-MM'` es la excepción práctica, porque al empezar por el año su orden alfabético coincide con el cronológico.
 
 ## Errores comunes
 
@@ -3595,11 +3698,11 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1867$fechas-y-horas$c1867$), $c1868$fechas-rangos-sin-errores-de-borde$c1868$, $c1869$theory$c1869$, $c1870$Rangos de fechas sin errores de borde$c1870$, 2, 8, $c1871$## Por qué importa
 
-Este es el error más caro de toda la sección, porque no falla: devuelve un número creíble, apenas más bajo que el correcto. Filtrar «agosto» con `BETWEEN` sobre una columna `timestamptz` pierde casi todo el último día del mes.
+Este es el error más caro de toda la sección, justamente porque la consulta no falla: se ejecuta sin un solo mensaje y devuelve un número creíble, apenas más bajo que el correcto. Filtrar «agosto» con `BETWEEN` sobre una columna `timestamptz` deja fuera casi todo el último día del mes.
 
 ## Qué hace realmente BETWEEN
 
-`BETWEEN a AND b` equivale a `>= a AND <= b`: incluye los dos extremos. El problema no es `BETWEEN`, es que el extremo `DATE '2025-08-31'` se convierte a `2025-08-31 00:00:00`.
+`BETWEEN a AND b` equivale a `>= a AND <= b`, así que incluye los dos extremos. El problema no está en `BETWEEN` sino en el extremo: al compararlo con una columna que tiene hora, `DATE '2025-08-31'` se convierte en `2025-08-31 00:00:00`, la medianoche con la que empieza ese día.
 
 ```sql
 -- Intención: todos los pedidos de agosto de 2025
@@ -3608,7 +3711,7 @@ FROM orders
 WHERE created_at BETWEEN DATE '2025-08-01' AND DATE '2025-08-31';
 ```
 
-En TiendaViva esa consulta devuelve **1172** pedidos. Los pedidos reales de agosto son **1208**: faltan los 36 que se crearon el 31 de agosto después de la medianoche, es decir, prácticamente todos los de ese día. Un 3 % de la facturación evaporado sin un solo mensaje de error.
+En TiendaViva esa consulta devuelve **1172** pedidos, pero los pedidos reales de agosto son **1208**. Faltan los 36 que se crearon el 31 de agosto después de la medianoche, es decir, prácticamente todos los de ese día. Es un 3 % de la facturación que desaparece del reporte sin que el motor avise de nada.
 
 ## El patrón correcto: rango medio abierto
 
@@ -3642,15 +3745,15 @@ WHERE created_at::date = DATE '2025-08-31'                 -- legible
 WHERE DATE_TRUNC('month', created_at) = DATE '2025-08-01'  -- período completo
 ```
 
-Ambas son correctas y se leen muy bien. Su desventaja es de rendimiento: al aplicar una función a la columna, el motor no puede aprovechar un índice común sobre `created_at` y termina recorriendo la tabla entera. En tablas chicas da igual; en millones de filas, el rango medio abierto gana.
+Ambas son correctas y se leen muy bien. Su desventaja es de rendimiento: al aplicar una función sobre la columna, el motor ya no puede usar el índice de `created_at` —un índice es la estructura auxiliar que le permite encontrar filas sin leer la tabla completa— y termina recorriendo todas las filas. En una tabla chica no se nota; con millones de filas, el rango medio abierto es claramente más rápido.
 
 ¿Y `BETWEEN`? Es perfectamente válido con columnas `date`, con enteros o con importes, donde ambos extremos significan lo que aparentan. El problema es exclusivo de las columnas que llevan hora.
 
 ## Errores comunes
 
 - `BETWEEN '2025-01-01' AND '2025-01-31'` sobre un `timestamptz`: pierde el último día.
-- «Arreglarlo» con `<= DATE '2025-08-31' + INTERVAL '1 day' - INTERVAL '1 second'`: falla con milisegundos y es ilegible.
-- Mezclar criterios entre reportes: si un tablero usa `<=` y otro `<`, los totales nunca cuadran.
+- «Arreglarlo» con `<= DATE '2025-08-31' + INTERVAL '1 day' - INTERVAL '1 second'`: además de ser difícil de leer, deja fuera lo que haya ocurrido en el último segundo del día, porque los instantes se guardan con milisegundos.
+- Mezclar criterios entre reportes: si un tablero filtra con `<=` y otro con `<`, los dos totales se diferencian en un día y nunca terminan de cuadrar.
 - Filtrar por `shipped_at` cuando la pregunta es sobre entregas: revisa **qué** columna de fecha responde la pregunta.
 
 ## Resumen
@@ -3664,7 +3767,7 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1873$funciones-numericas$c1873$), $c1874$redondeo-y-truncamiento$c1874$, $c1875$theory$c1875$, $c1876$Redondear y truncar: ROUND, TRUNC, CEIL y FLOOR$c1876$, 0, 10, $c1877$## Por qué importa
 
-Un reporte de ventas con importes de ocho decimales no lo firma nadie. Redondear no es cosmética: define cuánto se factura, cuánto se reembolsa y cuánto cierra la caja. Estas cuatro funciones resuelven casi todo el trabajo diario con dinero y cantidades.
+Nadie firma un reporte de ventas con importes de ocho decimales. Redondear no es una cuestión de presentación: la forma en que redondeas define cuánto se factura, cuánto se reembolsa y con qué cifra cierra la caja. Las cuatro funciones de esta lección resuelven casi todo el trabajo diario con dinero y con cantidades.
 
 ## ROUND: al más cercano
 
@@ -3674,7 +3777,7 @@ SELECT ROUND(1234.5678, 2) AS dos_decimales,   -- 1234.57
        ROUND(1234.5678, -2) AS a_cientos;       -- 1200
 ```
 
-El segundo argumento es la cantidad de decimales. Puede ser **negativo**: redondea a decenas, centenas o miles, muy útil para presentar rangos de precios.
+El segundo argumento es la cantidad de decimales que quieres conservar. También puede ser **negativo**, y entonces redondea a decenas, centenas o miles: `ROUND(1234.5678, -2)` devuelve 1200. Sirve para presentar precios por rangos, cuando el detalle exacto no aporta nada a quien lee.
 
 Sobre una columna real:
 
@@ -3686,14 +3789,14 @@ WHERE currency = 'UYU';
 
 ## TRUNC: cortar, no redondear
 
-`TRUNC` descarta los decimales sobrantes sin mirar si el siguiente dígito es 5 o 9.
+`TRUNC` descarta los decimales sobrantes sin mirar el dígito siguiente, así que nunca sube el valor, ni siquiera cuando el resto es casi una unidad completa.
 
 ```sql
 SELECT ROUND(9.99, 1) AS redondeado,  -- 10.0
        TRUNC(9.99, 1) AS truncado;    -- 9.9
 ```
 
-Úsalo cuando el negocio dice "solo cuentan los pesos completos" (comisiones, puntos de fidelidad, cupos). Para importes que se cobran, el estándar es `ROUND`.
+Úsalo cuando la regla de negocio dice que solo cuentan las unidades completas: comisiones, puntos de fidelidad, cupos disponibles. Para los importes que efectivamente se le cobran a alguien, el estándar contable es `ROUND`.
 
 ## CEIL y FLOOR: siempre hacia arriba o hacia abajo
 
@@ -3702,7 +3805,7 @@ SELECT CEIL(4.01)  AS cajas,     -- 5
        FLOOR(4.99) AS completas; -- 4
 ```
 
-`CEIL` (o `CEILING`) sube al entero siguiente: cuántas cajas necesitas, cuántos viajes hay que hacer. `FLOOR` baja: cuántas unidades completas alcanzas a armar.
+`CEIL` (o su sinónimo `CEILING`) sube siempre al entero siguiente, y responde preguntas del tipo «cuántas cajas necesito» o «cuántos viajes hay que hacer»: con 4,01 cajas hacen falta 5, porque media caja igual ocupa un lugar. `FLOOR` baja siempre al entero anterior, y responde «cuántas unidades completas alcanzo a armar».
 
 Con negativos las cuatro se comportan distinto, y conviene tenerlo claro:
 
@@ -3711,11 +3814,11 @@ Con negativos las cuatro se comportan distinto, y conviene tenerlo claro:
 | 9.5   | 10    | 9     | 10   | 9     |
 | -9.1  | -9    | -9    | -9   | -10   |
 
-`TRUNC` corta hacia cero; `FLOOR` siempre va hacia el número menor.
+La diferencia se ve con los números negativos. `TRUNC` corta hacia el cero, así que `TRUNC(-9.1)` da −9. `FLOOR` va siempre hacia el número menor, así que `FLOOR(-9.1)` da −10. Con valores positivos las dos coinciden, y por eso la confusión aparece recién el día que aparece un importe negativo.
 
 ## El detalle que sorprende: numeric vs double precision
 
-En PostgreSQL, `ROUND` sobre `numeric` redondea "medio hacia arriba", pero sobre `double precision` usa redondeo bancario (al par más cercano):
+En PostgreSQL, `ROUND` sobre un valor `numeric` (decimal exacto) redondea el medio hacia arriba: 2,5 pasa a 3. Sobre un `double precision` (decimal aproximado) aplica el llamado redondeo bancario, que lleva el medio al número par más cercano: 2,5 pasa a 2 y 3,5 pasa a 4.
 
 ```sql
 SELECT ROUND(2.5)                    AS numeric_25,  -- 3
@@ -3723,11 +3826,11 @@ SELECT ROUND(2.5)                    AS numeric_25,  -- 3
        ROUND(3.5::double precision)  AS double_35;   -- 4
 ```
 
-Además `ROUND(valor, decimales)` con dos argumentos **solo existe para `numeric`**. Por eso el dinero se guarda en `numeric(12,2)`, como `orders.total_amount`: exacto y sin sorpresas. Si trabajas con un `double precision`, conviértelo primero con `::numeric`.
+Además, la forma de dos argumentos `ROUND(valor, decimales)` **solo existe para `numeric`**. Por eso el dinero se guarda en columnas `numeric(12,2)`, como `total_amount`, la columna de la tabla `orders` con el importe del pedido: ese tipo guarda el valor exacto y redondea de forma predecible. Si el valor que tienes es `double precision`, conviértelo primero con `::numeric`.
 
 ## Errores comunes
 
-- Redondear demasiado temprano: si redondeas cada línea y después sumas, el total puede diferir del total redondeado al final. Regla práctica: calcula con la precisión completa y redondea **una sola vez**, al presentar.
+- Redondear demasiado temprano. Si redondeas cada línea y después las sumas, el total no coincide con el total calculado en precisión completa y redondeado al final, y la diferencia crece con la cantidad de líneas. Regla práctica: calcula con toda la precisión y redondea **una sola vez**, al presentar.
 - Usar `TRUNC` donde el negocio espera `ROUND` (o al revés) sin preguntar. Es una decisión contable, no técnica.
 - Suponer que `ROUND` cambia el tipo de la columna: devuelve `numeric`; la tabla no se modifica.
 
@@ -3742,7 +3845,7 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1879$funciones-numericas$c1879$), $c1880$division-entera-y-porcentajes$c1880$, $c1881$theory$c1881$, $c1882$División entera, casteos y porcentajes$c1882$, 1, 12, $c1883$## Por qué importa
 
-Este es el error más caro y más silencioso de SQL: la consulta corre, no falla, y devuelve ceros. Quien no conoce la regla entrega un reporte donde "ningún cliente convierte" y nadie nota el problema hasta la reunión.
+Este es uno de los errores más caros y más silenciosos de SQL: la consulta corre, no falla y devuelve ceros. Quien no conoce la regla entrega un reporte que afirma que ningún cliente convierte, y como el cero es un resultado posible, nadie sospecha nada hasta la reunión.
 
 ## La trampa
 
@@ -3750,9 +3853,9 @@ Este es el error más caro y más silencioso de SQL: la consulta corre, no falla
 SELECT 1 / 2 AS resultado;  -- 0
 ```
 
-No es un error: en PostgreSQL, `integer / integer` devuelve `integer`, y el resultado se **trunca hacia cero** (no se redondea). Con negativos: `-7 / 2` da `-3`, no `-4`.
+No es un error del motor. En PostgreSQL, dividir un `integer` por otro `integer` devuelve un `integer`, y la parte decimal se **corta hacia cero** en lugar de redondearse. Con números negativos eso significa que `-7 / 2` da `-3` y no `-4`.
 
-La trampa aparece con columnas enteras como `payments.installments`, `products.stock`, `order_items.quantity` o `reviews.rating`:
+La trampa aparece cada vez que divides columnas enteras, y en TiendaViva hay varias: `installments` de la tabla `payments` (en cuántas cuotas se pagó), `stock` de `products` (unidades disponibles), `quantity` de `order_items` (unidades compradas de ese producto) y `rating` de `reviews` (las estrellas de una reseña).
 
 ```sql
 SELECT 100 / installments AS porcentaje_por_cuota
@@ -3768,9 +3871,9 @@ SELECT 100.0 / installments                AS con_literal_decimal,
 FROM payments;
 ```
 
-Basta con que **uno** de los dos operandos sea `numeric` para que toda la división sea numérica. Escribir `100.0` es lo más corto; `::numeric` es lo más explícito y el que se lee mejor en una consulta larga. Cualquiera de los tres es correcto.
+Basta con que **uno** de los dos operandos sea `numeric` para que toda la división se resuelva con decimales. Escribir `100.0` es la forma más corta. Escribir `::numeric` es la más explícita y la que se lee mejor dentro de una consulta larga, porque deja dicho que ahí hubo una conversión intencional. Las tres formas son igualmente correctas.
 
-Ojo con el orden: multiplicar antes de dividir también evita el problema, porque agranda el numerador.
+Atención también al orden de las operaciones: multiplicar antes de dividir evita el problema, porque agranda el numerador y el cociente entero deja de ser cero.
 
 ```sql
 SELECT rating * 100 / 5 AS base_100      -- 40 para rating 2: correcto
@@ -3790,7 +3893,7 @@ SELECT ROUND(discount * 100 / NULLIF(subtotal, 0), 2) AS descuento_pct
 FROM orders;
 ```
 
-Si `subtotal` es 0, `NULLIF` devuelve NULL, la división devuelve NULL y la fila sobrevive. Si prefieres mostrar 0 en vez de NULL, envuélvelo en `COALESCE(..., 0)`; es una decisión de negocio: "no se puede calcular" y "es cero" no significan lo mismo.
+Si `subtotal` vale 0, `NULLIF` lo convierte en NULL, la división devuelve NULL y la fila sigue apareciendo en el resultado en lugar de cortar la consulta. Si prefieres mostrar 0 en lugar de NULL, envuelve la división en `COALESCE(..., 0)`. Cuál de las dos corresponde es una decisión de negocio, porque «no se puede calcular» y «el resultado es cero» no significan lo mismo para quien lee el reporte.
 
 ## Porcentajes que se leen bien
 
@@ -3809,17 +3912,17 @@ FROM orders;
 
 Tres criterios para no equivocarte:
 
-1. Define el denominador antes de escribir SQL: ¿sobre el subtotal o sobre el total? Cambia el número y la conclusión.
+1. Define el denominador antes de escribir el SQL. ¿El porcentaje se calcula sobre el subtotal o sobre el total cobrado? Según cuál elijas, el número cambia, y con él la conclusión del reporte.
 2. Decide si devuelves 18.00 (porcentaje) o 0.18 (proporción) y dilo en el nombre de la columna (`_percent` vs `_ratio`).
 3. Redondea al final, con los decimales que pide el reporte.
 
 ## Variación porcentual
 
-Para comparar dos importes: `(nuevo - anterior) * 100 / anterior`. Si el valor anterior puede ser 0, otra vez `NULLIF`.
+Para comparar dos importes, la fórmula es `(nuevo - anterior) * 100 / anterior`: la diferencia dividida por el punto de partida. Multiplicar por 100 antes de dividir evita la división entera, y si el valor anterior puede ser 0 hay que proteger el denominador otra vez con `NULLIF`.
 
 ## Resumen
 
-- `entero / entero` trunca: castea a `numeric` o multiplica primero.
+- Una división entre dos enteros corta los decimales. Convierte uno de los dos a `numeric` o multiplica antes de dividir.
 - Divide por `NULLIF(denominador, 0)` cuando el denominador puede ser cero.
 - Nombra las columnas de porcentaje para que nadie dude de la escala.
 $c1883$, null, (select id from public.datasets where slug = $c1884$tiendaviva$c1884$), false, true)
@@ -3828,11 +3931,11 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1885$funciones-numericas$c1885$), $c1886$abs-mod-power-y-limites$c1886$, $c1887$theory$c1887$, $c1888$ABS, MOD, POWER y los límites GREATEST/LEAST$c1888$, 2, 8, $c1889$## Por qué importa
 
-Las reglas comerciales reales casi nunca son una multiplicación limpia: "2 % de comisión, mínimo 5 y máximo 12", "reparte en cajas de 12 y dime qué sobra", "cuánto se desvía este pago del promedio". Estas funciones convierten esas frases en SQL directo.
+Las reglas comerciales reales casi nunca son una multiplicación limpia. Suenan más bien así: «2 % de comisión, con un mínimo de 5 y un máximo de 12», «reparte en cajas de 12 y dime cuántas unidades sobran», «cuánto se desvía este pago del promedio». Las funciones de esta lección traducen cada una de esas frases a una expresión de SQL.
 
 ## ABS: distancia sin signo
 
-`ABS` devuelve el valor absoluto. Sirve para medir desvíos sin importar la dirección:
+`ABS` devuelve el valor absoluto, es decir, el número sin su signo: tanto 30 como −30 se convierten en 30. Sirve para medir cuánto se aparta un valor de una referencia, sin que importe si se pasó o si se quedó corto:
 
 ```sql
 SELECT id, amount, ABS(amount - 500) AS desvio
@@ -3840,11 +3943,11 @@ FROM transactions
 WHERE kind = 'withdrawal';
 ```
 
-También es el modo correcto de comparar dos importes con tolerancia: `ABS(a - b) <= 0.01`.
+También es la forma correcta de comparar dos importes admitiendo una tolerancia: `ABS(a - b) <= 0.01` dice «estos dos valores no difieren en más de un centavo», sin importar cuál de los dos es mayor.
 
 ## MOD: el resto de la división
 
-`MOD(a, b)` (o `a % b`) devuelve el resto. Combinado con la división entera responde preguntas de empaque:
+`MOD(a, b)`, que también se escribe `a % b`, devuelve el resto de dividir `a` entre `b`. Combinado con la división entera responde preguntas de empaque: cuántos paquetes completos salen y qué queda suelto.
 
 ```sql
 SELECT stock / 12     AS cajas_completas,
@@ -3852,7 +3955,7 @@ SELECT stock / 12     AS cajas_completas,
 FROM products;
 ```
 
-Aquí la división entera es **lo que quieres**: no existen media caja. Otro uso típico es detectar múltiplos: `MOD(x, 2) = 0` identifica pares. Con negativos, el resto conserva el signo del dividendo: `MOD(-7, 2)` es `-1`.
+Aquí la división entera es justamente **lo que quieres**, porque no existe media caja: `stock / 12` da las cajas llenas y `MOD(stock, 12)` las unidades que sobran. Otro uso habitual es detectar múltiplos, por ejemplo `MOD(x, 2) = 0` para quedarte con los números pares. Con valores negativos, el resto conserva el signo del dividendo: `MOD(-7, 2)` da `-1`.
 
 ## POWER: potencias e interés compuesto
 
@@ -3862,11 +3965,11 @@ Aquí la división entera es **lo que quieres**: no existen media caja. Otro uso
 SELECT ROUND(1000 * POWER(1.05, 3), 2) AS a_tres_periodos;  -- 1157.63
 ```
 
-Es la base de cualquier cálculo de crecimiento compuesto: un 5 % mensual durante 3 meses no es 15 %, es 15.76 %. Complementos: `SQRT` para la raíz cuadrada y `LOG` para escalas logarítmicas.
+Es la base de cualquier cálculo de crecimiento compuesto, es decir, de un crecimiento que en cada período se aplica sobre el resultado del período anterior: un 5 % mensual durante 3 meses no acumula 15 %, sino 15,76 %. Dos funciones relacionadas: `SQRT` calcula la raíz cuadrada y `LOG` sirve para trabajar en escalas logarítmicas.
 
 ## GREATEST y LEAST: pisos y techos
 
-No son funciones de agregación: comparan **valores de la misma fila** y devuelven el mayor o el menor.
+`GREATEST` y `LEAST` no son funciones de agregación: no miran varias filas, sino varios **valores de una misma fila**, y devuelven el mayor o el menor de ellos.
 
 ```sql
 SELECT id,
@@ -3875,14 +3978,14 @@ FROM transactions
 WHERE kind = 'withdrawal';
 ```
 
-Léelo de adentro hacia afuera: calcula el 1.5 %, `GREATEST` impone el mínimo de 5, `LEAST` impone el tope de 12. El orden inverso (`GREATEST(5.00, LEAST(12.00, ...))`) da el mismo resultado mientras el mínimo sea menor que el máximo; elige la versión que se lea mejor en tu equipo.
+Léelo de adentro hacia afuera: primero se calcula el 1,5 % del importe, después `GREATEST` impone el mínimo de 5 (si la comisión dio menos, queda en 5) y por último `LEAST` impone el tope de 12 (si dio más, queda en 12). Escribirlo al revés, como `GREATEST(5.00, LEAST(12.00, ...))`, da exactamente el mismo resultado mientras el mínimo sea menor que el máximo. Elige la versión que tu equipo lea con más facilidad.
 
-Cuidado con NULL: si un argumento es NULL, `GREATEST` y `LEAST` lo **ignoran** (a diferencia de la suma, que se contagia de NULL). Y no confundas `GREATEST` con `MAX`: `MAX` compara filas, `GREATEST` compara columnas dentro de una fila.
+Cuidado con los NULL: si uno de los argumentos es NULL, `GREATEST` y `LEAST` lo **ignoran** y devuelven el mayor o el menor de los demás. Se comportan distinto de una suma, donde un solo NULL entre los sumandos hace que todo el resultado sea NULL. Y no confundas `GREATEST` con `MAX`: `MAX` recorre muchas filas y devuelve un valor por grupo, mientras que `GREATEST` compara varias columnas dentro de una misma fila y devuelve un valor por fila.
 
 ## Errores comunes
 
 - Usar `MAX(a, b)`: no existe con dos argumentos; es `GREATEST(a, b)`.
-- Aplicar `ABS` a un importe que ya es positivo "por las dudas" y esconder así un signo que indicaba un reverso.
+- Aplicar `ABS` por precaución a un importe que ya era positivo, y borrar con eso el signo negativo que identificaba a una devolución.
 - Calcular interés compuesto multiplicando la tasa por la cantidad de períodos.
 
 ## Resumen
@@ -3896,11 +3999,11 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1891$having$c1891$), $c1892$having-filtrar-grupos$c1892$, $c1893$theory$c1893$, $c1894$HAVING: filtrar después de agregar$c1894$, 0, 10, $c1895$## Por qué importa
 
-Con `GROUP BY` ya sabes responder «pedidos por restaurante». La pregunta que sigue casi siempre es otra: «¿qué restaurantes superaron los 60 pedidos entregados?». Eso no se filtra con `WHERE`: el número que quieres comparar todavía no existe cuando `WHERE` se ejecuta. Para eso está `HAVING`.
+Con `GROUP BY` ya sabes responder «pedidos por restaurante». La pregunta que sigue casi siempre es otra: «¿qué restaurantes superaron los 60 pedidos entregados?». Esa segunda pregunta no se puede responder con `WHERE`, porque el número que quieres comparar —la cantidad de pedidos de cada restaurante— todavía no está calculado en el momento en que `WHERE` revisa las filas. Para filtrar usando un resultado ya calculado existe `HAVING`.
 
 ## El concepto
 
-`HAVING` es el filtro que se aplica **a los grupos ya calculados**, después de `GROUP BY`.
+`HAVING` es el filtro que se aplica **a los grupos ya calculados**, después de `GROUP BY`. Es decir, descarta grupos completos, no filas sueltas: un restaurante entero entra o queda afuera del reporte.
 
 ```sql
 SELECT restaurant_id, count(*) AS entregados
@@ -3919,7 +4022,7 @@ Lee la consulta como una línea de producción:
 4. `HAVING count(*) >= 60` descarta **grupos** completos.
 5. `ORDER BY` ordena lo que quedó.
 
-Los 400 restaurantes se convierten en 400 grupos y `HAVING` deja 12. Sin `HAVING` tendrías que exportar las 400 filas y filtrar a mano en una planilla.
+Los 400 restaurantes se convierten en 400 grupos, uno por restaurante, y `HAVING` deja pasar solo 12. Sin `HAVING` tendrías que exportar las 400 filas y filtrarlas a mano en una planilla, un paso manual que nadie puede auditar después.
 
 ## Por qué WHERE no puede hacerlo
 
@@ -3930,7 +4033,7 @@ WHERE count(*) >= 60     -- error
 GROUP BY restaurant_id;
 ```
 
-PostgreSQL responde: *aggregate functions are not allowed in WHERE*. No es una restricción arbitraria. Cuando `WHERE` evalúa una fila, los grupos todavía no se formaron y `count(*)` no tiene ningún valor que devolver. `HAVING` corre más tarde, cuando cada grupo ya tiene sus agregados calculados.
+PostgreSQL responde *aggregate functions are not allowed in WHERE*, es decir, «no se permiten funciones de agregación en WHERE». No es una restricción arbitraria. Cuando `WHERE` evalúa una fila, los grupos todavía no se formaron, así que `count(*)` no tiene ningún valor que devolver para esa fila. `HAVING` corre más tarde, cuando cada grupo ya tiene sus agregados calculados.
 
 ## Los alias no funcionan en HAVING
 
@@ -3941,7 +4044,7 @@ GROUP BY restaurant_id
 HAVING entregados >= 60;   -- column "entregados" does not exist
 ```
 
-`GROUP BY` y `ORDER BY` sí aceptan el alias del `SELECT`; `HAVING` no, porque se evalúa antes de que la lista del `SELECT` se materialice. Repite la expresión completa: `HAVING count(*) >= 60`. Es la fuente de error más frecuente al empezar.
+Un **alias** es el nombre que le pones a una columna calculada con `AS`, como `entregados` en el ejemplo. `GROUP BY` y `ORDER BY` aceptan ese alias, pero `HAVING` no, porque se evalúa antes de que la lista del `SELECT` —y con ella el alias— llegue a existir. En `HAVING` tienes que repetir la expresión completa: `HAVING count(*) >= 60`. Es el error más frecuente al empezar con esta cláusula.
 
 ## Qué puede ir en HAVING
 
@@ -3951,7 +4054,7 @@ Cualquier expresión que tenga sentido **por grupo**:
 - varios agregados combinados: `HAVING count(*) > count(DISTINCT customer_id)`
 - una columna del `GROUP BY`: `HAVING payment_method <> 'cash'` (válido, aunque ese filtro pertenece a `WHERE`)
 
-Lo que **no** puede ir es una columna que no esté agrupada ni agregada: el motor no sabría qué valor del grupo usar.
+Lo que **no** puede ir es una columna que no esté ni en el `GROUP BY` ni dentro de un agregado. Si escribieras `HAVING total > 1000` sobre la columna `total` de `orders`, el motor no sabría qué pedido del grupo mirar, porque el grupo tiene muchos totales distintos, y rechaza la consulta.
 
 ## Varias condiciones
 
@@ -3967,9 +4070,9 @@ HAVING count(*) >= 8 AND sum(total_amount) > 200000;
 
 ## Resumen
 
-- `WHERE` filtra filas antes de agrupar; `HAVING` filtra grupos después de agregar.
-- En `HAVING` repites la expresión agregada, nunca su alias.
-- Un agregado dentro de `WHERE` siempre es un error de sintaxis, no un problema de datos.
+- `WHERE` filtra filas antes de agrupar. `HAVING` filtra grupos ya formados, después de agregar.
+- En `HAVING` repites la expresión agregada completa, nunca su alias.
+- Un agregado dentro de `WHERE` siempre produce un error de sintaxis: el problema está en la consulta, no en los datos.
 $c1895$, null, (select id from public.datasets where slug = $c1896$pidelo$c1896$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -3985,7 +4088,7 @@ Esa única pregunta resuelve casi todos los casos.
 
 ## Las dos cláusulas en la misma consulta
 
-No compiten: se complementan. Es habitual usar las dos.
+Las dos cláusulas no compiten entre sí, porque trabajan en momentos distintos de la consulta. Lo habitual es usar las dos juntas.
 
 ```sql
 SELECT category_id, count(*) AS productos
@@ -3996,7 +4099,7 @@ HAVING count(*) >= 60
 ORDER BY productos DESC, category_id;
 ```
 
-`WHERE is_active` define **qué filas entran** al conteo; `HAVING count(*) >= 60` define **qué categorías salen** en el reporte. Si movieras `is_active` a `HAVING`, el motor rechazaría la consulta (columna no agrupada); si intentaras el conteo en `WHERE`, también.
+`is_active` es la columna booleana de `products` que indica si el producto sigue publicado. El `WHERE is_active` define **qué filas entran** al conteo: solo los productos vigentes. El `HAVING count(*) >= 60` define **qué categorías aparecen** en el reporte: solo las que llegaron a 60 productos vigentes. Las dos condiciones son necesarias y no se pueden intercambiar: si movieras `is_active` al `HAVING`, el motor rechazaría la consulta porque esa columna no está agrupada, y si intentaras el conteo en el `WHERE`, la rechazaría también.
 
 ## El orden importa para el resultado, no solo para la sintaxis
 
@@ -4019,11 +4122,11 @@ GROUP BY customer_id
 HAVING count(*) >= 5;
 ```
 
-En A, un cliente con 10 pedidos cancelados y 2 entregados **no aparece**. En B sí, con `entregados = 2`. Ninguna es «la correcta»: responden preguntas distintas. Antes de escribir, define si el umbral se aplica al universo filtrado o al universo completo.
+En la consulta A, un cliente con 10 pedidos cancelados y 2 entregados **no aparece**, porque el umbral se mide solo sobre los entregados. En la B sí aparece, con `entregados = 2`, porque el umbral se mide sobre todos sus pedidos. Ninguna de las dos es la correcta en abstracto: responden preguntas distintas y el negocio decide cuál necesita. Antes de escribir la consulta, define si el umbral se aplica al universo ya filtrado o al universo completo.
 
 ## Rendimiento y legibilidad
 
-`WHERE` reduce el volumen **antes** de agrupar, así que el motor trabaja con menos filas. Cuando una condición puede ir en `WHERE`, ponla ahí: es más rápida y más clara. `HAVING` debería contener solo condiciones sobre agregados.
+`WHERE` reduce el volumen de datos **antes** de agrupar, así que el motor forma los grupos con menos filas y la consulta termina antes. Cuando una condición puede ir en `WHERE`, ponla ahí: se ejecuta más rápido y además le dice a quien lea la consulta que esa condición habla de filas individuales. Deja en `HAVING` únicamente las condiciones sobre agregados.
 
 Esto funciona, pero confunde a quien lo lea:
 
@@ -4044,15 +4147,15 @@ WHERE status = 'delivered'
 HAVING count(*) > 10000;
 ```
 
-Devuelve una fila si hay más de 10 000 entregas y **cero filas** si no. Es poco frecuente, pero aparece en alertas y controles de calidad: «devuélveme algo solo si el umbral se rompió».
+Devuelve una fila si hay más de 10 000 entregas y **cero filas** si no las hay. Es poco frecuente, pero resulta útil en alertas y controles de calidad, donde lo que quieres es recibir un resultado solamente cuando se cruzó el umbral: si la consulta no devuelve nada, todo está en orden.
 
 ## Grupos que nunca existieron
 
-`HAVING` filtra grupos que existen; no inventa los que faltan. Una categoría sin productos activos no produce un grupo con `count(*) = 0`: directamente no aparece. Para listar «categorías con menos de 5 productos, incluyendo las que tienen cero» necesitas un `LEFT JOIN` desde `categories` (sección 18).
+`HAVING` solo puede filtrar grupos que se formaron, y un grupo se forma únicamente cuando hay al menos una fila que le corresponde. Una categoría sin productos activos no produce un grupo con `count(*) = 0`: simplemente no aparece en el resultado. Para listar «categorías con menos de 5 productos, incluidas las que tienen cero» necesitas partir de la tabla `categories` y traer los productos con un `LEFT JOIN` (sección 18), que conserva las categorías sin coincidencias.
 
 ## Resumen
 
-- Condición sobre una fila → `WHERE`; condición sobre un agregado → `HAVING`.
+- Si la condición se puede responder mirando una sola fila, va en `WHERE`. Si necesita un valor agregado del grupo, va en `HAVING`.
 - Mover un filtro de `WHERE` a `HAVING` cambia el resultado cuando el umbral se calcula sobre otro universo.
 - `HAVING` sin `GROUP BY` evalúa la tabla entera como un solo grupo.
 $c1901$, null, (select id from public.datasets where slug = $c1902$tiendaviva$c1902$), false, true)
@@ -4071,11 +4174,11 @@ HAVING sum(quantity) >= 40
 ORDER BY unidades DESC, menu_item_id;
 ```
 
-Nota que el umbral se aplica a `sum(quantity)`, no a `count(*)`: un plato puede aparecer en pocos pedidos y vender muchas unidades.
+Fíjate en que el umbral se aplica a `sum(quantity)` y no a `count(*)`. `quantity` es la columna de `order_items` con las unidades de ese plato dentro de un pedido, así que un plato puede aparecer en pocos pedidos y aun así vender muchas unidades, porque cada pedido se lleva varias. Contar pedidos y sumar unidades dan rankings diferentes.
 
 ## Umbral sobre un promedio, con mínimo de muestra
 
-Un promedio calculado sobre una sola observación no es un promedio, es una anécdota. Por eso los rankings por calificación casi siempre combinan dos condiciones:
+Un promedio calculado sobre una sola observación no describe nada: es el valor de esa única observación con apariencia de estadística. Por eso los rankings por calificación casi siempre combinan dos condiciones, una sobre el promedio y otra sobre la cantidad de datos que lo respaldan:
 
 ```sql
 SELECT product_id, count(*) AS resenas, round(avg(rating), 2) AS promedio
@@ -4085,9 +4188,9 @@ HAVING count(*) >= 5 AND avg(rating) >= 4.4
 ORDER BY promedio DESC, resenas DESC, product_id;
 ```
 
-Sin `count(*) >= 5`, el primer puesto se lo llevaría cualquier producto con una única reseña de 5 estrellas. El mínimo de muestra es una decisión de negocio: escríbela explícitamente y documéntala.
+Sin la condición `count(*) >= 5`, el primer puesto se lo llevaría cualquier producto con una sola reseña de 5 estrellas. Ese mínimo de reseñas es una decisión de negocio, no una regla de SQL: acuérdalo con quien pide el reporte, escríbelo en la consulta y menciónalo en la entrega.
 
-Cuidado con el desempate: `promedio` proviene de `round(...)`, así que hay empates reales. Agregar `resenas DESC, product_id` hace que el orden sea reproducible.
+Cuidado también con el desempate. La columna `promedio` sale de `round(...)`, que recorta a dos decimales, así que varios productos terminan con el mismo valor. Si ordenas solo por `promedio`, esos empates quedan en un orden arbitrario que puede cambiar entre ejecuciones. Agregar `resenas DESC, product_id` fija un orden que siempre se reproduce igual.
 
 ## Comparar dos agregados entre sí
 
@@ -4101,7 +4204,7 @@ GROUP BY promotion_id
 HAVING count(*) > count(DISTINCT customer_id);
 ```
 
-Devuelve las promociones donde hubo más usos que clientes distintos: alguien la usó más de una vez. Es una auditoría de una línea.
+Devuelve las promociones en las que hubo más usos que clientes distintos, lo que significa que al menos una persona la usó más de una vez. Es una auditoría completa escrita en una sola condición, y no necesita ninguna consulta previa para saber a quién mirar.
 
 ## Agrupar por varias columnas y filtrar la combinación
 
@@ -4116,12 +4219,12 @@ HAVING count(*) >= 3
 ORDER BY usos DESC, promotion_id, customer_id;
 ```
 
-Cada fila es «esta persona usó esta promoción tantas veces». Con el tope declarado en `promotions.max_uses_per_customer` podrías separar el abuso real del uso legítimo (necesitas un join, sección 17).
+Cada fila del resultado dice «esta persona usó esta promoción tantas veces». Para saber si ese número es un abuso o un uso legítimo hay que compararlo con el límite permitido, que está en `max_uses_per_customer`, la columna de la tabla `promotions` que guarda cuántas veces puede usar cada cliente esa promoción. Traerla exige un join, tema de la sección 17.
 
 ## Errores frecuentes
 
-- **Alias en `HAVING`**: `HAVING usos >= 3` falla; repite `count(*) >= 3`.
-- **Agregado en `WHERE`**: error de sintaxis, no de datos.
+- **Alias en `HAVING`.** `HAVING usos >= 3` falla porque el alias todavía no existe. Repite la expresión: `HAVING count(*) >= 3`.
+- **Agregado en `WHERE`.** PostgreSQL lo rechaza siempre: es un error de escritura de la consulta y no tiene nada que ver con los datos.
 - **Umbral mal ubicado**: filtrar `status = 'delivered'` en `WHERE` frente a contar todos los estados cambia quién supera el umbral.
 - **Esperar grupos vacíos**: `HAVING count(*) = 0` nunca devuelve filas, porque un grupo sin filas no se forma.
 - **NULL en los agregados**: `avg(rating)` ignora los NULL, así que un producto con 5 reseñas y 2 puntajes vacíos promedia sobre 3. Si eso importa, filtra los NULL en `WHERE` o usa `count(rating)` como mínimo de muestra.
@@ -4130,20 +4233,20 @@ Cada fila es «esta persona usó esta promoción tantas veces». Con el tope dec
 
 - Umbral de volumen, umbral de promedio con muestra mínima y comparación entre agregados cubren la mayoría de los reportes reales.
 - Un ranking con promedios necesita siempre un mínimo de observaciones y un desempate explícito.
-- `HAVING` filtra lo que existe: los grupos vacíos se resuelven con joins, no con umbrales.
+- `HAVING` solo filtra los grupos que se formaron. Para que aparezcan los grupos vacíos hay que traerlos con un join, no con un umbral.
 $c1907$, null, (select id from public.datasets where slug = $c1908$pidelo$c1908$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1909$self-join$c1909$), $c1910$self-join-jerarquias$c1910$, $c1911$theory$c1911$, $c1912$Self join: la misma tabla, dos alias$c1912$, 0, 11, $c1913$## Por qué importa
 
-Muchas tablas se apuntan a sí mismas: una categoría cuelga de otra categoría, un empleado reporta a otro empleado, un movimiento reversa a otro movimiento. La información que necesitas está en la **misma** tabla, en **otra** fila. Para traerla, unes la tabla consigo misma: eso es un **self join**.
+Muchas tablas se apuntan a sí mismas: una categoría cuelga de otra categoría, un empleado reporta a otro empleado, un movimiento de dinero anula a otro movimiento. En todos esos casos la información que necesitas está en la **misma** tabla, pero en **otra** fila. Para traerla se une la tabla consigo misma, y esa operación se llama **self join** (en inglés, «unión de una tabla con ella misma»).
 
 No hay sintaxis nueva. Es el mismo INNER JOIN o LEFT JOIN de las secciones 17 y 18; lo único que cambia es que ambos lados son la misma tabla.
 
 ## Los alias dejan de ser opcionales
 
-En un join entre dos tablas distintas, los alias son comodidad. En un self join son **obligatorios**: sin ellos PostgreSQL no puede distinguir de cuál de las dos copias hablas.
+Un **alias** es el nombre corto que le das a una tabla dentro de la consulta con `AS`. En un join entre dos tablas distintas, usarlo es una comodidad. En un self join es **obligatorio**, porque sin alias PostgreSQL no tiene forma de saber a cuál de las dos copias de la tabla te refieres en cada columna.
 
 ```sql
 -- Error: "table name categories specified more than once"
@@ -4163,20 +4266,20 @@ INNER JOIN categories AS padre
   ON padre.id = hija.parent_id;
 ```
 
-Piensa que el motor trabaja con dos copias independientes de la tabla: una llamada `hija` y otra llamada `padre`. Elegir alias con significado (`hija`/`padre`, `emp`/`jefe`, `rev`/`orig`) vale más que cualquier comentario.
+Piensa que el motor trabaja con dos copias independientes de la misma tabla: una se llama `hija` y la otra `padre`, y cada una se filtra y se lee por separado. Elegir alias con significado —`hija` y `padre`, `emp` y `jefe`, `rev` y `orig`— hace que la consulta se entienda sin necesidad de comentarios.
 
 ## Leer la condición en un solo sentido
 
-La clave del self join es escribir el `ON` en el sentido correcto. En **TiendaViva**, `categories.parent_id` apunta al `id` de la categoría padre:
+La clave del self join es escribir la condición del `ON` en el sentido correcto. En **TiendaViva**, `parent_id` es una columna de la tabla `categories` que apunta a la columna `id` de esa misma tabla. En términos de negocio significa «esta categoría cuelga de esta otra»: por ejemplo, la subcategoría «Celulares» guarda en `parent_id` el `id` de «Tecnología».
 
 - `ON padre.id = hija.parent_id` → cada fila del resultado es **una subcategoría con su padre**.
 - `ON hija.parent_id = padre.id` → exactamente lo mismo escrito al revés.
 
-Lo que sí cambia el resultado es confundir las columnas: `ON padre.parent_id = hija.id` invierte la jerarquía y te devuelve los padres como si fueran hijos. No da error; da un reporte equivocado. Verifica siempre con dos o tres filas conocidas.
+Lo que sí cambia el resultado es confundir las columnas. `ON padre.parent_id = hija.id` invierte la jerarquía y devuelve las categorías padre en el lugar de las hijas. La consulta no falla y el resultado tiene la forma esperada, así que lo único que notas es un reporte equivocado. Verifica siempre el sentido del `ON` con dos o tres filas cuya jerarquía ya conozcas.
 
 ## Filas sin pareja: LEFT JOIN sobre sí misma
 
-Las categorías raíz tienen `parent_id` en NULL: no tienen padre. Un INNER JOIN las descarta (24 filas de 30). Si el reporte debe mostrar el árbol completo, usa LEFT JOIN, igual que con dos tablas distintas:
+Las categorías raíz, las que están en el nivel más alto del árbol, tienen `parent_id` en NULL porque no cuelgan de ninguna otra. Un INNER JOIN las descarta y deja 24 filas de las 30, sin ningún aviso de que faltan seis. Si el reporte tiene que mostrar el árbol completo, usa LEFT JOIN, igual que harías con dos tablas distintas:
 
 ```sql
 SELECT
@@ -4197,7 +4300,7 @@ LEFT JOIN categories AS padre ON padre.id = c.parent_id
 WHERE padre.id IS NULL;
 ```
 
-En este caso concreto `WHERE c.parent_id IS NULL` responde lo mismo y es más directo; el LEFT JOIN se gana su lugar cuando además necesitas columnas del padre en la misma consulta.
+En este caso concreto, `WHERE c.parent_id IS NULL` responde lo mismo y es más directo, porque la información de «no tiene padre» ya está en la propia fila. El LEFT JOIN se justifica cuando además necesitas mostrar columnas de la categoría padre en la misma consulta.
 
 ## Dos niveles, dos joins
 
@@ -4213,7 +4316,7 @@ INNER JOIN categories AS hija ON hija.id = p.category_id
 INNER JOIN categories AS raiz ON raiz.id = hija.parent_id;
 ```
 
-Cada nivel del árbol es un JOIN más. Para jerarquías de profundidad desconocida (organigramas, árboles de comentarios) esto no alcanza: se resuelve con CTE recursivas, tema del nivel avanzado.
+Cada nivel del árbol agrega un JOIN. Ese método funciona mientras sepas de antemano cuántos niveles hay. Para jerarquías de profundidad desconocida, como un organigrama o un árbol de comentarios, no alcanza, porque no puedes escribir un número fijo de joins: esos casos se resuelven con CTE recursivas (CTE, por *common table expression*, el bloque `WITH` que nombra un paso intermedio y que en su forma recursiva puede llamarse a sí mismo), tema del nivel avanzado.
 
 ## Errores comunes
 
@@ -4223,14 +4326,14 @@ Cada nivel del árbol es un JOIN más. Para jerarquías de profundidad desconoci
 
 ## Resumen
 
-Un self join une una tabla consigo misma con dos alias distintos. El `ON` conecta la clave foránea de una copia con la clave primaria de la otra. LEFT JOIN conserva las filas que no tienen pareja (las raíces del árbol).
+Un self join une una tabla consigo misma usando dos alias distintos. La condición del `ON` conecta la clave foránea (FK, por *foreign key*) de una copia con la clave primaria (PK, por *primary key*) de la otra, es decir, la columna que apunta con la columna que identifica. Un LEFT JOIN conserva además las filas que no encontraron pareja, que en este caso son las categorías raíz del árbol.
 $c1913$, null, (select id from public.datasets where slug = $c1914$tiendaviva$c1914$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1915$self-join$c1915$), $c1916$self-join-emparejar-filas$c1916$, $c1917$theory$c1917$, $c1918$Emparejar una fila con su fila relacionada$c1918$, 1, 10, $c1919$## No todo self join es una jerarquía
 
-En **Bolsillo**, cuando un pago se devuelve, el sistema no borra nada: deja el pago original con `status = 'reversed'` y crea un movimiento nuevo con `kind = 'reversal'` cuyo `reversal_of` apunta al `id` del pago original. Las dos filas viven en `transactions`.
+En **Bolsillo**, cuando un pago se devuelve, el sistema no borra nada. Deja el pago original con `status = 'reversed'` y crea un movimiento nuevo con `kind = 'reversal'`. Ese movimiento nuevo guarda en la columna `reversal_of` el `id` del pago original, es decir, deja escrito a qué pago corresponde la devolución. Las dos filas, el pago y su reverso, viven en la misma tabla `transactions`.
 
 Para un reporte de operaciones («¿cuánto tardamos en devolver el dinero?») necesitas las dos filas **en la misma fila del resultado**. Ese emparejamiento es un self join.
 
@@ -4245,7 +4348,7 @@ INNER JOIN transactions AS orig
   ON orig.id = rev.reversal_of;
 ```
 
-`rev` son los 297 reversos (las demás filas tienen `reversal_of` en NULL y la igualdad nunca se cumple, así que quedan fuera sin necesidad de filtrarlas). `orig` son los pagos que devolvieron.
+El alias `rev` representa a los 297 reversos. Las demás filas de `transactions` tienen `reversal_of` en NULL, y una comparación con NULL nunca da verdadero, así que quedan fuera del resultado sin que haga falta filtrarlas. El alias `orig` representa a los pagos originales que fueron devueltos.
 
 ## De dónde parte la consulta
 
@@ -4273,7 +4376,7 @@ WHERE orig.kind = 'card_payment'     -- el original fue con tarjeta
   AND rev.status = 'completed';      -- la devolución se acreditó
 ```
 
-`orig.kind` y `rev.status` hablan de filas distintas de la misma tabla. Sin alias, esta consulta sería imposible de escribir.
+`orig.kind` describe el medio de pago del movimiento original y `rev.status` describe el estado de la devolución: son dos filas distintas de la misma tabla, y cada una tiene su propia condición. Sin alias no habría forma de escribir esta consulta, porque las dos columnas se llamarían igual.
 
 ## Calcular entre las dos filas
 
@@ -4289,7 +4392,7 @@ GROUP BY horas
 ORDER BY horas;
 ```
 
-Restar dos `timestamptz` da un `interval`; `extract(epoch ...)` lo convierte a segundos y dividir entre 3600 lo lleva a horas.
+Restar dos valores `timestamptz` devuelve un `interval`, que es una duración y no un número. `extract(epoch FROM ...)` convierte esa duración a segundos, y dividir entre 3600 la expresa en horas, que es la unidad en la que se mide la demora de una devolución.
 
 ## Combinar con otras tablas
 
@@ -4304,22 +4407,22 @@ GROUP BY m.id, m.name
 ORDER BY reversos DESC;
 ```
 
-Nota que el comercio se toma de `orig`: es el pago original el que identifica dónde ocurrió la operación.
+Fíjate en que el comercio se toma de `orig` y no de `rev`. La columna `merchant_id` del reverso puede estar vacía, y en todo caso es el pago original el que dice en qué comercio ocurrió la compra que después se devolvió.
 
 ## Cuidado con las monedas
 
-Bolsillo tiene cuentas en varias monedas. `count(*)` es seguro; `sum(amount)` mezclando ARS, MXN y USD no significa nada. Si necesitas importes, filtra una moneda o convierte con `fx_rates`.
+Bolsillo tiene cuentas en varias monedas, y cada movimiento está expresado en la moneda de su cuenta. Contar con `count(*)` es seguro, porque una operación es una operación en cualquier moneda. En cambio, `sum(amount)` sobre movimientos en ARS (pesos argentinos), MXN (pesos mexicanos) y USD (dólares) devuelve un número que no corresponde a ninguna cantidad de dinero real. Si necesitas importes, filtra una sola moneda o conviértelos con la tabla `fx_rates` (por *foreign exchange rates*, tipos de cambio).
 
 ## Resumen
 
-El self join también sirve para poner dos filas relacionadas de la misma tabla una al lado de la otra. Cada alias se filtra y se calcula por separado, y el resultado se combina con otras tablas como cualquier join.
+El self join también sirve para poner dos filas relacionadas de la misma tabla una al lado de la otra, aunque entre ellas no haya ninguna jerarquía. Cada alias se filtra y se calcula por separado, y el resultado se puede combinar con otras tablas igual que cualquier otro join.
 $c1919$, null, (select id from public.datasets where slug = $c1920$bolsillo$c1920$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1921$self-join$c1921$), $c1922$self-join-comparar-filas$c1922$, $c1923$theory$c1923$, $c1924$Comparar filas entre sí y evitar pares duplicados$c1924$, 2, 10, $c1925$## Comparar cada fila con las demás
 
-El tercer uso del self join no sigue ninguna clave foránea: compara filas de la misma tabla entre sí. «Productos del mismo vendedor en la misma categoría con precios casi iguales» (posibles publicaciones duplicadas) es una pregunta de este tipo.
+El tercer uso del self join no sigue ninguna clave foránea (FK, por *foreign key*, la columna que apunta a otra fila). Lo que hace es comparar filas de la misma tabla entre sí para encontrar parejas que cumplen una condición. «Productos del mismo vendedor, en la misma categoría y con precios casi iguales», que son posibles publicaciones duplicadas, es una pregunta de este tipo.
 
 La condición de unión ya no es `clave = clave`, sino los atributos que definen «parecido»:
 
@@ -4335,11 +4438,11 @@ Esta consulta tiene dos problemas graves, y los dos son clásicos.
 
 ## Problema 1: cada fila se une consigo misma
 
-Nada impide que `a` y `b` sean la **misma** fila: el producto 456 tiene el mismo vendedor y la misma categoría que el producto 456. El resultado se llena de pares inútiles.
+Nada impide que `a` y `b` sean la **misma** fila, porque el producto 456 tiene, por supuesto, el mismo vendedor y la misma categoría que el producto 456. El resultado se llena de pares de un producto consigo mismo, que no son hallazgos y además suman a cualquier conteo.
 
 ## Problema 2: pares espejados
 
-Si los productos 456 y 684 cumplen la condición, aparecen **dos** veces: una como (456, 684) y otra como (684, 456). Son el mismo hallazgo contado dos veces; si luego cuentas o sumas, todos los números quedan al doble.
+Si los productos 456 y 684 cumplen la condición, la pareja aparece **dos** veces: una como (456, 684) y otra como (684, 456). Las dos filas describen el mismo hallazgo, así que cualquier conteo o suma que hagas después queda al doble del valor real.
 
 ## La solución: una desigualdad en el ON
 
@@ -4360,15 +4463,15 @@ INNER JOIN products AS b
 - `b.id > a.id` es falso cuando `a` y `b` son la misma fila: desaparece el auto-emparejamiento.
 - De cada par espejado sobrevive solo la versión en la que el segundo `id` es mayor.
 
-`b.id <> a.id` **no** alcanza: elimina el auto-emparejamiento pero deja los espejos. Usa siempre la desigualdad estricta `<` o `>` cuando el par no tenga orden propio; `<>` es correcto cuando sí lo tiene (por ejemplo, «pagos de A antes que B», donde la dirección importa).
+Escribir `b.id <> a.id` **no** alcanza: elimina el emparejamiento de una fila consigo misma, pero deja pasar las dos versiones espejadas de cada pareja. Usa la desigualdad estricta `<` o `>` siempre que la pareja no tenga un orden propio. `<>` sí es correcto cuando la pareja tiene dirección y las dos versiones significan cosas distintas, por ejemplo al buscar «pagos de A anteriores a un pago de B».
 
 ## Cuenta las filas antes de confiar
 
-Un self join sin condición suficiente crece de forma cuadrática: 1500 productos sin `ON` útil son 2 250 000 filas. Antes de agregar columnas al `SELECT`, ejecuta `count(*)` y pregúntate si el número tiene sentido; si se parece al cuadrado del tamaño de la tabla, falta una condición.
+Un self join con una condición demasiado floja crece de forma cuadrática, es decir, cada fila se combina con todas las demás: 1500 productos sin un `ON` que los restrinja producen 2 250 000 filas, que es 1500 por 1500. Antes de agregar columnas al `SELECT`, ejecuta `count(*)` y comprueba si el número es razonable. Si se parece al cuadrado de la cantidad de filas de la tabla, falta una condición en el `ON`.
 
 ## Cuándo una función de ventana es mejor
 
-Comparar una fila con la **anterior** de su grupo (el pago previo del mismo usuario, el saldo del mes pasado) se puede hacer con self join y una subconsulta de máximos, pero es engorroso y lento. Para eso están `LAG`, `LEAD` y `ROW_NUMBER` (sección 27): una sola pasada, sin duplicar filas.
+Comparar una fila con la **anterior** de su grupo —el pago previo del mismo usuario, el saldo del mes pasado— se puede resolver con un self join más una subconsulta que busque el máximo anterior, pero esa consulta es larga de escribir y lenta de ejecutar. Para eso existen las funciones de ventana `LAG`, `LEAD` y `ROW_NUMBER` (sección 27), que recorren los datos una sola vez y no duplican filas.
 
 Guía rápida:
 
@@ -4383,18 +4486,18 @@ Guía rápida:
 
 - Olvidar la desigualdad y duplicar cada par (y cada total).
 - Usar `<>` cuando el par no tiene dirección: los espejos sobreviven.
-- Comparar precios con `=` en columnas `numeric` esperando encontrar «casi iguales»: usa `abs(a.list_price - b.list_price) <= 0.05 * least(a.list_price, b.list_price)`.
+- Comparar precios con `=` esperando encontrar publicaciones «casi iguales». La igualdad exacta deja fuera dos precios que difieren en un centavo. Para una tolerancia del 5 %, escribe `abs(a.list_price - b.list_price) <= 0.05 * least(a.list_price, b.list_price)`.
 
 ## Resumen
 
-Para comparar filas de una tabla entre sí, une la tabla consigo misma por los atributos que definen «parecido» y agrega una desigualdad de ids. Sin ella obtienes auto-emparejamientos y pares espejados que inflan cualquier conteo.
+Para comparar filas de una tabla entre sí, une la tabla consigo misma por los atributos que definen qué significa «parecido» y agrega una desigualdad entre los identificadores, como `b.id > a.id`. Sin esa desigualdad, el resultado incluye cada fila emparejada consigo misma y cada pareja repetida en los dos sentidos, y ambas cosas inflan cualquier conteo.
 $c1925$, null, (select id from public.datasets where slug = $c1926$tiendaviva$c1926$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1927$joins-multiples-tablas$c1927$), $c1928$planificar-el-camino-de-joins$c1928$, $c1929$theory$c1929$, $c1930$Planificar el camino entre tablas$c1930$, 0, 11, $c1931$## Por qué importa
 
-Ya sabes unir dos tablas. Las preguntas reales piden tres, cuatro o cinco: «unidades vendidas por tienda y categoría», «bebidas pedidas por ciudad». Ninguna tabla tiene esas columnas juntas; hay que recorrer un **camino** por el modelo de datos.
+Ya sabes unir dos tablas. Las preguntas reales suelen necesitar tres, cuatro o cinco: «unidades vendidas por tienda y categoría», «bebidas pedidas por ciudad». Ninguna tabla guarda todas esas columnas juntas, así que hay que recorrer un **camino**: una secuencia de tablas conectadas entre sí por sus claves, desde la que tiene el dato que ya conoces hasta la que tiene el dato que te falta.
 
 ## Dibuja el camino antes de escribir
 
@@ -4402,17 +4505,23 @@ En TiendaViva, para llegar del vendedor a la línea de pedido el camino es:
 
 `sellers → products → order_items → orders`
 
-Cada flecha es una clave foránea existente: `products.seller_id`, `order_items.product_id`, `order_items.order_id`. Escribe el camino en una línea antes de tocar el teclado; cada flecha se convierte en un `INNER JOIN ... ON`.
+Cada flecha es una clave foránea (FK, por *foreign key*) que ya existe en el modelo:
 
-Si no encuentras una flecha entre dos tablas, no puedes unirlas directamente: falta una tabla intermedia. `sellers` y `orders` no se tocan; se comunican a través de `products` y `order_items`.
+- `products.seller_id` es la columna `seller_id` de la tabla `products` y apunta a la columna `id` de la tabla `sellers`: dice qué vendedor publicó ese producto.
+- `order_items.product_id` es la columna `product_id` de la tabla `order_items` y apunta a la columna `id` de la tabla `products`: dice qué producto se vendió en esa línea del pedido.
+- `order_items.order_id` es la columna `order_id` de la tabla `order_items` y apunta a la columna `id` de la tabla `orders`: dice a qué pedido pertenece esa línea.
+
+Escribe el camino completo en una línea antes de tocar el teclado; después, cada flecha se convierte en un `INNER JOIN ... ON`.
+
+Si no encuentras una flecha entre dos tablas, no puedes unirlas directamente porque falta una tabla intermedia. `sellers` y `orders` no comparten ninguna columna que las relacione: se comunican a través de `products` y `order_items`.
 
 ## La tabla conductora
 
-La **tabla conductora** es la que escribes en el `FROM`. Marca el nivel de detalle de la lectura: «parto de las líneas de pedido y les agrego información» se lee distinto que «parto de los vendedores y busco sus ventas», aunque el resultado sea el mismo.
+La **tabla conductora** es la que escribes en el `FROM`, la primera de la cadena. No cambia el resultado, pero sí cambia cómo se lee la consulta: «parto de las líneas de pedido y les voy agregando información» se entiende distinto que «parto de los vendedores y busco sus ventas», aunque las dos versiones devuelvan exactamente las mismas filas.
 
 Dos criterios prácticos:
 
-1. Empieza por la tabla que define el **grano** del resultado (una fila por línea de pedido, por pedido, por cliente).
+1. Empieza por la tabla que define el **grano** del resultado, es decir, qué representa cada fila de la salida: una línea de pedido, un pedido completo o un cliente.
 2. O empieza por la tabla que llevará el filtro más restrictivo; se lee mejor tener el `WHERE` cerca de la tabla que filtra.
 
 ```sql
@@ -4441,7 +4550,7 @@ INNER JOIN orders      AS o  ON o.id = oi.order_id
 
 ## El orden no cambia el resultado (con INNER)
 
-Con solo `INNER JOIN`, reordenar los joins **no** cambia el conjunto de filas: la unión interna es conmutativa y asociativa. El planificador de PostgreSQL además elige su propio orden de ejecución sin importar cómo lo escribiste.
+Cuando todas las uniones son `INNER JOIN`, reordenarlas **no** cambia el conjunto de filas que sale. La unión interna es conmutativa y asociativa: da lo mismo cuál tabla pongas primero y cómo agrupes las uniones entre sí. Además, el planificador de PostgreSQL —el componente que decide cómo ejecutar la consulta— elige su propio orden de ejecución sin importar el orden en que la escribiste.
 
 Lo que sí cambia es la legibilidad. Una regla que funciona: **cada tabla nueva se une a algo que ya está arriba**. Si el `ON` de la cuarta tabla menciona una tabla que aparece dos líneas más abajo, reordena.
 
@@ -4456,13 +4565,13 @@ Un `ON` no está obligado a usar claves primarias. Es válido —y a veces neces
 INNER JOIN orders AS o ON o.currency = p.currency
 ```
 
-Cuidado: si ninguno de los dos lados es único, esa unión **multiplica filas** sin avisar. Antes de unir por una columna que no es clave, pregúntate si es única en al menos un lado.
+Cuidado con esto: si el valor de esa columna se repite en las dos tablas, la unión combina cada fila de un lado con cada fila del otro y devuelve muchas más filas de las que corresponde, sin ningún mensaje de error. Antes de unir por una columna que no es clave, verifica que sus valores no se repitan al menos en una de las dos tablas.
 
 También puedes unir por más de una columna (`ON a.city = b.city AND a.day = b.day`) o agregar condiciones fijas al `ON` (`AND pay.status = 'approved'`).
 
 ## Alias y formato
 
-Con cuatro tablas, los alias dejan de ser comodidad y pasan a ser necesidad: `id`, `name` y `created_at` existen en casi todas. Usa alias cortos y estables (`o`, `oi`, `p`, `s`), alinea los `ON` y pon una tabla por línea. Tu yo de la semana próxima lo agradecerá.
+Con cuatro tablas los alias dejan de ser una comodidad y pasan a ser necesarios. Un **alias** es un nombre corto que le das a una tabla dentro de la consulta (`orders AS o`) para después referirte a sus columnas como `o.id`. Hace falta porque columnas como `id`, `name` y `created_at` existen en casi todas las tablas y, sin alias, el motor no sabe a cuál te refieres. Usa alias cortos y estables (`o`, `oi`, `p`, `s`), alinea los `ON` y escribe una tabla por línea: la consulta queda legible para quien la revise, incluido tú dentro de un mes.
 
 ## Resumen
 
@@ -4475,7 +4584,7 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1933$joins-multiples-tablas$c1933$), $c1934$mezclar-inner-y-left$c1934$, $c1935$theory$c1935$, $c1936$Mezclar INNER y LEFT en una misma consulta$c1936$, 1, 10, $c1937$## Una cadena con dos tipos de unión
 
-Casi todo reporte real mezcla los dos: hay tablas **obligatorias** (el pedido tiene cliente, el producto tiene vendedor) y tablas **opcionales** (la devolución, la reseña, la calificación).
+Casi todo reporte real mezcla los dos tipos de unión que ya conoces. Hay tablas **obligatorias**, sin las cuales la fila no tiene sentido (un pedido siempre tiene cliente, un producto siempre tiene vendedor), y tablas **opcionales**, que aportan un dato que puede no existir (la devolución, la reseña, la calificación). Para las primeras se usa `INNER JOIN`, que descarta la fila si no encuentra pareja; para las segundas, `LEFT JOIN`, que conserva la fila y deja en NULL las columnas de la tabla que faltó.
 
 ```sql
 SELECT o.id AS order_id, c.full_name, sh.carrier, sh.delivered_at, r.refund_amount
@@ -4491,16 +4600,16 @@ Regla de lectura: **INNER cuando la fila no tiene sentido sin la otra tabla; LEF
 
 ## Aquí el orden sí importa
 
-Con un LEFT JOIN, la consulta se evalúa por pasos: el resultado acumulado hasta ese punto es «la izquierda». Por eso:
+Con un `LEFT JOIN`, la consulta se evalúa por pasos, y «la izquierda» no es la tabla del `FROM` sino el resultado acumulado hasta ese punto de la cadena. De ahí salen dos consecuencias:
 
 - Un `INNER JOIN` escrito **después** de un LEFT JOIN, si su `ON` apunta a la tabla opcional, elimina las filas sin pareja: el LEFT queda anulado.
-- Un `LEFT JOIN` cuyo `ON` apunta a una tabla que llegó por otro LEFT encadena opcionalidad; revisa qué pasa cuando la primera falta.
+- Un `LEFT JOIN` cuyo `ON` apunta a una tabla que ya había llegado por otro `LEFT JOIN` encadena dos opcionalidades: cuando falta la primera tabla, la segunda tampoco encuentra pareja. Revisa qué valores quedan en esas filas antes de darlas por buenas.
 
 Ubica los LEFT JOIN al final de la cadena siempre que puedas: primero el esqueleto obligatorio, después los agregados opcionales.
 
 ## La trampa del WHERE, ahora en cadena
 
-Ya la viste con dos tablas: una condición sobre la tabla derecha en el `WHERE` convierte el LEFT en INNER, porque `NULL = 'algo'` nunca es verdadero.
+Ya la viste con dos tablas: si escribes en el `WHERE` una condición sobre la tabla derecha, la opcional, el `LEFT JOIN` pasa a comportarse como un `INNER JOIN` y pierdes las filas que no tenían pareja. Ocurre porque en esas filas las columnas de la tabla derecha valen NULL, y una comparación como `NULL = 'algo'` nunca da verdadero.
 
 ```sql
 -- MAL: quedan solo los 8 pedidos que sí tienen devolución
@@ -4519,7 +4628,7 @@ En una consulta de cinco tablas esto es más difícil de ver, porque el `WHERE` 
 
 En un INNER JOIN, poner `pay.status = 'approved'` en el `ON` o en el `WHERE` produce el mismo resultado. Muchos equipos prefieren el `ON` para las condiciones que definen **qué fila se une** y el `WHERE` para las que filtran el reporte. Es una convención de legibilidad, no una regla del motor.
 
-Esa simetría existe **solo** con INNER. En un LEFT JOIN, `ON` y `WHERE` significan cosas distintas.
+Esa equivalencia existe **solo** con `INNER JOIN`. En un `LEFT JOIN`, poner la misma condición en el `ON` o en el `WHERE` devuelve resultados distintos, como acabas de ver.
 
 ## Verificar
 
@@ -4528,7 +4637,7 @@ Después de escribir la cadena, cuenta filas:
 - Si esperabas una fila por pedido y tienes más, algo se multiplicó (lección siguiente).
 - Si tienes menos que la tabla conductora filtrada, un LEFT se convirtió en INNER o un INNER descartó filas sin pareja.
 
-Comparar `count(*)` contra el conteo de la tabla conductora es la verificación más barata que existe.
+Comparar el `count(*)` del resultado contra la cantidad de filas de la tabla conductora ya filtrada es la verificación más rápida que puedes hacer, y detecta la mayoría de los errores de una cadena de joins.
 
 ## Resumen
 
@@ -4541,13 +4650,13 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1939$joins-multiples-tablas$c1939$), $c1940$duplicacion-de-filas-en-cadenas$c1940$, $c1941$theory$c1941$, $c1942$Cuando la cadena duplica filas$c1942$, 2, 11, $c1943$## El error más caro del análisis
 
-Una consulta que suma de más no falla: devuelve un número creíble y equivocado. En TiendaViva, los pedidos entregados de clientes de Chile en agosto de 2025 suman **21 513 788 CLP**. Si unes esos mismos pedidos con `order_items` y sumas `o.total_amount`, el resultado es **47 823 913 CLP**: más del doble, porque los 80 pedidos se convirtieron en 134 líneas y cada total se contó una vez por línea.
+Una consulta que suma de más no da error: se ejecuta sin problemas y devuelve un número creíble pero equivocado, que nadie detecta hasta que alguien audita el reporte. En TiendaViva, los pedidos entregados de clientes de Chile en agosto de 2025 suman **21 513 788 CLP**. Si unes esos mismos pedidos con `order_items` y sumas `o.total_amount`, el resultado es **47 823 913 CLP**: más del doble, porque los 80 pedidos se convirtieron en 134 líneas y cada total se contó una vez por línea.
 
 ## Por qué pasa
 
-Un JOIN uno-a-muchos **repite** las filas del lado «uno». Un pedido con tres ítems aparece tres veces, con su `total_amount` intacto en cada copia. Sumar esa columna cuenta el mismo importe tres veces.
+En una relación uno a muchos —un pedido tiene muchas líneas, pero cada línea pertenece a un solo pedido— la tabla `orders` es el lado «uno» y `order_items` el lado «muchos». Al unirlas, el JOIN **repite** cada fila del lado «uno» una vez por cada fila que le corresponde del lado «muchos». Un pedido con tres ítems aparece tres veces, y en cada copia `total_amount` —la columna `total_amount` de la tabla `orders`, el importe total del pedido— sigue teniendo el mismo valor. Sumar esa columna cuenta el mismo importe tres veces.
 
-Regla: **una columna del lado «uno» no se puede agregar después de unirla con el lado «muchos»**.
+Regla: **una columna del lado «uno» no se puede sumar ni promediar después de haberla unido con el lado «muchos»**, porque sus valores quedaron repetidos.
 
 ## Dos veces uno-a-muchos: multiplicación
 
@@ -4559,7 +4668,7 @@ INNER JOIN order_items AS oi ON oi.order_id = o.id   -- 3 ítems
 INNER JOIN payments    AS pay ON pay.order_id = o.id  -- 2 intentos de pago
 ```
 
-El resultado no es 3 + 2 = 5 filas, es 3 × 2 = **6**. Cada ítem se combina con cada pago. En este dataset hay 2502 pedidos con más de un intento de pago, así que la trampa está activa.
+El resultado no es 3 + 2 = 5 filas, es 3 × 2 = **6**: cada ítem se combina con cada pago. En este dataset hay 2502 pedidos con más de un intento de pago, así que esta trampa no es teórica; se dispara en cuanto unes las dos tablas.
 
 ## Cómo evitarla
 
@@ -4608,11 +4717,13 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1945$subconsultas$c1945$), $c1946$subconsultas-escalares-y-derivadas$c1946$, $c1947$theory$c1947$, $c1948$Subconsultas escalares y tablas derivadas$c1948$, 0, 12, $c1949$## Empieza el nivel avanzado
 
-Hasta acá cada consulta respondía la pregunta en una sola pasada: filtrar, unir, agrupar, ordenar. Desde esta sección el trabajo cambia: vas a **componer** consultas, es decir, usar el resultado de una consulta dentro de otra.
+Hasta acá cada consulta respondía su pregunta en una sola pasada: filtrar, unir, agrupar, ordenar. Desde esta sección el trabajo cambia: vas a **componer** consultas, es decir, a usar el resultado de una consulta dentro de otra. A esa consulta interna se la llama **subconsulta**.
 
-Lo que sube de dificultad no es la sintaxis, es el diseño. Antes de escribir tendrás que responderte dos preguntas: *¿qué dato intermedio necesito?* y *¿en qué parte de la consulta principal entra ese dato?*. Espera menos «una función nueva» y más «armar la consulta en capas». También conviene ejecutar la subconsulta sola primero: si esa pieza está bien, el resto se apoya en terreno firme.
+Lo que sube de dificultad no es la sintaxis, es el diseño. Antes de escribir nada tendrás que responderte dos preguntas: *¿qué dato intermedio necesito?* y *¿en qué parte de la consulta principal entra ese dato?*. Espera menos «una función nueva que memorizar» y más «armar la consulta por capas».
 
-Trabajas con **TiendaViva**, el marketplace: `orders`, `order_items`, `products`, `customers`, `sellers`, `categories`.
+Un hábito que ahorra mucho tiempo: ejecuta primero la subconsulta sola y revisa su resultado. Si esa pieza devuelve lo que esperabas, el resto se apoya en terreno firme y cualquier error posterior está en la capa de afuera.
+
+Trabajas con **TiendaViva**, el marketplace, y sus tablas `orders`, `order_items`, `products`, `customers`, `sellers` y `categories`.
 
 ## Tres lugares donde vive una subconsulta
 
@@ -4624,7 +4735,7 @@ Trabajas con **TiendaViva**, el marketplace: `orders`, `order_items`, `products`
 
 ## Subconsulta escalar
 
-Una subconsulta **escalar** devuelve exactamente un valor y se usa donde iría una constante:
+Una subconsulta **escalar** es la que devuelve exactamente una fila con una sola columna, es decir, un único valor. Se puede escribir en cualquier lugar donde iría una constante:
 
 ```sql
 SELECT
@@ -4638,14 +4749,16 @@ WHERE currency = 'UYU' AND status = 'delivered'
 LIMIT 10;
 ```
 
-Cada fila muestra su importe y el ticket promedio del conjunto (14 377.35 UYU). Dos reglas:
+Cada fila del resultado muestra el importe de su pedido y, al lado, el ticket promedio de todo el conjunto (14 377,35 UYU), que es el mismo valor en todas las filas y sirve como referencia para comparar.
 
-- Si la subconsulta devuelve **más de una fila**, Postgres falla con `more than one row returned by a subquery used as an expression`.
-- Si devuelve **cero filas**, el resultado es `NULL`: no hay error, y muchas veces ahí está el problema.
+Dos reglas de esta forma:
+
+- Si la subconsulta devuelve **más de una fila**, la consulta falla con el mensaje `more than one row returned by a subquery used as an expression`. Es un error visible y fácil de corregir.
+- Si devuelve **cero filas**, el resultado es `NULL`. No hay error ni advertencia, y esa columna en NULL suele ser la primera señal de que el filtro de la subconsulta está mal escrito.
 
 ## Subconsulta escalar en WHERE
 
-No puedes escribir `WHERE total_amount > avg(total_amount)`: una agregación no se evalúa en `WHERE`. La subconsulta resuelve el problema porque se calcula por separado:
+No puedes escribir `WHERE total_amount > avg(total_amount)`, porque una función de agregación no se puede evaluar dentro de `WHERE`: el filtro se aplica fila por fila, antes de que exista el promedio. La subconsulta resuelve el problema porque se calcula por separado y entrega un valor ya listo:
 
 ```sql
 SELECT id, created_at, total_amount
@@ -4657,11 +4770,13 @@ WHERE currency = 'UYU'
                       WHERE currency = 'UYU' AND status = 'delivered');
 ```
 
-Devuelve 173 pedidos. Fíjate en el detalle importante: los filtros de la subconsulta definen **contra qué promedio** comparas. Si adentro no filtras por `status`, comparas contra el promedio de todos los pedidos, incluidos los cancelados. La misma pregunta de negocio con dos respuestas distintas: haz explícito cuál quieres.
+Devuelve 173 pedidos. Fíjate en un detalle que decide el resultado: los filtros que escribas **dentro** de la subconsulta definen contra qué promedio estás comparando. Si adentro no filtras por `status`, comparas cada pedido contra el promedio de todos los pedidos, incluidos los cancelados, y obtienes otra cantidad de filas.
+
+Las dos consultas son correctas y responden preguntas distintas. Decide cuál quieres y escríbelo de forma explícita, porque el resultado no te va a avisar cuál elegiste.
 
 ## Tabla derivada en FROM
 
-Cuando necesitas consultar sobre un resultado ya agregado, la subconsulta va en `FROM` y se comporta como una tabla temporal. Es la forma de aplicar un agregado sobre otro agregado, como el promedio de un conteo:
+Cuando necesitas consultar sobre un resultado que ya viene agregado, la subconsulta se escribe dentro del `FROM` y se comporta como una tabla temporal. A eso se le llama **tabla derivada**. Es la forma de aplicar una agregación sobre otra agregación, por ejemplo el promedio de un conteo:
 
 ```sql
 SELECT
@@ -4678,28 +4793,28 @@ INNER JOIN customers AS c ON c.id = p.customer_id
 GROUP BY c.country;
 ```
 
-`avg(count(*))` no existe en SQL: primero cuentas pedidos por cliente (subconsulta) y después promedias esos conteos por país (consulta externa). Chile encabeza con 5.51 pedidos entregados por cliente.
+En SQL no existe `avg(count(*))`: no puedes anidar una agregación dentro de otra en el mismo nivel. Por eso el cálculo va en dos capas: la subconsulta cuenta los pedidos de cada cliente y deja una fila por cliente, y la consulta externa promedia esos conteos dentro de cada país. En este dataset, Chile encabeza con 5,51 pedidos entregados por cliente.
 
-Reglas de la tabla derivada: **necesita alias** (`AS p`), sus columnas calculadas **necesitan nombre** (`AS pedidos`) y desde afuera solo ves lo que la subconsulta expone en su `SELECT`.
+La tabla derivada tiene tres reglas propias: **necesita un alias** (`AS p`), sus columnas calculadas **necesitan un nombre** (`AS pedidos`) para poder usarlas desde afuera, y desde la consulta externa solo ves las columnas que la subconsulta expone en su `SELECT`.
 
 ## Errores comunes
 
-- Usar una subconsulta que devuelve varias filas donde se espera un escalar.
-- Olvidar el alias de la tabla derivada (`subquery in FROM must have an alias`).
-- Filtrar distinto adentro y afuera sin querer: el resultado se ve razonable pero responde otra pregunta.
+- Usar en un lugar donde se espera un valor único una subconsulta que devuelve varias filas.
+- Olvidar el alias de la tabla derivada, lo que produce el error `subquery in FROM must have an alias`.
+- Aplicar filtros distintos adentro y afuera sin darte cuenta: el resultado se ve razonable pero responde otra pregunta.
 
 ## Resumen
 
-1. Una subconsulta escalar devuelve un valor y se usa como si fuera una constante.
-2. En `FROM`, una subconsulta es una tabla derivada: necesita alias y nombres de columna.
-3. Los filtros de la subconsulta definen el universo de comparación; escríbelos a propósito.
+1. Una subconsulta escalar devuelve un solo valor y se usa como si fuera una constante.
+2. En `FROM`, una subconsulta es una tabla derivada: necesita alias y nombres para sus columnas calculadas.
+3. Los filtros de la subconsulta definen el universo contra el que comparas; escríbelos a propósito y déjalos documentados.
 $c1949$, null, (select id from public.datasets where slug = $c1950$tiendaviva$c1950$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1951$subconsultas$c1951$), $c1952$subconsultas-in-exists-y-null$c1952$, $c1953$theory$c1953$, $c1954$IN, NOT IN y EXISTS: la trampa de NULL$c1954$, 1, 12, $c1955$## Filtrar contra una lista
 
-Cuando la subconsulta devuelve **una columna con varias filas**, la usas como lista con `IN`:
+Cuando la subconsulta devuelve **una sola columna pero varias filas**, la usas como una lista de valores con el operador `IN`:
 
 ```sql
 SELECT a.id, a.currency, a.balance
@@ -4708,11 +4823,15 @@ WHERE a.status = 'active'
   AND a.id IN (SELECT t.to_account_id FROM transfers AS t WHERE t.status = 'completed');
 ```
 
-1774 cuentas activas recibieron al menos una transferencia completada. Ventaja sobre el join: `IN` **no multiplica filas**. Si una cuenta recibió 12 transferencias, aparece una sola vez; con `INNER JOIN` aparecería 12 veces y necesitarías `DISTINCT`.
+En **Bolsillo**, la billetera digital, esa consulta devuelve 1774 cuentas activas que recibieron al menos una transferencia completada.
+
+La ventaja frente a resolverlo con un join es que `IN` **no multiplica filas**. Si una cuenta recibió 12 transferencias, aparece una sola vez en el resultado; con `INNER JOIN` aparecería 12 veces y tendrías que agregar `DISTINCT` para corregirlo.
 
 ## NOT IN y la trampa de NULL
 
-Esta es la trampa que más consultas silenciosamente equivocadas produce. En **Bolsillo**, la columna `transactions.card_id` solo tiene valor en los pagos con tarjeta: en 20 613 de los 32 243 movimientos es `NULL`. Pregunta razonable: ¿qué tarjetas nunca se usaron?
+Esta es la trampa que produce más consultas equivocadas en silencio. En Bolsillo, la columna `card_id` de la tabla `transactions` indica con qué tarjeta se hizo el movimiento, y solo tiene valor en los pagos con tarjeta: en 20 613 de los 32 243 movimientos está en `NULL`.
+
+La pregunta de negocio es razonable: ¿qué tarjetas nunca se usaron?
 
 ```sql
 SELECT count(*)
@@ -4720,11 +4839,13 @@ FROM cards
 WHERE id NOT IN (SELECT card_id FROM transactions);
 ```
 
-Devuelve **0**. No porque todas las tarjetas se hayan usado, sino por la lógica de tres valores. `x NOT IN (a, b, NULL)` equivale a `NOT (x = a OR x = b OR x = NULL)`. La comparación con `NULL` es `UNKNOWN`, así que el paréntesis nunca llega a ser `FALSE`: como máximo es `UNKNOWN`, y `NOT UNKNOWN` sigue siendo `UNKNOWN`. Ninguna fila pasa el filtro.
+Devuelve **0**, y no porque todas las tarjetas se hayan usado. La causa es la lógica de tres valores que viste en la sección 8.
 
-Basta **un solo NULL** en la lista para que `NOT IN` devuelva el conjunto vacío. Y no hay error ni advertencia: la consulta «funciona».
+`x NOT IN (a, b, NULL)` equivale a `NOT (x = a OR x = b OR x = NULL)`. La comparación con `NULL` no da verdadero ni falso: da `UNKNOWN`. Por eso el paréntesis nunca llega a ser `FALSE`; como mucho queda en `UNKNOWN`, y `NOT UNKNOWN` sigue siendo `UNKNOWN`. Como `WHERE` solo deja pasar lo que es verdadero, ninguna fila pasa el filtro.
 
-Dos formas de arreglarlo:
+Basta **un solo NULL** en la lista para que `NOT IN` devuelva el conjunto vacío. Y no hay error ni advertencia: la consulta se ejecuta bien y el resultado es «ninguna tarjeta sin usar», que es una conclusión falsa.
+
+Hay dos formas de arreglarlo:
 
 ```sql
 -- 1) Excluir los NULL de la lista
@@ -4738,11 +4859,13 @@ FROM cards AS c
 WHERE NOT EXISTS (SELECT 1 FROM transactions AS t WHERE t.card_id = c.id);
 ```
 
-Ambas devuelven 1638 tarjetas sin uso. `IN` en su forma afirmativa no sufre el problema: con `NULL` en la lista puede dar `UNKNOWN` en vez de `FALSE`, pero las filas que sí coinciden siguen dando `TRUE`.
+Ambas devuelven la respuesta correcta: 1638 tarjetas sin uso.
+
+Conviene aclarar que `IN` en su forma afirmativa no sufre este problema. Si hay un `NULL` en la lista, la comparación contra ese valor da `UNKNOWN` en lugar de `FALSE`, pero las filas que sí coinciden con algún valor real siguen dando `TRUE` y pasan el filtro.
 
 ## EXISTS y NOT EXISTS
 
-`EXISTS` no compara valores: pregunta **si la subconsulta devuelve al menos una fila**. Por eso es inmune a los `NULL`, y por eso el `SELECT` interno da igual; la convención es `SELECT 1`.
+`EXISTS` no compara valores: pregunta únicamente **si la subconsulta devuelve al menos una fila**, y responde verdadero o falso. Como nunca compara nada con `NULL`, no puede caer en la trampa anterior. Por la misma razón da igual qué columnas pidas dentro; la convención es escribir `SELECT 1` para dejar claro que el contenido no importa.
 
 ```sql
 SELECT a.id, a.currency, a.balance
@@ -4755,7 +4878,7 @@ WHERE a.status = 'active'
                 AND t.status = 'completed');
 ```
 
-La subconsulta menciona `a.id`, una columna de la consulta externa: es una subconsulta **correlacionada** (la lección siguiente). El motor puede detenerse en la primera coincidencia, porque solo le importa si hay o no hay.
+La subconsulta menciona `a.id`, que es la columna `id` de la tabla `accounts` de la consulta externa: eso la convierte en una subconsulta **correlacionada**, el tema de la lección siguiente. El motor puede detenerse apenas encuentra la primera coincidencia, porque solo necesita saber si hay o no hay.
 
 ## Cuál usar
 
@@ -4767,28 +4890,28 @@ La subconsulta menciona `a.id`, una columna de la consulta externa: es una subco
 | Necesitas columnas de la otra tabla | `JOIN` |
 | La otra tabla puede duplicar filas | `EXISTS` o `IN` |
 
-Ninguna es «la correcta» siempre. El planificador de Postgres reescribe `IN` y `EXISTS` a la misma operación (*semi join*) en la mayoría de los casos, así que elige por claridad y por seguridad frente a `NULL`.
+Ninguna opción es la correcta en todos los casos. El planificador de PostgreSQL reescribe `IN` y `EXISTS` como la misma operación interna (llamada *semi join*) en la mayoría de las situaciones, así que el rendimiento rara vez decide: elige por claridad de lectura y por seguridad frente a los `NULL`.
 
 ## Errores comunes
 
-- `NOT IN` sobre una columna que admite `NULL`: cero filas sin explicación.
-- Seleccionar dos columnas dentro de un `IN` (`subquery has too many columns`).
-- Usar `JOIN` solo para filtrar y duplicar filas sin darte cuenta.
+- Usar `NOT IN` sobre una columna que admite `NULL`: la consulta devuelve cero filas y nada explica por qué.
+- Seleccionar dos columnas dentro de un `IN`, lo que produce el error `subquery has too many columns`.
+- Usar `JOIN` solo para filtrar y terminar con filas duplicadas que inflan los totales.
 
 ## Resumen
 
-1. `IN` filtra contra una lista sin multiplicar filas.
-2. `NOT IN` con un `NULL` en la lista devuelve cero filas, siempre.
-3. `NOT EXISTS` expresa «no tiene ninguno» sin sorpresas.
+1. `IN` filtra contra una lista de valores sin multiplicar filas.
+2. `NOT IN` con un solo `NULL` en la lista devuelve cero filas, siempre y sin avisar.
+3. `NOT EXISTS` expresa «no tiene ninguno» sin sorpresas, y es la forma recomendada para ese caso.
 $c1955$, null, (select id from public.datasets where slug = $c1956$bolsillo$c1956$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1957$subconsultas$c1957$), $c1958$subconsultas-correlacionadas$c1958$, $c1959$theory$c1959$, $c1960$Subconsultas correlacionadas o join: cuándo cada una$c1960$, 2, 11, $c1961$## Qué la hace correlacionada
 
-Una subconsulta es **correlacionada** cuando menciona una columna de la consulta externa. No puede ejecutarse sola: conceptualmente se evalúa una vez por cada fila externa.
+Una subconsulta es **correlacionada** cuando adentro menciona una columna de la consulta externa. Esa referencia hace que no pueda ejecutarse por separado: le falta un dato que solo existe en la consulta de afuera. Conceptualmente se evalúa una vez por cada fila externa, tomando el valor de esa fila.
 
-Riesgo quiere un diagnóstico de las cuentas congeladas de **Bolsillo**: cuántos movimientos completados tiene cada una y cuándo fue el último.
+El área de riesgo de **Bolsillo** pide un diagnóstico de las cuentas congeladas: para cada una, cuántos movimientos completados tiene y cuándo fue el último.
 
 ```sql
 SELECT
@@ -4805,7 +4928,7 @@ FROM accounts AS a
 WHERE a.status = 'frozen';
 ```
 
-126 cuentas, una fila por cuenta. Cada subconsulta se lee como una pregunta chica y completa: «para esta cuenta, ¿cuántos movimientos?».
+El resultado son 126 cuentas, una fila por cuenta. La condición `t.account_id = a.id` es la que correlaciona: dice que los movimientos contados son los de *esa* cuenta y no los de todas. Cada subconsulta se lee como una pregunta chica y completa: «para esta cuenta, ¿cuántos movimientos hubo?».
 
 ## La misma pregunta con un join
 
@@ -4823,44 +4946,51 @@ WHERE a.status = 'frozen'
 GROUP BY a.id, a.currency, a.balance;
 ```
 
-Resultado idéntico. Dos detalles que no son opcionales: el filtro `t.status = 'completed'` va en el `ON` (si va en el `WHERE`, el `LEFT JOIN` se comporta como `INNER` y pierdes las cuentas sin movimientos) y `count(t.id)` cuenta filas reales, mientras que `count(*)` contaría 1 en una cuenta sin movimientos.
+El resultado es idéntico. Dos detalles de esta versión no son opcionales:
 
-En este dataset todas las cuentas congeladas tienen historial, así que ambas versiones coinciden fila por fila. Con cuentas sin movimientos, la correlacionada devuelve `0` y `NULL`, y el `LEFT JOIN` con `count(t.id)` también: son equivalentes si las escribes con cuidado.
+- El filtro `t.status = 'completed'` va en la cláusula `ON`. Si lo pones en el `WHERE`, las cuentas sin ningún movimiento completado quedan con la columna en NULL, el `WHERE` las descarta y el `LEFT JOIN` termina comportándose como un `INNER JOIN`: pierdes justamente las cuentas que no tienen movimientos.
+- `count(t.id)` cuenta las filas que existen de verdad en la tabla de la derecha. `count(*)` devolvería 1 en una cuenta sin movimientos, porque el `LEFT JOIN` igual genera una fila con las columnas en NULL.
+
+En este dataset todas las cuentas congeladas tienen historial, así que las dos versiones coinciden fila por fila. Si hubiera cuentas sin movimientos, la versión correlacionada devolvería `0` y `NULL`, y el `LEFT JOIN` con `count(t.id)` también: escritas con ese cuidado, son equivalentes.
 
 ## Cuál se lee mejor
 
-**Prefiere la correlacionada** cuando la tabla principal es la protagonista y solo quieres agregarle una o dos métricas. La consulta se lee de arriba abajo, no necesitas `GROUP BY` y no hay riesgo de multiplicar filas al sumar una segunda tabla relacionada.
+**Prefiere la subconsulta correlacionada** cuando la tabla principal es la protagonista del informe y solo quieres agregarle una o dos métricas. La consulta se lee de arriba hacia abajo, no necesitas `GROUP BY` y no corres riesgo de multiplicar filas al sumar otra tabla relacionada.
 
-**Prefiere el join con `GROUP BY`** cuando necesitas varias métricas de la misma tabla (cada subconsulta correlacionada es un recorrido adicional), cuando ya estás uniendo esa tabla por otro motivo o cuando además quieres columnas del detalle.
+**Prefiere el join con `GROUP BY`** cuando necesitas varias métricas de la misma tabla, porque cada subconsulta correlacionada obliga al motor a recorrer esa tabla otra vez; cuando ya estás uniendo esa tabla por otro motivo; o cuando además quieres mostrar columnas del detalle.
 
-**Usa `EXISTS`** para preguntas de existencia: es más claro que un join con `DISTINCT` y no cambia la cardinalidad.
+**Usa `EXISTS`** para las preguntas de existencia, del tipo «cuáles tienen al menos uno». Se lee mejor que un join con `DISTINCT` y no cambia la cantidad de filas del resultado.
 
 ## Costo
 
-El nombre del riesgo es *N+1*: una consulta principal más una subconsulta por fila. Postgres suele reescribir `EXISTS`, `IN` y muchas correlacionadas como *semi join* o *hash join*, así que el costo real rara vez es literal. Donde sí duele es cuando la subconsulta correlacionada contiene su propia agregación sobre una tabla grande y la externa devuelve miles de filas: ahí el agregado se recalcula una y otra vez, y conviene pasarlo a una tabla derivada, a un join o a una CTE (sección 22).
+El riesgo tiene nombre propio: *N+1*, que describe una consulta principal más una subconsulta ejecutada por cada fila que esta devuelve. En la práctica, PostgreSQL suele reescribir `EXISTS`, `IN` y muchas correlacionadas como un *semi join* o un *hash join*, así que ese costo rara vez se paga de forma literal.
 
-Regla práctica: escribe la versión que se entienda mejor, mide con `EXPLAIN ANALYZE` si el volumen es grande y recién entonces reescribe.
+Donde sí duele es en un caso concreto: cuando la subconsulta correlacionada contiene su propia agregación sobre una tabla grande y la consulta externa devuelve miles de filas. Ahí el agregado se recalcula una y otra vez y la consulta se vuelve lenta; la solución es pasarlo a una tabla derivada, a un join agrupado o a una CTE (sección 22).
+
+Regla práctica: escribe primero la versión que se entienda mejor, mide con `EXPLAIN ANALYZE` si el volumen de datos es grande y reescribe solo si la medición lo justifica.
 
 ## Errores comunes
 
-- Olvidar la condición de correlación (`WHERE t.account_id = a.id`): la subconsulta calcula el total global y lo repite en todas las filas, sin dar error.
-- Escribir columnas sin calificar dentro de la subconsulta: si el nombre no existe en la tabla interna, Postgres lo resuelve contra la externa y el filtro se vuelve trivialmente verdadero.
-- Repetir la misma subconsulta correlacionada cinco veces en el `SELECT` en lugar de resolverla con un join agrupado.
+- Olvidar la condición de correlación (`WHERE t.account_id = a.id`): la subconsulta calcula el total global y repite ese mismo número en todas las filas, sin dar ningún error.
+- Escribir dentro de la subconsulta nombres de columna sin calificar con el alias de su tabla. Si ese nombre no existe en la tabla interna, PostgreSQL lo resuelve contra la tabla externa, la condición se vuelve siempre verdadera y el filtro deja de filtrar.
+- Repetir cinco veces la misma subconsulta correlacionada en el `SELECT` en lugar de resolver todo con un join agrupado.
 
 ## Resumen
 
-1. Correlacionada significa que menciona una columna de afuera; se evalúa por fila externa.
-2. Correlacionada para una o dos métricas al lado de la tabla principal; join con `GROUP BY` para varias.
-3. Califica siempre los nombres con alias: la correlación silenciosa es un error difícil de ver.
+1. Correlacionada significa que la subconsulta menciona una columna de afuera, y por eso se evalúa por cada fila externa.
+2. Usa la correlacionada para una o dos métricas al lado de la tabla principal, y el join con `GROUP BY` cuando son varias.
+3. Califica siempre los nombres de columna con el alias de su tabla: la correlación involuntaria es un error difícil de detectar.
 $c1961$, null, (select id from public.datasets where slug = $c1962$bolsillo$c1962$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1963$cte$c1963$), $c1964$cte-with-pasos$c1964$, $c1965$theory$c1965$, $c1966$WITH: nombrar los pasos de una consulta$c1966$, 0, 11, $c1967$## Por qué importa
 
-Cuando una pregunta de negocio tiene varios pasos («primero el gasto de cada cliente, después el promedio por país»), la consulta se llena de subconsultas anidadas que se leen de adentro hacia afuera. Una **CTE** (Common Table Expression, o expresión de tabla común) le pone **nombre** a cada paso y deja que la consulta se lea de arriba hacia abajo, igual que el razonamiento que hiciste.
+Hay preguntas de negocio que se responden en varios pasos: «primero calculo cuánto gastó cada cliente, después saco el promedio de ese gasto por país». Si escribes eso con subconsultas, una dentro de otra, la consulta queda anidada y hay que leerla de adentro hacia afuera, al revés del orden en que la pensaste. Quien la revise después va a tardar varios minutos en entenderla, y muchas veces esa persona vas a ser tú.
 
-Trabajas con **TiendaViva**: `orders`, `order_items`, `products`, `categories`, `customers`, `sellers`.
+Una **CTE** (por *common table expression*, expresión de tabla común, su nombre en inglés) le pone **nombre** a cada paso intermedio. La consulta pasa a leerse de arriba hacia abajo, en el mismo orden en que razonaste el problema.
+
+Trabajas con **TiendaViva**, el marketplace, y sus tablas `orders`, `order_items`, `products`, `categories`, `customers` y `sellers`.
 
 ## La sintaxis
 
@@ -4878,16 +5008,18 @@ GROUP BY country
 ORDER BY country;
 ```
 
-El bloque `WITH nombre AS (...)` define un resultado temporal que existe **solo durante esa consulta**. Después lo usas en el `FROM` como si fuera una tabla: tiene nombre, columnas y alias propios.
+El bloque `WITH nombre AS (...)` define un resultado temporal que existe **solo mientras se ejecuta esa consulta**: no se guarda en la base de datos y desaparece al terminar. Dentro de la consulta lo usas en el `FROM` como si fuera una tabla, porque para todo efecto práctico lo es: tiene nombre, tiene columnas y puede llevar alias.
+
+En el ejemplo, `gasto_por_cliente` deja una fila por cliente con su país y su gasto total; el `SELECT` de abajo promedia ese gasto dentro de cada país.
 
 Dos detalles de sintaxis que ahorran errores:
 
-- El `WITH` va **antes** del `SELECT` principal, y entre la CTE y ese `SELECT` no hay punto y coma.
-- Puedes declarar los nombres de las columnas: `WITH gasto (customer_id, country, total) AS (...)`.
+- El `WITH` va **antes** del `SELECT` principal, y entre el paréntesis que cierra la CTE y ese `SELECT` no se escribe punto y coma.
+- Puedes declarar los nombres de las columnas junto al nombre de la CTE: `WITH gasto (customer_id, country, total) AS (...)`.
 
 ## Encadenar varias CTE
 
-Separas las CTE con comas y **cada una puede usar las anteriores**:
+Las CTE se separan con comas, y **cada una puede usar las anteriores** como si fueran tablas:
 
 ```sql
 WITH entregas AS (
@@ -4905,11 +5037,13 @@ FROM por_cliente
 WHERE pedidos >= 3;
 ```
 
-`por_cliente` lee de `entregas`, no de `orders`: el filtro de estado se escribió una sola vez. La dependencia va en un solo sentido; una CTE **no puede** referirse a otra declarada después (salvo en el caso recursivo de la lección 3).
+Fíjate en que `por_cliente` lee de `entregas` y no de `orders`: gracias a eso, el filtro por estado entregado se escribió una sola vez y no puede quedar desactualizado en la mitad de la consulta.
+
+La dependencia va en un solo sentido: una CTE **no puede** referirse a otra que se declara más abajo. La única excepción es la CTE recursiva, que se refiere a sí misma y que verás en la tercera lección de esta sección.
 
 ## Reutilizar la misma CTE
 
-Una CTE se puede nombrar **varias veces** en la misma consulta. Eso es imposible con una subconsulta en `FROM`, que tendrías que copiar y pegar:
+Una misma CTE se puede nombrar **varias veces** dentro de la consulta. Con una subconsulta escrita dentro del `FROM` esto no es posible: tendrías que copiar y pegar el mismo bloque, y cada vez que cambiaras un filtro tendrías que acordarte de cambiarlo en las dos copias.
 
 ```sql
 WITH ventas AS (
@@ -4927,29 +5061,29 @@ WHERE ingresos > (SELECT avg(ingresos) FROM ventas)
 ORDER BY ingresos DESC;
 ```
 
-El nombre `ventas` aparece dos veces: una en el `FROM` y otra dentro de la subconsulta escalar que calcula el promedio. Una definición, dos usos.
+El nombre `ventas` aparece dos veces: una en el `FROM`, para listar las categorías, y otra dentro de la subconsulta que calcula el promedio de ingresos contra el que se comparan. Una sola definición y dos usos.
 
 ## Cómo nombrar
 
-Los nombres son la mitad del beneficio. Usa sustantivos del negocio en minúsculas: `entregas`, `gasto_por_cliente`, `categorias_activas`. Evita `t1`, `tmp`, `cte2`: no le dicen nada a quien revise la consulta dentro de seis meses (muchas veces, tú).
+Los nombres son la mitad del beneficio de usar CTE. Usa sustantivos del negocio en minúsculas: `entregas`, `gasto_por_cliente`, `categorias_activas`. Evita `t1`, `tmp` o `cte2`, porque no le dicen nada a quien revise la consulta dentro de seis meses y obligan a leer el bloque entero para entender qué contiene.
 
 ## Errores comunes
 
-- Poner punto y coma al cerrar la CTE: la consulta queda incompleta.
-- Olvidar la coma entre dos CTE, o ponerla también antes del `SELECT` final.
-- Referirse a una CTE desde otra declarada más abajo.
-- Creer que la CTE queda guardada: desaparece al terminar la consulta. Si la necesitas todos los días, lo que quieres es una vista.
+- Poner punto y coma después del paréntesis que cierra la CTE: el motor entiende que la instrucción terminó ahí y falla porque la consulta quedó incompleta.
+- Olvidar la coma entre dos CTE, o escribirla también antes del `SELECT` final, donde no va.
+- Referirse desde una CTE a otra que está declarada más abajo: el nombre todavía no existe en ese punto.
+- Creer que la CTE queda guardada para consultas posteriores. Desaparece al terminar la consulta. Si necesitas esa definición todos los días, lo que te sirve es una vista.
 
 ## Resumen
 
-`WITH nombre AS (...)` le da nombre a un paso intermedio. Varias CTE se encadenan con comas y cada una puede leer las anteriores. La misma CTE puede usarse varias veces, algo que una subconsulta no permite sin duplicar código.
+`WITH nombre AS (...)` le da nombre a un paso intermedio de la consulta. Varias CTE se encadenan con comas y cada una puede leer las anteriores. La misma CTE puede usarse varias veces, algo que una subconsulta no permite sin duplicar el código.
 $c1967$, null, (select id from public.datasets where slug = $c1968$tiendaviva$c1968$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1969$cte$c1969$), $c1970$cte-vs-subconsulta-y-vista$c1970$, $c1971$theory$c1971$, $c1972$CTE, subconsulta o vista: cuándo usar cada una$c1972$, 1, 9, $c1973$## Tres formas de escribir lo mismo
 
-Estas tres versiones de **Pídelo** describen el mismo conjunto de filas:
+Estas tres versiones, escritas sobre **Pídelo**, la app de delivery, describen exactamente el mismo conjunto de filas:
 
 ```sql
 -- 1) Subconsulta derivada
@@ -4970,7 +5104,7 @@ CREATE VIEW restaurantes_activos AS
   SELECT id, city_id FROM restaurants WHERE is_active;
 ```
 
-Ninguna es «la correcta». Cambian la **legibilidad** y el **alcance**, no el resultado.
+Ninguna de las tres es «la correcta». El resultado es idéntico; lo que cambia es qué tan fácil es leerlas y hasta dónde vive la definición.
 
 ## Cómo elegir
 
@@ -4980,11 +5114,11 @@ Ninguna es «la correcta». Cambian la **legibilidad** y el **alcance**, no el r
 | Varios pasos con nombre, o un paso usado dos veces | CTE |
 | La misma definición en muchas consultas, compartida con el equipo | Vista |
 
-Una CTE vive dentro de la consulta; una vista es un objeto de la base de datos que otras personas pueden consultar. En esta plataforma solo ejecutas `SELECT`, así que la vista aparece como concepto, no como ejercicio.
+La diferencia de alcance es concreta. Una CTE vive dentro de una sola consulta y desaparece cuando esta termina. Una **vista** es un objeto guardado en la base de datos: queda con nombre propio y cualquier persona del equipo puede consultarla después, igual que a una tabla. En esta plataforma solo ejecutas consultas de lectura, así que la vista aparece como concepto que vas a encontrar en tu trabajo, no como ejercicio.
 
 ## Anidar menos, leer mejor
 
-La diferencia se nota con tres pasos. Con subconsultas:
+La diferencia se vuelve evidente cuando hay tres pasos. Con subconsultas anidadas se ve así:
 
 ```sql
 SELECT city, round(100.0 * tardias / entregas, 2) AS pct
@@ -5003,36 +5137,40 @@ FROM (
 ) AS resumen;
 ```
 
-Se lee de adentro hacia afuera. La versión con dos CTE encadenadas (`entregas` y luego `por_ciudad`) dice lo mismo en el orden en que lo pensaste, y cada paso se puede probar por separado mientras escribes: cambias el `SELECT` final por `SELECT * FROM entregas LIMIT 20` y revisas ese paso aislado. Es la mejor técnica de depuración que te da una CTE.
+Para entenderla hay que empezar por el paréntesis más interno y subir. La versión equivalente con dos CTE encadenadas —una llamada `entregas` y otra llamada `por_ciudad`— dice lo mismo en el orden en que lo pensaste.
+
+Además, cada paso se puede probar por separado mientras escribes: reemplazas el `SELECT` final por `SELECT * FROM entregas LIMIT 20` y revisas ese paso aislado, sin tocar el resto. Esa es la mejor técnica de depuración que te da una CTE, y es la razón práctica por la que conviene usarlas aunque el resultado no cambie.
 
 ## ¿La CTE es más lenta?
 
-Hubo una regla popular: «en PostgreSQL la CTE es una barrera de optimización». Hoy hay que matizarla.
+Durante años circuló una regla: «en PostgreSQL la CTE es una barrera de optimización». Hoy hay que matizarla.
 
-- Hasta PostgreSQL 11, toda CTE se **materializaba**: se calculaba completa y se guardaba en un resultado temporal, aunque el filtro externo hubiera permitido leer menos filas.
-- Desde PostgreSQL 12 (esta plataforma usa 17), el planificador **puede integrarla** en la consulta principal, igual que una subconsulta, cuando se usa una sola vez, no es recursiva y no tiene efectos secundarios.
-- Puedes forzar cualquiera de los dos comportamientos: `WITH activos AS MATERIALIZED (...)` o `AS NOT MATERIALIZED (...)`.
+- Hasta PostgreSQL 11, toda CTE se **materializaba**, es decir, se calculaba completa y se guardaba en un resultado temporal antes de seguir, aunque el filtro de la consulta externa hubiera permitido leer muchas menos filas.
+- Desde PostgreSQL 12 (esta plataforma usa la versión 17), el planificador **puede integrarla** dentro de la consulta principal, igual que hace con una subconsulta, siempre que se use una sola vez, no sea recursiva y no tenga efectos secundarios.
+- Puedes forzar cualquiera de los dos comportamientos de forma explícita: `WITH activos AS MATERIALIZED (...)` o `AS NOT MATERIALIZED (...)`.
 
-Regla honesta: escribe primero la versión legible. Si una CTE cara se usa varias veces, `MATERIALIZED` evita recalcularla; si una CTE simple impide que un filtro baje hasta la tabla, `NOT MATERIALIZED` ayuda. Decídelo mirando `EXPLAIN`, no por costumbre.
+La recomendación honesta es esta: escribe primero la versión legible. Si una CTE costosa se usa varias veces, `MATERIALIZED` evita recalcularla en cada uso; si una CTE simple impide que un filtro llegue hasta la tabla, `NOT MATERIALIZED` ayuda. Decídelo mirando el plan que devuelve `EXPLAIN`, no por costumbre.
 
 ## Errores comunes
 
-- Partir una consulta de dos líneas en cinco CTE: más nombres que lógica.
-- Suponer que la CTE queda «en memoria» para consultas posteriores.
-- Repetir la misma subconsulta tres veces en vez de nombrarla una vez.
+- Partir una consulta de dos líneas en cinco CTE: el resultado tiene más nombres que lógica y se lee peor que el original.
+- Suponer que la CTE queda disponible para las consultas siguientes: se borra al terminar la consulta que la definió.
+- Repetir la misma subconsulta tres veces en lugar de definirla una vez como CTE y nombrarla tres veces.
 
 ## Resumen
 
-Subconsulta para un paso simple, CTE para una secuencia de pasos con nombre o reutilizados, vista para compartir la definición. En PostgreSQL moderno la CTE ya no es automáticamente una barrera de optimización, y `MATERIALIZED` / `NOT MATERIALIZED` te dejan decidir.
+Usa una subconsulta para un paso simple, una CTE para una secuencia de pasos con nombre o para un paso que se repite, y una vista para compartir la definición con el equipo. En PostgreSQL moderno la CTE ya no es automáticamente una barrera de optimización, y `MATERIALIZED` / `NOT MATERIALIZED` te dejan decidir cuando importa.
 $c1973$, null, (select id from public.datasets where slug = $c1974$pidelo$c1974$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1975$cte$c1975$), $c1976$cte-recursiva-jerarquias$c1976$, $c1977$theory$c1977$, $c1978$CTE recursiva: recorrer jerarquías$c1978$, 2, 12, $c1979$## Por qué importa
 
-Categorías con subcategorías, organigramas, respuestas a comentarios, piezas compuestas por piezas: son **jerarquías**. La tabla guarda `parent_id` y recorrerla exige repetir el mismo join tantas veces como niveles haya, un número que normalmente no conoces al escribir la consulta. La **CTE recursiva** hace ese recorrido sin saber la profundidad de antemano.
+Categorías que contienen subcategorías, organigramas donde cada persona tiene un jefe, respuestas que responden a otras respuestas, piezas armadas con otras piezas: todo eso son **jerarquías**, estructuras donde cada fila apunta a otra fila de la misma tabla.
 
-En **TiendaViva**, `categories` tiene `id`, `name` y `parent_id` (NULL en las categorías raíz).
+La tabla guarda esa relación en una columna `parent_id`, que contiene el identificador de la fila de la que depende. Recorrer la jerarquía completa exige repetir el mismo join tantas veces como niveles haya, y esa cantidad de niveles normalmente no la conoces al momento de escribir la consulta. La **CTE recursiva** resuelve exactamente eso: recorre todos los niveles sin que tengas que saber de antemano cuántos son.
+
+En **TiendaViva**, la tabla `categories` tiene tres columnas relevantes: `id`, `name` y `parent_id`, esta última con el `id` de la categoría que la contiene, o NULL si es una categoría de primer nivel.
 
 ## La estructura
 
@@ -5055,27 +5193,27 @@ FROM arbol
 ORDER BY ruta;
 ```
 
-Tres partes obligatorias:
+Una CTE recursiva tiene tres partes obligatorias:
 
-1. **`RECURSIVE`** justo después de `WITH` (se escribe una sola vez aunque haya varias CTE).
-2. Un **caso base** que no se refiere a la CTE: de dónde arranca el recorrido.
-3. Un **paso recursivo**, unido con `UNION ALL` (o `UNION`), que sí menciona la CTE.
+1. La palabra **`RECURSIVE`** justo después de `WITH`. Se escribe una sola vez, aunque después declares varias CTE.
+2. Un **caso base**, que es la consulta que no se refiere a la CTE y define desde dónde arranca el recorrido. Aquí son las categorías sin padre.
+3. Un **paso recursivo**, unido al anterior con `UNION ALL` (o `UNION`), que sí menciona la CTE y busca los hijos de lo que ya se encontró.
 
-Las dos ramas deben tener la misma cantidad de columnas y tipos compatibles.
+Las dos ramas deben devolver la misma cantidad de columnas, con tipos compatibles entre sí.
 
-Fíjate en la **lista de columnas** declarada junto al nombre: `arbol(id, name, parent_id, nivel, ruta)`. Es la forma que usa la documentación de PostgreSQL, evita repetir alias en las dos ramas y, en esta plataforma, es la única que acepta el analizador de consultas para una CTE recursiva.
+Fíjate en la **lista de columnas** declarada junto al nombre, `arbol(id, name, parent_id, nivel, ruta)`. Es la forma que usa la documentación de PostgreSQL, evita tener que repetir los alias en las dos ramas y, en esta plataforma, es la única que acepta el analizador de consultas cuando la CTE es recursiva.
 
 ## Cómo se ejecuta
 
-El motor evalúa el caso base y guarda esas filas. Luego ejecuta el paso recursivo usando **solo las filas nuevas** de la vuelta anterior, y repite. Cuando una vuelta no produce ninguna fila nueva, se detiene y devuelve la unión de todo.
+El motor evalúa primero el caso base y guarda esas filas. Después ejecuta el paso recursivo usando **solo las filas nuevas** que aparecieron en la vuelta anterior, y guarda las que encuentre. Repite esa operación una y otra vez. Cuando una vuelta no produce ninguna fila nueva, se detiene y devuelve la unión de todas las filas acumuladas.
 
-Ese «no produce filas nuevas» es la **condición de terminación**, y depende de ti que llegue a cumplirse. Aquí se cumple porque el árbol de categorías es finito y ninguna categoría es ancestro de sí misma: en algún momento no quedan hijos por agregar.
+Ese «no produce ninguna fila nueva» es la **condición de terminación**, y depende de ti que llegue a cumplirse. En este ejemplo se cumple porque el árbol de categorías es finito y ninguna categoría es ancestro de sí misma: llega un momento en que las categorías encontradas no tienen hijos y la búsqueda se agota.
 
 ## El riesgo real: recursión infinita
 
-Si los datos tienen un ciclo (A es padre de B y B es padre de A), el paso recursivo siempre encuentra filas nuevas y la consulta no termina: crece hasta agotar el tiempo o la memoria. Es la forma clásica de colgar una consulta.
+Si los datos contienen un ciclo, por ejemplo una categoría A que es padre de B y una B que a su vez figura como padre de A, el paso recursivo siempre encuentra filas nuevas y la consulta nunca termina: sigue generando filas hasta agotar el tiempo disponible o la memoria del servidor. Es la forma más común de dejar una consulta colgada.
 
-Dos defensas, y conviene usar las dos:
+Hay dos defensas, y conviene usar las dos juntas. La primera es poner un límite explícito de profundidad:
 
 ```sql
 -- 1) Cota de profundidad explícita
@@ -5084,6 +5222,8 @@ Dos defensas, y conviene usar las dos:
   INNER JOIN arbol AS a ON a.id = c.parent_id
   WHERE a.nivel < 10
 ```
+
+La segunda es ir guardando el camino recorrido y no volver a entrar a una fila por la que ya pasaste:
 
 ```sql
 -- 2) Guardar el camino y no volver a entrar
@@ -5100,13 +5240,15 @@ WITH RECURSIVE arbol(id, name, visitados) AS (
 SELECT id, name FROM arbol;
 ```
 
-En este entorno cada consulta tiene un tiempo máximo de ejecución, así que una recursión sin control falla por tiempo agotado en lugar de bloquear algo. En producción ese límite puede no existir: pon siempre una cota.
+La columna `visitados` acumula los identificadores por los que ya pasó ese camino, y la condición del `WHERE` descarta los que ya están adentro.
 
-`UNION` en lugar de `UNION ALL` elimina filas repetidas en cada vuelta y ayuda con ciclos simples, pero cuesta más y no protege cuando las filas difieren en alguna columna (por ejemplo, el nivel).
+En esta plataforma cada consulta tiene un tiempo máximo de ejecución, así que una recursión sin control falla por tiempo agotado y no bloquea nada. En un servidor de producción ese límite puede no existir, de modo que la consulta puede consumir recursos hasta afectar a otras personas: pon siempre una cota.
+
+Usar `UNION` en lugar de `UNION ALL` elimina las filas repetidas en cada vuelta y ayuda con los ciclos más simples, pero cuesta más tiempo de proceso y no protege cuando las filas repetidas difieren en alguna columna, por ejemplo en el nivel.
 
 ## Otro uso: generar series
 
-La recursión no solo recorre árboles; también genera secuencias, útil para armar calendarios sin huecos:
+La recursión no solo sirve para recorrer árboles; también genera secuencias de valores. Es útil para armar un calendario sin huecos y después comparar contra él los días en los que sí hubo ventas:
 
 ```sql
 WITH RECURSIVE dias(dia) AS (
@@ -5117,20 +5259,20 @@ WITH RECURSIVE dias(dia) AS (
 SELECT dia FROM dias;
 ```
 
-La condición `dia < DATE '2025-09-30'` es lo único que evita que siga sumando días para siempre. Para este caso puntual PostgreSQL ofrece `generate_series`; el ejemplo sirve para ver la terminación.
+La condición `dia < DATE '2025-09-30'` es lo único que evita que la consulta siga sumando días para siempre. Para este caso concreto PostgreSQL ofrece la función `generate_series`, que es más corta; el ejemplo está aquí para que veas con claridad dónde vive la condición de terminación.
 
 ## Resumen
 
-`WITH RECURSIVE` = caso base + `UNION ALL` + paso recursivo que se refiere a sí mismo. Termina cuando una vuelta no agrega filas nuevas. Agrega siempre una cota de profundidad o un registro del camino recorrido: los datos con ciclos son más frecuentes de lo que parece.
+`WITH RECURSIVE` se compone de un caso base, un `UNION ALL` y un paso recursivo que se refiere a sí mismo. Termina cuando una vuelta deja de agregar filas nuevas. Agrega siempre un límite de profundidad o un registro del camino recorrido: los datos con ciclos aparecen más seguido de lo que uno esperaría.
 $c1979$, null, (select id from public.datasets where slug = $c1980$tiendaviva$c1980$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1981$agregacion-condicional$c1981$), $c1982$agregacion-condicional-case-y-filter$c1982$, $c1983$theory$c1983$, $c1984$Contar y sumar con condición$c1984$, 0, 10, $c1985$## Por qué importa
 
-Te piden «cuántos pedidos se entregaron, cuántos se cancelaron y cuántos se devolvieron». La salida ingenua son tres consultas con tres `WHERE` distintos, tres resultados sueltos y una planilla para pegarlos. La agregación condicional resuelve las tres métricas en **una sola pasada** por la tabla, en una sola fila y con una sola definición de negocio.
+Te piden «cuántos pedidos se entregaron, cuántos se cancelaron y cuántos se devolvieron». La salida ingenua son tres consultas con tres `WHERE` distintos, tres resultados sueltos y una planilla para pegarlos. La **agregación condicional** —contar o sumar aplicando una condición propia a cada columna del resultado— resuelve las tres métricas en **una sola pasada** por la tabla, en una sola fila y con una sola definición de negocio.
 
-La idea es simple: `WHERE` decide qué filas entran al cálculo **completo**; la condición dentro del agregado decide qué filas entran **a esa columna**. Las demás filas siguen ahí para las otras columnas.
+La idea es simple y conviene fijarla antes de ver la sintaxis. El `WHERE` decide qué filas entran al cálculo **completo** de la consulta. La condición que va dentro de cada función de agregación decide, entre esas filas, cuáles cuentan **para esa columna en particular**. Las filas que una columna descarta siguen disponibles para las demás columnas.
 
 ## FILTER: la forma directa
 
@@ -5145,7 +5287,7 @@ SELECT
 FROM orders;
 ```
 
-Cada agregado recorre las mismas 18 000 filas, pero solo suma o cuenta las que cumplen su propia condición. El resultado es una fila con cuatro columnas comparables entre sí, porque salen del mismo recorte de datos y del mismo momento.
+Los cuatro agregados recorren las mismas 18 000 filas de `orders`, y cada uno suma o cuenta solamente las que cumplen su propia condición. El resultado es una fila con cuatro columnas que se pueden comparar entre sí sin aclaraciones, porque salieron del mismo recorte de datos y del mismo momento.
 
 ## CASE dentro del agregado: la forma portable
 
@@ -5171,7 +5313,7 @@ Ambas formas son equivalentes a `FILTER`. Usa `FILTER` cuando trabajes en Postgr
 count(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END)  -- ¡cuenta TODAS las filas!
 ```
 
-Con `ELSE 0`, las filas que no cumplen devuelven cero, que **no es NULL**, así que `count` las cuenta igual. El resultado es el total de pedidos, no los cancelados. Regla: con `count`, sin `ELSE`; con `sum`, `ELSE 0`.
+Con `ELSE 0`, las filas que no cumplen la condición devuelven cero, y el cero **no es NULL**: es un valor como cualquier otro, así que `count` lo cuenta igual. Obtienes el total de pedidos en lugar de los cancelados, y como ese número es plausible nadie lo cuestiona. La regla para recordarlo: cuando el agregado es `count`, el `CASE` va sin `ELSE`; cuando el agregado es `sum`, el `CASE` lleva `ELSE 0`.
 
 ## Sumar y promediar con condición
 
@@ -5186,7 +5328,7 @@ FROM orders
 WHERE currency = 'MXN';
 ```
 
-Fíjate en el `WHERE`: recorta el universo (solo pedidos en pesos mexicanos, para no mezclar monedas) y los `FILTER` reparten ese universo en columnas. Son dos niveles de filtrado distintos y complementarios.
+Fíjate en el `WHERE`. Recorta el universo de la consulta y deja solo los pedidos en pesos mexicanos, para que ningún promedio mezcle dos monedas. Los `FILTER` reparten después ese mismo universo entre las columnas. Son dos niveles de filtrado distintos que se complementan, y equivocarse de nivel cambia el resultado sin producir ningún error.
 
 ## Cuando ninguna fila cumple
 
@@ -5194,16 +5336,16 @@ Fíjate en el `WHERE`: recorta el universo (solo pedidos en pesos mexicanos, par
 
 ## Resumen
 
-- `WHERE` filtra la consulta entera; `FILTER` y `CASE` filtran una columna calculada.
+- El `WHERE` filtra la consulta entera. El `FILTER` y el `CASE` dentro de un agregado filtran una sola columna calculada.
 - `count(*) FILTER (WHERE c)` equivale a `count(CASE WHEN c THEN 1 END)` y a `sum(CASE WHEN c THEN 1 ELSE 0 END)`.
-- Un `ELSE 0` dentro de `count` cuenta todo; una suma sin filas que cumplan devuelve NULL, no cero.
+- Un `ELSE 0` dentro de `count` hace que se cuenten todas las filas. Y una suma sobre la que ninguna fila cumple la condición devuelve NULL, no cero.
 $c1985$, null, (select id from public.datasets where slug = $c1986$tiendaviva$c1986$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1987$agregacion-condicional$c1987$), $c1988$agregacion-condicional-tablas-pivote$c1988$, $c1989$theory$c1989$, $c1990$Pivotar filas en columnas$c1990$, 1, 9, $c1991$## Por qué importa
 
-Un `GROUP BY` con dos dimensiones devuelve el formato **largo**: una fila por combinación.
+Un `GROUP BY` con dos dimensiones —dos columnas por las que agrupas, por ejemplo el país del cliente y el canal de compra— devuelve el resultado en formato **largo**: una fila por cada combinación de valores.
 
 ```sql
 SELECT c.country, o.channel, count(*) AS orders
@@ -5212,7 +5354,7 @@ JOIN customers c ON c.id = o.customer_id
 GROUP BY c.country, o.channel;
 ```
 
-Son 18 filas (6 países × 3 canales). Es perfecto para alimentar otra consulta, pero quien pidió el reporte quiere leer **6 filas y 3 columnas**: el formato ancho, la tabla pivote de siempre. Eso se arma con agregación condicional.
+Son 18 filas (6 países × 3 canales). Ese formato es ideal para alimentar otra consulta, porque cada fila lleva sus propias etiquetas. Pero quien pidió el reporte quiere leerlo como **6 filas y 3 columnas**, con un país por fila y un canal por columna: es el formato **ancho**, lo que en una planilla se llama tabla dinámica o tabla pivote. Eso se arma con agregación condicional.
 
 ## La receta
 
@@ -5232,11 +5374,11 @@ GROUP BY c.country
 ORDER BY c.country;
 ```
 
-El canal desapareció del `GROUP BY` y reapareció como tres columnas. La columna `total_orders` sin `FILTER` da el total de la fila y sirve de control: si las tres columnas no suman el total, hay un valor de `channel` que no contemplaste.
+El canal salió del `GROUP BY` y reapareció como tres columnas. La columna `total_orders`, que no lleva `FILTER`, da el total de la fila y sirve de control: si las tres columnas de canal no suman ese total, existe algún valor de `channel` —la columna de `orders` que indica por dónde entró el pedido— que no contemplaste al escribir la consulta.
 
 ## El costo: las columnas son fijas
 
-Una tabla pivote escrita a mano **congela** la lista de valores. Si mañana el marketplace agrega el canal `retail`, esos pedidos entran en `total_orders` pero no aparecen en ninguna columna propia, y nadie lo va a notar salvo que mires la diferencia. Por eso:
+Una tabla pivote escrita a mano **congela** la lista de valores el día que la escribes. Si mañana el marketplace agrega el canal `retail`, esos pedidos se cuentan en `total_orders` pero no aparecen en ninguna columna propia. La consulta sigue corriendo sin ningún error y el reporte queda incompleto; solo lo notas si comparas la suma de las columnas contra el total. Por eso:
 
 - Pivota solo dimensiones con pocos valores y estables (canal, estado, método de pago, trimestre).
 - No pivotes dimensiones abiertas (ciudad, producto, cliente): deja el formato largo.
@@ -5257,11 +5399,11 @@ WHERE o.currency = 'MXN' AND o.status = 'delivered'
 GROUP BY c.country;
 ```
 
-Así obtienes el año actual y el anterior **uno al lado del otro**, listos para calcular la variación, sin unir dos consultas ni exportar nada.
+Así obtienes el año actual y el anterior **uno al lado del otro**, en la misma fila y listos para restarlos y calcular la variación, sin escribir dos consultas ni exportar nada a una planilla.
 
 ## Lo contrario también existe
 
-Pasar de ancho a largo (despivotar) se hace con `UNION ALL` o con `unnest`. Regla práctica: guarda y calcula en formato largo, presenta en formato ancho. El formato ancho es para el ojo humano; el largo es el que otras consultas pueden seguir usando.
+Pasar de ancho a largo, es decir, despivotar, se hace con `UNION ALL` o con `unnest`. Regla práctica: guarda y calcula en formato largo, y pivota solo al final, para presentar. El formato ancho está pensado para que una persona lo lea. El formato largo es el que otras consultas pueden seguir procesando, porque cada valor viene acompañado de su etiqueta en la misma fila.
 
 ## Resumen
 
@@ -5274,7 +5416,7 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1993$agregacion-condicional$c1993$), $c1994$agregacion-condicional-tasas-y-proporciones$c1994$, $c1995$theory$c1995$, $c1996$Tasas y proporciones sin división por cero$c1996$, 2, 9, $c1997$## Por qué importa
 
-Los conteos absolutos engañan: México cancela más pedidos que Uruguay simplemente porque vende mucho más. Lo comparable es la **tasa**: cancelados sobre total. Con agregación condicional, el numerador y el denominador se calculan en la misma consulta y sobre exactamente las mismas filas.
+Los conteos absolutos llevan a conclusiones equivocadas cuando los grupos tienen tamaños distintos: México cancela más pedidos que Uruguay simplemente porque vende mucho más, no porque cancele peor. Lo que sí se puede comparar es la **tasa**, es decir, los pedidos cancelados divididos por el total de pedidos de ese mismo país. Con agregación condicional, el numerador (los cancelados) y el denominador (el total) se calculan en la misma consulta y sobre exactamente las mismas filas.
 
 ## La forma canónica
 
@@ -5297,7 +5439,7 @@ Hay tres detalles que deciden si el número es correcto.
 
 ## 1. División entera
 
-`count(*)` devuelve un entero. En PostgreSQL, un entero dividido por otro entero da un **entero**: `706 / 5446` da `0`, no `0.1296`. Multiplicar primero por `100.0` (con punto decimal) convierte la operación a numérica y salva el cálculo. Alternativas equivalentes: `count(*)::numeric` o `cast(count(*) AS numeric)`.
+`count(*)` devuelve un entero. En PostgreSQL, un entero dividido por otro entero da un **entero**, con los decimales cortados: `706 / 5446` da `0`, no `0.1296`. Multiplicar primero por `100.0`, escrito con punto decimal, alcanza para que toda la operación se resuelva con decimales, porque basta con que uno de los operandos sea numérico. Dos formas equivalentes de conseguir lo mismo son `count(*)::numeric` y `cast(count(*) AS numeric)`. Cualquiera de las tres es correcta.
 
 ## 2. Denominador cero
 
@@ -5305,7 +5447,7 @@ Si un grupo pudiera quedar sin filas en el denominador —por ejemplo, la tasa d
 
 ## 3. Redondeo
 
-`round(x, 2)` deja dos decimales. Redondea solo al final, nunca los valores intermedios, y acuerda con quien pide el reporte si la tasa se expresa en porcentaje (0 a 100) o en proporción (0 a 1). Nombrar la columna `..._pct` evita la mitad de las discusiones.
+`round(x, 2)` deja dos decimales. Redondea solo al final y nunca los valores intermedios, porque los redondeos encadenados se acumulan y el total deja de cerrar. Acuerda además con quien pide el reporte si la tasa se expresa en porcentaje (de 0 a 100) o en proporción (de 0 a 1): nombrar la columna con el sufijo `_pct` deja esa escala escrita en el propio resultado y evita buena parte de las discusiones.
 
 ## Una tasa para cada pregunta
 
@@ -5321,30 +5463,32 @@ JOIN customers c ON c.id = o.customer_id
 GROUP BY c.country;
 ```
 
-Aquí `sum(CASE ... THEN 1 ELSE 0 END)` **no** sirve: contaría pedidos, no personas. La alternativa portable es `count(DISTINCT CASE WHEN o.channel = 'app' THEN o.customer_id END)`.
+Aquí `sum(CASE ... THEN 1 ELSE 0 END)` **no** sirve, porque sumaría un 1 por cada pedido y una misma persona con cuatro pedidos quedaría contada cuatro veces. La alternativa portable, para motores que no admiten `FILTER`, es `count(DISTINCT CASE WHEN o.channel = 'app' THEN o.customer_id END)`.
 
 ## Por qué no dos consultas separadas
 
-Podrías calcular el total en una consulta, los cancelados en otra y dividir a mano. Tres problemas: recorres la tabla dos veces, los dos resultados pueden corresponder a momentos distintos, y la definición de «cancelado» queda escrita en dos lugares que tarde o temprano se desincronizan. Una sola consulta es más rápida, consistente y auditable.
+Podrías calcular el total en una consulta, los cancelados en otra y dividir a mano. Eso trae tres problemas. Recorres la tabla dos veces, así que la consulta tarda el doble. Los dos resultados pueden corresponder a momentos distintos, y entonces la tasa mezcla dos fotos diferentes de los datos. Y la definición de «cancelado» queda escrita en dos lugares que tarde o temprano dejan de coincidir. Una sola consulta es más rápida, da un número consistente y deja la definición en un único sitio que cualquiera puede revisar.
 
 ## Resumen
 
 - Multiplica por `100.0` antes de dividir: entero sobre entero trunca.
 - `nullif(denominador, 0)` cambia un error fatal por un NULL honesto.
-- `count(DISTINCT ...) FILTER (...)` cuenta personas, no filas; `sum(CASE ...)` no puede hacerlo.
+- `count(DISTINCT ...) FILTER (...)` cuenta personas distintas en lugar de filas. Un `sum(CASE ...)` no puede hacer eso, porque cuenta cada pedido por separado.
 $c1997$, null, (select id from public.datasets where slug = $c1998$tiendaviva$c1998$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c1999$funciones-de-ranking$c1999$), $c2000$ranking-row-number-rank-dense-rank$c2000$, $c2001$theory$c2001$, $c2002$ROW_NUMBER, RANK y DENSE_RANK$c2002$, 0, 11, $c2003$## Por qué importa
 
-Media analítica de negocio termina en la misma pregunta: **quién va primero**. El artista más escuchado del mes, las tres canciones que sostienen una lista, el puesto de cada vendedor en su región. `ORDER BY` ordena, pero no te da un **número de puesto** que puedas mostrar, filtrar o comparar. Para eso están las funciones de ranking.
+Buena parte de las preguntas de negocio termina siendo la misma pregunta: **quién va primero**. El artista más escuchado del mes, las tres canciones que sostienen una lista de reproducción, el puesto de cada vendedor dentro de su región.
 
-Trabajas con **Ritmo**, un servicio de streaming musical: `artists`, `albums`, `tracks`, `plays`, `users`, `playlists`, `subscriptions`, `follows`.
+`ORDER BY` ordena las filas, pero no te entrega un **número de puesto** que puedas mostrar en el reporte, filtrar («quiero del primero al tercero») o comparar contra el puesto del mes pasado. Para obtener ese número están las funciones de ranking.
+
+Trabajas con **Ritmo**, un servicio de streaming musical. Sus tablas son `artists`, `albums`, `tracks`, `plays`, `users`, `playlists`, `subscriptions` y `follows`.
 
 ## Las tres funciones
 
-Las tres son funciones de ventana: no reciben argumentos y **exigen** `OVER (ORDER BY ...)`.
+Las tres son **funciones de ventana**, es decir, funciones que calculan un valor para cada fila mirando además un conjunto de filas relacionadas. No reciben argumentos entre paréntesis y **exigen** una cláusula `OVER (ORDER BY ...)`, que es la que define en qué orden se numeran las filas.
 
 ```sql
 SELECT
@@ -5357,7 +5501,7 @@ FROM artists
 WHERE genre = 'reguetón';
 ```
 
-Se diferencian solo ante **empates**:
+Las tres se diferencian únicamente ante los **empates**, o sea, cuando dos filas tienen el mismo valor en la columna que ordena:
 
 | monthly_listeners | row_number | rank | dense_rank |
 | ----------------- | ---------- | ---- | ---------- |
@@ -5366,25 +5510,25 @@ Se diferencian solo ante **empates**:
 | 2938              | 13         | 12   | 12         |
 | 2288              | 14         | 14   | 13         |
 
-- `row_number`: numeración correlativa 1, 2, 3… **siempre distinta**, aunque los valores empaten.
-- `rank`: mismo puesto para los empatados y **salta** los siguientes (12, 12, 14).
-- `dense_rank`: mismo puesto para los empatados y **no salta** (12, 12, 13).
+- `row_number` numera de forma correlativa (1, 2, 3…) y **nunca repite un número**, aunque los valores empaten.
+- `rank` da el mismo puesto a los empatados y después **salta** tantos números como empates hubo, igual que en una competencia deportiva: 12, 12 y luego 14.
+- `dense_rank` da el mismo puesto a los empatados y **no salta** ningún número: 12, 12 y luego 13.
 
-Elige según lo que pida el negocio: «un puesto por fila» → `row_number`; «puesto deportivo» → `rank`; «niveles de valor distintos» → `dense_rank`.
+Elige según lo que pida el negocio. Si necesitas un puesto distinto por fila, usa `row_number`. Si necesitas el puesto deportivo clásico, usa `rank`. Si lo que cuentas son niveles de valor distintos, por ejemplo «los tres niveles de consumo más altos», usa `dense_rank`.
 
 ## Empates y determinismo
 
-`row_number` decide el orden entre empatados de forma **arbitraria**: la misma consulta puede devolver otro orden en otra ejecución. Si el puesto se muestra o se compara, agrega un criterio de desempate estable:
+Cuando dos filas empatan, `row_number` decide cuál va antes de forma **arbitraria**, y la misma consulta puede devolver el orden contrario en otra ejecución. Si ese puesto se muestra en un reporte o se compara con el del período anterior, tu reporte cambia sin que hayan cambiado los datos. Agrega un criterio de desempate estable:
 
 ```sql
 row_number() OVER (ORDER BY monthly_listeners DESC, name) AS posicion
 ```
 
-Un buen desempate es único (un `id`) o al menos explicable para el negocio (la fecha de alta, el nombre).
+Un buen desempate es una columna única, como un `id`, o al menos una que puedas explicarle al negocio, como la fecha de alta o el nombre.
 
 ## Dos ORDER BY distintos
 
-El `ORDER BY` de la ventana define **cómo se numera**; el `ORDER BY` final define **cómo se muestra**. Pueden ser distintos:
+En este tipo de consultas hay dos `ORDER BY` y cada uno hace una cosa diferente. El que está dentro del `OVER` define **cómo se numera**. El que está al final de la consulta define **cómo se muestran las filas**. Pueden ser distintos:
 
 ```sql
 SELECT
@@ -5396,17 +5540,17 @@ WHERE genre = 'cumbia'
 ORDER BY country, posicion;
 ```
 
-Sin el `ORDER BY` final, el orden de las filas no está garantizado, aunque los puestos sí sean correctos.
+Sin el `ORDER BY` final, los puestos serían correctos igual, pero el orden en que aparecen las filas del resultado no está garantizado.
 
 ## Errores comunes
 
-- Escribir `row_number()` sin `OVER`: PostgreSQL responde `window function row_number requires an OVER clause`.
-- Usar `ORDER BY monthly_listeners` ascendente cuando el negocio pide «los más escuchados»: el puesto 1 queda para el peor.
-- Filtrar por el puesto en el `WHERE` de la misma consulta: no se puede, y lo resolvemos en la lección siguiente.
+- Escribir `row_number()` sin `OVER`. PostgreSQL responde `window function row_number requires an OVER clause`.
+- Ordenar la ventana de forma ascendente cuando el negocio pide «los más escuchados». El puesto 1 queda para el artista con menos oyentes y el ranking sale al revés.
+- Filtrar por el puesto en el `WHERE` de la misma consulta. No se puede, porque el `WHERE` se evalúa antes de calcular la ventana; lo resolvemos en la lección siguiente.
 
 ## Resumen
 
-1. `row_number`, `rank` y `dense_rank` numeran filas según el `ORDER BY` de la ventana.
+1. `row_number`, `rank` y `dense_rank` numeran las filas según el `ORDER BY` de la ventana.
 2. Se diferencian solo ante empates: correlativo, con saltos y sin saltos.
 3. Agrega un desempate estable cuando el puesto se muestra o se compara.
 $c2003$, null, (select id from public.datasets where slug = $c2004$ritmo$c2004$), false, true)
@@ -5415,7 +5559,7 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2005$funciones-de-ranking$c2005$), $c2006$ranking-top-n-por-grupo$c2006$, $c2007$theory$c2007$, $c2008$Top-N por grupo$c2008$, 1, 12, $c2009$## El problema
 
-«Las tres canciones más escuchadas **de cada género**» no se resuelve con `LIMIT`: `LIMIT 3` corta el resultado completo, no cada grupo. La respuesta canónica es **numerar dentro de cada grupo y quedarte con los primeros**.
+«Las tres canciones más escuchadas **de cada género**» no se resuelve con `LIMIT`. `LIMIT 3` corta el resultado completo y te devuelve tres filas en total, que van a ser las tres canciones más escuchadas del género más popular. La respuesta correcta consiste en numerar las canciones dentro de cada género y quedarte con las primeras de cada uno.
 
 ## PARTITION BY reinicia la numeración
 
@@ -5423,11 +5567,11 @@ values ((select id from public.sections where slug = $c2005$funciones-de-ranking
 row_number() OVER (PARTITION BY genre ORDER BY reproducciones DESC) AS puesto
 ```
 
-`PARTITION BY` divide las filas en grupos y la numeración **vuelve a 1** en cada uno. Es el mismo `PARTITION BY` que ya usaste con `avg` o `sum`.
+`PARTITION BY` divide las filas en grupos según el valor de una columna, y la numeración **vuelve a empezar en 1** en cada grupo. Es el mismo `PARTITION BY` que ya usaste con `avg` o `sum`, solo que ahora en lugar de un promedio por grupo obtienes un puesto por grupo.
 
 ## Por qué hace falta una CTE
 
-Las ventanas se calculan **después** de `WHERE` y `HAVING`, así que esto no compila:
+Las funciones de ventana se calculan **después** de `WHERE` y de `HAVING`, así que cuando el `WHERE` se evalúa, el puesto todavía no existe. Esta consulta no compila:
 
 ```sql
 -- Error: window functions are not allowed in WHERE
@@ -5436,7 +5580,7 @@ FROM catalogo
 WHERE row_number() OVER (PARTITION BY genre ORDER BY n DESC) <= 3;
 ```
 
-El patrón correcto tiene dos pasos: una CTE (o subconsulta) calcula el puesto y la consulta externa filtra.
+El patrón correcto tiene dos pasos: una CTE (por *common table expression*, su nombre en inglés; es la consulta con nombre que escribes en el `WITH`) calcula el puesto, y la consulta externa filtra por ese puesto ya calculado.
 
 ```sql
 WITH reproducciones_por_cancion AS (
@@ -5461,20 +5605,20 @@ WHERE puesto <= 3
 ORDER BY genre, puesto;
 ```
 
-Tres pasos, cada uno legible: agregar → numerar → filtrar. Una subconsulta en el `FROM` produce exactamente lo mismo; la CTE solo se lee mejor.
+Son tres pasos y cada uno se lee por separado: contar las reproducciones de cada canción, numerar dentro de cada género y quedarse con los tres primeros. Una subconsulta escrita en el `FROM` produce exactamente el mismo resultado; la CTE solo se lee mejor y te deja probar cada paso por su cuenta.
 
 ## ¿Y si hay empates?
 
-Con `row_number` siempre obtienes **exactamente N filas** por grupo: si dos canciones empatan en el puesto 3, una queda afuera de forma arbitraria. Si el negocio quiere ver a todos los empatados, cambia a `rank` o `dense_rank`:
+Con `row_number` siempre obtienes **exactamente N filas** por grupo. Si dos canciones tienen la misma cantidad de reproducciones en el puesto 3, una de las dos queda afuera y cuál de ellas es una decisión arbitraria del motor. Si el negocio quiere ver a todos los empatados, cambia la función:
 
-- `rank() ... <= 3`: los tres primeros puestos, incluidos los empatados; un grupo puede devolver más de tres filas.
-- `dense_rank() ... <= 3`: los tres **niveles** de valor más altos, con todos sus empatados.
+- `rank() ... <= 3` devuelve los tres primeros puestos con todos sus empatados, así que un grupo puede traer más de tres filas.
+- `dense_rank() ... <= 3` devuelve los tres **niveles** de valor más altos, también con todos sus empatados.
 
-Definir esto es parte de entender el pedido: «top 3» rara vez es una instrucción completa.
+Definir esto es parte de entender el pedido: «top 3» casi nunca es una instrucción completa, y conviene preguntar antes de escribir la consulta.
 
 ## Un caso especial: quedarte con la primera fila
 
-El mismo patrón con `puesto = 1` resuelve una tarea muy frecuente: **una fila por grupo**, la más reciente o la más antigua.
+El mismo patrón, filtrando por `puesto = 1`, resuelve una tarea muy frecuente: dejar **una sola fila por entidad**, la más reciente o la más antigua.
 
 ```sql
 WITH primeras AS (
@@ -5490,32 +5634,34 @@ FROM primeras
 WHERE puesto = 1;
 ```
 
-Así obtienes la primera reproducción de cada oyente. Es la forma más clara de elegir **cuál** fila conservar cuando hay varias por entidad.
+Así obtienes la primera reproducción de cada oyente, que es el dato con el que se arma, por ejemplo, la fecha de activación de cada persona. Es la forma más clara de elegir **cuál** fila conservar cuando hay varias por entidad.
 
 ## Errores comunes
 
-- `LIMIT 3` en lugar de numerar por grupo: devuelve tres filas en total.
-- Olvidar `PARTITION BY`: un único ranking global, no uno por grupo.
-- Numerar antes de agregar: si el conteo se calcula después, el puesto ordena por la columna equivocada.
+- Usar `LIMIT 3` en lugar de numerar por grupo: devuelve tres filas en total, no tres por grupo.
+- Olvidar el `PARTITION BY`: obtienes un único ranking global y no uno por grupo.
+- Numerar antes de agregar: si el conteo se calcula después, el puesto queda ordenado por la columna equivocada.
 
 ## Resumen
 
-1. Top-N por grupo = `PARTITION BY` + ranking + filtro en una capa externa.
-2. `row_number` da N filas exactas; `rank` y `dense_rank` respetan empates.
-3. `puesto = 1` es el patrón estándar para quedarte con una fila por grupo.
+1. Top-N por grupo se arma con `PARTITION BY`, una función de ranking y un filtro en una capa externa.
+2. `row_number` da exactamente N filas por grupo; `rank` y `dense_rank` conservan a los empatados.
+3. `puesto = 1` es el patrón estándar para quedarte con una sola fila por entidad.
 $c2009$, null, (select id from public.datasets where slug = $c2010$ritmo$c2010$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2011$funciones-de-ranking$c2011$), $c2012$ranking-ntile-y-segmentos$c2012$, $c2013$theory$c2013$, $c2014$NTILE: cuartiles, deciles y segmentos$c2014$, 2, 9, $c2015$## Para qué sirve
 
-Cuando el negocio no pregunta «quién es el primero» sino «**cómo se reparte la base**», el puesto exacto sobra: lo que quieres son segmentos comparables. `ntile(n)` reparte las filas ordenadas en `n` bloques de tamaño casi igual y devuelve el número de bloque.
+A veces el negocio no pregunta quién es el primero, sino **cómo se reparte la base de usuarios**: cuánto consume el grupo más activo comparado con el resto. Para esa pregunta el puesto exacto de cada persona no aporta nada; lo que necesitas son segmentos comparables entre sí.
+
+`ntile(n)` ordena las filas y las reparte en `n` bloques de tamaño casi igual, y devuelve para cada fila el número de bloque al que le tocó. Con `n = 4` esos bloques se llaman **cuartiles**, con `n = 10` **deciles** y con `n = 100` **percentiles**.
 
 ```sql
 ntile(4) OVER (ORDER BY reproducciones DESC) AS cuartil
 ```
 
-Con `DESC`, el cuartil 1 es el de mayor consumo. Con `ASC` sería al revés: el sentido lo eliges tú y conviene dejarlo escrito en el nombre de la columna o en la documentación del reporte.
+Con `DESC`, el cuartil 1 contiene a los oyentes de mayor consumo. Con `ASC` sería exactamente al revés. El sentido lo eliges tú, y conviene dejarlo escrito en el nombre de la columna o en la documentación del reporte, porque quien lo lea no puede deducirlo del número.
 
 ## Ejemplo: cuartiles de consumo
 
@@ -5544,48 +5690,48 @@ GROUP BY cuartil
 ORDER BY cuartil;
 ```
 
-Con 454 oyentes, los bloques quedan de 114, 114, 113 y 113: cuando la división no es exacta, **los primeros bloques reciben una fila más**. Cambiar `4` por `10` te da deciles, y por `100`, percentiles.
+Con 454 oyentes, los bloques quedan de 114, 114, 113 y 113 personas: cuando la división no da exacta, **los primeros bloques reciben una fila más** que los últimos.
 
 ## La trampa de los empates
 
-`ntile` reparte por **cantidad de filas**, no por valor. Dos oyentes con 9 reproducciones pueden terminar en cuartiles distintos si el corte cae justo entre ellos. Es esperable, pero si alguien pregunta «¿por qué este oyente está en el cuartil 3 y ese otro, idéntico, en el 2?», la respuesta no es cómoda.
+`ntile` reparte las filas por **cantidad**, no por valor. Dos oyentes con exactamente 9 reproducciones pueden terminar en cuartiles distintos si el corte del bloque cae justo entre ellos. Es el comportamiento esperado de la función, pero produce una situación incómoda: alguien mira el reporte, encuentra dos personas idénticas en segmentos distintos y deja de confiar en el resto de la tabla.
 
-Cuando el corte debe depender del valor y no de la posición, tienes alternativas:
+Cuando el corte tiene que depender del valor y no de la posición, hay alternativas:
 
-- `percent_rank()` y `cume_dist()`: posición relativa entre 0 y 1, donde los empates comparten valor.
-- Umbrales de negocio explícitos con `CASE` (por ejemplo, «más de 50 reproducciones = intensivo»).
-- `dense_rank()` cuando lo que importa son niveles de valor distintos.
+- `percent_rank()` y `cume_dist()` devuelven la posición relativa de cada fila como un número entre 0 y 1, y las filas empatadas comparten ese número.
+- Umbrales de negocio explícitos con `CASE`, por ejemplo «más de 50 reproducciones es consumo intensivo».
+- `dense_rank()` cuando lo que importa son los niveles de valor distintos.
 
-Agregar un desempate estable (`, user_id`) no elimina el problema, pero hace que el resultado sea **reproducible**, que es imprescindible para un reporte.
+Agregar un desempate estable (`, user_id`) no resuelve el problema de fondo, pero hace que el resultado sea **reproducible**, es decir, que la misma consulta reparta a las mismas personas en los mismos bloques cada vez que se ejecuta. Eso es imprescindible en un reporte que alguien va a comparar mes a mes.
 
 ## Menos filas que bloques
 
-Si la consulta devuelve 3 filas y pides `ntile(4)`, obtienes bloques 1, 2 y 3 con una fila cada uno: el bloque 4 simplemente no aparece. No es un error, pero conviene revisarlo antes de publicar un reporte que promete cuatro segmentos.
+Si la consulta devuelve 3 filas y pides `ntile(4)`, obtienes los bloques 1, 2 y 3 con una fila cada uno, y el bloque 4 no aparece. No es un error, pero conviene revisarlo antes de publicar un reporte que promete cuatro segmentos y muestra tres.
 
 ## Errores comunes
 
-- Usar `ntile` sobre el detalle cuando el negocio segmenta entidades: primero agrega por oyente, luego segmenta.
-- Olvidar `DESC` y presentar el cuartil 1 como «el mejor» cuando es el peor.
-- Suponer que todos los bloques tienen exactamente el mismo tamaño.
+- Aplicar `ntile` sobre el detalle cuando el negocio quiere segmentar entidades. Si segmentas la tabla `plays` estás repartiendo reproducciones; primero agrega por oyente y después segmenta.
+- Olvidar el `DESC` y presentar el cuartil 1 como «el mejor» cuando en realidad es el de menor consumo.
+- Suponer que todos los bloques tienen exactamente la misma cantidad de filas.
 
 ## Resumen
 
-1. `ntile(n)` reparte las filas ordenadas en `n` bloques casi iguales.
-2. Los bloques se llenan por posición, no por valor: los empates pueden separarse.
-3. Agrega siempre a la entidad correcta antes de segmentar, y fija un desempate estable.
+1. `ntile(n)` reparte las filas ordenadas en `n` bloques de tamaño casi igual.
+2. Los bloques se llenan por posición y no por valor, así que dos filas empatadas pueden quedar separadas.
+3. Agrega a la entidad correcta antes de segmentar y fija siempre un desempate estable.
 $c2015$, null, (select id from public.datasets where slug = $c2016$ritmo$c2016$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2017$totales-acumulados-promedios-moviles$c2017$), $c2018$acumulados-por-periodo$c2018$, $c2019$theory$c2019$, $c2020$Totales acumulados por período$c2020$, 0, 11, $c2021$## Por qué importa
 
-Casi todo tablero de negocio tiene una curva que sube: oyentes registrados hasta la fecha, ingresos del año, suscripciones netas. Esa curva es un **total acumulado**: en cada período, la suma de todo lo ocurrido hasta ese período inclusive. En SQL se resuelve con una función de ventana, sin unir la tabla consigo misma ni exportar nada a una planilla.
+Casi todo tablero de negocio tiene una curva que sube: oyentes registrados hasta la fecha, ingresos del año, suscripciones netas. Esa curva es un **total acumulado**, es decir, una serie en la que cada período muestra la suma de todo lo ocurrido desde el principio hasta ese período inclusive. En SQL se calcula con una función de ventana, una función que mira varias filas relacionadas con la actual sin agruparlas, así que no hace falta unir la tabla consigo misma ni exportar nada a una planilla.
 
-Trabajas con **Ritmo**, un servicio de streaming musical en seis mercados: `users` (oyentes), `plays` (reproducciones), `tracks`, `albums`, `artists` y `subscriptions`.
+Trabajas con **Ritmo**, un servicio de streaming musical presente en seis mercados. Sus tablas son `users` (los oyentes), `plays` (una fila por reproducción), `tracks` (las canciones), `albums`, `artists` y `subscriptions` (las suscripciones pagas).
 
 ## El patrón de dos pasos
 
-Un acumulado casi nunca se calcula sobre filas crudas: primero agregas por período, después acumulas. Separar ambos pasos con una CTE hace la consulta legible y evita el error clásico de mezclar niveles de agregación.
+Un acumulado casi nunca se calcula sobre las filas originales. Primero agrupas por período para obtener una fila por mes, y recién después acumulas esas filas. Separar los dos pasos con una CTE (por *common table expression*, el bloque `WITH` que le pone nombre a un paso intermedio) deja la consulta legible y evita el error clásico de mezclar dos niveles de agregación en la misma línea.
 
 ```sql
 WITH altas_por_mes AS (
@@ -5603,9 +5749,9 @@ FROM altas_por_mes
 ORDER BY mes;
 ```
 
-La CTE produce una fila por mes. Luego `sum(altas) OVER (ORDER BY mes)` suma las filas **desde la primera hasta la actual** en ese orden. La última fila del resultado vale 5000: todos los oyentes registrados.
+La CTE produce una fila por mes, con la cantidad de altas de ese mes. Después, `sum(altas) OVER (ORDER BY mes)` suma las filas **desde la primera hasta la actual** siguiendo ese orden, y por eso cada fila muestra el total acumulado hasta su mes. La última fila del resultado vale 5000, que es el total de oyentes registrados en la plataforma.
 
-`AT TIME ZONE 'UTC'` fija el huso con el que se corta el calendario. Sin él, el mes de cada alta queda a merced de la zona de la sesión (UTC en el sandbox, para que tus resultados sean reproducibles; en un servidor real, la que haya configurado quien lo instaló). El total acumulado final no cambia, pero sí cambia en qué escalón sube: un acumulado que alguien más reproduce con otra configuración no coincide con el tuyo. Escríbelo explícito y di en el informe en qué huso están cortados los meses.
+`AT TIME ZONE 'UTC'` fija el huso horario con el que se corta el calendario. UTC (por *coordinated universal time*) es el huso de referencia mundial. Sin esa indicación, el mes al que se asigna cada alta depende de la zona horaria de la sesión: en este sandbox siempre es UTC, para que tus resultados sean reproducibles, pero en un servidor real es la que haya configurado quien lo instaló. El total acumulado al final de la serie no cambia, porque las altas son las mismas; lo que cambia es en qué mes sube cada escalón, así que dos personas con configuraciones distintas obtienen curvas distintas. Escribe el huso de forma explícita y aclara en el informe con qué huso están cortados los meses.
 
 ## El ORDER BY de la ventana no es el de la consulta
 
@@ -5614,7 +5760,7 @@ Son dos cosas distintas y conviene tenerlo muy claro:
 - El `ORDER BY` **dentro de `OVER`** define en qué orden se acumula. Cambia los **valores**.
 - El `ORDER BY` **final** define cómo se muestra el resultado. Cambia solo la **presentación**.
 
-Puedes acumular por fecha y mostrar de mayor a menor; los acumulados no se alteran. Lo que no puedes es omitir el `ORDER BY` dentro de `OVER`: sin él la ventana no tiene noción de «hasta aquí» y `sum` devuelve el total completo repetido en cada fila.
+Puedes acumular por fecha y mostrar el resultado de mayor a menor: los valores acumulados no se alteran, solo cambia el orden en que se ven. Lo que no puedes es omitir el `ORDER BY` dentro de `OVER`. Sin él, la ventana no tiene ninguna noción de «hasta aquí», así que `sum` toma todas las filas del grupo y devuelve el total completo repetido en cada fila.
 
 ## Acumular por grupo
 
@@ -5639,11 +5785,11 @@ FROM mensual
 ORDER BY country, mes;
 ```
 
-Cada país arranca su propia curva desde cero. Es exactamente lo que necesitas para comparar mercados que empezaron en momentos distintos.
+Cada país arranca su propia curva desde cero y el acumulado de un país nunca incluye reproducciones de otro. Es exactamente lo que necesitas para comparar mercados que empezaron a operar en momentos distintos.
 
 ## Participación acumulada (curva de Pareto)
 
-Combinando dos ventanas obtienes el porcentaje acumulado, la herramienta estándar para responder «¿cuántos artistas explican la mitad de las reproducciones?»:
+Combinando dos ventanas obtienes el porcentaje acumulado, también llamado curva de Pareto: cada fila indica qué parte del total explican esa fila y todas las anteriores. Es la herramienta estándar para responder «¿cuántos artistas explican la mitad de las reproducciones?». El ejemplo parte de `por_artista`, una CTE previa con una fila por artista y su cantidad de reproducciones:
 
 ```sql
 SELECT
@@ -5658,19 +5804,19 @@ FROM por_artista
 ORDER BY reproducciones DESC, artista;
 ```
 
-El numerador acumula en orden descendente; el denominador, `sum(...) OVER ()` sin `ORDER BY`, es el gran total. Incluye un segundo criterio de desempate (`artista`) para que el resultado sea reproducible cuando dos artistas empatan.
+El numerador acumula las reproducciones en orden descendente, empezando por el artista más escuchado. El denominador es `sum(...) OVER ()`, una ventana sin `ORDER BY` y sin `PARTITION BY`, que por eso abarca todas las filas y da el gran total. El segundo criterio de orden, `artista`, desempata a quienes tienen la misma cantidad de reproducciones, de modo que la consulta devuelva siempre el mismo resultado.
 
 ## Errores comunes
 
 - Olvidar el `ORDER BY` dentro de `OVER`: obtienes el total, no el acumulado.
 - Acumular sobre filas crudas en vez de sobre el agregado por período.
-- Usar `PARTITION BY mes`: eso agrupa por mes y el acumulado nunca avanza. El período va en el `ORDER BY`; el grupo, en el `PARTITION BY`.
+- Usar `PARTITION BY mes`. Eso crea un grupo por cada mes, y como cada grupo tiene una sola fila, el acumulado nunca avanza y repite el valor del mes. El período va en el `ORDER BY` de la ventana. El grupo por el que se reinicia la curva va en el `PARTITION BY`.
 - Empates sin criterio de desempate: dos filas con la misma clave de orden comparten valor acumulado (lo verás en detalle en la próxima lección).
 
 ## Resumen
 
 1. Acumulado = `sum(metrica) OVER (ORDER BY periodo)`, casi siempre sobre una CTE ya agregada.
-2. `PARTITION BY` reinicia la curva por grupo; el `ORDER BY` de la ventana define el avance.
+2. `PARTITION BY` reinicia la curva en cada grupo. El `ORDER BY` de la ventana define en qué orden avanza la suma.
 3. `sum(x) OVER ()` es el gran total y sirve de denominador para la participación acumulada.
 $c2021$, null, (select id from public.datasets where slug = $c2022$ritmo$c2022$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
@@ -5678,7 +5824,7 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2023$totales-acumulados-promedios-moviles$c2023$), $c2024$marcos-rows-range$c2024$, $c2025$theory$c2025$, $c2026$El marco de ventana: ROWS, RANGE y GROUPS$c2026$, 1, 13, $c2027$## Por qué importa
 
-Cuando escribes `sum(x) OVER (ORDER BY mes)` obtienes un acumulado sin haber pedido ningún marco. No es magia: Postgres aplicó un marco por omisión. Esta es la parte de las funciones de ventana que más resultados silenciosamente incorrectos produce, porque la consulta no falla: devuelve números plausibles pero equivocados.
+Cuando escribes `sum(x) OVER (ORDER BY mes)` obtienes un acumulado aunque no hayas pedido ningún marco. Lo que ocurre es que Postgres aplicó un **marco** por omisión: el marco es el subconjunto de filas que la función mira para calcular el valor de la fila actual. Esta es la parte de las funciones de ventana que más resultados incorrectos produce en silencio, porque la consulta no falla nunca: devuelve números plausibles que responden otra pregunta.
 
 ## Las tres partes de OVER
 
@@ -5690,12 +5836,12 @@ OVER (
 )
 ```
 
-El marco se define **dentro** de cada partición y se recalcula para cada fila. Los límites posibles son `UNBOUNDED PRECEDING`, `N PRECEDING`, `CURRENT ROW`, `N FOLLOWING` y `UNBOUNDED FOLLOWING`, y el inicio nunca puede ser posterior al fin.
+El marco se define **dentro** de cada partición y se vuelve a calcular para cada fila, así que la fila 3 y la fila 40 miran conjuntos distintos. Los límites disponibles son `UNBOUNDED PRECEDING` (desde el comienzo de la partición), `N PRECEDING` (N filas o N unidades hacia atrás), `CURRENT ROW` (la fila actual), `N FOLLOWING` (hacia adelante) y `UNBOUNDED FOLLOWING` (hasta el final de la partición). El límite de inicio nunca puede quedar después del de fin.
 
 ## Los valores por omisión
 
-- **Sin `ORDER BY`**: el marco es toda la partición. Por eso `avg(x) OVER (PARTITION BY country)` da el promedio del país, igual en cada fila.
-- **Con `ORDER BY` y sin marco explícito**: el marco es `RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`. De ahí sale el acumulado.
+- **Sin `ORDER BY`**, el marco es la partición completa. Por eso `avg(x) OVER (PARTITION BY country)` devuelve el promedio del país entero, repetido igual en todas las filas de ese país.
+- **Con `ORDER BY` y sin marco escrito**, el marco es `RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`, es decir, desde el comienzo de la partición hasta la fila actual. De ese valor por omisión sale el total acumulado.
 
 Escribir ese marco a mano es válido y a veces aclara la intención:
 
@@ -5707,10 +5853,10 @@ sum(altas) OVER (ORDER BY mes ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
 
 La diferencia aparece con **empates** en la clave de orden.
 
-- `ROWS` cuenta posiciones físicas: `ROWS BETWEEN 2 PRECEDING AND CURRENT ROW` son siempre tres filas (menos al principio, donde el marco se recorta).
-- `RANGE` trabaja sobre **valores** del `ORDER BY`: `CURRENT ROW` significa «todas las filas cuyo valor de orden es igual al mío». Las filas empatadas comparten marco y, por lo tanto, el mismo resultado.
+- `ROWS` cuenta posiciones físicas. `ROWS BETWEEN 2 PRECEDING AND CURRENT ROW` son siempre tres filas, salvo al principio de la partición, donde todavía no hay dos filas anteriores y el marco se recorta.
+- `RANGE` trabaja sobre los **valores** de la columna del `ORDER BY`. Ahí `CURRENT ROW` significa «todas las filas cuyo valor de orden es igual al mío», así que las filas empatadas comparten el mismo marco y obtienen el mismo resultado.
 
-Si tres oyentes se registraron el mismo día y acumulas con `ORDER BY fecha`, el marco `RANGE` por omisión les da a los tres el acumulado del día completo. Con `ROWS` verías 1, 2, 3. Ninguno está mal: son preguntas distintas. Lo que está mal es no saber cuál pediste.
+Si tres oyentes se registraron el mismo día y acumulas con `ORDER BY fecha`, el marco `RANGE` por omisión les asigna a los tres el acumulado del día completo, porque los tres comparten la misma fecha. Con `ROWS` verías 1, 2 y 3, un valor distinto para cada uno según su posición. Ninguno de los dos comportamientos es incorrecto: responden preguntas diferentes. El problema aparece cuando no sabes cuál de las dos pediste.
 
 **Regla práctica**: si tu clave de orden es única (un mes por fila, un día por fila), `ROWS` y `RANGE` coinciden y conviene `ROWS` por ser más barato y más explícito. Si hay empates, elige a conciencia.
 
@@ -5731,11 +5877,11 @@ Compáralo con `ROWS BETWEEN 6 PRECEDING AND CURRENT ROW` sobre esa misma serie:
 
 ## GROUPS
 
-`GROUPS BETWEEN 1 PRECEDING AND CURRENT ROW` cuenta **grupos de empate** en lugar de filas o valores: el grupo actual más el anterior. Se usa poco, pero es la respuesta cuando piensas en «los dos días distintos más recientes» y hay varias filas por día.
+`GROUPS BETWEEN 1 PRECEDING AND CURRENT ROW` cuenta **grupos de filas empatadas** en lugar de filas sueltas o de valores: toma el grupo de la fila actual más el grupo anterior completo. Se usa poco, pero es la respuesta exacta cuando quieres «los dos días distintos más recientes» y cada día tiene varias filas.
 
 ## Errores comunes
 
-- Creer que `ORDER BY` sin marco promedia toda la partición: no, acumula.
+- Creer que un `ORDER BY` sin marco hace que la función mire toda la partición. No la mira: acumula desde el comienzo hasta la fila actual.
 - Usar `ROWS BETWEEN N PRECEDING` en una serie con días faltantes y llamarlo «últimos N días».
 - Usar `ROWS` con empates en la clave de orden sin desempatar: el resultado depende de un orden arbitrario y puede cambiar entre ejecuciones.
 - Definir un marco con desplazamiento en una ventana sin `ORDER BY`: es un error de sintaxis.
@@ -5743,7 +5889,7 @@ Compáralo con `ROWS BETWEEN 6 PRECEDING AND CURRENT ROW` sobre esa misma serie:
 ## Resumen
 
 1. El marco por omisión con `ORDER BY` es `RANGE UNBOUNDED PRECEDING … CURRENT ROW`; sin `ORDER BY`, toda la partición.
-2. `ROWS` cuenta filas, `RANGE` compara valores (y admite desplazamientos de intervalo), `GROUPS` cuenta grupos de empate.
+2. `ROWS` cuenta filas. `RANGE` compara valores del `ORDER BY` y admite desplazamientos con `INTERVAL`. `GROUPS` cuenta grupos de filas empatadas.
 3. Con clave de orden única elige `ROWS`; con huecos de calendario y ventanas temporales, `RANGE` con `INTERVAL`.
 $c2027$, null, (select id from public.datasets where slug = $c2028$ritmo$c2028$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
@@ -5751,7 +5897,7 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2029$totales-acumulados-promedios-moviles$c2029$), $c2030$promedios-moviles$c2030$, $c2031$theory$c2031$, $c2032$Promedios móviles$c2032$, 2, 11, $c2033$## Por qué importa
 
-Una serie diaria de negocio es ruidosa: los fines de semana suben, los feriados caen, un día cualquiera se dispara. El **promedio móvil** suaviza ese ruido y deja ver la tendencia. Es la métrica que aparece en todos los tableros de producto y la forma más común de usar un marco de ventana explícito.
+Una serie diaria de negocio es ruidosa: los fines de semana suben, los feriados caen y un día cualquiera se dispara por una campaña. El **promedio móvil** reemplaza el valor de cada día por el promedio de ese día y los anteriores, de modo que las variaciones sueltas se compensan y queda a la vista la tendencia. Es la métrica que aparece en todos los tableros de producto y el uso más común de un marco de ventana escrito de forma explícita.
 
 ## Media móvil de 7 días
 
@@ -5776,16 +5922,16 @@ FROM diario
 ORDER BY dia;
 ```
 
-El error más frecuente aquí es escribir `7 PRECEDING`: eso da una ventana de ocho días.
+El error más frecuente es escribir `7 PRECEDING`, que toma siete días anteriores más el actual y da una ventana de ocho días. Para una media de N días hacia atrás, el marco siempre lleva `N-1 PRECEDING`.
 
 ## El borde inicial
 
-Las primeras seis filas de la serie no tienen seis días previos, así que el marco se **recorta** y promedian menos valores. No es un error de Postgres: es lo que pediste. Tienes dos opciones honestas:
+Las primeras seis filas de la serie no tienen seis días anteriores disponibles, así que el marco se **recorta** y esas filas promedian menos valores de los que indica el nombre de la columna. No es un error de Postgres: es exactamente lo que pediste. Tienes dos opciones honestas:
 
 1. Dejarlas así y advertirlo en el tablero.
 2. Calcular la ventana sobre una serie que empiece **antes** del período que quieres mostrar y filtrar después.
 
-La segunda es la profesional, y obliga a entender el orden de evaluación: `WHERE` se ejecuta **antes** que las ventanas, así que un filtro de fechas en el `WHERE` recorta los datos que la ventana puede ver. Para filtrar después hace falta otro nivel:
+La segunda opción es la que se usa en un informe serio, y obliga a tener presente el orden de evaluación. El `WHERE` se ejecuta **antes** que las funciones de ventana, así que un filtro de fechas escrito ahí también recorta los datos que la ventana puede mirar hacia atrás. Para filtrar después de calcular la media hace falta otro nivel de consulta:
 
 ```sql
 WITH diario AS (
@@ -5808,7 +5954,7 @@ WHERE dia >= DATE '2025-08-01'
 ORDER BY dia;
 ```
 
-Julio entra en el cálculo y no se muestra: la media del 1 de agosto ya es una media de siete días reales.
+Julio participa del cálculo pero no aparece en el resultado, porque el filtro final lo descarta. Gracias a eso, la media del 1 de agosto ya está calculada sobre siete días reales y es comparable con la del resto del mes.
 
 ## Media móvil centrada
 
@@ -5821,16 +5967,16 @@ avg(reproducciones) OVER (
 ) AS media_centrada_7d
 ```
 
-Sigue mejor la forma de la curva porque no la desplaza hacia la derecha, pero **usa información futura**: no sirve para pronosticar ni para un tablero en vivo, y los últimos tres días quedan incompletos. Para análisis histórico es la mejor opción; para operación diaria, la móvil hacia atrás.
+La media centrada sigue mejor la forma de la curva porque no la desplaza hacia la derecha, pero para calcular el valor de un día **usa información de días posteriores**. Eso la vuelve inservible para pronosticar y para un tablero en vivo, y además deja incompletos los últimos tres días de la serie. Para un análisis histórico es la mejor opción; para el seguimiento diario de la operación, usa la media móvil hacia atrás.
 
 ## Días sin datos
 
-Si un día no tiene filas, no existe en la serie y `ROWS BETWEEN 6 PRECEDING` tomará siete días **con actividad**, no siete días de calendario. Dos soluciones:
+Si un día no tuvo ninguna reproducción, ese día no aparece como fila en la serie, así que `ROWS BETWEEN 6 PRECEDING` toma siete días **con actividad**, que pueden estar repartidos en dos semanas o en un mes. No son siete días de calendario. Hay dos soluciones:
 
 - `RANGE BETWEEN INTERVAL '6 days' PRECEDING AND CURRENT ROW`: la ventana es temporal y los huecos simplemente aportan menos filas. El promedio se calcula sobre los días presentes.
 - Construir un calendario completo (con `generate_series`) y unirlo con `LEFT JOIN` para que los días vacíos existan con valor 0. Solo así el **promedio** trata los huecos como ceros, que a veces es lo correcto y a veces no.
 
-Decide cuál pide el negocio: «promedio de los días con actividad» y «promedio diario del período» no son la misma métrica.
+Decide con el negocio cuál de las dos corresponde, porque «promedio de los días con actividad» y «promedio diario del período» son métricas distintas y la segunda siempre da un número menor cuando hay días vacíos.
 
 ## Errores comunes
 
@@ -5850,9 +5996,9 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2035$operaciones-de-conjuntos$c2035$), $c2036$union-y-union-all$c2036$, $c2037$theory$c2037$, $c2038$UNION y UNION ALL: apilar resultados$c2038$, 0, 10, $c2039$## Por qué importa
 
-Un join pone tablas **lado a lado**: agrega columnas. A veces necesitas lo contrario, poner resultados **uno debajo del otro**: agregar filas. Un directorio que junte clientes y vendedores, un reporte que sume los movimientos de dos fuentes, una lista que combine dos filtros distintos. Para eso existen las operaciones de conjuntos, y `UNION` es la primera.
+Un join pone dos tablas **lado a lado**, de modo que el resultado tiene más columnas. A veces necesitas lo contrario: poner dos resultados **uno debajo del otro**, de modo que el resultado tenga más filas. Es lo que pide un directorio que junte clientes y vendedores, un reporte que reúna los movimientos de dos fuentes o una lista que combine dos filtros distintos. Para eso existen las operaciones de conjuntos, y `UNION` es la primera.
 
-Trabajas con **TiendaViva**: `customers`, `sellers`, `orders`, `order_items`, `products`, `payments`, `returns`.
+Trabajas con **TiendaViva**, el marketplace: `customers` (clientes), `sellers` (vendedores), `orders` (pedidos), `order_items` (las líneas de cada pedido), `products` (productos), `payments` (intentos de pago) y `returns` (devoluciones).
 
 ## La sintaxis
 
@@ -5870,7 +6016,7 @@ WHERE country = 'UY'
 ORDER BY tipo, nombre;
 ```
 
-Dos consultas completas, un operador entre ellas y un resultado único. Cada consulta se llama **rama**. La columna `tipo` es un texto fijo que agregaste tú: sin esa etiqueta, al ver el resultado no sabrías de qué rama viene cada fila.
+Son dos consultas completas, un operador entre ellas y un único resultado. A cada una de esas consultas la llamamos **rama**. La columna `tipo` no viene de ninguna tabla: es un texto fijo que agregaste tú en cada rama para poder distinguirlas, porque una vez apiladas las filas no traen ninguna marca de origen.
 
 ## UNION elimina duplicados, UNION ALL no
 
@@ -5896,9 +6042,9 @@ WHERE c.country = 'UY' AND o.channel = 'marketplace_partner'
 ORDER BY customer_id;
 ```
 
-Quien compró por los dos canales aparece **una sola vez**. Con `UNION ALL` aparecería una vez por cada pedido: el resultado sería una lista de pedidos disfrazada de lista de clientes.
+Quien compró por los dos canales aparece **una sola vez**. Con `UNION ALL` aparecería una vez por cada pedido que hizo, y entonces el resultado ya no sería una lista de clientes sino una lista de pedidos con el nombre del cliente repetido.
 
-Dos filas son duplicadas cuando **todas** sus columnas coinciden. Si agregas `o.id` al `SELECT`, ya no hay duplicados que eliminar, porque cada pedido tiene un id distinto. Elegir las columnas es elegir qué significa "repetido".
+Dos filas se consideran duplicadas cuando **todas** sus columnas coinciden. Si agregas `o.id` al `SELECT` —la columna `id` de la tabla `orders`, que identifica cada pedido—, ya no queda ningún duplicado por eliminar, porque cada pedido tiene un identificador distinto. Por eso, elegir qué columnas proyectas es también elegir qué vas a considerar "repetido".
 
 ## Cuál elegir
 
@@ -5906,7 +6052,7 @@ Regla práctica: **usa `UNION ALL` salvo que necesites deduplicar**.
 
 Eliminar duplicados cuesta: el motor tiene que ordenar o construir una tabla hash con todas las filas antes de devolver la primera. `UNION ALL` no compara nada y puede empezar a entregar filas de inmediato. En un reporte de movimientos contables, además, `UNION` sería un error de negocio: dos cobros idénticos del mismo monto el mismo día son dos cobros reales, y `UNION` los convertiría en uno.
 
-Al revés: si vas a mandar un correo a una lista de clientes, `UNION ALL` significa escribirle dos veces a la misma persona.
+El caso opuesto también existe: si vas a enviar un correo a una lista de clientes, usar `UNION ALL` hace que la misma persona reciba dos mensajes.
 
 ## Reglas de compatibilidad
 
@@ -5916,7 +6062,7 @@ Las ramas no necesitan venir de la misma tabla, pero sí deben **encajar**:
 2. **Tipos compatibles** posición por posición: la primera columna de una rama con la primera de la otra, la segunda con la segunda. `integer` y `numeric` conviven; `text` y `integer` no.
 3. Los **nombres** del resultado los define la **primera rama**. Los alias de las demás se ignoran, así que conviene escribirlos igual para que nadie se confunda al leer.
 
-El orden importa y no se corrige solo: si una rama proyecta `(nombre, país)` y la otra `(país, nombre)`, ambas de tipo texto, la consulta corre sin error y mezcla los datos. Es el error más caro de esta sección porque no avisa.
+El orden de las columnas importa y el motor no lo corrige por ti: si una rama proyecta `(nombre, país)` y la otra `(país, nombre)`, y las cuatro columnas son de tipo texto, la consulta se ejecuta sin error y devuelve países en la columna de nombres y nombres en la de países. Es el error más caro de esta sección, justamente porque nada avisa de que ocurrió.
 
 ## ORDER BY y LIMIT van al final
 
@@ -5930,11 +6076,11 @@ ORDER BY nombre
 LIMIT 10;
 ```
 
-Ahí solo puedes ordenar por los nombres de la **primera** rama (o por posición: `ORDER BY 1`). Si necesitas ordenar o limitar una rama por separado, enciérrala entre paréntesis: `(SELECT ... ORDER BY x LIMIT 5) UNION ALL (SELECT ... LIMIT 5)`.
+En ese `ORDER BY` final solo puedes nombrar columnas de la **primera** rama, porque de ahí salen los nombres del resultado; también puedes usar la posición, como en `ORDER BY 1`. Si necesitas ordenar o limitar una rama por separado, enciérrala entre paréntesis: `(SELECT ... ORDER BY x LIMIT 5) UNION ALL (SELECT ... LIMIT 5)`.
 
 ## Errores comunes
 
-- Usar `UNION` "por las dudas" y perder filas legítimas en un reporte de montos.
+- Usar `UNION` "por las dudas" y perder filas legítimas: en un reporte de montos, dos cobros reales del mismo importe se convierten en uno solo.
 - Ramas con distinta cantidad de columnas: PostgreSQL responde que cada rama debe tener el mismo número de columnas.
 - Confiar en que el nombre de la columna alinea los datos: alinea la **posición**.
 - Poner `ORDER BY` en medio de las ramas sin paréntesis.
@@ -5948,9 +6094,9 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2041$operaciones-de-conjuntos$c2041$), $c2042$intersect-y-except$c2042$, $c2043$theory$c2043$, $c2044$INTERSECT y EXCEPT: comparar conjuntos$c2044$, 1, 11, $c2045$## Por qué importa
 
-Muchas preguntas de negocio son comparaciones entre dos listas: quiénes usan los dos métodos de pago, qué clientes compraron el año pasado y no volvieron, qué cuentas envían dinero pero nunca reciben. `INTERSECT` y `EXCEPT` responden exactamente eso, y se leen casi como la pregunta.
+Muchas preguntas de negocio son comparaciones entre dos listas: quiénes usan los dos medios de pago, qué clientes compraron el año pasado y no volvieron, qué cuentas envían dinero pero nunca reciben. `INTERSECT` devuelve lo que está en las dos listas y `EXCEPT` lo que está en la primera y falta en la segunda, así que la consulta termina pareciéndose mucho a la pregunta original.
 
-Trabajas con **Bolsillo**, la billetera digital: `users`, `accounts`, `transactions`, `transfers`, `cards`, `merchants`, `kyc_events`.
+Trabajas con **Bolsillo**, la billetera digital: `users` (las personas usuarias), `accounts` (sus cuentas), `transactions` (los movimientos de dinero), `transfers` (las transferencias entre cuentas), `cards` (las tarjetas), `merchants` (los comercios) y `kyc_events` (los intentos de verificación de identidad).
 
 ## INTERSECT: lo que está en las dos listas
 
@@ -5973,7 +6119,7 @@ WHERE u.country = 'PE' AND t.status = 'completed' AND t.kind = 'card_payment'
 ORDER BY user_id;
 ```
 
-Devuelve las filas que aparecen en **ambas** ramas. Fíjate en la "y" de la pregunta: no se puede resolver con `WHERE kind = 'qr_payment' AND kind = 'card_payment'`, porque ninguna transacción tiene dos tipos a la vez. La condición no es sobre una fila, es sobre una **persona** que tiene filas de los dos tipos.
+`INTERSECT` devuelve las filas que aparecen en **las dos** ramas. Fíjate en la "y" de la pregunta: no se puede resolver con `WHERE kind = 'qr_payment' AND kind = 'card_payment'`, porque `kind` es la columna de `transactions` que guarda el tipo de movimiento y ninguna fila puede tener dos tipos a la vez. La condición no es sobre una fila, es sobre una **persona** que tiene filas de los dos tipos.
 
 ## EXCEPT: lo que está en la primera y no en la segunda
 
@@ -5992,13 +6138,13 @@ WHERE t.status = 'completed'
 ORDER BY account_id;
 ```
 
-`EXCEPT` **no es simétrico**: invertir las ramas responde otra pregunta (las que reciben y nunca envían). `UNION` e `INTERSECT` sí lo son.
+`EXCEPT` **no es simétrico**, es decir, el orden de las ramas cambia el resultado: si las inviertes, la consulta responde otra pregunta, la de qué cuentas recibieron transferencias y nunca enviaron ninguna. `UNION` e `INTERSECT` sí son simétricos: da lo mismo cuál rama escribas primero.
 
 ## Los dos eliminan duplicados
 
 `INTERSECT` y `EXCEPT` devuelven filas **distintas**, igual que `UNION`. Si una cuenta envió 40 transferencias, aparece una sola vez. Por eso el `DISTINCT` dentro de cada rama casi nunca hace falta: no cambia el resultado y sí agrega trabajo.
 
-Existen `INTERSECT ALL` y `EXCEPT ALL`, que conservan multiplicidades (si algo está 3 veces en la primera rama y 1 en la segunda, `EXCEPT ALL` devuelve 2 copias). Se usan poco; cuando los necesites, escríbelos con esa intención declarada en un comentario.
+Existen también `INTERSECT ALL` y `EXCEPT ALL`, que conservan las repeticiones: si una fila aparece 3 veces en la primera rama y 1 vez en la segunda, `EXCEPT ALL` devuelve las 2 copias restantes. Se usan poco, así que cuando los necesites deja escrita la intención en un comentario para que nadie los tome por un error de tipeo.
 
 ## La comparación usa todas las columnas
 
@@ -6026,11 +6172,11 @@ INNER JOIN users AS u ON u.id = a.user_id
 ORDER BY s.account_id;
 ```
 
-Ese patrón —conjunto primero, detalles después— es el que vas a repetir en el trabajo real.
+Ese patrón —calcular primero el conjunto de claves y agregar los detalles después— es el que vas a repetir una y otra vez en el trabajo real.
 
 ## NULL cuenta como un valor
 
-En un `WHERE`, `NULL = NULL` no es verdadero. En las operaciones de conjuntos, en cambio, dos filas con `NULL` en la misma columna **se consideran iguales**, así que `EXCEPT` descarta la fila e `INTERSECT` la conserva. Es el mismo criterio de `GROUP BY` y `DISTINCT`, y una de las razones por las que `EXCEPT` es más seguro que `NOT IN`, que con un solo `NULL` en la lista devuelve cero filas.
+En un `WHERE`, `NULL = NULL` no es verdadero. En las operaciones de conjuntos, en cambio, dos filas que tienen `NULL` en la misma columna **se consideran iguales**, así que `EXCEPT` descarta esa fila e `INTERSECT` la conserva. Es el mismo criterio que usan `GROUP BY` y `DISTINCT`. También es una de las razones por las que `EXCEPT` es más seguro que `NOT IN`: si la lista con la que compara `NOT IN` contiene un solo `NULL`, la condición nunca da verdadero y la consulta devuelve cero filas sin ningún aviso.
 
 ## Errores comunes
 
@@ -6048,7 +6194,9 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2047$operaciones-de-conjuntos$c2047$), $c2048$conjuntos-precedencia-y-alternativas$c2048$, $c2049$theory$c2049$, $c2050$Combinar operadores y elegir la alternativa correcta$c2050$, 2, 10, $c2051$## Por qué importa
 
-En una consulta real rara vez aparece un solo operador. "Las cuentas marcadas o con KYC rechazado, menos las ya bloqueadas" combina dos. Y casi siempre existe una alternativa con `JOIN` o `EXISTS`: conviene saber cuándo cada una es la mejor opción.
+En una consulta real rara vez aparece un solo operador. Un pedido como "las cuentas marcadas por antifraude o con la verificación de identidad rechazada, menos las que ya están bloqueadas" combina dos operaciones de conjuntos. Además, casi siempre existe otra forma de escribir lo mismo con `JOIN` o con `EXISTS`, así que conviene saber en qué caso conviene cada una.
+
+Esa verificación de identidad se conoce como KYC (por *Know Your Customer*, «conoce a tu cliente»): es el proceso con el que una billetera confirma quién es la persona detrás de una cuenta, y en Bolsillo cada intento queda registrado en la tabla `kyc_events`.
 
 ## Precedencia: INTERSECT primero
 
@@ -6057,7 +6205,7 @@ Cuando mezclas operadores sin paréntesis, PostgreSQL aplica estas reglas:
 1. `INTERSECT` se evalúa **antes** que `UNION` y `EXCEPT`.
 2. `UNION` y `EXCEPT` tienen la misma prioridad y se evalúan **de izquierda a derecha**.
 
-Entonces `A UNION B EXCEPT C` es `(A UNION B) EXCEPT C`, pero `A UNION B INTERSECT C` es `A UNION (B INTERSECT C)`: el mismo texto, distinto resultado.
+Entonces `A UNION B EXCEPT C` equivale a `(A UNION B) EXCEPT C`, mientras que `A UNION B INTERSECT C` equivale a `A UNION (B INTERSECT C)`: dos consultas que se escriben casi igual y devuelven conjuntos distintos.
 
 ```sql
 -- Usuarias y usuarios de Uruguay para revisar: marcados o con KYC rechazado,
@@ -6086,9 +6234,9 @@ ORDER BY user_id;
 
 Aquí los paréntesis coinciden con la precedencia por defecto, así que no cambian el resultado. Igual conviene escribirlos: quien lea la consulta no tiene que recordar la regla, y si alguien agrega un `INTERSECT` mañana, la intención queda fijada.
 
-## Set operations dentro de otra consulta
+## Operaciones de conjuntos dentro de otra consulta
 
-Una combinación de ramas es una consulta como cualquier otra: puede ir en una CTE, en un `FROM` o dentro de `IN (...)`.
+Una combinación de ramas es una consulta como cualquier otra, así que puede ir dentro de una CTE (por *Common Table Expression*, expresión de tabla común: una consulta con nombre que se define con `WITH` y se usa después como si fuera una tabla), en el `FROM` o dentro de un `IN (...)`.
 
 ```sql
 WITH activas AS (
@@ -6099,7 +6247,7 @@ WITH activas AS (
 SELECT count(*) AS cuentas_activas FROM activas;
 ```
 
-Es la forma natural de contar el tamaño de un conjunto o de seguir calculando sobre él.
+Es la forma natural de contar cuántos elementos tiene un conjunto o de seguir calculando sobre él.
 
 ## Las alternativas: JOIN, EXISTS, NOT EXISTS
 
@@ -6130,17 +6278,17 @@ Ninguna es "la correcta". Elige así:
 | La condición es "existe alguna fila que…" y no quieres duplicar filas | `EXISTS` / `NOT EXISTS` |
 | Hay que contar coincidencias, no solo saber si hay | `JOIN` + `GROUP BY` |
 
-Dos avisos de campo. Primero: un `INNER JOIN` **no** equivale a `INTERSECT` si la clave se repite, porque el join multiplica filas y el `INTERSECT` deduplica. Segundo: `NOT IN` con una subconsulta que puede devolver `NULL` da cero filas sin avisar; `EXCEPT` y `NOT EXISTS` no tienen ese problema.
+Dos advertencias que valen para el trabajo real. La primera: un `INNER JOIN` **no** equivale a un `INTERSECT` cuando la clave se repite, porque el join devuelve una fila por cada coincidencia mientras que el `INTERSECT` deduplica. La segunda: `NOT IN` con una subconsulta que puede devolver `NULL` termina devolviendo cero filas sin ningún aviso; `EXCEPT` y `NOT EXISTS` no tienen ese problema.
 
 ## Rendimiento
 
 `UNION ALL` es el más barato: no compara nada. `UNION`, `INTERSECT` y `EXCEPT` necesitan ordenar o armar una tabla hash para deduplicar, un costo que crece con el volumen. Cuando cada rama repite el mismo escaneo pesado sobre la misma tabla, suele ser mejor una sola pasada con agregación condicional (`count(*) FILTER (WHERE ...)` y un `HAVING`), la técnica de la sección siguiente.
 
-Como siempre: escribe primero la versión que se lee mejor y compara planes con `EXPLAIN` solo si la consulta se vuelve lenta de verdad.
+Como siempre, escribe primero la versión que se lee mejor y revisa los planes de ejecución con `EXPLAIN` solo si la consulta llega a ser lenta de verdad.
 
 ## Errores comunes
 
-- Mezclar `UNION` e `INTERSECT` sin paréntesis y obtener otro conjunto del esperado.
+- Mezclar `UNION` e `INTERSECT` sin paréntesis y obtener un conjunto distinto del que esperabas.
 - Reemplazar un `INTERSECT` por un `INNER JOIN` y duplicar filas.
 - Escribir tres ramas casi iguales sobre la misma tabla en vez de una pasada con filtros condicionales.
 
@@ -6153,11 +6301,11 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2053$lag-y-lead$c2053$), $c2054$lag-y-lead-basico$c2054$, $c2055$theory$c2055$, $c2056$LAG y LEAD: mirar la fila anterior y la siguiente$c2056$, 0, 10, $c2057$## Por qué importa
 
-Muchísimas preguntas de negocio se responden comparando una fila con su vecina: ¿vendimos más que el mes pasado?, ¿cuánto tardó este cliente en volver?, ¿cambió de plan? Sin funciones de ventana, esa comparación exige unir la tabla consigo misma con una condición de «la fila inmediatamente anterior», que es incómoda de escribir y lenta de ejecutar.
+Muchísimas preguntas de negocio se responden comparando una fila con la que tiene al lado: ¿vendimos más que el mes pasado?, ¿cuánto tardó este cliente en volver a comprar?, ¿cambió de plan? Sin funciones de ventana, esa comparación exige unir la tabla consigo misma con una condición que describa «la fila inmediatamente anterior», algo incómodo de escribir y lento de ejecutar.
 
-`LAG` y `LEAD` resuelven eso en una línea: traen el valor de otra fila de la misma partición, sin agrupar y sin perder ninguna fila.
+`LAG` («retraso» en inglés) y `LEAD` («adelanto») son funciones de ventana, es decir, funciones que miran otras filas relacionadas con la fila actual sin agruparlas. Traen a tu fila el valor de otra fila del mismo grupo, y el resultado conserva todas las filas originales.
 
-Seguimos con **Ritmo**, el servicio de streaming: `users` (oyentes), `plays` (reproducciones), `albums`, `artists` y `subscriptions`.
+Seguimos con **Ritmo**, el servicio de streaming musical. Sus tablas son `users` (los oyentes), `plays` (una fila por reproducción), `albums`, `artists` y `subscriptions` (las suscripciones pagas).
 
 ## La forma básica
 
@@ -6178,13 +6326,13 @@ FROM mensual
 ORDER BY mes;
 ```
 
-`lag(x)` devuelve el valor de `x` en la fila **anterior** según el `ORDER BY` de la ventana; `lead(x)`, el de la fila **siguiente**. En la primera fila no hay anterior, así que `lag` devuelve `NULL`; en la última pasa lo mismo con `lead`.
+`lag(x)` devuelve el valor que tiene `x` en la fila **anterior**, según el `ORDER BY` escrito dentro de `OVER`. `lead(x)` devuelve el valor de esa misma columna en la fila **siguiente**. La primera fila no tiene ninguna anterior, así que su `lag` es `NULL`, y a la última le pasa lo mismo con `lead`.
 
-El `AT TIME ZONE 'UTC'` fija el huso con el que se corta el calendario: sin él, el mes al que cae cada marca de tiempo depende de la zona de la sesión (UTC en el sandbox, pero lo que el administrador haya configurado en un servidor real). Aquí no vas a notar la diferencia porque el sandbox fija UTC justamente para que los resultados sean reproducibles; en producción, una reproducción del 1 de marzo a las 00:30 UTC se le suma a febrero si la sesión corre en Bogotá, y con `lag` ese corrimiento arrastra toda la columna de comparación.
+El `AT TIME ZONE 'UTC'` fija el huso horario con el que se corta el calendario. UTC (por *coordinated universal time*) es el huso de referencia mundial, y sin esa indicación el mes al que cae cada marca de tiempo depende de la zona horaria configurada en la sesión. En este sandbox no vas a notar la diferencia, porque la sesión está fijada en UTC justamente para que los resultados sean reproducibles. En un servidor real, en cambio, una reproducción del 1 de marzo a las 00:30 UTC se cuenta en febrero si la sesión corre en Bogotá. Y como `lag` compara cada mes con el anterior, ese corrimiento de unas pocas filas desplaza toda la columna de comparación.
 
 ## El ORDER BY de la ventana es obligatorio
 
-`LAG` y `LEAD` responden «la fila anterior **en qué orden**». Sin `ORDER BY` dentro de `OVER` no hay un orden definido y el resultado queda a merced del plan de ejecución. Postgres no te avisa: simplemente devuelve algo. Considéralo obligatorio.
+`LAG` y `LEAD` tienen que saber «la fila anterior **en qué orden**». Si no escribes `ORDER BY` dentro de `OVER`, no existe ningún orden definido y el valor que devuelven depende de cómo el motor haya decidido leer las filas esa vez. Postgres no emite ninguna advertencia: devuelve un número, y ese número puede cambiar entre ejecuciones. Trátalo como obligatorio.
 
 Ese `ORDER BY` es independiente del `ORDER BY` final de la consulta. Puedes mirar hacia atrás por fecha y mostrar el resultado de mayor a menor; los valores de `lag` no cambian.
 
@@ -6197,9 +6345,9 @@ lag(reproducciones, 12) OVER (ORDER BY mes)        -- el mismo mes del año pasa
 lag(reproducciones, 1, 0) OVER (ORDER BY mes)      -- 0 en lugar de NULL en la primera fila
 ```
 
-El segundo argumento es cuántas filas retroceder (o avanzar); el tercero, qué devolver cuando esa fila no existe. Cuidado con el valor por omisión: poner `0` es cómodo para restar, pero convierte «no hay dato» en «había cero», y eso puede mentir en un informe. Úsalo solo cuando el cero sea verdad en el negocio.
+El segundo argumento indica cuántas filas hay que retroceder o avanzar. El tercero indica qué valor devolver cuando esa fila no existe. Ten cuidado con ese tercer argumento: poner `0` es cómodo porque permite restar sin obtener NULL, pero convierte «no tenemos dato de ese período» en «ese período valió cero», y quien lea el informe va a interpretar lo segundo. Úsalo solo cuando el cero sea cierto en términos del negocio.
 
-Y una advertencia importante sobre `lag(x, 12)`: retrocede **doce filas**, no doce meses. Si a la serie le falta un mes porque no hubo actividad, la comparación se desalinea sin avisar.
+Una advertencia importante sobre `lag(x, 12)`: retrocede **doce filas**, no doce meses. Si a la serie le falta un mes porque en ese período no hubo actividad, la función compara contra un mes equivocado y no hay ningún aviso de que eso ocurrió.
 
 ## Partir por grupo
 
@@ -6224,13 +6372,13 @@ FROM mensual
 ORDER BY country, mes;
 ```
 
-Sin `PARTITION BY`, la primera fila de Chile se compararía con la última de Brasil: un número sin ningún sentido que además parece plausible.
+Sin `PARTITION BY`, todas las filas forman una sola secuencia y la primera fila de Chile se compara con la última de Brasil. El resultado es una variación entre dos países distintos, que no significa nada y que además tiene el aspecto de un número razonable.
 
 ## Dónde no se puede usar
 
 Como toda función de ventana, `LAG` se evalúa **después** de `WHERE`, `GROUP BY` y `HAVING`. Por eso:
 
-- No puedes filtrar por `lag(...)` en el `WHERE` de la misma consulta. Calcúlalo en una CTE o subconsulta y filtra en el nivel de afuera.
+- No puedes filtrar por `lag(...)` en el `WHERE` de la misma consulta, porque en ese momento el valor todavía no está calculado. Calcúlalo dentro de una CTE (por *common table expression*, el bloque `WITH` que nombra un paso intermedio) o de una subconsulta, y filtra en el nivel de afuera.
 - Lo que el `WHERE` descarta, la ventana no lo ve. Si filtras un mes y pides el mes anterior, la primera fila devuelve `NULL`: el dato existía, pero lo quitaste antes.
 
 ## Errores comunes
@@ -6251,7 +6399,7 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2059$lag-y-lead$c2059$), $c2060$variaciones-entre-periodos$c2060$, $c2061$theory$c2061$, $c2062$Variaciones entre períodos$c2062$, 1, 11, $c2063$## Por qué importa
 
-«Creció 12 % contra el mes anterior» es probablemente la frase más repetida en cualquier reunión de resultados. Detrás hay una cuenta simple —valor actual contra valor anterior— y varias trampas que arruinan el número sin que nadie lo note.
+«Creció 12 % contra el mes anterior» es probablemente la frase más repetida en cualquier reunión de resultados. Detrás hay una cuenta simple, el valor actual comparado con el valor anterior, y varias trampas que arruinan el número sin que nadie lo note en la reunión.
 
 ## Variación absoluta y porcentual
 
@@ -6278,11 +6426,11 @@ ORDER BY mes;
 
 Tres detalles que hacen la diferencia:
 
-- **`100.0` y no `100`.** Con dos enteros, la división en Postgres es entera: `3 / 4` da `0`. Basta con que un operando sea `numeric` para que la cuenta sea decimal.
+- **`100.0` y no `100`.** Cuando los dos operandos son enteros, Postgres hace una división entera y corta los decimales: `3 / 4` da `0`. Basta con que uno de los dos sea `numeric` para que la cuenta se resuelva con decimales.
 - **`nullif(..., 0)`.** Si el mes anterior fue 0, la división falla con *division by zero*. `nullif` la convierte en `NULL`, que es la respuesta honesta: «no se puede calcular».
 - **`round(..., 1)`.** Redondea al final, nunca en pasos intermedios.
 
-Repetir tres veces la misma expresión `lag(...)` funciona, pero se lee mal. Una CTE intermedia deja la fórmula limpia:
+Repetir tres veces la misma expresión `lag(...)` funciona y da el resultado correcto, pero obliga a quien lee a verificar que las tres copias sean idénticas. Calcular el valor anterior una sola vez en una CTE intermedia deja la fórmula a la vista:
 
 ```sql
 WITH mensual AS (
@@ -6310,25 +6458,25 @@ ORDER BY mes;
 
 ## Contra el mes anterior o contra el mismo mes del año pasado
 
-No son la misma pregunta. La variación mes a mes mezcla crecimiento real con estacionalidad: diciembre casi siempre sube y febrero casi siempre baja. La variación interanual compara períodos comparables y aísla la tendencia.
+No son la misma pregunta. La variación mes a mes mezcla el crecimiento real con la **estacionalidad**, que es el patrón que se repite todos los años por el calendario: diciembre casi siempre sube y febrero casi siempre baja, sin que el negocio haya cambiado. La variación interanual compara cada mes contra el mismo mes del año anterior, así que la estacionalidad afecta por igual a los dos valores y lo que queda a la vista es la tendencia.
 
 ```sql
 lag(reproducciones, 12) OVER (ORDER BY mes) AS mismo_mes_ano_pasado
 ```
 
-Solo es correcto si la serie tiene **todos** los meses. Si falta uno, `lag(x, 12)` retrocede doce filas y compara contra el mes equivocado. Cuando no puedas garantizar la serie completa, une la tabla consigo misma por `mes = otro.mes + interval '1 year'`, que compara por calendario y no por posición.
+Eso solo es correcto si la serie tiene **todos** los meses. Si falta uno, `lag(x, 12)` retrocede doce filas y termina comparando contra un mes que no corresponde. Cuando no puedas garantizar que la serie esté completa, une la tabla consigo misma con la condición `mes = otro.mes + interval '1 year'`, que empareja por fecha de calendario en lugar de por posición en la lista.
 
 ## Períodos incompletos
 
-El último período casi siempre está a medio llenar: si el corte de datos es el 15 de septiembre, ese mes muestra medio mes. La variación contra agosto dará una caída enorme que no existe.
+El último período casi siempre está a medio llenar. Si los datos llegan hasta el 15 de septiembre, ese mes contiene quince días y agosto contiene treinta y uno. La variación entre ambos va a mostrar una caída enorme que no ocurrió: solo refleja que estás comparando medio mes contra un mes entero.
 
 Dos salidas honestas: excluir el período en curso con un filtro, o marcarlo con una bandera para que quien lea el informe sepa que no es comparable. Lo que nunca conviene es publicarlo como si fuera una caída real.
 
 ## Bases pequeñas y números negativos
 
-Un porcentaje sobre una base chica es ruido: pasar de 2 a 6 es «+200 %» y no significa nada. En los tableros se suele ocultar la variación cuando la base está por debajo de un mínimo acordado con el negocio.
+Un porcentaje calculado sobre una base chica no informa nada útil: pasar de 2 reproducciones a 6 es «+200 %», y ese titular describe cuatro reproducciones de diferencia. Por eso en los tableros se suele ocultar la variación cuando la base está por debajo de un mínimo acordado con el negocio.
 
-Y si la base puede ser negativa (resultados, márgenes), la variación porcentual cambia de signo y deja de ser interpretable. Ahí se reporta la diferencia absoluta.
+Y si la base puede ser negativa, como ocurre con resultados o márgenes, la variación porcentual cambia de signo y deja de poder interpretarse: pasar de −100 a −50 da «−50 %» aunque la situación mejoró. En esos casos se informa la diferencia absoluta, no el porcentaje.
 
 ## Errores comunes
 
@@ -6349,7 +6497,7 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2065$lag-y-lead$c2065$), $c2066$brechas-y-valores-de-referencia$c2066$, $c2067$theory$c2067$, $c2068$Brechas entre eventos y valores de referencia$c2068$, 2, 11, $c2069$## Por qué importa
 
-`LAG` no sirve solo para series mensuales. Aplicado a una tabla de eventos responde preguntas que el negocio hace todo el tiempo: ¿cuánto pasa entre una compra y la siguiente?, ¿cuándo se corta una sesión?, ¿en qué momento cambió de plan este cliente?
+`LAG` no sirve solo para series mensuales. Aplicado a una tabla de eventos, donde cada fila es algo que pasó en un instante, responde preguntas que el negocio hace todo el tiempo: ¿cuánto tiempo pasa entre una compra y la siguiente?, ¿en qué punto se corta una sesión?, ¿en qué momento cambió de plan este cliente?
 
 ## Tiempo entre eventos consecutivos
 
@@ -6367,11 +6515,11 @@ WHERE user_id = 496
 ORDER BY played_at;
 ```
 
-Restar dos `timestamptz` da un `interval`. Un intervalo se muestra bien pero se agrega mal, así que para promediar o comparar conviene pasarlo a un número: `extract(epoch FROM ...)` devuelve segundos, y divides por 3600 para horas o por 86400 para días.
+Restar dos valores `timestamptz` devuelve un `interval`, que es una duración. Un intervalo se muestra bien en pantalla, pero es incómodo de promediar y de comparar, así que conviene convertirlo a número: `extract(epoch FROM ...)` devuelve la duración en segundos, y a partir de ahí divides entre 3600 para obtener horas o entre 86400 para obtener días.
 
 Con fechas (`date`) es más simple todavía: `released_on - lag(released_on) OVER (...)` devuelve directamente un entero de días.
 
-La primera fila de cada partición no tiene anterior: su brecha es `NULL`, y eso es correcto. Rellenarla con 0 diría «volvió al instante», que es falso.
+La primera fila de cada partición no tiene ninguna fila anterior, así que su brecha es `NULL`, y ese NULL es la respuesta correcta: no hubo un evento previo que medir. Rellenarlo con 0 afirmaría que la persona volvió de inmediato, y además bajaría cualquier promedio que calcules después.
 
 ## Sesionizar: agrupar eventos cercanos
 
@@ -6395,9 +6543,9 @@ SELECT
 FROM marcadas;
 ```
 
-`anterior IS NULL` cubre la primera reproducción de cada oyente, que siempre abre sesión. A partir de ahí, contar sesiones es sumar esa bandera; y si necesitas un identificador de sesión, un `sum(inicia_sesion) OVER (PARTITION BY user_id ORDER BY played_at)` numera las sesiones de cada persona.
+La condición `anterior IS NULL` cubre la primera reproducción de cada oyente, que siempre abre una sesión porque no hay nada antes. A partir de ahí, contar sesiones es simplemente sumar esa bandera. Y si necesitas un identificador de sesión para agrupar los eventos de cada una, `sum(inicia_sesion) OVER (PARTITION BY user_id ORDER BY played_at)` va numerando las sesiones de cada persona: el número solo avanza cuando empieza una nueva.
 
-El mismo patrón detecta cambios de estado: si `lag(plan)` es distinto del plan actual, esa fila es un cambio de plan. Compáralo con `IS DISTINCT FROM` en vez de `<>` para que un `NULL` cuente como diferencia y no desaparezca.
+El mismo patrón detecta cambios de estado: si el plan que devuelve `lag(plan)` es distinto del plan de la fila actual, esa fila marca un cambio de plan. Compáralos con `IS DISTINCT FROM` en lugar de `<>`, porque `<>` devuelve NULL cuando alguno de los dos valores es NULL y ese cambio quedaría sin detectar; `IS DISTINCT FROM` trata el NULL como un valor más y responde verdadero o falso siempre.
 
 ## FIRST_VALUE y LAST_VALUE
 
@@ -6407,7 +6555,7 @@ A veces no quieres la fila vecina sino un punto de referencia de toda la partici
 first_value(reproducciones) OVER (PARTITION BY country ORDER BY mes) AS primer_mes
 ```
 
-`FIRST_VALUE` funciona como esperas. `LAST_VALUE` **no**, y es una de las trampas más frecuentes de SQL: con `ORDER BY` y sin marco explícito, la ventana llega hasta la fila actual, así que `last_value` devuelve el valor de la fila actual, no el último de la partición. Hay que abrir el marco:
+`FIRST_VALUE` devuelve el primer valor de la partición, que es lo que uno espera. `LAST_VALUE` **no** devuelve el último, y esa es una de las trampas más frecuentes de SQL. Cuando la ventana tiene `ORDER BY` y no declaras un marco, el marco por omisión llega solo hasta la fila actual, así que `last_value` devuelve el valor de esa misma fila en lugar del último de la partición. Para obtener el último hay que abrir el marco hasta el final:
 
 ```sql
 last_value(reproducciones) OVER (
@@ -6417,9 +6565,9 @@ last_value(reproducciones) OVER (
 ) AS ultimo_mes
 ```
 
-Una alternativa que muchos prefieren por lo explícita: `first_value(...) OVER (PARTITION BY country ORDER BY mes DESC)`. Da lo mismo y no depende de recordar el marco.
+Hay una alternativa que muchos equipos prefieren por ser más explícita: `first_value(...) OVER (PARTITION BY country ORDER BY mes DESC)`, es decir, pedir el primer valor de la serie invertida. Devuelve exactamente lo mismo y no depende de recordar la regla del marco.
 
-Con esa referencia, un índice base 100 sale solo: `round(100.0 * reproducciones / ultimo_mes, 1)`.
+Con una referencia de ese tipo se arma un índice base 100, que expresa cada período como un porcentaje del período de referencia y permite comparar series de tamaños muy distintos: `round(100.0 * reproducciones / ultimo_mes, 1)`.
 
 ## Errores comunes
 
@@ -6440,17 +6588,17 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2071$cohortes-y-retencion$c2071$), $c2072$definir-una-cohorte$c2072$, $c2073$theory$c2073$, $c2074$Qué define una cohorte$c2074$, 0, 12, $c2075$## Por qué importa
 
-«¿Cuánta gente nos sigue usando?» parece una pregunta simple y no lo es. Este es el tema donde una consulta puede ejecutarse sin errores, devolver porcentajes creíbles y estar mal: el SQL funciona, pero la definición era otra. Antes de escribir nada tienes que poder responder tres preguntas en una frase cada una.
+«¿Cuánta gente nos sigue usando?» parece una pregunta simple y no lo es. Este es el tema donde una consulta puede ejecutarse sin ningún error, devolver porcentajes creíbles y estar mal igual, porque el SQL funciona pero la definición que mide no es la que el negocio pedía. Antes de escribir la primera línea tienes que poder responder tres preguntas, cada una en una frase.
 
-Trabajas con **Ritmo**, un servicio de streaming musical en seis mercados: `users` (oyentes, con `signup_at` y `churned_at`), `plays` (reproducciones) y `subscriptions` (períodos pagos con `started_on` y `ended_on`).
+Trabajas con **Ritmo**, un servicio de streaming musical presente en seis mercados. Vas a usar tres tablas: `users` (los oyentes, con `signup_at`, el instante del alta, y `churned_at`, el de la baja), `plays` (una fila por reproducción) y `subscriptions` (los períodos pagos, con `started_on` y `ended_on`).
 
 ## Las tres decisiones
 
-**1. ¿Qué agrupa a la cohorte?** Una cohorte es un conjunto de personas que comparten un evento de origen en un período. Lo habitual es el alta (`signup_at`), pero podría ser la primera compra o la primera suscripción. El evento de origen se fija una vez y **no cambia**: alguien de la cohorte de marzo de 2024 sigue siendo de marzo de 2024 para siempre.
+**1. ¿Qué agrupa a la cohorte?** Una **cohorte** es un conjunto de personas que comparten un mismo evento de origen ocurrido en un mismo período, por ejemplo todas las que se registraron en marzo de 2024. Lo habitual es usar el alta (`signup_at`), pero podría ser la primera compra o la primera suscripción. El evento de origen se fija una sola vez y **no cambia nunca**: quien pertenece a la cohorte de marzo de 2024 sigue perteneciendo a ella para siempre, haga lo que haga después.
 
-**2. ¿Qué significa «retenido»?** Es una definición de negocio, no de SQL. En Ritmo puede ser «reprodujo al menos una canción», «reprodujo en al menos tres días distintos» o «tenía una suscripción paga vigente». Cada una da un número distinto y ninguna es la verdadera; la que no sirve es la que no está escrita en ninguna parte.
+**2. ¿Qué significa «retenido»?** Es una definición de negocio, no una función de SQL. En Ritmo puede ser «reprodujo al menos una canción», «reprodujo en al menos tres días distintos» o «tenía una suscripción paga vigente». Cada una devuelve un número distinto y ninguna es más verdadera que las otras. El problema aparece cuando la definición usada no está escrita en ninguna parte, porque entonces dos informes dan cifras diferentes y nadie puede explicar por qué.
 
-**3. ¿Con qué grano de tiempo?** Mes calendario, semana calendario, o ventanas relativas al alta de cada persona (días 1 a 30). No son lo mismo y se confunden seguido: volvemos sobre eso en la tercera lección.
+**3. ¿Con qué grano de tiempo?** Puede ser el mes calendario, la semana calendario o una ventana relativa al alta de cada persona (los días 1 a 30 contados desde su propio registro). No son lo mismo y se confunden con frecuencia; volvemos sobre eso en la tercera lección.
 
 ## Asignar la cohorte
 
@@ -6463,17 +6611,17 @@ GROUP BY 1
 ORDER BY 1;
 ```
 
-Devuelve 21 filas, de `2024-01-01` a `2025-09-01`: el tamaño de cada cohorte, que será el **denominador** de todas las tasas que calcules después.
+Devuelve 21 filas, de `2024-01-01` a `2025-09-01`, con el tamaño de cada cohorte. Ese tamaño es el **denominador** de todas las tasas de retención que calcules después.
 
-`AT TIME ZONE 'UTC'` no es decoración. `signup_at` es `timestamptz`; sin fijar el huso, `date_trunc` usa la zona de la sesión, y un alta del 1 de marzo a las 00:30 UTC cae en febrero para una sesión configurada en Bogotá. La cohorte de esa persona cambia según cómo esté configurado el servidor, no según el dato.
+`AT TIME ZONE 'UTC'` no es decoración. `signup_at` es de tipo `timestamptz`, es decir, guarda un instante absoluto. Si no fijas el huso horario, `date_trunc` corta el calendario según la zona configurada en la sesión, y un alta del 1 de marzo a las 00:30 UTC cae en febrero para una sesión configurada en Bogotá. Dicho de otro modo: la cohorte de esa persona cambiaría según cómo esté configurado el servidor, no según lo que dice el dato.
 
-El sandbox fija la sesión en UTC a propósito, para que tus resultados sean reproducibles, así que aquí las dos versiones coinciden. En el trabajo no tienes esa garantía. Fija el huso **siempre** y escribe en el informe cuál usaste.
+El simulador fija la sesión en UTC justamente para que tus resultados sean reproducibles, así que aquí las dos versiones coinciden. En el trabajo no tienes esa garantía. Fija el huso **siempre** y escribe en el informe cuál usaste.
 
 ## El denominador no se filtra
 
-El error más caro de esta sección es calcular la tasa sobre la gente que quedó en vez de sobre la cohorte completa. Un `INNER JOIN` con la tabla de actividad **elimina** en silencio a quienes nunca hicieron nada, que son justamente las personas que quieres contar como perdidas.
+El error más caro de esta sección es calcular la tasa sobre la gente que quedó en lugar de sobre la cohorte completa. Un `INNER JOIN` con la tabla de actividad **elimina** en silencio a quienes nunca hicieron nada, y esas personas son precisamente las que tienes que contar como perdidas. El resultado es una retención que parece altísima y que no mide nada.
 
-El patrón correcto arma primero la cohorte completa y recién después le pega la actividad:
+El patrón correcto arma primero la cohorte completa y recién después le agrega la actividad:
 
 ```sql
 WITH cohortes AS (
@@ -6493,23 +6641,27 @@ GROUP BY 1
 ORDER BY 1;
 ```
 
-`count(*)` cuenta filas: la cohorte entera. `count(a.user_id)` ignora los nulos que deja el `LEFT JOIN`: los retenidos. La diferencia entre ambos es la métrica. Con `EXISTS` en lugar del `LEFT JOIN` obtienes lo mismo y evitas duplicar filas si la tabla de actividad tuviera más de una fila por persona.
+`count(*)` cuenta filas, y como el `LEFT JOIN` conserva a todos, ese número es la cohorte entera. `count(a.user_id)` cuenta solo los valores que no son nulos, así que ignora a las personas sin actividad y devuelve los retenidos. La diferencia entre ambos números es la métrica que te pidieron.
+
+Con `EXISTS` en lugar del `LEFT JOIN` obtienes lo mismo, y además te proteges de duplicar filas si la tabla de actividad tuviera más de una fila por persona.
 
 ## Ventanas de observación
 
-La cohorte de septiembre de 2025 lleva dos semanas de vida y los datos terminan el 15 de septiembre. Compararla contra la de enero de 2024 no mide retención: mide cuánto tiempo tuvo cada cohorte para actuar. Toda tabla de cohortes necesita una regla explícita sobre qué períodos están **completamente observados**; las cohortes que no llegan se excluyen o se marcan.
+La cohorte de septiembre de 2025 lleva dos semanas de vida y los datos terminan el 15 de septiembre. Compararla contra la de enero de 2024 no mide la retención del producto: mide cuánto tiempo tuvo cada cohorte para actuar, y la más nueva siempre va a salir peor.
+
+Por eso toda tabla de cohortes necesita una regla explícita sobre qué períodos están **completamente observados**. Las cohortes que no alcanzan a cubrir el período se excluyen del cálculo o se marcan en el reporte como incompletas.
 
 ## Errores comunes
 
-- Recalcular la cohorte con la fecha de actividad en vez de la del alta: la gente «cambia» de cohorte y las curvas se aplanan.
-- `INNER JOIN` contra la actividad: desaparece el denominador real.
-- No fijar el huso horario y dejar que el servidor decida el corte del calendario.
-- Mezclar cohortes con ventanas de observación distintas en la misma comparación.
+- Recalcular la cohorte usando la fecha de actividad en lugar de la del alta. Las personas «cambian» de cohorte cada vez que usan el producto y las curvas se aplanan artificialmente.
+- Usar `INNER JOIN` contra la actividad: desaparece el denominador real.
+- No fijar el huso horario y dejar que la configuración del servidor decida dónde corta el calendario.
+- Mezclar en una misma comparación cohortes con ventanas de observación distintas.
 
 ## Resumen
 
 1. Una cohorte se define por un evento de origen fijo, una definición escrita de «retenido» y un grano de tiempo.
-2. El denominador es la cohorte completa: ármala primero y agrega la actividad con `LEFT JOIN` o `EXISTS`.
+2. El denominador es la cohorte completa: ármala primero y agrégale la actividad con `LEFT JOIN` o `EXISTS`.
 3. Fija el huso con `AT TIME ZONE 'UTC'` y excluye los períodos que todavía no terminaron de observarse.
 $c2075$, null, (select id from public.datasets where slug = $c2076$ritmo$c2076$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
@@ -6517,18 +6669,18 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2077$cohortes-y-retencion$c2077$), $c2078$matriz-de-retencion$c2078$, $c2079$theory$c2079$, $c2080$La matriz de retención$c2080$, 1, 13, $c2081$## Por qué importa
 
-La matriz de cohortes es ese triángulo de porcentajes que aparece en todo tablero de producto: una fila por cohorte, una columna por período de vida y el porcentaje de la cohorte que seguía activo. Se lee en dos direcciones y cada una responde una pregunta distinta del negocio.
+La matriz de cohortes es ese triángulo de porcentajes que aparece en todo tablero de producto: una fila por cohorte, una columna por período de vida y, en cada celda, el porcentaje de esa cohorte que seguía activo en ese período. Se lee en dos direcciones y cada una responde una pregunta distinta del negocio.
 
 ## El índice de período
 
-La clave es dejar de pensar en meses de calendario y pensar en **meses de vida**: el mes 0 es el mes de alta, el mes 1 el siguiente, y así. Ese número se calcula restando año y mes:
+La clave está en dejar de pensar en meses de calendario y pensar en **meses de vida** de cada cohorte: el mes 0 es el mes en que esas personas se dieron de alta, el mes 1 es el siguiente y así sucesivamente. Ese número se calcula restando el año y el mes por separado:
 
 ```sql
 (12 * (date_part('year', mes) - date_part('year', cohorte))
     + (date_part('month', mes) - date_part('month', cohorte)))::int AS mes_indice
 ```
 
-Restar las fechas directamente (`mes - cohorte`) daría **días**, no meses, y los meses no duran todos lo mismo. La resta por año y mes es exacta porque ambas fechas ya están truncadas al primer día del mes.
+Restar las dos fechas directamente (`mes - cohorte`) daría una cantidad de **días**, no de meses, y como los meses no duran todos lo mismo no podrías dividir ese número para convertirlo. La resta por año y por mes es exacta porque ambas fechas ya están truncadas al primer día de su mes.
 
 ## La consulta completa
 
@@ -6561,43 +6713,49 @@ GROUP BY a.cohorte, 2, t.usuarios_cohorte
 ORDER BY a.cohorte, 2;
 ```
 
-Tres pasos, tres CTE: quién pertenece a qué cohorte, cuánto mide cada cohorte y en qué meses estuvo activa cada persona. El `DISTINCT` de `actividad` es obligatorio: sin él contarías reproducciones, no personas, y la «retención» pasaría del 100 %.
+Son tres pasos, uno por cada CTE (por *common table expression*, la consulta con nombre que se define en el `WITH`): quién pertenece a qué cohorte, cuántas personas tiene cada cohorte y en qué meses estuvo activa cada persona.
 
-Aquí el `INNER JOIN` con `plays` sí es correcto, porque solo genera las celdas que existen; el denominador viene de `tamano`, calculado antes sobre la cohorte completa. Las celdas sin actividad no aparecen: si tu informe las necesita en cero, hay que generarlas con `generate_series`.
+El `DISTINCT` de la CTE `actividad` es obligatorio. Sin él, una persona que reprodujo cuarenta canciones en marzo aportaría cuarenta filas, el numerador contaría reproducciones en lugar de personas y la «retención» superaría el 100 %.
+
+Aquí el `INNER JOIN` con `plays` sí es correcto, porque solo se usa para generar las celdas que existen. El denominador no sale de ese join: viene de la CTE `tamano`, calculada antes sobre la cohorte completa. Ten en cuenta que las celdas sin ninguna actividad no aparecen en el resultado, así que si tu informe necesita mostrarlas en cero hay que generarlas aparte con `generate_series`.
 
 ## Cómo se lee
 
-- **Hacia la derecha (una fila)**: la curva de vida de una cohorte. Casi siempre cae fuerte al principio y después se aplana; si nunca se aplana, no hay base estable de clientes.
-- **Hacia abajo (una columna)**: el mismo momento de vida en cohortes distintas. Es la única forma honesta de saber si el producto mejoró: comparar el mes 1 de enero contra el mes 1 de julio.
-- **La diagonal**: cohortes distintas en el mismo mes de calendario. Ahí se ven los efectos externos (una campaña, una caída del servicio, diciembre).
+- **Hacia la derecha, siguiendo una fila**: la curva de vida de una cohorte. Casi siempre cae fuerte en los primeros períodos y después se aplana. Si nunca se aplana, significa que el producto no tiene una base estable de clientes.
+- **Hacia abajo, siguiendo una columna**: el mismo momento de vida en cohortes distintas. Es la forma honesta de saber si el producto mejoró, porque compara el mes 1 de enero contra el mes 1 de julio, dos períodos equivalentes.
+- **En diagonal**: cohortes distintas atravesando el mismo mes de calendario. Ahí se ven los efectos externos, como una campaña, una caída del servicio o el efecto de diciembre.
 
 ## El escalón del mes 0
 
-En Ritmo, promediando las cohortes con seis meses completos, el mes 0 da 53,80 % y el mes 1, 75,33 %: la retención **sube**. No es un error de la consulta. Quien se registra el 28 de marzo tiene tres días de marzo y treinta de abril. El mes 0 siempre es parcial, y por eso muchas empresas publican la curva desde el mes 1 o usan ventanas relativas al alta (próxima lección). Lo importante es saber por qué pasa y decirlo.
+En Ritmo, promediando las cohortes que tienen seis meses completos, el mes 0 da 53,80 % y el mes 1 da 75,33 %: la retención **sube** en lugar de bajar. No es un error de la consulta. Quien se registra el 28 de marzo tiene solo tres días de marzo para reproducir algo, y treinta días completos de abril. El mes 0 siempre es un mes parcial y por eso queda artificialmente bajo.
+
+Muchas empresas resuelven esto publicando la curva desde el mes 1, o usando ventanas relativas al alta de cada persona, que es el tema de la próxima lección. Lo importante es entender por qué ocurre y dejarlo dicho en el reporte.
 
 ## El triángulo incompleto
 
-La cohorte de enero de 2024 tiene 21 columnas; la de agosto de 2025, dos. No es que su retención se derrumbe en el mes 3: es que el mes 3 todavía no ocurrió. Nunca promedies una columna sin exigir que todas las cohortes incluidas hayan vivido ese mes completo.
+La cohorte de enero de 2024 tiene 21 columnas y la de agosto de 2025 tiene dos. Eso no significa que la retención de la cohorte de agosto se derrumbe en el mes 3: significa que para esa cohorte el mes 3 todavía no ocurrió. Nunca promedies una columna sin exigir antes que todas las cohortes incluidas hayan vivido ese mes completo.
 
 ## Errores comunes
 
-- Olvidar el `DISTINCT` y contar reproducciones en lugar de personas.
-- Dividir por el total de usuarios del servicio en vez de por el tamaño de esa cohorte.
-- Restar fechas para obtener el índice de mes y terminar con días.
-- Promediar columnas del triángulo sin recortar a las cohortes completamente observadas.
+- Olvidar el `DISTINCT` y terminar contando reproducciones en lugar de personas.
+- Dividir por el total de usuarios del servicio en lugar de por el tamaño de esa cohorte.
+- Restar fechas para obtener el índice de mes y terminar con una cantidad de días.
+- Promediar columnas del triángulo sin recortar el cálculo a las cohortes completamente observadas.
 
 ## Resumen
 
-1. `mes_indice` = diferencia en meses entre el mes de actividad y el mes de la cohorte, calculada por año y mes.
-2. El numerador cuenta personas distintas; el denominador es el tamaño de la cohorte, calculado aparte.
-3. Se lee a lo ancho (curva de vida), a lo alto (¿mejoramos?) y en diagonal (efectos del calendario), siempre respetando el triángulo observado.
+1. `mes_indice` es la diferencia en meses entre el mes de actividad y el mes de la cohorte, calculada por año y por mes.
+2. El numerador cuenta personas distintas y el denominador es el tamaño de la cohorte, calculado aparte.
+3. La matriz se lee a lo ancho (curva de vida), a lo alto (si mejoramos) y en diagonal (efectos del calendario), siempre dentro del triángulo observado.
 $c2081$, null, (select id from public.datasets where slug = $c2082$ritmo$c2082$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2083$cohortes-y-retencion$c2083$), $c2084$retencion-n-dias-y-churn$c2084$, $c2085$theory$c2085$, $c2086$Retención a N días y churn$c2086$, 2, 12, $c2087$## Por qué importa
 
-La matriz mensual es cómoda, pero castiga a quien se registró un día 28. La alternativa es medir el tiempo **desde el alta de cada persona**: día 1 a día 30, día 31 a día 60. Del otro lado está el churn, que no es simplemente «100 menos la retención». Confundirlos produce informes que no cierran con finanzas.
+La matriz mensual es cómoda de armar, pero castiga a quien se registró un día 28, porque le da apenas dos días de vida en su mes 0. La alternativa es medir el tiempo **desde el alta de cada persona**: del día 1 al día 30, del día 31 al día 60.
+
+Del otro lado de la misma moneda está el **churn**, la proporción de clientes que se dan de baja en un período. No es simplemente «100 menos la retención», porque se calcula sobre otro denominador, y confundirlos produce informes que no cierran con los números de finanzas.
 
 ## Ventanas relativas al alta
 
@@ -6626,26 +6784,26 @@ GROUP BY 1
 ORDER BY 1;
 ```
 
-Cada persona tiene su propia ventana: el límite se compara contra **su** `signup_at`, no contra una fecha fija. Como `signup_at` es `timestamptz` y el intervalo se suma al instante exacto, ese filtro no depende del huso de la sesión. Sí lo necesita la columna `cohorte`, que es un corte de calendario.
+Cada persona tiene su propia ventana de 30 días, porque el límite se compara contra **su** `signup_at` y no contra una fecha fija del calendario. Como `signup_at` es de tipo `timestamptz` y el intervalo se suma a ese instante exacto, ese filtro no depende del huso de la sesión. La que sí lo necesita es la columna `cohorte`, porque ahí sí estás cortando un calendario.
 
-Dos detalles que definen la métrica:
+Dos detalles definen la métrica:
 
-- El límite superior es **abierto** (`< signup_at + INTERVAL '31 days'`). Con `BETWEEN` sobre marcas de tiempo siempre pierdes o duplicas un borde.
-- El límite inferior en `+ INTERVAL '1 day'` excluye la primera sesión, la del alta. Si no la excluyes estás midiendo activación, no retención: casi todo el mundo reproduce algo el primer día.
+- El límite superior es **abierto** (`< signup_at + INTERVAL '31 days'`), es decir, excluye el instante final. Con `BETWEEN` sobre marcas de tiempo siempre terminas perdiendo o duplicando un borde.
+- El límite inferior en `+ INTERVAL '1 day'` excluye la primera sesión, la del día del alta. Si no la excluyes estás midiendo activación y no retención, porque casi todo el mundo reproduce algo el mismo día en que se registra y el número sale cerca del 100 %.
 
-Y el `WHERE` de la cohorte no es opcional: solo pueden entrar las personas cuya ventana de 30 días ya terminó dentro de los datos disponibles. Incluir a alguien que se registró anteayer garantiza una retención artificialmente baja.
+El `WHERE` de la cohorte tampoco es opcional: solo pueden entrar las personas cuya ventana de 30 días ya terminó dentro de los datos disponibles. Incluir a alguien que se registró anteayer garantiza una retención artificialmente baja, porque todavía le quedan 28 días para reproducir algo.
 
 ## Tres definiciones que conviven
 
-- **Clásica**: activo dentro de la ventana exacta, del día 1 al 30. Es la de arriba.
-- **Por rango**: activo en cualquier momento entre el día 1 y el 30; se generaliza bien a reportes semanales («entre el día 1 y el 7»).
-- **Ilimitada**: activo en el día 30 **o después**. Nunca baja con el tiempo y siempre da el número más alto; es la favorita de las presentaciones optimistas.
+- **Clásica**: activo dentro de la ventana exacta, del día 1 al día 30. Es la de la consulta de arriba.
+- **Por rango**: activo en cualquier momento entre el día 1 y el 30. Se generaliza bien a reportes semanales, como «entre el día 1 y el 7».
+- **Ilimitada**: activo en el día 30 **o en cualquier momento posterior**. Nunca baja con el paso del tiempo y siempre da el número más alto de las tres, por eso es la preferida de las presentaciones optimistas.
 
-Ninguna miente. Mienten los informes que no dicen cuál usaron.
+Las tres son definiciones legítimas. El problema no está en cuál elijas, sino en publicar un número sin decir cuál usaste.
 
 ## Churn
 
-Churn es la proporción de la base **que estaba viva al inicio del período** y se fue durante él. Su denominador no es la cohorte de alta: es la base activa al comienzo del mes.
+El churn es la proporción de la base **que estaba viva al inicio del período** y se dio de baja durante ese período. Su denominador no es la cohorte de alta: es la cantidad de suscripciones activas al comienzo del mes.
 
 ```sql
 SELECT
@@ -6662,45 +6820,49 @@ GROUP BY m.mes
 ORDER BY m.mes;
 ```
 
-El `CROSS JOIN` contra un calendario de meses, con `FILTER` para cada condición, es el patrón estándar: cada suscripción se evalúa contra cada mes y se cuenta donde corresponde. La tasa es `bajas / activas_inicio`, y conviene protegerla con `nullif(..., 0)` para el mes en que la base todavía está vacía.
+El `CROSS JOIN` contra un calendario de meses combina cada suscripción con cada mes, y el `FILTER` de cada conteo decide en qué meses esa suscripción cuenta como activa y en cuál cuenta como baja. Es el patrón estándar para este cálculo. La tasa de churn es `bajas / activas_inicio`, y conviene envolver el divisor en `nullif(..., 0)` para el primer mes, cuando la base todavía está vacía y la división daría error.
 
-Dos advertencias. `ended_on IS NULL` significa «vigente», no «terminó en NULL»: toda comparación con `ended_on` necesita su rama explícita de nulos. Y el churn de cuentas no es el churn de ingresos: si se van diez cuentas chicas y se queda una grande, el primero se dispara y el segundo casi no se mueve.
+Dos advertencias. La primera: `ended_on IS NULL` significa «la suscripción sigue vigente», no «terminó en una fecha desconocida», así que toda comparación con `ended_on` necesita su rama explícita para los nulos. La segunda: el churn de cuentas no es el churn de ingresos. Si en un mes se van diez cuentas chicas y se queda la más grande, el churn de cuentas se dispara y el de ingresos casi no se mueve; son dos métricas distintas y hay que decir cuál estás informando.
 
 ## Errores comunes
 
-- Comparar contra una fecha fija en vez de contra el `signup_at` de cada persona.
-- Usar `BETWEEN` sobre marcas de tiempo para acotar la ventana.
-- Calcular churn sobre el total histórico de clientes en lugar de la base activa al inicio.
-- Olvidar `ended_on IS NULL` y contar como bajas a las suscripciones vigentes, o al revés.
+- Comparar contra una fecha fija del calendario en lugar del `signup_at` de cada persona.
+- Usar `BETWEEN` sobre marcas de tiempo para acotar la ventana y quedarte con un borde de más o de menos.
+- Calcular el churn sobre el total histórico de clientes en lugar de la base activa al inicio del período.
+- Olvidar la rama `ended_on IS NULL` y contar como bajas a las suscripciones vigentes, o al revés.
 
 ## Resumen
 
-1. La retención a N días usa ventanas relativas al `signup_at` de cada persona, con límite superior abierto.
-2. Declara qué definición usas y excluye a quienes no completaron la ventana.
-3. Churn = bajas del período / base activa al inicio del período; no es el complemento de la retención por cohorte.
+1. La retención a N días usa ventanas relativas al `signup_at` de cada persona, con el límite superior abierto.
+2. Declara qué definición estás usando y excluye a quienes todavía no completaron la ventana.
+3. Churn = bajas del período dividido por la base activa al inicio del período, y no es el complemento de la retención por cohorte.
 $c2087$, null, (select id from public.datasets where slug = $c2088$ritmo$c2088$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2089$funnels$c2089$), $c2090$funnel-definicion-y-pasos$c2090$, $c2091$theory$c2091$, $c2092$Qué es un funnel y cómo se definen sus pasos$c2092$, 0, 11, $c2093$## Por qué importa
 
-Cuando el negocio pregunta «¿dónde estamos perdiendo pedidos?», la respuesta casi nunca es un número: es una **secuencia**. Un funnel (embudo) mide cuántas unidades llegan a cada paso de un proceso y cuántas se caen entre paso y paso. Es la herramienta con la que Producto prioriza, Operaciones detecta cuellos de botella y Marketing justifica presupuesto.
+Cuando el negocio pregunta «¿dónde estamos perdiendo pedidos?», la respuesta no es un número: es una **secuencia**.
 
-Trabajas con **Pídelo**, una app de delivery en ocho ciudades. La tabla `order_events` guarda un evento por pedido y por etapa: `placed`, `accepted`, `preparing`, `picked_up`, `delivered` y `cancelled`.
+Un **funnel** (embudo) es una forma de medir un proceso por etapas: cuenta cuántas unidades llegan a cada paso y cuántas se caen entre un paso y el siguiente. Se llama embudo porque, como en un embudo, en cada etapa queda menos que en la anterior.
+
+Sirve para que producto decida qué arreglar primero, operaciones detecte dónde se traba el proceso y marketing justifique su presupuesto: muestra en qué punto se pierde la gente.
+
+Trabajas con **Pídelo**, una app de delivery que opera en ocho ciudades. Su tabla `order_events` guarda un evento por cada pedido y cada etapa por la que pasó: `placed` (hecho), `accepted` (aceptado por el restaurante), `preparing` (en preparación), `picked_up` (retirado por el repartidor), `delivered` (entregado) y `cancelled` (cancelado).
 
 ## Un funnel se define antes de escribirlo
 
-Tres decisiones van primero, y ninguna es técnica:
+Hay tres decisiones que van primero, y ninguna es técnica:
 
-1. **La unidad**: ¿cuentas pedidos, usuarios o sesiones? Un usuario puede tener cinco pedidos; un funnel de pedidos y uno de usuarios dan números distintos y responden preguntas distintas.
-2. **Los pasos y su orden**: qué eventos forman el embudo y cuál es la secuencia esperada. `cancelled` no es un paso del funnel de Pídelo: es una salida.
+1. **La unidad**: ¿cuentas pedidos, usuarios o sesiones? Un usuario puede tener cinco pedidos, así que un funnel de pedidos y uno de usuarios dan números distintos y responden preguntas distintas.
+2. **Los pasos y su orden**: qué eventos forman el embudo y cuál es la secuencia esperada. En Pídelo, `cancelled` no es un paso del funnel: es una salida del proceso, y mezclarlo con los demás rompe la lógica de que cada paso contiene al anterior.
 3. **La ventana de observación**: qué período miras y en qué huso horario lo cortas.
 
-Escribe esas tres decisiones en el propio informe. Dos analistas con definiciones distintas producirán dos funnels correctos y contradictorios.
+Escribe esas tres decisiones en el propio informe. Si no lo haces, dos analistas que usen definiciones distintas van a producir dos funnels igualmente correctos y contradictorios, y nadie va a poder explicar la diferencia.
 
 ## Contar cada paso
 
-Con una tabla de eventos, el paso más simple es contar unidades distintas por evento y asignarle a cada evento su posición:
+Con una tabla de eventos, la forma más simple de armar el funnel es contar unidades distintas por evento y asignarle a cada evento su número de paso:
 
 ```sql
 SELECT
@@ -6719,16 +6881,16 @@ GROUP BY 1, 2
 ORDER BY paso;
 ```
 
-`count(DISTINCT order_id)` y no `count(*)`: si un pedido registrara dos veces el mismo evento (un reintento, una corrección), `count(*)` lo contaría dos veces e inflaría el paso. En Pídelo hay un solo evento por etapa y ambos coinciden, pero la costumbre te salva en las tablas que no están tan limpias.
+Fíjate en que se usa `count(DISTINCT order_id)` y no `count(*)`. Si un pedido registrara dos veces el mismo evento, por un reintento del sistema o una corrección manual, `count(*)` lo contaría dos veces e inflaría ese paso. En Pídelo hay un solo evento por etapa y los dos conteos coinciden, pero tomar la costumbre te protege en las tablas que no están tan limpias.
 
-El resultado es 14 437 → 13 843 → 13 573 → 13 434 → 13 284.
+El resultado es 14 437 → 13 843 → 13 573 → 13 434 → 13 284 pedidos.
 
 ## Las dos tasas de conversión
 
-Un funnel se lee con **dos** porcentajes y conviene mostrar ambos:
+Un funnel se lee con **dos** porcentajes distintos, y conviene mostrar los dos:
 
-- **Paso a paso**: qué fracción del paso anterior llegó al actual. Responde «¿dónde está la fuga?».
-- **Desde el inicio** (acumulada): qué fracción del primer paso llegó hasta aquí. Responde «¿cuánto llega al final?».
+- **Paso a paso**: qué fracción del paso anterior llegó al paso actual. Responde «¿dónde está la fuga más grande?».
+- **Desde el inicio**, también llamada acumulada: qué fracción del primer paso llegó hasta aquí. Responde «¿cuánto llega al final del proceso?».
 
 ```sql
 SELECT
@@ -6741,13 +6903,17 @@ FROM por_paso
 ORDER BY paso;
 ```
 
-`lag()` trae el valor del paso anterior; `first_value()` trae el del primer paso. La primera fila tiene `pct_vs_anterior` en NULL, porque no hay paso anterior: es correcto y honesto dejarlo así, no reemplazarlo por 100.
+La función `lag()` trae el valor de la fila anterior según el orden indicado, o sea el conteo del paso previo; `first_value()` trae el valor de la primera fila, o sea el conteo del primer paso.
 
-El `100.0` no es decorativo. Con dos enteros, `pedidos / lag(pedidos)` hace división entera y devuelve 0. Multiplicar por un literal con decimales fuerza el cálculo en `numeric`.
+En la primera fila, `pct_vs_anterior` queda en NULL porque no existe un paso anterior. Déjalo así: es correcto y es honesto. Reemplazarlo por 100 sugiere que hubo una conversión perfecta desde algo, cuando en realidad no hay nada antes.
+
+El `100.0` tampoco es decorativo. Si divides dos números enteros, PostgreSQL hace división entera y `pedidos / lag(pedidos)` devuelve 0. Multiplicar por un literal con decimales obliga a que el cálculo se haga en `numeric` y conserve los decimales.
 
 ## Cuando no hay tabla de eventos
 
-Muchos funnels no viven en una tabla de eventos sino repartidos en varias tablas de negocio: en **TiendaViva**, `orders` → `payments` → `shipments` → `returns`. El patrón es construir primero una fila por unidad con el instante de cada hito:
+Muchos funnels no viven en una tabla de eventos, sino repartidos entre varias tablas de negocio. En **TiendaViva**, el recorrido de un pedido es `orders` → `payments` → `shipments` → `returns`, con una tabla por etapa.
+
+El patrón en ese caso es construir primero una tabla de **hitos**: una fila por unidad, con el instante en que alcanzó cada etapa.
 
 ```sql
 SELECT
@@ -6761,31 +6927,33 @@ LEFT JOIN shipments AS shp ON shp.order_id = o.id
 GROUP BY o.id
 ```
 
-Los `LEFT JOIN` son obligatorios: un `INNER JOIN` borraría de la base del funnel a los pedidos que nunca pagaron, que son justamente los que quieres medir. Y el filtro del estado va **en el `ON`**, no en el `WHERE`: en el `WHERE` convertiría el `LEFT JOIN` en un `INNER JOIN` de hecho.
+Los `LEFT JOIN` son obligatorios aquí: con un `INNER JOIN` desaparecerían de la base del funnel los pedidos que nunca llegaron a pagarse, que son justamente los que quieres medir, y la tasa de conversión del primer paso daría 100 %.
 
-Sobre esa tabla de hitos, contar un paso es contar valores no nulos: `count(pagado_at)` ignora los NULL.
+Y el filtro por estado del pago va **en el `ON`** y no en el `WHERE`, por la misma razón: en el `WHERE` descartaría las filas sin pago y convertiría el `LEFT JOIN` en un `INNER JOIN` de hecho.
+
+Sobre esa tabla de hitos, contar un paso es contar valores no nulos: `count(pagado_at)` ignora los NULL y devuelve la cantidad de pedidos que efectivamente se pagaron.
 
 ## Errores comunes
 
-- Usar `INNER JOIN` y perder la base del embudo.
-- Filtrar el estado del hito en el `WHERE` en vez del `ON`.
-- `count(*)` donde hacía falta `count(DISTINCT ...)`.
-- División entera: `pedidos / total` devuelve 0.
+- Usar `INNER JOIN` y perder la base del embudo, con lo que todas las tasas quedan infladas.
+- Filtrar el estado del hito en el `WHERE` en lugar del `ON`, que produce el mismo efecto.
+- Usar `count(*)` donde hacía falta `count(DISTINCT ...)` y contar dos veces la misma unidad.
+- Dividir dos enteros y obtener 0 por división entera.
 
 ## Resumen
 
-1. Define unidad, pasos y ventana antes de escribir SQL, y publícalas con el resultado.
-2. Cuenta unidades distintas por paso; con tablas de negocio, arma primero una fila por unidad con los hitos.
-3. Muestra las dos tasas: paso a paso y desde el inicio.
+1. Define la unidad, los pasos y la ventana antes de escribir SQL, y publícalas junto con el resultado.
+2. Cuenta unidades distintas por paso; cuando el funnel vive en tablas de negocio, arma primero una fila por unidad con sus hitos.
+3. Muestra las dos tasas de conversión: la de paso a paso y la acumulada desde el inicio.
 $c2093$, null, (select id from public.datasets where slug = $c2094$pidelo$c2094$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2095$funnels$c2095$), $c2096$funnel-orden-estricto-o-cualquier-orden$c2096$, $c2097$theory$c2097$, $c2098$Orden estricto o cualquier orden: dos funnels honestos$c2098$, 1, 12, $c2099$## Por qué importa
 
-El funnel de la lección anterior cuenta, en cada paso, **cuántas unidades tienen ese hito**. No comprueba en qué orden ocurrieron. Esa es una forma legítima de contar, pero no es la única, y la diferencia entre ambas puede ser enorme.
+El funnel de la lección anterior cuenta, en cada paso, **cuántas unidades tienen ese hito**, sin comprobar en qué orden ocurrieron los hitos. Es una forma legítima de contar, pero no es la única, y la diferencia entre una y otra puede ser enorme.
 
-En **Ritmo**, el servicio de streaming, el funnel de activación es: alta → primera escucha → primera playlist → primera suscripción. Contado de las dos maneras da esto:
+En **Ritmo**, el servicio de streaming, el funnel de activación tiene cuatro pasos: alta → primera escucha → primera playlist → primera suscripción. Contado de las dos maneras da esto:
 
 | Paso | Cualquier orden | Orden estricto |
 | --- | --- | --- |
@@ -6794,23 +6962,23 @@ En **Ritmo**, el servicio de streaming, el funnel de activación es: alta → pr
 | Primera playlist | 2010 | 2010 |
 | Primera suscripción | 1225 | **135** |
 
-No hay error en ninguna columna. Son dos preguntas distintas.
+Ninguna de las dos columnas tiene un error de cálculo. Están respondiendo dos preguntas distintas.
 
 ## Las dos definiciones
 
-**Cualquier orden** (también «alcanzó el paso»): la unidad hizo el evento del paso *k*, sin importar cuándo. Se implementa contando hitos no nulos.
+**Cualquier orden**, también llamado «alcanzó el paso»: la unidad hizo el evento del paso *k* en algún momento, sin importar cuándo. Se calcula contando los hitos que no son nulos.
 
-> «1225 usuarios se suscribieron y además habían creado una playlist.»
+> «1225 usuarios se suscribieron y además, en algún momento, habían creado una playlist.»
 
-**Orden estricto** (o «secuencial»): la unidad hizo todos los eventos hasta el paso *k* y cada uno **después** del anterior. Se implementa comparando marcas de tiempo.
+**Orden estricto**, también llamado secuencial: la unidad hizo todos los eventos hasta el paso *k* y cada uno **después** del anterior. Se calcula comparando las marcas de tiempo de cada hito.
 
 > «135 usuarios siguieron el camino escuchar → armar playlist → suscribirse, en ese orden.»
 
-Los otros 1090 se suscribieron **antes** de armar su primera playlist. Para Marketing, que quiere saber si armar playlists empuja a suscribirse, la columna estricta es la única relevante: la otra confunde coincidencia con secuencia.
+Los otros 1090 usuarios se suscribieron **antes** de armar su primera playlist, así que la playlist no pudo haber influido en la suscripción. Para el equipo de marketing, que quiere saber si armar playlists empuja a suscribirse, la columna estricta es la única que sirve: la otra mezcla lo que ocurrió junto con lo que ocurrió por causa del paso anterior.
 
 ## Cómo se escribe cada una
 
-Partimos siempre de una tabla de hitos, una fila por usuario:
+El punto de partida es siempre una tabla de hitos, con una fila por usuario:
 
 ```sql
 WITH escuchas AS (
@@ -6832,54 +7000,62 @@ SELECT
 FROM hitos;
 ```
 
-Dos detalles que deciden el número:
+Dos detalles deciden el número final:
 
-- Se usa **`min()`**: el *primer* hito de cada tipo. Con `max()` medirías la última vez que el usuario hizo algo, y alguien que armó una playlist en enero y otra en agosto cambiaría de lado.
-- La condición estricta es **encadenada**: cada paso exige todos los anteriores. Comparar solo el paso *k* con el *k−1* dejaría pasar caminos que se saltaron un paso.
+- Se usa **`min()`** para quedarse con el *primer* hito de cada tipo. Con `max()` estarías midiendo la última vez que el usuario hizo esa acción, y alguien que armó una playlist en enero y otra en agosto podría pasar de cumplir la secuencia a no cumplirla según cuál de las dos fechas tomes.
+- La condición del orden estricto es **encadenada**: cada paso exige que se hayan cumplido todos los anteriores. Si compararas solo el paso *k* con el *k−1*, dejarías pasar usuarios que se saltearon un paso intermedio.
 
 ## Comparar un date con un timestamptz
 
-En Ritmo, `subscriptions.started_on` es `date` y `playlists.created_at` es `timestamptz`. Comparar los dos directamente hace que Postgres convierta la fecha a medianoche **en el huso de la sesión**. Aquí ese huso es UTC —el sandbox lo fija para que la tasa de conversión que obtengas sea reproducible—, pero en un servidor configurado en otra zona esa medianoche se corre y algunos usuarios del borde cruzan de lado. No dejes la decisión en manos de la configuración: baja el timestamp a fecha fijando el huso.
+En Ritmo, la columna `started_on` de la tabla `subscriptions` es de tipo `date` (guarda solo el día) y la columna `created_at` de la tabla `playlists` es de tipo `timestamptz` (guarda el instante exacto).
+
+Si las comparas directamente, PostgreSQL convierte la fecha a la medianoche de ese día **en el huso horario de la sesión**. En esta plataforma ese huso es UTC, fijado a propósito para que la tasa de conversión que obtengas sea siempre la misma; en un servidor configurado en otra zona, esa medianoche se corre varias horas y algunos usuarios que están justo en el borde cambian de lado.
+
+La consecuencia es que el mismo informe daría números distintos según dónde se ejecute. No dejes esa decisión en manos de la configuración del servidor: convierte el instante a fecha fijando el huso de forma explícita.
 
 ```sql
 primera_suscripcion_on >= (primera_playlist_at AT TIME ZONE 'UTC')::date
 ```
 
-Y usa `>=`, no `>`: con granularidad de día, suscribirse el mismo día en que creaste la playlist sí cuenta como «después».
+Y usa `>=` en lugar de `>`: cuando la comparación es a nivel de día, suscribirse el mismo día en que se creó la playlist sí cuenta como «después».
 
 ## Ventana de conversión
 
-Una tercera variante frecuente agrega un límite de tiempo: «convirtió **dentro de los 30 días**». Es la más exigente y la más útil para comparar cohortes, porque no premia a los usuarios antiguos por haber tenido más tiempo.
+Una tercera variante muy usada agrega un límite de tiempo: «convirtió **dentro de los 30 días** desde el alta». Es la más exigente y la más útil para comparar cohortes entre sí, porque no premia a los usuarios más antiguos por el simple hecho de haber tenido más tiempo disponible para convertir.
 
 ```sql
 AND primera_playlist_at < signup_at + INTERVAL '30 days'
 ```
 
-Si no pones ventana, di explícitamente «sin límite de tiempo»: quien lea el informe asumirá lo que le convenga.
+Si decides no poner ninguna ventana, dilo de forma explícita en el informe: «sin límite de tiempo». Quien lo lea va a asumir alguna ventana, y va a asumir la que le convenga.
 
 ## Errores comunes
 
-- Publicar el funnel de cualquier orden llamándolo «camino de conversión».
-- Usar `max()` en vez de `min()` para el hito de cada paso.
-- Comparar `date` con `timestamptz` sin fijar el huso.
-- Encadenar solo con el paso anterior y no con todos los anteriores.
+- Publicar el funnel de cualquier orden llamándolo «camino de conversión», que es lo que describe el estricto.
+- Usar `max()` en lugar de `min()` para el hito de cada paso.
+- Comparar una columna `date` con una `timestamptz` sin fijar el huso horario.
+- Encadenar la condición solo con el paso anterior y no con todos los anteriores.
 
 ## Resumen
 
-1. «Alcanzó el paso» y «lo alcanzó en orden» son dos métricas distintas; ambas son válidas y hay que decir cuál publicas.
-2. El orden estricto se implementa comparando los `min()` de cada hito y encadenando todas las condiciones.
-3. Fija el huso al comparar fechas con marcas de tiempo, y declara si hay ventana de conversión.
+1. «Alcanzó el paso» y «lo alcanzó en orden» son dos métricas distintas; las dos son válidas y hay que declarar cuál estás publicando.
+2. El orden estricto se calcula comparando los `min()` de cada hito y encadenando todas las condiciones.
+3. Fija el huso horario al comparar fechas con marcas de tiempo, y declara si hay ventana de conversión.
 $c2099$, null, (select id from public.datasets where slug = $c2100$ritmo$c2100$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2101$funnels$c2101$), $c2102$funnel-abandono-y-tiempo-de-conversion$c2102$, $c2103$theory$c2103$, $c2104$Abandono y tiempo hasta convertir$c2104$, 2, 11, $c2105$## Por qué importa
 
-Un funnel te dice cuántos llegan a cada paso. Dos preguntas más convierten ese cuadro en un plan de acción: **dónde se cae cada unidad** y **cuánto tarda en avanzar**. La primera prioriza el trabajo; la segunda detecta cuellos de botella que el conteo no muestra, porque un paso puede convertir al 99 % y aun así tardar cuarenta minutos.
+Un funnel te dice cuántas unidades llegan a cada paso. Hay dos preguntas más que convierten ese cuadro en un plan de acción: **dónde se queda cada unidad** y **cuánto tarda en avanzar**.
+
+La primera te dice qué arreglar primero. La segunda detecta trabas que el conteo no muestra: un paso puede convertir al 99 % y aun así tardar cuarenta minutos, y ese tiempo de espera es exactamente lo que hace que el cliente no vuelva.
 
 ## El último paso alcanzado
 
-El abandono no se deduce restando pasos consecutivos: esa resta dice cuántos se cayeron *entre* dos pasos, pero no clasifica a cada unidad. Para eso, asigna a cada unidad el número del paso más alto que alcanzó:
+El abandono no se deduce restando pasos consecutivos. Esa resta dice cuántas unidades se cayeron *entre* dos pasos, pero no clasifica a cada unidad en un solo grupo, y por eso no puedes sumar los grupos ni calcular porcentajes sobre el total.
+
+Para lograrlo, asigna a cada unidad el número del paso más alto que alcanzó:
 
 ```sql
 WITH avance AS (
@@ -6905,59 +7081,63 @@ GROUP BY ultimo_paso
 ORDER BY ultimo_paso;
 ```
 
-Cada pedido aparece **exactamente una vez**: las categorías son excluyentes y las cantidades suman el total. Un funnel normal no tiene esa propiedad, porque un pedido entregado aparece en los cinco pasos.
+En este resultado cada pedido aparece **exactamente una vez**: las categorías son excluyentes y las cantidades suman el total de pedidos. Un funnel común no tiene esa propiedad, porque un pedido entregado aparece contado en los cinco pasos.
 
-El `ELSE 0` mapea `cancelled` fuera de la escala para que un pedido cancelado no parezca haber avanzado. Y `sum(count(*)) OVER ()` es una agregación dentro de una ventana: primero se agrupa, después la ventana suma todos los grupos. Es la forma corta de obtener el gran total sin una segunda consulta.
+Dos piezas de la consulta merecen explicación. El `ELSE 0` deja a `cancelled` fuera de la escala, para que un pedido cancelado no figure como si hubiera avanzado hasta alguna etapa. Y `sum(count(*)) OVER ()` es una agregación calculada sobre una ventana: primero el `GROUP BY` arma los grupos y después la ventana suma los conteos de todos ellos. Es la forma corta de obtener el gran total sin escribir una segunda consulta.
 
-En Pídelo el resultado es claro: 594 pedidos (4,11 %) no pasan de `placed`. Ahí, y no en el reparto, está el problema.
+En Pídelo el resultado es claro: 594 pedidos, el 4,11 % del total, no pasan de `placed`. El problema está ahí, en el momento en que el restaurante debería aceptar el pedido, y no en el reparto.
 
 ## Tiempo hasta convertir
 
-Con una tabla de hitos, el tiempo entre dos pasos es una resta de marcas de tiempo. El resultado es un `interval`; para promediar o graficar conviene pasarlo a minutos:
+Sobre una tabla de hitos, el tiempo entre dos pasos es simplemente la resta de dos marcas de tiempo. El resultado de esa resta es un valor de tipo `interval`, que no se puede promediar ni graficar cómodamente, así que conviene convertirlo a minutos:
 
 ```sql
 extract(epoch FROM h.accepted_at - h.placed_at) / 60 AS minutos_hasta_aceptar
 ```
 
-`extract(epoch FROM ...)` devuelve segundos; dividir por 60 da minutos con decimales.
+`extract(epoch FROM ...)` devuelve la duración del intervalo en segundos; dividir por 60 da los minutos con decimales.
 
 ## Promedio o mediana
 
-El promedio de una duración es casi siempre la métrica equivocada. Las duraciones tienen cola larga: un pedido que quedó dos horas trabado mueve el promedio de toda la ciudad. La **mediana** describe la experiencia típica:
+El promedio de una duración es casi siempre la métrica equivocada. Las duraciones tienen **cola larga**, es decir, la mayoría de los casos se concentra en valores bajos y unos pocos casos extremos se van muy lejos: un solo pedido que quedó trabado dos horas mueve el promedio de toda la ciudad y hace parecer lento un servicio que funciona bien.
+
+La **mediana** —el valor que deja la mitad de los casos por debajo y la mitad por encima— describe mucho mejor la experiencia típica:
 
 ```sql
 percentile_cont(0.5) WITHIN GROUP (ORDER BY minutos) AS mediana
 ```
 
-`percentile_cont` es una **función de agregación ordenada**: la lista dentro de `WITHIN GROUP` define sobre qué se calcula el percentil. `percentile_cont(0.9)` da el percentil 90, la métrica con la que se escriben los acuerdos de nivel de servicio: «el 90 % de los pedidos se entrega en menos de X minutos».
+`percentile_cont` es una **función de agregación ordenada**: necesita saber sobre qué orden calcular el percentil, y eso es lo que declara la cláusula `WITHIN GROUP (ORDER BY ...)`. Cambiando el parámetro obtienes otros percentiles: `percentile_cont(0.9)` da el percentil 90, que es la métrica con la que se escriben los acuerdos de nivel de servicio, del tipo «el 90 % de los pedidos se entrega en menos de X minutos».
 
-Existe también `percentile_disc`, que devuelve un valor realmente presente en los datos en vez de interpolar. Para duraciones, `percentile_cont` suele ser lo que quieres; para valores que deben existir (un identificador, un precio de lista), `percentile_disc`.
+Existe también `percentile_disc`, que devuelve un valor que está realmente presente en los datos en lugar de interpolar entre dos. Para duraciones, `percentile_cont` suele ser lo que quieres; para valores que tienen que existir de verdad, como un identificador o un precio de lista, usa `percentile_disc`.
 
 ## El sesgo de supervivencia
 
-Aquí está la trampa principal. Si calculas el tiempo de entrega solo sobre los pedidos entregados —y no queda alternativa, porque los demás no tienen `delivered_at`—, estás midiendo a los que llegaron. Los pedidos trabados o cancelados, que son los lentos, no entran. El número saldrá mejor que la realidad.
+Aquí está la trampa principal de esta lección. Si calculas el tiempo de entrega solo sobre los pedidos entregados —y no queda alternativa, porque los demás no tienen fecha en `delivered_at`—, estás midiendo únicamente a los que llegaron. Los pedidos que quedaron trabados o se cancelaron, que son precisamente los más lentos, no entran en el cálculo.
 
-No lo resuelve el SQL: lo resuelve la nota al pie. Publica el tiempo **junto con** la tasa de conversión del paso. «Mediana de 37 minutos sobre el 92 % de pedidos entregados» es una afirmación honesta; «mediana de 37 minutos» sola, no.
+La consecuencia es concreta: el número te va a dar mejor que la realidad, y cuanto peor funcione el servicio, mejor se va a ver la métrica, porque más pedidos lentos quedan afuera.
+
+Esto no lo resuelve el SQL, lo resuelve la nota al pie. Publica el tiempo **junto con** la tasa de conversión de ese paso. «Mediana de 37 minutos sobre el 92 % de pedidos que se entregaron» es una afirmación honesta; «mediana de 37 minutos», sola, no lo es.
 
 ## Errores comunes
 
-- Deducir el abandono restando pasos en lugar de clasificar por último paso alcanzado.
-- Publicar el promedio de una duración con cola larga.
-- Restar `max()` en vez de `min()` de cada hito y medir de más.
+- Deducir el abandono restando pasos consecutivos en lugar de clasificar cada unidad por el último paso que alcanzó.
+- Publicar el promedio de una duración que tiene cola larga.
+- Restar el `max()` de cada hito en lugar del `min()` y terminar midiendo de más.
 - Informar el tiempo de conversión sin la tasa de conversión que lo acompaña.
 
 ## Resumen
 
-1. El último paso alcanzado clasifica cada unidad una sola vez y suma el total: es lo que prioriza el trabajo.
-2. Duración = `extract(epoch FROM fin - inicio) / 60`; resume con mediana o percentil 90, no con promedio.
-3. Todo tiempo de conversión se publica junto a la tasa de conversión de ese paso.
+1. El último paso alcanzado clasifica cada unidad una sola vez y suma el total: es el cuadro que permite priorizar el trabajo.
+2. La duración se calcula con `extract(epoch FROM fin - inicio) / 60` y se resume con la mediana o el percentil 90, nunca con el promedio.
+3. Todo tiempo de conversión se publica junto a la tasa de conversión de ese paso, porque solo se mide a los que llegaron.
 $c2105$, null, (select id from public.datasets where slug = $c2106$pidelo$c2106$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2107$deduplicacion$c2107$), $c2108$dedup-que-es-un-duplicado$c2108$, $c2109$theory$c2109$, $c2110$Qué cuenta como duplicado$c2110$, 0, 11, $c2111$## Por qué importa
 
-«Tenemos filas duplicadas» es una de las frases más peligrosas de una reunión de datos, porque suena técnica y no lo es. Antes de escribir una sola línea de SQL hay que responder una pregunta de negocio: **¿qué columnas definen la identidad de una fila?** Sin esa respuesta, deduplicar es adivinar.
+«Tenemos filas duplicadas» es una de las frases más peligrosas de una reunión de datos, porque suena a un problema técnico con solución técnica y no lo es. Antes de escribir una sola línea de SQL hay que responder una pregunta de negocio: **¿qué columnas definen la identidad de una fila?**, es decir, qué combinación de valores hace que dos filas representen la misma cosa. Sin esa respuesta, eliminar filas es una adivinanza, y el riesgo es borrar datos legítimos.
 
 Trabajas con **Ritmo**, un servicio de streaming musical. La tabla `plays` registra reproducciones: `id`, `user_id`, `track_id`, `played_at`, `seconds_played`, `device`, `completed`.
 
@@ -6965,10 +7145,10 @@ Trabajas con **Ritmo**, un servicio de streaming musical. La tabla `plays` regis
 
 Mira dos filas con el mismo `user_id` y el mismo `track_id`:
 
-- Si `played_at` es distinto, la misma persona escuchó la canción dos veces. **No es un duplicado**: es fidelidad, y borrarla destruye una métrica.
+- Si `played_at` —la columna `played_at` de la tabla `plays`, el instante en que empezó la reproducción— es distinto, la misma persona escuchó la canción dos veces en momentos diferentes. **No es un duplicado**: son dos escuchas reales, y borrar una hace que la canción figure como menos escuchada de lo que fue.
 - Si `played_at` es idéntico al segundo, es casi seguro que el evento se registró dos veces por un reintento del cliente móvil. **Sí es un duplicado.**
 
-La diferencia no la decide el motor: la decide alguien que entiende el producto. Tu trabajo es **escribir esa decisión** en forma de lista de columnas —la clave de identidad— y dejarla documentada en la consulta.
+La diferencia no la decide el motor de base de datos, la decide alguien que entiende el producto. Tu trabajo es **escribir esa decisión** en forma de lista de columnas, que es lo que llamamos la clave de identidad, y dejarla a la vista en la consulta para que cualquiera pueda discutirla.
 
 En `plays`, el acuerdo es: una reproducción queda identificada por `(user_id, track_id, played_at)`. La columna `id` no sirve como clave de identidad porque es un correlativo: dos filas duplicadas tienen ids distintos justamente porque se insertaron dos veces.
 
@@ -7000,26 +7180,26 @@ SELECT
 FROM plays;
 ```
 
-`109382`, `109042`, `340`. Los paréntesis alrededor de las tres columnas construyen un **valor compuesto**: `count(DISTINCT ...)` cuenta cuántos valores compuestos distintos hay.
+El resultado es `109382`, `109042` y `340`: hay 340 filas de más. Los paréntesis alrededor de las tres columnas construyen un **valor compuesto**, o sea, un único valor formado por esas tres columnas juntas, de modo que `count(DISTINCT ...)` cuenta cuántas combinaciones distintas existen.
 
-Un 0,3 % de sobrante puede parecer despreciable, pero no se reparte igual: si esos duplicados se concentran en un artista o en un país, el ranking cambia. Por eso la medición se hace **también por segmento**, no solo en total.
+Un 0,3 % de filas sobrantes puede parecer despreciable, pero esas filas no están repartidas de forma pareja. Si se concentran en un artista o en un país, el ranking de los más escuchados cambia de orden y el reporte pasa a ser incorrecto. Por eso la medición se hace **también por segmento**, no solo sobre el total.
 
 ## Duplicado exacto vs. duplicado de negocio
 
 Hay dos familias y conviene no confundirlas:
 
-- **Duplicado exacto**: todas las columnas coinciden (salvo el id técnico). Es el caso de `plays`. Cualquiera de las copias sirve; da igual cuál conserves.
+- **Duplicado exacto**: todas las columnas coinciden, salvo el identificador técnico que la base asigna sola. Es el caso de `plays`. Como las copias son idénticas, da igual cuál conserves.
 - **Duplicado por clave de negocio**: las filas representan la misma entidad del mundo real pero **difieren** en otras columnas. Dos cuentas con el mismo correo escrito distinto, con nombres y fechas de alta distintas. Aquí sí importa cuál conservas, y esa es la lección siguiente.
 
 ## DISTINCT: útil y limitado
 
-`SELECT DISTINCT user_id, track_id, played_at FROM plays` devuelve las 109 042 combinaciones únicas y resuelve el caso exacto en una línea. Su límite es que **solo puede proyectar las columnas por las que deduplica**: en cuanto necesitas arrastrar `id` o `device`, las filas vuelven a ser distintas entre sí y `DISTINCT` deja de descartar nada.
+`SELECT DISTINCT user_id, track_id, played_at FROM plays` devuelve las 109 042 combinaciones únicas y resuelve el caso exacto en una sola línea. Su límite es que **solo puede mostrar las columnas por las que deduplica**: en cuanto agregas `id` o `device` a la lista del `SELECT`, las filas vuelven a ser distintas entre sí y `DISTINCT` ya no descarta ninguna.
 
 ## Errores comunes
 
 - Incluir el id técnico en el `GROUP BY` de detección: todos los grupos quedan de tamaño 1 y concluyes que no hay duplicados.
 - Usar `SELECT DISTINCT *` como respuesta automática: con un id autoincremental nunca elimina nada.
-- Deduplicar antes de acordar la clave de identidad: borras reproducciones legítimas y nadie lo nota hasta el cierre de mes.
+- Eliminar filas antes de acordar la clave de identidad: borras reproducciones legítimas y el faltante recién se nota en el cierre de mes, cuando los totales no coinciden.
 
 ## Resumen
 
@@ -7032,13 +7212,13 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2113$deduplicacion$c2113$), $c2114$dedup-clave-de-negocio$c2114$, $c2115$theory$c2115$, $c2116$Duplicados por clave de negocio$c2116$, 1, 11, $c2117$## El caso difícil
 
-En **TiendaViva**, el marketplace, la tabla `customers` tiene una restricción de unicidad sobre `email`. Aun así, hay 39 cuentas de más: el registro aceptó `Ana.Ruiz@ejemplo.lat` y `ana.ruiz@ejemplo.lat` como correos distintos. Para la base de datos son distintos; para la persona detrás de la pantalla, es la misma cuenta.
+En **TiendaViva**, el marketplace, la tabla `customers` tiene una restricción de unicidad (`UNIQUE`) sobre `email`, es decir, una regla de la base de datos que impide guardar dos filas con el mismo valor en esa columna. Aun así hay 39 cuentas de más, porque el formulario de registro aceptó `Ana.Ruiz@ejemplo.lat` y `ana.ruiz@ejemplo.lat` como si fueran correos diferentes. Para la base de datos son dos valores distintos; para la persona que está del otro lado de la pantalla, es la misma cuenta.
 
 Esto es un **duplicado por clave de negocio**: filas que la restricción técnica no ve, pero que representan la misma entidad del mundo real.
 
 ## Normalizar antes de agrupar
 
-La clave de identidad no es la columna cruda: es la columna **normalizada**. Decides una forma canónica y agrupas por ella.
+La clave de identidad no es la columna tal como está guardada, sino la columna **normalizada**: eliges una forma canónica —una única manera de escribir el valor, por ejemplo todo en minúsculas y sin espacios al principio ni al final— y agrupas por ella.
 
 ```sql
 SELECT lower(btrim(email)) AS correo, count(*) AS cuentas
@@ -7054,7 +7234,7 @@ Las normalizaciones más usadas, y el criterio para elegirlas:
 
 | Técnica | Para qué | Riesgo |
 | --- | --- | --- |
-| `lower(...)` | Correos, códigos, siglas | Ninguno en correos; sí en contraseñas o hashes |
+| `lower(...)` | Correos, códigos, siglas | Ninguno en correos; sí en valores donde las mayúsculas cambian el significado, como contraseñas |
 | `btrim(...)` | Espacios pegados al copiar y pegar | Ninguno |
 | `regexp_replace(tel, '[^0-9]', '', 'g')` | Teléfonos con guiones y paréntesis | Pierde el prefijo internacional si no está escrito |
 | `unaccent(...)` | Nombres con tildes | Requiere una extensión; no siempre disponible |
@@ -7072,19 +7252,19 @@ GROUP BY seller_id, lower(btrim(name))
 HAVING count(*) > 1;
 ```
 
-Cada combinación que propongas es una hipótesis de negocio distinta. Escribir dos o tres y comparar cuántos grupos devuelve cada una es una forma honesta de discutirlo con el área dueña del dato.
+Cada combinación que propongas es una hipótesis de negocio distinta sobre qué significa «la misma entidad». Escribir dos o tres y comparar cuántos grupos devuelve cada una le da a la conversación con el área dueña del dato algo concreto sobre lo que decidir.
 
 ## Cuando la coincidencia no es exacta
 
 «Juan Pérez» y «Juan Perez Gómez» probablemente sean la misma persona, y ningún `GROUP BY` los junta. Ahí entra el emparejamiento aproximado: comparar por un prefijo, por una similitud de texto o por la coincidencia de varias columnas débiles a la vez (nombre + ciudad + año de nacimiento).
 
-Ese terreno es resbaladizo: siempre cambias falsos positivos por falsos negativos. La regla práctica es no automatizar una fusión aproximada sin revisión humana; en cambio, sí es muy útil **producir la lista de sospechosos** para que alguien la revise.
+Ese terreno es delicado: cuanto más flexible haces la comparación, más parejas falsas aceptas; cuanto más estricta, más parejas verdaderas se te escapan. No existe un ajuste que evite las dos cosas a la vez. Por eso la regla práctica es no automatizar nunca una fusión aproximada sin revisión humana, y sí, en cambio, **producir la lista de casos sospechosos** para que alguien la revise una por una.
 
 ## Duplicados que no están en la tabla
 
 Ojo con un caso que se confunde todo el tiempo: un join mal planteado **crea** filas repetidas que no existen en ningún lado. Si unes `orders` con `payments` y un pedido tiene tres intentos de pago, cada pedido aparece tres veces y el total se triplica.
 
-Eso no se arregla con `DISTINCT`: se arregla agregando `payments` a una fila por pedido **antes** de unir, o eligiendo un solo intento. Si tu reflejo ante un total inflado es agregar `DISTINCT`, casi siempre estás tapando un error de cardinalidad.
+Eso no se arregla con `DISTINCT`: se arregla resumiendo `payments` a una fila por pedido **antes** de unir, o eligiendo un único intento de pago. Si tu reflejo ante un total inflado es agregar `DISTINCT`, lo más probable es que estés ocultando un error de cardinalidad —es decir, de cuántas filas produce la unión—, y el total seguirá mal en cuanto cambies una columna del `SELECT`.
 
 ## Errores comunes
 
@@ -7103,7 +7283,7 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2119$deduplicacion$c2119$), $c2120$dedup-elegir-la-fila-ganadora$c2120$, $c2121$theory$c2121$, $c2122$Elegir la fila que se conserva$c2122$, 2, 12, $c2123$## La segunda decisión de negocio
 
-Ya sabes qué filas forman un grupo duplicado. Falta la segunda pregunta, igual de poco técnica: **¿cuál de ellas sobrevive?** La más reciente, la más completa, la que tiene actividad asociada. También esto lo decide el negocio y también se escribe explícito.
+Ya sabes qué filas forman un grupo duplicado. Falta la segunda pregunta, tan poco técnica como la primera: **¿cuál de esas filas se conserva?** Puede ser la más reciente, la que tiene más campos completos o la que tiene actividad asociada. También esto lo decide el negocio, y también conviene escribirlo de forma explícita en la consulta.
 
 ## ROW_NUMBER: el patrón general
 
@@ -7121,7 +7301,9 @@ FROM numeradas
 WHERE copia = 1;
 ```
 
-`PARTITION BY` es tu clave de identidad. El `ORDER BY` de la ventana es **tu regla de negocio**: quien queda primero se conserva. Con `WHERE copia = 1` te quedas con las ganadoras; con `WHERE copia > 1` obtienes exactamente la lista de filas a eliminar, que es lo que le entregas a quien vaya a hacer la limpieza.
+`WITH numeradas AS (...)` define una CTE (por *Common Table Expression*, expresión de tabla común): una consulta con nombre que se calcula primero y después se usa como si fuera una tabla. Dentro de ella, `row_number()` numera las filas de cada grupo: 1 para la primera según el `ORDER BY`, 2 para la siguiente, y así.
+
+El `PARTITION BY` es tu clave de identidad, la que arma los grupos. El `ORDER BY` de la ventana es **tu regla de negocio**: la fila que queda primera es la que se conserva. Con `WHERE copia = 1` te quedas con las ganadoras; con `WHERE copia > 1` obtienes la lista exacta de filas a eliminar, que es lo que le entregas a quien vaya a hacer la limpieza.
 
 Este patrón funciona siempre, incluso cuando las filas del grupo difieren entre sí, y es la razón por la que `DISTINCT` no lo reemplaza.
 
@@ -7139,11 +7321,11 @@ ORDER BY p.order_id, p.id DESC;
 1. El `ORDER BY` debe **empezar** por las mismas expresiones del `DISTINCT ON`; si no, PostgreSQL rechaza la consulta.
 2. Lo que viene después del primer criterio es lo que decide quién gana.
 
-Es más corto que la CTE y suele ser más rápido, pero es **específico de PostgreSQL**: en otros motores tendrás que volver a `ROW_NUMBER`. Además, el orden de salida queda atado al `ORDER BY` del `DISTINCT ON`; si necesitas presentar el resultado en otro orden, envuélvelo en una subconsulta.
+Es más corto que la CTE y suele ser más rápido, pero es **específico de PostgreSQL**: si mañana trabajas con otro motor, tendrás que volver a `ROW_NUMBER`. Además, el orden de salida queda atado al `ORDER BY` que exige el `DISTINCT ON`, así que si necesitas presentar el resultado en otro orden tienes que envolver la consulta en una subconsulta y ordenar ahí.
 
 ## El desempate tiene que ser total
 
-Si tu regla es «la más reciente» y dos filas comparten el instante, el ganador queda **indeterminado**: la misma consulta puede devolver una u otra en ejecuciones distintas. Un reporte que cambia solo se vuelve imposible de defender.
+Si tu regla es «la más reciente» y dos filas comparten exactamente el mismo instante, la fila ganadora queda **indeterminada**: la misma consulta puede devolver una u otra en ejecuciones distintas. Un reporte que da resultados diferentes en dos corridas seguidas no se puede defender ante quien lo recibe.
 
 Agrega siempre un criterio final único, normalmente la clave primaria:
 
@@ -7159,7 +7341,7 @@ En PostgreSQL, `ORDER BY col DESC` coloca los NULL **primero**. En `payments`, l
 ORDER BY p.order_id, p.paid_at DESC NULLS LAST, p.id DESC
 ```
 
-Revisa esto **cada vez** que la columna de desempate admita nulos. Es de lejos el error más frecuente de esta sección.
+Revisa esto **cada vez** que la columna de desempate pueda contener nulos. Es, por mucho, el error más frecuente de esta sección.
 
 ## Un tercer camino: agregar en lugar de elegir
 
@@ -7179,14 +7361,14 @@ Es legítimo y a menudo lo correcto, pero deja de existir una fila «original» 
 
 ## Y lo que casi nadie hace
 
-Antes de eliminar: ¿qué cuelga de las filas que se van? Si borras una cuenta duplicada, sus pedidos quedan huérfanos. La secuencia sana es elegir ganadora → **repuntar** las filas dependientes → recién entonces eliminar.
+Antes de eliminar, pregúntate qué otras filas dependen de las que se van. Si borras una cuenta duplicada, sus pedidos quedan apuntando a un cliente que ya no existe y dejan de aparecer en cualquier consulta que una las dos tablas. La secuencia correcta es: elegir la fila ganadora, **actualizar las filas dependientes** para que apunten a ella y recién entonces eliminar las perdedoras.
 
 ## Errores comunes
 
 - Desempatar solo por una fecha que se repite: el resultado no es reproducible.
 - Ordenar por una columna con nulos sin `NULLS LAST` y conservar la fila vacía.
 - Filtrar `row_number() = 1` en el mismo `WHERE`: las ventanas se calculan después del `WHERE`, necesitas una CTE o subconsulta.
-- Eliminar sin repuntar las filas dependientes.
+- Eliminar filas sin actualizar antes las que dependían de ellas.
 
 ## Resumen
 
@@ -7199,9 +7381,13 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2125$calidad-de-datos$c2125$), $c2126$calidad-de-datos-perfilar-una-tabla$c2126$, $c2127$theory$c2127$, $c2128$Perfilar una tabla que no conoces$c2128$, 0, 10, $c2129$## Por qué importa
 
-Tu primer día en un equipo de datos casi nunca empieza con una pregunta de negocio: empieza con una tabla que nadie te explicó. Antes de calcular una sola métrica sobre ella tienes que responder cuatro preguntas propias del oficio: **qué representa una fila**, **cuánto abarca**, **qué falta** y **qué es imposible**. A eso se le llama perfilar (*profiling*), y son quince minutos de SQL que te ahorran semanas de reportes equivocados.
+Tu primer día en un equipo de datos casi nunca empieza con una pregunta de negocio: empieza con una tabla que nadie te explicó. Antes de calcular una sola métrica sobre ella tienes que responder cuatro preguntas: **qué representa una fila**, **cuánto abarca la tabla**, **qué datos faltan** y **qué valores son imposibles**.
 
-La tentación es saltear este paso porque «el dato viene del sistema y el sistema está bien». No lo está. Toda tabla de producción arrastra migraciones, reintentos, integraciones a medias y reglas que cambiaron en el camino.
+A ese trabajo se le llama **perfilar** una tabla (en inglés, *profiling*): describirla con consultas antes de usarla. Son quince minutos de SQL que te ahorran semanas de reportes equivocados.
+
+La tentación es saltear este paso porque «el dato viene del sistema y el sistema está bien». No lo está. Toda tabla de producción arrastra migraciones a medio terminar, reintentos que dejaron filas repetidas, integraciones que se cortaron y reglas de negocio que cambiaron en algún momento sin que nadie lo documentara.
+
+Trabajas sobre **Ritmo**, el servicio de streaming, y su tabla `plays`, que registra reproducciones.
 
 ## 1. El volumen y la ventana
 
@@ -7215,13 +7401,15 @@ SELECT
 FROM plays;
 ```
 
-Te dice si la tabla tiene el tamaño que te anunciaron y, sobre todo, **hasta cuándo llegan los datos**. Una carga que se cortó hace tres semanas se descubre aquí o no se descubre nunca.
+Te dice si la tabla tiene el tamaño que te anunciaron y, sobre todo, **hasta qué fecha llegan los datos**. Una carga que dejó de actualizarse hace tres semanas se descubre en esta consulta o no se descubre nunca, y mientras tanto tus informes muestran una caída de actividad que en realidad no ocurrió.
 
-Fíjate en el `AT TIME ZONE 'UTC'`: las marcas de tiempo son `timestamptz` y se muestran en el huso de la sesión. El sandbox fija la sesión en UTC para que el mismo perfilado dé siempre el mismo resultado, así que aquí no vas a ver la diferencia; en el servidor de tu trabajo la sesión puede estar en otra zona y «hasta cuándo llegan los datos» pasa a depender de esa configuración. Perfilar es dejar constancia: fija el huso y anota cuál usaste, porque un rango de fechas sin huso declarado no sirve como evidencia en una auditoría.
+Fíjate en el `AT TIME ZONE 'UTC'`. Las marcas de tiempo de esta columna son de tipo `timestamptz`, que guarda un instante absoluto y lo muestra convertido al huso horario de la sesión. El sandbox de la plataforma fija la sesión en UTC para que el mismo perfilado dé siempre el mismo resultado, así que aquí no vas a ver diferencia; en el servidor de tu trabajo la sesión puede estar configurada en otra zona y la respuesta a «hasta cuándo llegan los datos» cambiaría según esa configuración.
+
+Perfilar es dejar constancia de lo que mediste: fija el huso en la consulta y anota cuál usaste, porque un rango de fechas sin huso declarado no sirve como evidencia en una auditoría.
 
 ## 2. La granularidad: ¿qué es una fila?
 
-Saber que hay 109 382 filas no sirve si no sabes qué cuenta cada una. Compara el total con los distintos de las columnas candidatas:
+Saber que hay 109 382 filas no sirve de nada si no sabes qué cuenta cada una. La **granularidad** de una tabla es justamente eso: qué representa una fila. Para descubrirla, compara el total de filas con la cantidad de valores distintos de las columnas candidatas:
 
 ```sql
 SELECT
@@ -7231,9 +7419,9 @@ SELECT
 FROM plays;
 ```
 
-Con 4768 oyentes y 6203 canciones en 109 382 filas, una fila **no** es un oyente ni una canción: es un evento de reproducción. Ese razonamiento define de inmediato qué joins te van a multiplicar filas después.
+Con 4768 oyentes y 6203 canciones repartidos en 109 382 filas, una fila **no** es un oyente ni una canción: es un evento de reproducción, una escucha concreta. Ese razonamiento te dice de inmediato qué joins te van a multiplicar filas más adelante, porque cada oyente aparece en la tabla decenas de veces.
 
-El paso siguiente es probar la clave de negocio que crees que identifica una fila:
+El paso siguiente es probar la clave de negocio, es decir, la combinación de columnas que tú crees que identifica una fila de forma única:
 
 ```sql
 SELECT user_id, track_id, played_at, count(*) AS copies
@@ -7242,11 +7430,11 @@ GROUP BY user_id, track_id, played_at
 HAVING count(*) > 1;
 ```
 
-Si devuelve filas, esa combinación **no** es única y cualquier conteo que hagas sobre la tabla está inflado. En `plays` devuelve 340 combinaciones repetidas.
+Si esa consulta devuelve filas, la combinación **no** es única y cualquier conteo que hagas sobre la tabla está inflado. En `plays` devuelve 340 combinaciones repetidas: hay 340 casos en los que el mismo usuario, la misma canción y el mismo instante están cargados más de una vez.
 
 ## 3. Lo que falta
 
-`count(*)` cuenta filas; `count(columna)` cuenta valores no nulos. La resta entre ambos es, exactamente, la cantidad de nulos:
+`count(*)` cuenta todas las filas, mientras que `count(columna)` cuenta solo las filas donde esa columna tiene valor. La resta entre ambos números es, exactamente, la cantidad de valores faltantes:
 
 ```sql
 SELECT
@@ -7255,11 +7443,15 @@ SELECT
 FROM plays;
 ```
 
-Un nulo no es un error por sí mismo: la pregunta siempre es **por qué falta**. `device` nulo en el 1,6 % de las filas suele ser un cliente viejo que no manda el campo; `seconds_played` nulo es un evento que se cortó. Lo grave sería que faltara el 40 %, o que faltara solo en un país.
+Un nulo no es un error por sí mismo; la pregunta siempre es **por qué falta**. Que `device` esté vacío en el 1,6 % de las filas suele explicarse por una versión vieja de la aplicación que no manda ese campo; que falte `seconds_played` indica un evento de reproducción que se cortó antes de terminar.
+
+Lo que sí sería grave es que faltara el 40 % de los valores, o que faltara solo en un país: eso deja de ser ruido y pasa a invalidar cualquier comparación entre países.
 
 ## 4. Lo imposible
 
-El perfil cierra con los valores que el negocio prohíbe: segundos negativos, importes mayores que el total del pedido, fechas de entrega anteriores al envío. Se cuentan con agregación condicional y se comparan contra el total, porque un número suelto no dice nada:
+El perfil cierra con los valores que las reglas del negocio prohíben: segundos negativos, un importe de ítem mayor que el total del pedido, una fecha de entrega anterior a la de envío.
+
+Se cuentan con agregación condicional y siempre se comparan contra el total de filas, porque un número suelto no dice nada: 120 filas malas son un desastre en una tabla de mil filas y son ruido en una de un millón.
 
 ```sql
 SELECT
@@ -7270,30 +7462,32 @@ FROM plays;
 
 ## El método, en orden
 
-1. Volumen y ventana temporal (con el huso fijo).
-2. Granularidad: qué representa una fila y qué combinación la identifica.
-3. Completitud: nulos por columna, en cantidad y en porcentaje.
-4. Validez: rangos, dominios y reglas de negocio imposibles.
-5. Duplicados y huecos referenciales (las dos lecciones que siguen).
+1. Volumen y ventana temporal, con el huso horario fijo y declarado.
+2. Granularidad: qué representa una fila y qué combinación de columnas la identifica.
+3. Completitud: valores faltantes por columna, en cantidad y en porcentaje.
+4. Validez: rangos, listas de valores permitidos y reglas de negocio imposibles de cumplir.
+5. Duplicados y huecos referenciales, que son el tema de las dos lecciones que siguen.
 
-Guarda ese perfil como consulta, no como captura de pantalla: lo vas a volver a correr cada vez que el dato cambie.
+Guarda ese perfil como una consulta y no como una captura de pantalla, porque vas a necesitar volver a ejecutarlo cada vez que los datos cambien.
 
 ## Resumen
 
-- Perfilar es responder qué es una fila, cuánto abarca la tabla, qué falta y qué es imposible.
-- `count(*) - count(columna)` cuenta nulos; `GROUP BY ... HAVING count(*) > 1` prueba la clave de negocio.
-- Fija siempre el huso con `AT TIME ZONE 'UTC'`: una fecha sin huso no es evidencia auditable.
+- Perfilar es responder qué representa una fila, cuánto abarca la tabla, qué falta y qué valores son imposibles.
+- `count(*) - count(columna)` cuenta los valores faltantes; `GROUP BY ... HAVING count(*) > 1` prueba si la clave de negocio es única.
+- Fija siempre el huso horario con `AT TIME ZONE 'UTC'`: una fecha sin huso declarado no es evidencia auditable.
 $c2129$, null, (select id from public.datasets where slug = $c2130$ritmo$c2130$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2131$calidad-de-datos$c2131$), $c2132$calidad-de-datos-nulos-y-categorias$c2132$, $c2133$theory$c2133$, $c2134$Nulos, vacíos y categorías que no coinciden$c2134$, 1, 10, $c2135$## Por qué importa
 
-«Falta el dato» tiene al menos tres formas distintas en una base real: `NULL`, la cadena vacía `''` y el texto que alguien escribió para decir que no sabe (`'N/A'`, `'-'`, `'sin dato'`). Las tres significan lo mismo para el negocio y **ninguna** se comporta igual en SQL. A eso se suma el problema gemelo: la misma categoría escrita de varias maneras, que parte un total en pedazos sin que nadie lo note.
+«Falta el dato» tiene al menos tres formas distintas en una base de datos real: el valor `NULL`, la cadena de texto vacía `''` y el texto que alguien escribió para decir que no sabe (`'N/A'`, `'-'`, `'sin dato'`).
+
+Para el negocio las tres significan lo mismo, pero **ninguna** se comporta igual en SQL: una se descarta sola en los filtros, otra se cuenta como un valor más y la tercera aparece como una categoría con nombre propio en tus informes. A eso se suma un problema gemelo: la misma categoría escrita de varias maneras, que parte un total en pedazos sin que nadie lo note.
 
 ## NULL se esconde de los GROUP BY que lees rápido
 
-`GROUP BY` sí crea un grupo para `NULL`, pero ese grupo aparece con la celda vacía y se pierde de vista en una planilla. Haz el nulo explícito:
+`GROUP BY` sí arma un grupo para las filas con `NULL`, pero ese grupo aparece con la celda vacía y se pierde de vista cuando alguien mira la planilla por encima. Conviene hacerlo explícito:
 
 ```sql
 SELECT
@@ -7304,11 +7498,13 @@ GROUP BY coalesce(device, 'sin_dato')
 ORDER BY plays DESC;
 ```
 
-Ahora `sin_dato` es una categoría con 1745 filas, visible y discutible. Si en cambio filtraras con `WHERE device <> 'mobile'`, esas 1745 filas **desaparecerían**: la comparación con `NULL` no da verdadero ni falso, da desconocido, y el `WHERE` solo deja pasar lo verdadero. Para incluirlas hay que escribirlo: `WHERE device IS NULL OR device <> 'mobile'`.
+Ahora `sin_dato` es una categoría con nombre y con 1745 filas: se ve en el informe y se puede discutir en una reunión.
+
+Cuidado con lo que pasa si en vez de eso filtras con `WHERE device <> 'mobile'`: esas 1745 filas **desaparecen del resultado**. La comparación de `NULL` con cualquier valor no da verdadero ni falso, da desconocido, y el `WHERE` solo deja pasar lo que es verdadero. Si las quieres incluir, tienes que escribirlo: `WHERE device IS NULL OR device <> 'mobile'`.
 
 ## La cadena vacía no es NULL
 
-`''` es un valor: ocupa lugar, `count(columna)` lo cuenta y `IS NULL` devuelve falso. Un perfil honesto mide las dos cosas por separado y las unifica al reportar:
+La cadena vacía `''` es un valor como cualquier otro: ocupa lugar, `count(columna)` la cuenta e `IS NULL` devuelve falso sobre ella. Por eso un perfil honesto mide las dos cosas por separado y recién las unifica al momento de reportar:
 
 ```sql
 SELECT
@@ -7317,11 +7513,13 @@ SELECT
 FROM ratings;
 ```
 
-`nullif(btrim(comment), '')` es el traductor entre los dos mundos: convierte el vacío (y el que solo tiene espacios) en `NULL`, para que el resto de la consulta trate un solo caso.
+La expresión `nullif(btrim(comment), '')` es el traductor entre los dos mundos: `btrim` saca los espacios de los extremos y `nullif` convierte en `NULL` lo que quedó vacío, de modo que el resto de la consulta tenga que tratar un solo caso de «sin comentario» en lugar de dos.
 
 ## Categorías que no coinciden
 
-El clásico de todo CRM: el mismo correo cargado dos veces con distinta capitalización. En `tiendaviva`, `customers` tiene 3000 filas y 2998 correos distintos; al normalizar bajan a 2961. Es decir: 37 personas están cargadas más de una vez.
+Es el problema clásico de todo sistema de gestión de clientes: el mismo correo cargado dos veces con distinta capitalización, y por lo tanto la misma persona contada dos veces.
+
+En el dataset `tiendaviva`, la tabla `customers` tiene 3000 filas y 2998 correos distintos. Si antes de contarlos los pasas a minúsculas y les sacas los espacios sobrantes, los correos distintos bajan a 2961. Es decir, hay 37 personas cargadas más de una vez, y cualquier métrica «por cliente» sobre esa tabla está mal.
 
 ```sql
 SELECT lower(btrim(email)) AS normalized_email, count(*) AS people_rows
@@ -7330,17 +7528,17 @@ GROUP BY lower(btrim(email))
 HAVING count(*) > 1;
 ```
 
-La normalización mínima que conviene aplicar antes de agrupar texto:
+La normalización mínima que conviene aplicar antes de agrupar cualquier texto es esta:
 
-- `btrim(x)` quita espacios al inicio y al final (el error más frecuente de una carga desde una planilla).
+- `btrim(x)` quita los espacios del principio y del final. Es el error más frecuente cuando los datos se cargaron desde una planilla.
 - `lower(x)` iguala mayúsculas y minúsculas.
-- `regexp_replace(x, ' +', ' ', 'g')` colapsa espacios internos repetidos.
+- `regexp_replace(x, ' +', ' ', 'g')` reemplaza cada grupo de espacios internos repetidos por uno solo.
 
-Cuidado: normalizar sirve para **detectar y agrupar**, no para reescribir la tabla sin permiso. Que dos filas parezcan la misma persona no autoriza a fusionarlas; eso es una decisión de negocio con consecuencias legales y contables.
+Una advertencia importante: normalizar sirve para **detectar y agrupar**, no para reescribir la tabla por tu cuenta. Que dos filas parezcan la misma persona no te autoriza a fusionarlas; esa es una decisión del área dueña del dato, con consecuencias legales y contables.
 
 ## Los nulos al agregar
 
-Los agregados ignoran los nulos, y eso cambia el resultado según lo que preguntes:
+Las funciones de agregación ignoran los valores nulos, y eso cambia el resultado según lo que estés preguntando:
 
 ```sql
 SELECT
@@ -7349,39 +7547,45 @@ SELECT
 FROM plays;
 ```
 
-La primera divide por las filas **con dato**; la segunda, por todas. Ninguna está mal: están respondiendo preguntas distintas. Lo que está mal es no saber cuál estás mostrando. Regla práctica: cuando reportes un promedio sobre una columna con nulos, reporta al lado cuántas filas quedaron fuera.
+La primera expresión divide la suma por la cantidad de filas **que tienen dato**; la segunda la divide por todas las filas, tengan dato o no. Ninguna de las dos está mal: responden preguntas distintas, «cuánto dura en promedio una reproducción medida» y «cuánto tiempo de escucha registramos por evento».
+
+Lo que sí está mal es no saber cuál de las dos estás mostrando. Regla práctica: cuando reportes un promedio sobre una columna que tiene nulos, informa al lado cuántas filas quedaron fuera del cálculo.
 
 ## Cómo se comunica esto
 
-Un hallazgo de calidad se reporta siempre con tres datos: **qué regla se rompe**, **cuántas filas** y **sobre qué total**. «Hay nulos en `device`» no mueve a nadie; «1745 de 109 382 reproducciones (1,6 %) no tienen dispositivo» abre un ticket.
+Un hallazgo de calidad se reporta siempre con tres datos: **qué regla se rompe**, **cuántas filas la rompen** y **sobre qué total**. Decir «hay nulos en `device`» no mueve a nadie, porque quien lo lee no puede saber si es urgente. Decir «1745 de 109 382 reproducciones (1,6 %) no tienen dispositivo registrado» le da a esa persona todo lo que necesita para decidir, y normalmente abre un ticket.
 
 ## Resumen
 
-- `NULL`, `''` y `'N/A'` son tres cosas distintas para SQL y la misma para el negocio: mídelas por separado, únelas al reportar.
-- `coalesce` hace visible el grupo nulo; `nullif(btrim(x), '')` convierte el vacío en nulo.
-- Normaliza texto (`lower`, `btrim`) para detectar categorías duplicadas; detectar no es fusionar.
+- `NULL`, `''` y `'N/A'` son tres cosas distintas para SQL y la misma para el negocio: mídelas por separado y únelas recién al reportar.
+- `coalesce` hace visible el grupo de los nulos; `nullif(btrim(x), '')` convierte el texto vacío en nulo.
+- Normaliza el texto con `lower` y `btrim` para detectar categorías duplicadas, y recuerda que detectar no es fusionar.
 $c2135$, null, (select id from public.datasets where slug = $c2136$ritmo$c2136$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2137$calidad-de-datos$c2137$), $c2138$calidad-de-datos-validez-y-huecos$c2138$, $c2139$theory$c2139$, $c2140$Reglas de validez, huecos referenciales y el reporte$c2140$, 2, 11, $c2141$## Por qué importa
 
-Perfilar te dice cómo es la tabla. Auditar te dice **dónde incumple las reglas** que el negocio da por ciertas. La diferencia práctica: el perfil se mira una vez, la auditoría se convierte en una consulta que corre cada semana y que cualquiera puede repetir para llegar a tu mismo número.
+Perfilar una tabla te dice cómo es. **Auditarla** te dice dónde incumple las reglas que el negocio da por ciertas.
+
+La diferencia práctica está en el uso: el perfil se mira una vez, cuando conoces la tabla; la auditoría se convierte en una consulta guardada que corre cada semana y que cualquier persona del equipo puede volver a ejecutar para llegar exactamente a tu mismo número.
 
 ## Reglas de dominio: un solo campo
 
-Son las más baratas y las que más vergüenza ahorran. Cada columna tiene un conjunto de valores posibles, aunque la base no lo declare: `seconds_played` no puede ser negativo, un porcentaje vive entre 0 y 100, `status` solo toma cinco valores.
+El **dominio** de una columna es el conjunto de valores que puede tomar legítimamente, aunque la base de datos no lo tenga declarado: `seconds_played` no puede ser negativo, un porcentaje vive entre 0 y 100, la columna `status` solo admite cinco textos posibles.
+
+Estos chequeos son los más baratos de escribir y los que más vergüenzas evitan:
 
 ```sql
 SELECT count(*) FILTER (WHERE seconds_played < 0) AS negative_seconds
 FROM plays;
 ```
 
-En `plays` hay 120 filas con segundos negativos. Son pocas, pero envenenan cualquier suma de tiempo escuchado.
+En la tabla `plays` de **Ritmo** hay 120 filas con segundos negativos. Son pocas sobre el total, pero envenenan cualquier suma de tiempo escuchado, porque restan tiempo que nadie escuchó.
 
 ## Reglas cruzadas: dos tablas que tienen que coincidir
 
-El siguiente nivel compara una fila con la tabla que la define. Nadie puede escuchar una canción más tiempo del que dura:
+El nivel siguiente compara una fila con la tabla que define sus límites. Nadie puede escuchar una canción durante más tiempo del que la canción dura:
 
 ```sql
 SELECT count(*) AS over_duration
@@ -7390,11 +7594,13 @@ JOIN tracks t ON t.id = p.track_id
 WHERE p.seconds_played > t.duration_seconds;
 ```
 
-Son 210 filas, y varias con proporciones absurdas: hasta 42 veces la duración de la canción. Estos son los **valores atípicos** que importan en calidad: no el dato alto y raro, sino el dato que ninguna interpretación del negocio puede justificar. El criterio para separarlos no es estadístico, es de dominio: existe una cota superior conocida (la duración) y hay filas que la superan.
+Son 210 filas, y varias con proporciones absurdas: hay reproducciones que registran hasta 42 veces la duración de la canción.
+
+Estos son los **valores atípicos** que importan en calidad de datos. No se trata del dato alto y llamativo, que puede ser perfectamente real, sino del dato que ninguna interpretación del negocio puede justificar. El criterio para separarlos no es estadístico sino de dominio: existe una cota superior conocida, que es la duración de la canción, y hay filas que la superan.
 
 ## Huecos referenciales
 
-Una clave foránea garantiza que un `order_id` exista; **no** garantiza que la relación que el negocio espera esté completa. El hueco típico es el inverso: el padre sin hijos. Un pedido sin ítems, un cliente sin dirección, un envío sin pedido.
+Una clave foránea (FK, por *foreign key*, su nombre en inglés) garantiza que el valor guardado exista en la otra tabla: si un ítem tiene `order_id = 55`, garantiza que el pedido 55 existe. Lo que **no** garantiza es que la relación esté completa en el otro sentido, y ese es el hueco típico: el padre sin hijos. Un pedido sin ítems, un cliente sin dirección, un envío sin pedido asociado.
 
 ```sql
 SELECT o.id, o.status, o.total
@@ -7404,17 +7610,17 @@ WHERE NOT EXISTS (
 );
 ```
 
-Esa consulta —el **antijoin**— tiene dos formas equivalentes y una trampa:
+Esa consulta se llama **antijoin**, porque devuelve las filas de una tabla que *no* tienen correspondencia en otra. Se puede escribir de dos formas equivalentes, y hay una tercera que es una trampa:
 
-- `NOT EXISTS (...)`: la más segura y legible.
-- `LEFT JOIN ... WHERE i.order_id IS NULL`: igual de válida; la condición nula va en el `WHERE`, nunca en el `ON`, porque en el `ON` no filtra nada.
-- `NOT IN (SELECT order_id FROM order_items)`: **la trampa**. Si la subconsulta devuelve aunque sea un `NULL`, el resultado es vacío siempre. Evítala en auditorías.
+- `NOT EXISTS (...)`: la más segura y la más fácil de leer.
+- `LEFT JOIN ... WHERE i.order_id IS NULL`: igual de válida. La condición sobre el nulo va en el `WHERE` y nunca en el `ON`, porque en el `ON` se evalúa antes de generar las filas sin correspondencia y no filtra nada.
+- `NOT IN (SELECT order_id FROM order_items)`: **la trampa**. Si esa subconsulta devuelve aunque sea un `NULL`, el resultado es vacío siempre, sin error ni advertencia. Evítala en auditorías, donde un resultado vacío se interpreta como «todo está bien».
 
-En `pidelo` ese antijoin devuelve 178 pedidos sin ítems, y 171 de ellos tienen importe mayor que cero: hay dinero registrado sin nada que lo explique.
+En el dataset `pidelo` ese antijoin devuelve 178 pedidos sin ningún ítem, y 171 de ellos tienen un importe mayor que cero: hay dinero registrado sin nada que lo explique.
 
 ## El reporte de chequeos
 
-Un hallazgo suelto se pierde; un tablero de chequeos se revisa. El patrón es una fila por regla, con el conteo que falla y el total contra el que se compara:
+Un hallazgo suelto en un mensaje se pierde; un tablero de chequeos se revisa. El patrón es una fila por regla, con la cantidad de filas que falla y el total contra el que se compara:
 
 ```sql
 WITH total AS (SELECT count(*) AS rows_checked FROM plays),
@@ -7429,30 +7635,30 @@ FROM fails f CROSS JOIN total t
 ORDER BY f.failing_rows DESC;
 ```
 
-Tres detalles que lo vuelven profesional:
+Tres detalles vuelven profesional a ese reporte:
 
-1. **`UNION ALL`, no `UNION`**: dos chequeos distintos pueden fallar la misma cantidad de filas y `UNION` te borraría uno.
-2. **Los chequeos que pasan también se muestran**, con cero. Una regla que no aparece en la lista es una regla que nadie verificó.
-3. **El total va al lado**: 340 filas son un desastre en una tabla de mil y ruido en una de un millón.
+1. **`UNION ALL` y no `UNION`**: dos chequeos distintos pueden fallar exactamente la misma cantidad de filas, y `UNION`, que elimina las filas repetidas, te borraría uno de los dos del informe.
+2. **Los chequeos que pasan también se muestran**, con el valor cero. Una regla que no aparece en la lista es una regla que nadie verificó, y quien lee el reporte no tiene forma de distinguir esas dos situaciones.
+3. **El total va al lado de cada conteo**: 340 filas con problemas son un desastre en una tabla de mil filas y son ruido en una de un millón.
 
 ## Lo que un auditor no hace
 
-No borra ni corrige las filas malas por su cuenta. Documenta la regla, cuantifica el impacto sobre la métrica afectada, propone el arreglo en el origen y, mientras tanto, deja el filtro explícito en la consulta con un comentario. La tabla es de alguien más; el diagnóstico es tuyo.
+Un auditor no borra ni corrige las filas malas por su cuenta. Documenta la regla que se incumple, cuantifica el impacto sobre la métrica afectada, propone el arreglo en el sistema que originó el dato y, mientras tanto, deja el filtro escrito de forma explícita en la consulta, con un comentario que explique por qué está. La tabla es de otra área; el diagnóstico es tuyo.
 
 ## Resumen
 
-- Dominio (un campo), reglas cruzadas (dos tablas) y huecos referenciales (el padre sin hijos) son tres familias de chequeos distintas.
-- El antijoin se escribe con `NOT EXISTS` o `LEFT JOIN ... IS NULL`; `NOT IN` con nulos devuelve vacío en silencio.
-- Reporta una fila por regla con `UNION ALL`, incluye las que pasan y muestra siempre el total de referencia.
+- Las reglas de dominio (un campo), las reglas cruzadas (dos tablas) y los huecos referenciales (el padre sin hijos) son tres familias de chequeos distintas.
+- El antijoin se escribe con `NOT EXISTS` o con `LEFT JOIN ... IS NULL`; `NOT IN` sobre columnas con nulos devuelve vacío en silencio.
+- Reporta una fila por regla con `UNION ALL`, incluye también las reglas que pasan y muestra siempre el total de referencia.
 $c2141$, null, (select id from public.datasets where slug = $c2142$ritmo$c2142$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2143$depuracion-de-consultas$c2143$), $c2144$depuracion-descomponer-y-contar$c2144$, $c2145$theory$c2145$, $c2146$Descomponer y contar$c2146$, 0, 12, $c2147$## Por qué importa
 
-Una consulta que se ejecuta no es una consulta correcta. El motor solo verifica que la sintaxis cierre y que los tipos combinen; nunca verifica que hayas medido lo que te pidieron. Los errores más caros de tu carrera no van a ser `syntax error`: van a ser números plausibles, con el signo correcto y el orden de magnitud correcto, que estaban mal.
+Una consulta que se ejecuta no es necesariamente una consulta correcta. El motor verifica dos cosas: que la sintaxis cierre y que los tipos de datos combinen. No verifica que hayas medido lo que te pidieron. Por eso los errores más caros de tu carrera no van a ser un `syntax error`, sino números plausibles, con el signo y el orden de magnitud correctos, que estaban equivocados.
 
-Trabajas con **TiendaViva**, un marketplace en seis países: `customers`, `sellers`, `products`, `orders` (18 000 pedidos), `order_items` (30 067 líneas), `payments`, `shipments`, `reviews` y `returns`.
+Trabajas con **TiendaViva**, un marketplace en seis países. Sus tablas son `customers` (clientes), `sellers` (vendedores), `products`, `orders` (18 000 pedidos, uno por fila), `order_items` (30 067 líneas, una por producto dentro de un pedido), `payments`, `shipments`, `reviews` y `returns`.
 
 ## La señal
 
@@ -7464,7 +7670,7 @@ No hay alarma automática. Lo que hay son señales que un analista con oficio ap
 - Menos filas de las que esperabas, o muchísimas más.
 - Un promedio demasiado parejo entre grupos que sabes que son distintos.
 
-Cuando aparece una, la reacción correcta no es releer la consulta buscando el error a ojo. Es **descomponerla**.
+Cuando aparece una de esas señales, releer la consulta a simple vista no sirve: te parece bien, por eso la escribiste así. Lo que corresponde es **descomponerla** en pasos y verificar cada uno con un número.
 
 ## El método
 
@@ -7472,7 +7678,7 @@ Toda consulta compleja es una cadena de pasos. Depurar es ejecutar cada paso por
 
 **1. Cuenta el punto de partida.** `SELECT count(*) FROM orders` devuelve 18 000. Ese número es tu ancla: si al final del análisis tienes más pedidos que 18 000, algo los multiplicó.
 
-**2. Convierte cada paso en una CTE y cuéntala.** Una consulta escrita como cadena de CTE se depura sola, porque cada eslabón tiene nombre y se puede ejecutar aislado:
+**2. Convierte cada paso en una CTE y cuéntala.** Una CTE (por *common table expression*) es el bloque `WITH nombre AS (...)` que le pone nombre a un paso intermedio. Una cadena de CTE es fácil de depurar: cada eslabón tiene nombre y se ejecuta por separado.
 
 ```sql
 WITH base AS (
@@ -7484,9 +7690,9 @@ SELECT count(*) AS filas, count(DISTINCT id) AS pedidos
 FROM base;
 ```
 
-Devuelve 13 156 y 13 156: una fila por pedido, como debe ser. Esa pareja `count(*)` / `count(DISTINCT clave)` es la herramienta de diagnóstico más útil que vas a usar. Mientras sean iguales, el grano se mantiene; cuando se separan, un join multiplicó filas.
+Devuelve 13 156 y 13 156. Los dos números coinciden, así que hay una fila por pedido, como corresponde. Esa pareja de conteos, `count(*)` contra `count(DISTINCT clave)`, es tu herramienta de diagnóstico más útil. Mientras los dos valores sean iguales, el **grano** —lo que representa una fila— se mantiene. En cuanto se separan, algún join multiplicó filas.
 
-**3. Agrega un paso y vuelve a contar.** Después de unir con `order_items`, esa misma pareja da 21 974 y 13 156. El grano cambió: ya no estás en «un pedido por fila», estás en «una línea por fila». Cualquier `sum(o.total_amount)` después de ese join está inflado.
+**3. Agrega un paso y vuelve a contar.** Después de unir con `order_items`, esa misma pareja de conteos da 21 974 y 13 156. El grano cambió: ya no tienes un pedido por fila, sino una línea de detalle, y cada pedido aparece repetido tantas veces como productos tenga. A partir de ahí, cualquier `sum(o.total_amount)` suma el total del pedido varias veces y queda inflado.
 
 **4. Compara contra algo conocido.** La suma de `orders.total_amount` de los pedidos entregados de Argentina da 1 705 368 745,77. Si tu consulta con cinco joins devuelve el doble, no tienes un problema de datos: tienes un join que duplica.
 
@@ -7495,7 +7701,7 @@ Devuelve 13 156 y 13 156: una fila por pedido, como debe ser. Esa pareja `count(
 Cuando el error no aparece, achica el problema:
 
 - Filtra a **un** pedido conocido (`WHERE o.id = 4211`) y mira las filas crudas sin agregar. Un error que involucra 18 000 filas se ve mejor en 3.
-- Quita el `GROUP BY` y mira el detalle. La agregación esconde: lo que sumó 40 puede ser 40 unos.
+- Quita el `GROUP BY` y mira el detalle. La agregación tapa el problema: un grupo que suma 40 puede ser un pedido de 40 unidades o cuarenta filas de una unidad, y agrupados se ven igual.
 - Quita filtros de a uno. El que cambia el resultado de forma inesperada es el sospechoso.
 - Reemplaza la lista del `SELECT` final por `*` sobre el join, con `LIMIT 20`. Ver las filas duplicadas es más rápido que deducirlas.
 
@@ -7508,7 +7714,7 @@ A veces el motor sí habla, y conviene entenderlo en vez de probar al azar:
 - `division by zero`: un denominador vacío que no habías contemplado. Protégelo con `nullif(x, 0)` **y** entiende por qué estaba vacío.
 - `more than one row returned by a subquery used as an expression`: tu subconsulta escalar no era escalar. Es un aviso gratis de un problema de grano.
 
-Un error visible es un regalo. El peligro está en la consulta que no protesta.
+Un mensaje de error es información gratis: te dice dónde mirar. La consulta peligrosa es la que no protesta y devuelve un número equivocado.
 
 ## Errores comunes
 
@@ -7528,17 +7734,17 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2149$depuracion-de-consultas$c2149$), $c2150$depuracion-joins-que-multiplican$c2150$, $c2151$theory$c2151$, $c2152$Joins que multiplican$c2152$, 1, 13, $c2153$## Por qué importa
 
-El fan-out —un join que devuelve más filas de las que entró— es la causa número uno de totales inflados en informes reales. No produce ningún error, y el resultado tiene forma de resultado: mismas columnas, mismos grupos, números más grandes. Quien no lo busca, no lo encuentra.
+El **fan-out** —término en inglés, «abanico», que nombra a un join que devuelve más filas de las que entraron— es la causa número uno de totales inflados en informes reales. No produce ningún error y el resultado tiene toda la apariencia de estar bien: las mismas columnas, los mismos grupos, solo que con números más grandes. Nada te avisa, así que hay que buscarlo a propósito en cada join que escribes.
 
 ## De dónde sale
 
-Un join entre A y B devuelve, por cada fila de A, tantas filas como coincidencias tenga en B. Si esa relación es 1:1, el conteo se mantiene. Si es 1:N, se multiplica. Y en cuanto se multiplica, toda columna que venía de A aparece repetida **N veces**, así que sumarla la cuenta N veces.
+Un join entre A y B devuelve, por cada fila de A, tantas filas como coincidencias tenga en B. Si la relación es uno a uno (1:1, cada fila de A con una sola de B), el conteo se mantiene. Si es uno a muchos (1:N, cada fila de A con varias de B), el conteo se multiplica. Y en cuanto se multiplica, cada columna que venía de A aparece repetida **N veces**, de modo que sumarla la cuenta N veces.
 
 En TiendaViva:
 
-- `orders` a `order_items` es 1:N (1,67 líneas por pedido en promedio).
-- `orders` a `payments` es 1:N: hay 18 050 pagos para 18 000 pedidos, y 1 251 pedidos tienen dos (un rechazo y un reintento aprobado).
-- `orders` a `returns` es 1:0..1.
+- De `orders` a `order_items` la relación es 1:N: cada pedido tiene una línea por producto comprado, 1,67 líneas en promedio.
+- De `orders` a `payments` también es 1:N. Hay 18 050 pagos para 18 000 pedidos, porque 1 251 pedidos tienen dos filas de pago: un intento rechazado y un reintento aprobado.
+- De `orders` a `returns` la relación es 1:0..1, es decir, cada pedido tiene una devolución o ninguna. Ese caso no multiplica filas.
 
 Basta un solo join 1:N para arruinar un total.
 
@@ -7556,7 +7762,7 @@ WHERE o.status = 'delivered';
 
 21 974 filas para 13 156 pedidos entregados. El total de Argentina pasa de 1 705 368 745,77 a 3 631 177 874,05. No es «más o menos el doble por casualidad»: es exactamente la suma de cada pedido repetida una vez por línea.
 
-Lo traicionero es que el factor **no es constante**. Los pedidos de una línea se cuentan una vez y los de tres, tres veces, así que el sesgo favorece a los pedidos grandes. Por eso el ranking de categorías también cambia, no solo la escala.
+Lo más engañoso es que el factor de inflación **no es constante**. Un pedido de una sola línea se cuenta una vez y uno de tres líneas se cuenta tres veces, así que los pedidos grandes pesan más de lo que les corresponde. Por eso no cambia solo la escala del total: también cambia el orden del ranking de categorías, y el error deja de ser fácil de detectar.
 
 ## Las tres salidas
 
@@ -7577,13 +7783,13 @@ Es la solución por defecto y la más legible: cada CTE declara su grano.
 
 **2. Suma en el grano correcto.** Si ya estás en el grano de línea, suma columnas de línea (`quantity * unit_price`), no columnas de pedido. El problema no es el join, es sumar una columna de cabecera desde el detalle.
 
-**3. Desduplica con `DISTINCT` solo cuando la clave lo permite.** `count(DISTINCT o.id)` es correcto para contar pedidos. `sum(DISTINCT o.total_amount)` es una trampa: dos pedidos distintos con el mismo importe se convierten en uno. Para contar, `DISTINCT` sirve; para sumar importes, casi nunca.
+**3. Desduplica con `DISTINCT` solo cuando la clave lo permite.** `count(DISTINCT o.id)` es correcto para contar pedidos, porque `id` identifica a cada pedido sin repetirse. `sum(DISTINCT o.total_amount)` es una trampa, en cambio, porque dos pedidos distintos que casualmente valen lo mismo se cuentan como uno solo y el total queda por debajo del real. Para contar, `DISTINCT` sirve. Para sumar importes, casi nunca.
 
 ## El join que filtra sin avisar
 
 El otro lado de la moneda: un `INNER JOIN` no solo puede multiplicar, también **elimina**. Unir `orders` con `shipments` descarta en silencio los pedidos cancelados, que no tienen envío. Si tu informe era «todos los pedidos», ya no lo es.
 
-Regla práctica: cada vez que agregues un join, hazte dos preguntas y respóndelas con una consulta, no con una intuición. ¿Puede multiplicar? ¿Puede eliminar? Si la respuesta a la segunda es sí y no quieres perder filas, es un `LEFT JOIN`.
+Regla práctica: cada vez que agregues un join, hazte dos preguntas y respóndelas ejecutando una consulta, no con una intuición. ¿Puede multiplicar filas? ¿Puede eliminarlas? Si puede eliminarlas y no quieres perder esas filas, el join tiene que ser un `LEFT JOIN`, que conserva todas las filas de la tabla de la izquierda aunque no encuentren pareja.
 
 ## Cómo comprobarlo en un minuto
 
@@ -7596,7 +7802,7 @@ ORDER BY filas DESC
 LIMIT 5;
 ```
 
-Si devuelve filas, esa tabla multiplica. Corre esa comprobación sobre la clave de cada join **antes** de escribir la consulta grande; son diez segundos que ahorran una reunión incómoda.
+Si esa consulta devuelve alguna fila, significa que hay valores de `order_id` repetidos y que unir por esa columna multiplicará filas. Ejecútala sobre la clave de cada join **antes** de escribir la consulta grande: son diez segundos que evitan tener que corregir un informe ya enviado.
 
 ## Errores comunes
 
@@ -7616,7 +7822,7 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2155$depuracion-de-consultas$c2155$), $c2156$depuracion-filtros-nulos-y-grano$c2156$, $c2157$theory$c2157$, $c2158$Filtros, NULL y grano$c2158$, 2, 13, $c2159$## Por qué importa
 
-Tres fallas producen la mayoría de los resultados «correctos pero equivocados» que no vienen de un join que multiplica: un filtro puesto en el lugar equivocado, un NULL que se comporta distinto de como lo leíste, y una agregación hecha al grano que no era. Las tres se ejecutan sin una sola advertencia.
+Cuando un resultado es «correcto pero equivocado» y la causa no es un join que multiplica filas, casi siempre se trata de una de estas tres fallas: un filtro puesto en el lugar equivocado, un NULL que se comporta de una manera distinta de la que esperabas, o una agregación hecha sobre un grano que no era el de la pregunta. Las tres se ejecutan sin una sola advertencia del motor.
 
 ## El filtro que apaga un LEFT JOIN
 
@@ -7628,7 +7834,7 @@ WHERE o.status = 'delivered'
 GROUP BY 1;
 ```
 
-Esta consulta no tiene ningún `LEFT JOIN`, aunque lo diga. El join conserva a los clientes sin pedidos, pero les deja `o.status` en NULL; después el `WHERE` evalúa `NULL = 'delivered'`, que da NULL, y la fila se descarta. El `LEFT JOIN` quedó convertido en `INNER JOIN`.
+Esta consulta dice `LEFT JOIN`, pero se comporta exactamente como un `INNER JOIN`. El join sí conserva a los clientes que no tienen pedidos, y a esas filas les deja la columna `status` de `orders` en NULL, porque no hay ningún pedido de donde tomarla. Después, el `WHERE` evalúa `NULL = 'delivered'`, que no da ni verdadero ni falso sino NULL, y la fila se descarta. Los clientes sin pedidos, que eran justamente los que querías contar como cero, desaparecen del resultado.
 
 La diferencia está en **cuándo** se aplica la condición:
 
@@ -7641,7 +7847,7 @@ Para una tabla opcional, la condición sobre la tabla de la derecha va en el `ON
 LEFT JOIN orders AS o ON o.customer_id = c.id AND o.status = 'delivered'
 ```
 
-La única excepción útil es el patrón *anti-join*: `LEFT JOIN ... WHERE o.id IS NULL` busca a propósito las filas sin coincidencia.
+La excepción útil es el patrón llamado *anti-join* (en inglés, «join inverso»): `LEFT JOIN ... WHERE o.id IS NULL` busca a propósito las filas de la izquierda que no encontraron ninguna coincidencia, por ejemplo los clientes que nunca compraron.
 
 ## NOT IN y el NULL que se lleva todo
 
@@ -7658,13 +7864,18 @@ Devuelve 0. No porque todas las categorías tengan subcategorías —solo 6 de l
 - `LEFT JOIN ... WHERE h.id IS NULL` — el anti-join clásico, equivalente.
 - `NOT IN (SELECT parent_id FROM categories WHERE parent_id IS NOT NULL)` — funciona, pero depende de que nadie borre ese filtro.
 
-Con NULL hay más trampas del mismo linaje: `count(columna)` ignora nulos mientras `count(*)` no; `avg` los omite del promedio **y del divisor**; `status <> 'cancelled'` no devuelve las filas con `status` NULL; y `sum` de un conjunto vacío es NULL, no 0.
+Los NULL tienen otras trampas de la misma familia, y conviene tenerlas presentes todas:
+
+- `count(columna)` no cuenta las filas donde esa columna es NULL, mientras que `count(*)` las cuenta todas.
+- `avg` ignora los NULL en el promedio **y también en el divisor**, así que promedia sobre menos filas de las que parece.
+- `status <> 'cancelled'` no devuelve las filas donde `status` es NULL, porque comparar con NULL nunca da verdadero.
+- `sum` sobre un conjunto vacío devuelve NULL, no 0.
 
 ## El grano de la agregación
 
-«Ticket promedio» tiene una sola definición de negocio y dos consultas posibles, que dan números distintos. Si promedias `total_amount` después de unir con `order_items`, cada pedido pesa tantas veces como líneas tiene: no es el ticket promedio, es el ticket promedio ponderado por cantidad de líneas. En TiendaViva, para los pedidos entregados de Argentina comprados por app, el ticket real es 431 786,43.
+«Ticket promedio» tiene una sola definición de negocio —cuánto gasta en promedio un pedido— y dos consultas posibles que devuelven números distintos. Si promedias `total_amount`, la columna de `orders` con el importe del pedido, después de haber unido con `order_items`, cada pedido pesa tantas veces como líneas tenga. Ese número no es el ticket promedio: es el ticket promedio ponderado por la cantidad de líneas, y siempre queda más alto porque los pedidos grandes se repiten más. En TiendaViva, para los pedidos entregados de Argentina comprados por la app, el ticket promedio real es 431 786,43.
 
-La regla es sencilla y hay que aplicarla siempre: **el grano del `GROUP BY` tiene que ser el grano de la cosa que estás midiendo**. Si mides pedidos, llega al grano de un pedido por fila antes de promediar; si mides líneas, agrupa por línea. Cuando dudes, escribe el grano de cada CTE en un comentario: `-- una fila por pedido`. Ese comentario de cuatro palabras previene más errores que cualquier revisión.
+La regla es sencilla y hay que aplicarla siempre: **el grano del `GROUP BY` tiene que coincidir con el grano de lo que estás midiendo**. Si mides pedidos, vuelve a una fila por pedido antes de promediar. Si mides líneas de detalle, agrupa por línea. Cuando dudes, escribe el grano de cada CTE en un comentario, por ejemplo `-- una fila por pedido`. Ese comentario corto obliga a decidir el grano en voz alta y evita la mayoría de estos errores.
 
 Y una vez que tengas el número, verifícalo: promedio por cantidad debería reconstruir el total conocido. Si no lo reconstruye, el grano no era el que creías.
 
@@ -7688,17 +7899,17 @@ values ((select id from public.sections where slug = $c2161$casos-de-negocio$c21
 
 Nadie te va a pedir «un `GROUP BY` por mes con `FILTER` sobre el estado». Te van a escribir «¿por qué cayeron las ventas en México el mes pasado?» y van a esperar una respuesta el jueves. Todo lo que aprendiste hasta aquí es la parte fácil: la parte difícil es convertir esa frase en una consulta que responda algo concreto y defendible.
 
-Un pedido así no tiene una respuesta correcta; tiene una **respuesta especificada**. Especificar es elegir, y elegir mal en silencio es la manera más común de entregar un número que nadie puede usar.
+Un pedido así no tiene una única respuesta correcta. Tiene una **respuesta especificada**, es decir, una respuesta en la que alguien decidió qué se cuenta, en qué período y contra qué se compara. Esas decisiones las vas a tomar tú, y si las tomas sin decirlas, entregas un número que nadie puede interpretar ni verificar.
 
 ## Las cuatro preguntas
 
-Antes de escribir SQL, respóndete estas cuatro. Si no puedes, no te falta SQL: te falta pedido.
+Antes de escribir SQL, respóndete estas cuatro preguntas. Si no puedes responderlas, el problema no es de SQL: el pedido todavía no está definido y definirlo es el primer paso del trabajo.
 
-**1. ¿Cuál es la unidad de análisis (el grano)?** ¿Una fila por pedido, por cliente, por producto, por mes, por mes y país? «Ventas en México» puede ser una sola cifra, una serie mensual o una tabla por canal. El grano define el `GROUP BY` y, con él, el 80 % de la consulta.
+**1. ¿Cuál es la unidad de análisis, también llamada grano?** El **grano** es qué representa una fila de tu resultado: ¿una fila por pedido, por cliente, por producto, por mes, o por mes y país? «Ventas en México» puede ser una sola cifra, una serie mensual o una tabla con un canal por columna. El grano define el `GROUP BY` y, con él, la mayor parte de la consulta.
 
 **2. ¿Qué cuenta y qué no?** En `orders` de **TiendaViva** hay seis estados. ¿Una venta es un pedido creado, uno pagado o uno entregado? ¿Las devoluciones se restan? Cada opción da un número distinto y ninguna es falsa. La que sirve es la que coincide con lo que hace el resto de la empresa.
 
-**3. ¿Qué período, en qué huso?** «El mes pasado» no es una fecha. `created_at` es `timestamptz`: si no fijas el huso, el corte del mes se mueve según la zona horaria de quien ejecuta la consulta. Siempre `AT TIME ZONE 'UTC'` (o el huso del negocio, declarado), y siempre con límite superior abierto.
+**3. ¿Qué período, medido en qué huso horario?** «El mes pasado» todavía no es una fecha. `created_at` es la columna de `orders` que guarda cuándo se creó el pedido, y su tipo es `timestamptz`, un instante que se interpreta según un huso horario. Si no fijas ese huso, el corte entre un mes y el siguiente se mueve según la zona horaria de quien ejecuta la consulta, y los pedidos de las últimas horas del mes cambian de bando. Escribe siempre `AT TIME ZONE 'UTC'` —UTC, por *coordinated universal time*, es el huso de referencia mundial— o el huso del negocio, declarado en el informe. Y usa siempre un límite superior abierto: mayor o igual que el primer día del mes y menor que el primer día del mes siguiente.
 
 **4. ¿Contra qué se compara?** «Cayeron» implica una comparación. ¿Contra julio? ¿Contra agosto del año pasado? ¿Contra el plan? Sin base de comparación no hay caída, hay un número suelto.
 
@@ -7735,13 +7946,13 @@ GROUP BY 1
 ORDER BY 1;
 ```
 
-La consulta A devuelve 1 879 865,71. Verdadero e inútil: no dice si es mucho o poco. La B devuelve dos filas y, con ellas, la respuesta: los ingresos pasaron de 2 075 796,94 a 1 879 865,71 (−9,4 %), con 306 pedidos contra 281 (−8,2 %) y un ticket casi idéntico (6783,65 contra 6689,91). La caída es de **volumen**, no de precio. Eso ya es una pista para el equipo comercial.
+La consulta A devuelve 1 879 865,71. El número es verdadero y al mismo tiempo inservible, porque por sí solo no dice si ese mes fue bueno o malo. La consulta B devuelve dos filas y, con ellas, la respuesta: los ingresos pasaron de 2 075 796,94 a 1 879 865,71 (−9,4 %), con 306 pedidos contra 281 (−8,2 %) y un ticket promedio casi idéntico (6783,65 contra 6689,91). Como el ticket casi no se movió y la cantidad de pedidos sí, la caída es de **volumen** y no de precio. Eso ya le dice al equipo comercial dónde buscar.
 
-El patrón se repite en casi todo pedido de negocio: **descompón la métrica en factores multiplicativos**. Ingresos = pedidos × ticket. Pedidos = clientes × frecuencia. Volumen = usuarios activos × transacciones por usuario × monto medio. Cuando una métrica se mueve, uno de los factores explica el movimiento y los demás se quedan quietos.
+El patrón se repite en casi cualquier pedido de negocio: **descompón la métrica en los factores que la multiplican**. Los ingresos son pedidos × ticket promedio. Los pedidos son clientes × frecuencia de compra. El volumen es usuarios activos × transacciones por usuario × monto medio. Cuando la métrica total se mueve, casi siempre uno de esos factores explica el movimiento y los demás se quedan quietos, y ese factor es el que hay que informar.
 
 ## Lo que sí conviene preguntar
 
-No todas las ambigüedades se resuelven solas. Vale la pena una pregunta corta cuando la elección cambia el signo de la respuesta: qué estado cuenta como venta, si «México» es el país del cliente o el del vendedor, si el mes es calendario o los últimos 30 días. El resto —el formato, el orden de las filas, si el porcentaje lleva dos decimales— lo decides tú y lo escribes.
+No todas las ambigüedades las puedes resolver por tu cuenta. Vale la pena una pregunta corta cuando la elección cambia la conclusión: qué estado del pedido cuenta como venta, si «México» es el país del cliente o el del vendedor, si el mes es el mes calendario o los últimos 30 días. El resto —el formato, el orden de las filas, si el porcentaje lleva dos decimales— lo decides tú y lo dejas escrito en la entrega.
 
 Una regla práctica: pregunta una sola vez, en una lista de tres puntos, con tu propuesta ya escrita («voy a contar pedidos `delivered` por país del cliente, mes calendario UTC; avísame si prefieres otra cosa»). Es mucho más probable que te respondan eso que un cuestionario abierto.
 
@@ -7763,21 +7974,21 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2167$casos-de-negocio$c2167$), $c2168$supuestos-que-se-escriben$c2168$, $c2169$theory$c2169$, $c2170$Supuestos que se escriben$c2170$, 1, 13, $c2171$## Por qué importa
 
-Toda consulta de negocio contiene decisiones que no estaban en el pedido. La diferencia entre un análisis profesional y uno que se cae en la primera reunión no es que el primero no tenga supuestos: es que están escritos, al lado del número, en el idioma del que pregunta.
+Toda consulta de negocio contiene decisiones que no estaban en el pedido: esas decisiones son los **supuestos**. Un análisis profesional no tiene menos supuestos que uno que se cae en la primera reunión; tiene los mismos, pero escritos al lado del número y en el lenguaje de quien pregunta, no en el de la consulta.
 
 Un supuesto escrito se puede discutir y corregir. Un supuesto implícito se descubre tres semanas después, cuando alguien compara tu tabla con la de otro equipo y no cierran.
 
 ## Dónde se esconden
 
-**En el filtro.** ¿`status = 'completed'` o también `pending`? En **Bolsillo**, los pagos con tarjeta tienen cuatro estados y los `reversed` ya se devolvieron al cliente. Contarlos infla el volumen que le muestras a Finanzas.
+**En el filtro.** ¿Cuentas solo `status = 'completed'` o también los `pending`? En **Bolsillo**, los pagos con tarjeta pasan por cuatro estados, y los que quedaron en `reversed` son pagos cuyo dinero ya volvió al cliente. Si los cuentas como ventas, el volumen que le muestras a Finanzas queda inflado y no va a coincidir con el suyo.
 
-**En el join.** Un `INNER JOIN` con `merchants` descarta los movimientos sin comercio (recargas, comisiones, transferencias). Es correcto si mediste «pagos en comercios» y es un error silencioso si dijiste «movimientos».
+**En el join.** Un `INNER JOIN` con `merchants` (la tabla de comercios) conserva solo los movimientos que tienen un comercio asociado y descarta en silencio las recargas, las comisiones y las transferencias entre personas. Esa exclusión es correcta si lo que mediste son «pagos en comercios», y es un error que nadie ve si dijiste «movimientos».
 
-**En el NULL.** `ended_on IS NULL` significa «vigente», no «desconocido». `rating` nulo en un restaurante no es un rating cero: es un restaurante sin calificar. Promediarlos como cero baja la media y nadie lo ve.
+**En el NULL.** Un NULL es la ausencia de dato, y qué significa esa ausencia lo define el negocio en cada columna. En una suscripción, `ended_on IS NULL` —la fecha de baja vacía— significa que la suscripción sigue vigente, no que se desconozca cuándo terminó. En cambio, un `rating` nulo no es una calificación de cero: es un restaurante que nadie calificó. Si lo promedias como cero, la media baja y ningún error te avisa.
 
-**En la unidad.** `amount_minor` está en unidades menores. Los montos de Bolsillo están en la moneda de la cuenta. Sumar ARS con MXN produce un número con muchos dígitos y cero significado.
+**En la unidad.** En Ritmo, la columna `amount_minor` de la tabla `subscriptions` guarda el importe en unidades menores, es decir, en centavos: leerla como si fueran pesos multiplica todo por cien. En Bolsillo, además, cada movimiento está en la moneda de su cuenta, así que sumar ARS (pesos argentinos) con MXN (pesos mexicanos) da un número que no corresponde a ninguna cantidad real de dinero.
 
-**En la ventana.** «Últimos 30 días» desde qué día, y si el último día está incluido.
+**En la ventana de tiempo.** «Últimos 30 días» no dice desde qué día se cuentan ni si el último día entra completo. Dos analistas con el mismo pedido pueden entregar dos cifras distintas y las dos ser defendibles.
 
 ## Convertir, y decir cómo
 
@@ -7797,9 +8008,9 @@ GROUP BY 1
 ORDER BY 1;
 ```
 
-Tres supuestos en seis líneas, y los tres hay que escribirlos en la entrega: solo pagos completados en comercios; conversión a dólares con el tipo de cambio **del día de la operación** (no el de hoy, que reescribiría la historia cada vez que corras la consulta); y las cuentas en USD, que no figuran en `fx_rates`, se toman con tasa 1 gracias al `LEFT JOIN` con `coalesce`.
+Hay tres supuestos en seis líneas, y los tres tienen que aparecer en la entrega. Primero: se cuentan solo los pagos completados en comercios. Segundo: la conversión a dólares usa el tipo de cambio **del día de la operación**, que está en la tabla `fx_rates` (por *foreign exchange rates*, tipos de cambio); si usaras el de hoy, la historia se reescribiría cada vez que alguien ejecutara la consulta. Tercero: las cuentas en USD no figuran en `fx_rates`, y el `LEFT JOIN` junto con `coalesce` hace que se tomen con tasa 1, tal cual están.
 
-Ese `coalesce` es justamente el tipo de decisión que desaparece si no la anotas. Con `INNER JOIN` los pagos en dólares se habrían esfumado del informe sin ningún mensaje de error.
+Ese `coalesce` es justamente el tipo de decisión que se vuelve invisible si no la anotas. Con un `INNER JOIN` en lugar del `LEFT JOIN`, los pagos en dólares habrían quedado fuera del informe sin ningún mensaje de error y el total sería menor sin que nadie supiera por qué.
 
 ## Cómo se escribe
 
@@ -7809,14 +8020,14 @@ Tres o cuatro líneas alcanzan. Van **arriba** del resultado, no en un anexo:
 >
 > **Limitaciones.** Agosto de 2025 cierra el 31; los movimientos posteriores al 15 de septiembre no están en los datos.
 
-Fíjate en lo que no dice: no menciona `LEFT JOIN`, ni CTE, ni `coalesce`. Quien pregunta no quiere leer tu SQL, quiere saber qué entra y qué queda afuera.
+Fíjate en lo que no dice. No menciona el `LEFT JOIN`, ni las CTE (por *common table expression*, los bloques `WITH` que nombran pasos intermedios de una consulta), ni el `coalesce`. Quien pregunta no necesita leer tu SQL: necesita saber qué entra en el número y qué queda afuera.
 
 ## Reversible y reproducible
 
 Dos costumbres que hacen que los supuestos valgan:
 
-- **Parámetros arriba.** Las fechas y los umbrales van en una CTE o en las primeras líneas, no dispersos en cinco `WHERE`. Cambiar «30 días» por «60 días» debería ser una edición, no seis.
-- **Sin «hoy» implícito.** Una consulta con `now()` da un resultado distinto cada día y no se puede auditar. Para un informe que alguien va a revisar, fija la fecha de corte como constante y decláralo.
+- **Parámetros arriba.** Las fechas y los umbrales van juntos en una CTE inicial o en las primeras líneas de la consulta, en lugar de repetidos dentro de cinco `WHERE` distintos. Así, pasar de «30 días» a «60 días» se hace editando un solo lugar y no seis, y ninguno queda sin actualizar.
+- **Sin «hoy» implícito.** Una consulta que usa `now()` devuelve un resultado distinto cada día, así que nadie puede volver a obtener el número que entregaste. Para un informe que alguien va a revisar, escribe la fecha de corte como una constante y dila en el texto.
 
 ## Errores comunes
 
@@ -7836,7 +8047,7 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2173$casos-de-negocio$c2173$), $c2174$revisar-antes-de-enviar$c2174$, $c2175$theory$c2175$, $c2176$Revisar antes de enviar$c2176$, 2, 13, $c2177$## Por qué importa
 
-Una consulta que se ejecuta sin errores no es una consulta correcta. Los errores que llegan a una reunión no son de sintaxis: son filas duplicadas por un join, un denominador equivocado, un porcentaje calculado sobre nueve casos. Nada de eso se ve mirando el SQL; se ve mirando el resultado con desconfianza.
+Una consulta que se ejecuta sin errores todavía puede estar mal. Los errores que llegan a una reunión no son de sintaxis: son filas duplicadas por un join, un denominador equivocado o un porcentaje calculado sobre nueve casos. Ninguno de los tres se nota leyendo el SQL. Se notan mirando el resultado con desconfianza y comparándolo con cifras que ya conoces.
 
 Antes de enviar cualquier tabla, dedícale cinco minutos a estas comprobaciones. Son las mismas que va a hacer quien te quiera corregir.
 
@@ -7852,7 +8063,7 @@ Guarda ese número y compáralo con el `sum()` de tu tabla final. Es la prueba m
 
 ## 2. Contar filas antes de agregar
 
-La duplicación por join no se nota después del `GROUP BY`: un `sum()` inflado sigue pareciendo un número. En **Pídelo**, unir `orders` con `order_items` multiplica cada pedido por su cantidad de ítems. Si después sumas `total`, el importe se dispara.
+La duplicación que provoca un join deja de verse en cuanto agregas: un `sum()` inflado tiene el mismo aspecto que uno correcto. En **Pídelo**, unir `orders` con `order_items` hace que cada pedido aparezca tantas veces como ítems tenga, porque a una fila de pedido le corresponden varias líneas de detalle. Si después sumas la columna `total` de `orders`, cada importe se suma varias veces y el resultado se dispara.
 
 ```sql
 SELECT count(*) AS filas, count(DISTINCT o.id) AS pedidos
@@ -7860,29 +8071,29 @@ FROM orders AS o
 INNER JOIN order_items AS oi ON oi.order_id = o.id;
 ```
 
-Cuando `filas` supera a `pedidos`, cualquier métrica a nivel pedido calculada sobre ese join está mal. La salida es agregar los ítems en una CTE antes de unirlos, o usar `count(DISTINCT o.id)`.
+Cuando `filas` supera a `pedidos`, cualquier métrica que se refiera al pedido y se calcule sobre ese join está mal. Hay dos salidas: agregar primero los ítems en una CTE (por *common table expression*, el bloque `WITH` que da nombre a un paso intermedio) para volver a una fila por pedido, o contar con `count(DISTINCT o.id)` en lugar de `count(*)`.
 
 ## 3. Mirar los extremos, no el promedio
 
 Ordena tu resultado por la métrica, hacia arriba y hacia abajo, y mira las cinco primeras filas de cada lado. Los valores absurdos viven en los bordes: una ciudad con 400 % de crecimiento, un restaurante con calificación 5,0, un género con −50 %.
 
-Casi siempre es un denominador chico. Un restaurante con dos pedidos y ambos tardíos tiene 100 % de tardanza y no significa nada. Por eso los rankings de negocio llevan un **umbral mínimo de volumen**, declarado:
+Casi siempre la causa es un denominador chico. Un restaurante con dos pedidos, los dos tardíos, tiene 100 % de tardanza, y ese 100 % no describe su desempeño: describe dos casos. Por eso los rankings de negocio llevan un **umbral mínimo de volumen**, declarado en la consulta y en la entrega:
 
 ```sql
 HAVING count(*) >= 30
 ```
 
-El umbral es un supuesto más: elígelo antes de ver los resultados, no después, o estarás eligiendo la conclusión.
+El umbral es un supuesto más. Elígelo antes de ver los resultados y no después, porque si lo ajustas mirando la tabla estás eligiendo qué filas quedan arriba, es decir, estás eligiendo la conclusión.
 
 ## 4. Revisar los nulos y los ceros
 
 ¿Hay filas con `NULL` donde esperabas un valor? En Pídelo, `restaurant_rating` es nulo en el 12 % de las calificaciones y `courier_id` falta en los pedidos cancelados. Un `avg()` los ignora —lo cual suele ser correcto—, pero entonces el promedio se calcula sobre menos filas de las que muestra tu columna de conteo. Si esas dos columnas van juntas en la tabla, aclara cuál es cuál.
 
-Y los ceros: una división puede fallar o, peor, devolver un resultado engañoso. `nullif(denominador, 0)` convierte el error en `NULL`, que es honesto.
+Revisa también los ceros. Una división por cero corta la consulta con un error, y un cero en el lugar equivocado puede devolver un resultado que parece válido. `nullif(denominador, 0)` convierte ese cero en `NULL`, de modo que la celda dice «no se puede calcular» en lugar de mostrar un número inventado.
 
 ## 5. ¿La magnitud es creíble?
 
-Este es el chequeo que no es técnico. ¿El 45 % de recompra es plausible para un delivery? ¿La caída de 9 % en agosto coincide con algo que pasó? Si tu número contradice lo que la organización cree saber, es mucho más probable que el error sea tuyo a que hayas descubierto algo. Vuelve a los filtros antes de escribir el correo.
+Este chequeo no es técnico, sino de sentido común sobre el negocio. ¿Un 45 % de recompra es plausible para una app de delivery? ¿La caída de 9 % en agosto coincide con algo que efectivamente pasó? Si tu número contradice lo que la organización cree saber, es mucho más probable que tengas un error a que hayas descubierto algo nuevo. Revisa otra vez los filtros antes de escribir el correo.
 
 Cuando sí es un hallazgo real, el chequeo previo te va a servir igual: la primera pregunta que te van a hacer es «¿estás seguro?».
 
@@ -7908,25 +8119,27 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2179$desafios-de-entrevista$c2179$), $c2180$entrevista-patrones-clasicos$c2180$, $c2181$theory$c2181$, $c2182$Los patrones que se repiten en las entrevistas$c2182$, 0, 12, $c2183$## Por qué importa
 
-Una entrevista técnica de datos en LATAM rara vez inventa un problema nuevo. Casi siempre te pide una variante de siete u ocho patrones conocidos, con nombres de tablas distintos. Si reconoces el patrón en los primeros treinta segundos, te queda todo el tiempo para lo que de verdad evalúan: **cómo piensas y cómo explicas**.
+Una entrevista técnica de datos en LATAM rara vez inventa un problema nuevo. Casi siempre te pide una variante de siete u ocho patrones conocidos, con nombres de tablas distintos. Un **patrón** es una forma de consulta que se repite: el mismo esqueleto de pasos sirve para muchas preguntas diferentes.
+
+Si reconoces el patrón en los primeros treinta segundos, te queda todo el tiempo restante para lo que de verdad evalúan, que es **cómo piensas y cómo explicas lo que haces**.
 
 ## El catálogo corto
 
-**1. El segundo valor más alto.** «El segundo sueldo más alto», «el segundo producto más vendido de cada categoría». La pregunta real es qué significa "segundo" cuando hay empates: `dense_rank()` numera **niveles de valor** distintos, `rank()` deja huecos y `row_number()` elige una fila arbitraria entre las empatadas.
+**1. El segundo valor más alto.** «El segundo sueldo más alto», «el segundo producto más vendido de cada categoría». La pregunta real es qué significa «segundo» cuando hay empates, y la respuesta depende de qué función uses: `dense_rank()` numera **niveles de valor** distintos, `rank()` repite el puesto y después deja huecos, y `row_number()` elige una fila arbitraria entre las empatadas.
 
-**2. Top-N por grupo.** `PARTITION BY` + ranking + filtro en una capa externa. `LIMIT` no sirve: corta el resultado completo, no cada grupo.
+**2. Top-N por grupo.** Se arma con `PARTITION BY`, una función de ranking y un filtro en una capa externa. `LIMIT` no sirve para esto, porque corta el resultado completo y no cada grupo por separado.
 
-**3. Eventos consecutivos.** «Tres compras seguidas en el mismo comercio», «el mismo estado tres veces». Se resuelve mirando la fila anterior con `lag()` (una o dos posiciones) sobre una ventana ordenada por tiempo.
+**3. Eventos consecutivos.** «Tres compras seguidas en el mismo comercio», «el mismo estado repetido tres veces». Se resuelve comparando cada fila con la anterior mediante `lag()`, una función de ventana que trae el valor de una o más filas hacia atrás, sobre una ventana ordenada por tiempo.
 
-**4. Brechas e islas (gaps and islands).** «La racha más larga de días con actividad», «los períodos sin ventas». El truco clásico: a cada fecha réstale su número de fila dentro del grupo; todas las fechas consecutivas comparten el mismo resultado y ese valor identifica la isla.
+**4. Brechas e islas** (*gaps and islands*, su nombre en inglés). «La racha más larga de días con actividad», «los períodos sin ventas». El truco clásico consiste en restarle a cada fecha su número de fila dentro del grupo: todas las fechas consecutivas dan el mismo resultado, y ese valor común identifica a cada racha, o isla.
 
-**5. Totales acumulados y Pareto.** «¿Cuántos vendedores explican la mitad de la facturación?». Agregas, ordenas, acumulas con `sum(...) OVER (ORDER BY ...)` y comparas contra el total.
+**5. Totales acumulados y Pareto.** «¿Cuántos vendedores explican la mitad de la facturación?». Agregas por vendedor, ordenas de mayor a menor, acumulas con `sum(...) OVER (ORDER BY ...)` y comparas ese acumulado contra el total general.
 
-**6. Autouniones.** Comparar filas de la misma tabla: el empleado contra su jefe, el pedido contra el anterior del mismo cliente, dos cobros idénticos con minutos de diferencia.
+**6. Autouniones.** Es unir una tabla consigo misma para comparar filas entre sí: el empleado contra su jefe, el pedido contra el anterior del mismo cliente, dos cobros idénticos con minutos de diferencia.
 
-**7. Duplicados.** Detectar con `GROUP BY ... HAVING count(*) > 1` y elegir la fila que sobrevive con `DISTINCT ON` o `row_number() = 1`. La trampa suele estar en la normalización: mayúsculas, espacios, acentos.
+**7. Duplicados.** Se detectan con `GROUP BY ... HAVING count(*) > 1` y se elige cuál fila sobrevive con `DISTINCT ON` o con `row_number() = 1`. La trampa suele estar en la normalización previa: mayúsculas, espacios de más y acentos hacen que dos filas iguales para una persona sean distintas para el motor.
 
-**8. Trampas de NULL.** `NOT IN` con una subconsulta que devuelve algún NULL da cero filas. `count(columna)` ignora nulos y `count(*)` no. Un filtro en el `WHERE` sobre la tabla derecha convierte un `LEFT JOIN` en un `INNER JOIN`.
+**8. Trampas de NULL.** `NOT IN` con una subconsulta que devuelve algún NULL no devuelve ninguna fila. `count(columna)` ignora los nulos y `count(*)` no. Un filtro escrito en el `WHERE` sobre la tabla derecha convierte un `LEFT JOIN` en un `INNER JOIN`.
 
 ## Cómo se ve un patrón disfrazado
 
@@ -7949,48 +8162,50 @@ niveles AS (
 SELECT * FROM niveles WHERE nivel = 2;
 ```
 
-Es el patrón 1 y el 2 a la vez. El entrevistador no espera que lo escribas de memoria: espera que digas «esto es un top-N por grupo con un problema de empates» antes de escribir la primera línea.
+Esta consulta combina el patrón 1 y el patrón 2. El entrevistador no espera que la escribas de memoria: espera que digas «esto es un top-N por grupo con un problema de empates» antes de escribir la primera línea.
 
 ## Lo que el patrón no decide
 
-Reconocer el patrón resuelve la forma de la consulta, no las definiciones. Siguen abiertas preguntas que **tú** debes plantear: ¿cuentan los pedidos cancelados?, ¿el mes se corta en UTC o en la hora local?, ¿"cliente" es una fila de la tabla o una persona con varios correos? Esas respuestas cambian el resultado mucho más que la elección entre CTE y subconsulta.
+Reconocer el patrón resuelve la forma de la consulta, pero no las definiciones de negocio. Quedan abiertas preguntas que **tú** tienes que plantear: ¿cuentan los pedidos cancelados?, ¿el mes se corta en UTC o en la hora local?, ¿«cliente» es una fila de la tabla o una persona que puede tener varios correos? Esas respuestas cambian el resultado mucho más que la elección entre escribir una CTE (por *common table expression*, la consulta con nombre del `WITH`) o una subconsulta.
 
 ## Errores comunes
 
-- Empezar a escribir SQL antes de nombrar el patrón: pierdes la oportunidad de mostrar criterio.
-- Memorizar una plantilla sin entender el empate, el huso horario o el grano que asume.
-- Creer que el entrevistador busca la consulta más corta; busca la que puedas defender.
+- Empezar a escribir SQL antes de nombrar el patrón. Pierdes la única oportunidad de mostrar tu criterio.
+- Memorizar una plantilla sin entender qué supone sobre los empates, el huso horario o el grano de las filas.
+- Creer que el entrevistador busca la consulta más corta. Busca la consulta que puedas defender cuando te pregunte por qué.
 
 ## Resumen
 
 1. Casi toda pregunta de entrevista es una variante de ocho patrones conocidos.
 2. Nombrar el patrón en voz alta vale tanto como escribirlo.
-3. El patrón define la forma; las definiciones de negocio definen el resultado.
+3. El patrón define la forma de la consulta; las definiciones de negocio definen el resultado.
 $c2183$, null, (select id from public.datasets where slug = $c2184$tiendaviva$c2184$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2185$desafios-de-entrevista$c2185$), $c2186$entrevista-como-razonar-en-voz-alta$c2186$, $c2187$theory$c2187$, $c2188$Cómo encarar una pregunta que no viste antes$c2188$, 1, 11, $c2189$## Por qué importa
 
-En una entrevista técnica te evalúan dos cosas a la vez: si llegas al resultado y si se puede trabajar contigo. Lo segundo solo se ve si hablas. Un candidato que piensa en silencio durante ocho minutos y entrega una consulta perfecta puntúa peor que uno que explica su camino y llega al 90 %.
+En una entrevista técnica evalúan dos cosas a la vez: si llegas al resultado y si se puede trabajar contigo. Lo segundo solo se puede evaluar si hablas mientras piensas. Un candidato que se queda en silencio ocho minutos y entrega una consulta perfecta suele puntuar peor que otro que explica su camino y llega al 90 % de la solución, porque del primero nadie sabe cómo razona.
 
 ## Un guion de cuatro pasos
 
-**1. Repite el pedido con tus palabras.** «Quieres los repartidores activos que no entregaron ningún pedido en agosto, uno por fila, ¿es así?». Treinta segundos que evitan resolver el problema equivocado.
+**1. Repite el pedido con tus palabras.** «Quieres los repartidores activos que no entregaron ningún pedido en agosto, uno por fila, ¿es así?». Son treinta segundos que evitan que resuelvas el problema equivocado.
 
-**2. Pregunta lo mínimo imprescindible.** Dos o tres preguntas bien elegidas muestran criterio; diez muestran inseguridad. Las que casi siempre valen la pena:
+**2. Pregunta lo mínimo imprescindible.** Dos o tres preguntas bien elegidas muestran criterio; diez preguntas seguidas dan la impresión de que no te animas a decidir nada. Las que casi siempre valen la pena son:
 
-- **Grano:** ¿una fila por pedido, por ítem o por cliente?
-- **Universo:** ¿incluimos cancelados, pruebas internas, cuentas bloqueadas?
-- **Tiempo:** ¿qué zona horaria y qué extremos del rango?
+- **Grano:** ¿el resultado lleva una fila por pedido, por ítem o por cliente?
+- **Universo:** ¿incluimos los pedidos cancelados, las pruebas internas, las cuentas bloqueadas?
+- **Tiempo:** ¿qué zona horaria usamos y qué extremos del rango entran?
 
-**3. Declara los supuestos que no vas a preguntar.** Un supuesto dicho en voz alta es una decisión; el mismo supuesto callado es un error. «Voy a tomar `status = 'delivered'` como pedido válido y a cortar los meses en UTC; si prefieres hora local, cambia solo la conversión.»
+**3. Declara los supuestos que no vas a preguntar.** Cuando dices un supuesto en voz alta se convierte en una decisión que el entrevistador puede corregir ahí mismo. Si te lo guardas y resulta equivocado, el resultado queda mal y además nadie puede saber por qué. Por ejemplo: «Voy a tomar `status = 'delivered'` como pedido válido y a cortar los meses en UTC; si prefieres hora local, cambia solo la conversión».
 
-**4. Describe la consulta antes de escribirla.** «Primero agrego por restaurante, después acumulo el total ordenado de mayor a menor y al final me quedo con las filas hasta llegar al 50 %.» Si el entrevistador ve un paso equivocado, te corrige ahí y no al final.
+**4. Describe la consulta antes de escribirla.** «Primero agrego por restaurante, después acumulo el total ordenado de mayor a menor y al final me quedo con las filas hasta llegar al 50 %.» Si un paso está equivocado, te corrigen ahí y no después de diez minutos de escritura.
 
 ## Escribe en capas
 
-Las CTE son tu mejor aliada bajo presión: cada paso se nombra, se explica y se puede mostrar por separado.
+Las CTE (por *common table expression*, las consultas con nombre que se definen en el `WITH`) son tu mejor aliada bajo presión, porque cada paso queda con nombre, se puede explicar solo y se puede ejecutar por separado.
+
+El ejemplo calcula el GMV por restaurante, sigla de *gross merchandise value*, que es el valor total de lo vendido antes de descontar comisiones:
 
 ```sql
 WITH gmv AS (            -- 1. una fila por restaurante
@@ -8010,38 +8225,38 @@ acumulado AS (           -- 2. el acumulado y el total en la misma fila
 SELECT * FROM acumulado WHERE gmv_acumulado - gmv < 0.5 * gmv_total;
 ```
 
-Si te trabas, una capa parcial ya demuestra que el camino era correcto. Una consulta monolítica a medio escribir no demuestra nada.
+Si te trabas a mitad de camino, una capa terminada ya demuestra que el enfoque era correcto. Una consulta monolítica a medio escribir no demuestra nada.
 
 ## La verificación de treinta segundos
 
-Antes de decir «listo», haz tres comprobaciones que cuestan muy poco y evitan la respuesta incorrecta con cara de correcta:
+Antes de decir «listo», haz tres comprobaciones que cuestan muy poco y evitan entregar un resultado incorrecto con apariencia de correcto:
 
-- **Cuenta filas.** ¿El total tiene el orden de magnitud que esperabas? 400 restaurantes no pueden dar 12 000 filas salvo que algo se haya multiplicado.
-- **Revisa una fila a mano.** Elige un caso y recórrelo mentalmente de punta a punta.
-- **Busca los casos borde.** ¿Qué pasa con quien no tiene ningún pedido, con los empates y con los nulos? Nombrarlos, aunque no los resuelvas, es parte de la respuesta.
+- **Cuenta las filas.** ¿El total tiene el orden de magnitud que esperabas? Si hay 400 restaurantes, un resultado de 12 000 filas significa que algo se multiplicó en un join.
+- **Revisa una fila a mano.** Elige un caso concreto y recórrelo mentalmente de punta a punta.
+- **Busca los casos borde.** ¿Qué pasa con quien no tiene ningún pedido, con los empates y con los nulos? Nombrarlos, aunque no llegues a resolverlos, es parte de la respuesta.
 
 ## Cuando no sabes la función exacta
 
-Decir «lo resolvería con una función de ventana que compare cada fila con la anterior; creo que es `lag`, lo confirmaría en la documentación» es una respuesta profesional. Inventar sintaxis con seguridad es lo único que no se perdona.
+Decir «lo resolvería con una función de ventana que compare cada fila con la anterior; creo que es `lag`, lo confirmaría en la documentación» es una respuesta profesional y nadie la castiga. En cambio, inventar sintaxis con tono seguro deja la peor impresión posible, porque sugiere que harías lo mismo con un dato de producción.
 
 ## Errores comunes
 
-- Callarte mientras piensas y dejar al entrevistador sin señales.
-- Preguntarlo todo, sin proponer nunca un supuesto propio.
-- Entregar sin verificar el orden de magnitud del resultado.
+- Quedarte callado mientras piensas y dejar al entrevistador sin ninguna señal de tu razonamiento.
+- Preguntarlo todo y no proponer nunca un supuesto propio.
+- Entregar el resultado sin haber verificado su orden de magnitud.
 
 ## Resumen
 
-1. Repite el pedido, pregunta poco, declara tus supuestos y describe el plan.
-2. Construye en capas: cada CTE es un paso que puedes defender.
-3. Reserva treinta segundos para contar filas, revisar un caso y nombrar los bordes.
+1. Repite el pedido, pregunta poco, declara tus supuestos y describe el plan antes de escribir.
+2. Construye en capas: cada CTE es un paso que puedes defender por separado.
+3. Reserva treinta segundos para contar filas, revisar un caso y nombrar los casos borde.
 $c2189$, null, (select id from public.datasets where slug = $c2190$pidelo$c2190$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2191$desafios-de-entrevista$c2191$), $c2192$entrevista-errores-que-cuestan-la-oferta$c2192$, $c2193$theory$c2193$, $c2194$Los errores que cuestan la oferta$c2194$, 2, 11, $c2195$## Por qué importa
 
-Casi nadie pierde una entrevista de SQL por no recordar una función. Se pierde por errores que producen un resultado **plausible pero falso**, y por no detectarlos a tiempo. Estos son los que más se repiten.
+Casi nadie pierde una entrevista de SQL por no recordar el nombre de una función. Se pierde por errores que producen un resultado **plausible pero falso**, y por no detectarlos antes de entregarlo. Estos son los que más se repiten.
 
 ## 1. `NOT IN` con una subconsulta que tiene NULL
 
@@ -8051,7 +8266,7 @@ SELECT * FROM couriers
 WHERE id NOT IN (SELECT courier_id FROM orders);
 ```
 
-`id NOT IN (1, 2, NULL)` se evalúa como «desconocido», nunca como verdadero, así que **ninguna** fila pasa el filtro. La salida no es un error: es una tabla vacía, y una tabla vacía se puede confundir con «no hay casos». Usa `NOT EXISTS`, que trata el nulo como ausencia, o agrega `WHERE courier_id IS NOT NULL` dentro de la subconsulta.
+La comparación `id NOT IN (1, 2, NULL)` se evalúa como «desconocido» y nunca como verdadero, porque el motor no puede descartar que ese NULL sea justamente el valor buscado. El resultado es que **ninguna** fila pasa el filtro. No recibes un error: recibes una tabla vacía, y una tabla vacía se confunde fácilmente con «no hay casos que reportar». Usa `NOT EXISTS`, que trata al nulo como ausencia de fila, o agrega `WHERE courier_id IS NOT NULL` dentro de la subconsulta.
 
 ## 2. Filtrar la tabla derecha de un `LEFT JOIN` en el `WHERE`
 
@@ -8062,54 +8277,54 @@ LEFT JOIN transactions AS t ON t.merchant_id = m.id
 WHERE t.is_flagged;
 ```
 
-Las filas sin coincidencia llegan con `t.is_flagged = NULL` y el `WHERE` las descarta. Si la condición pertenece a la tabla opcional, va en el `ON`; el `WHERE` solo debe llevar condiciones sobre la tabla obligatoria.
+Las filas sin coincidencia llegan al `WHERE` con `t.is_flagged` en NULL, la condición no da verdadero y esas filas se descartan. Así desaparecen del reporte justamente los comercios sin transacciones marcadas. Si la condición se refiere a la tabla opcional, escríbela en el `ON`; el `WHERE` solo debe llevar condiciones sobre la tabla obligatoria.
 
 ## 3. `count(*)` después de un `LEFT JOIN`
 
-`count(*)` cuenta filas, y una fila sin coincidencia sigue siendo una fila: los comercios sin transacciones marcadas te van a devolver 1 en lugar de 0. `count(t.id)` cuenta solo los valores no nulos y da el cero correcto.
+`count(*)` cuenta filas, y una fila sin coincidencia sigue siendo una fila. Por eso los comercios sin ninguna transacción marcada te devuelven 1 en lugar de 0, y el informe muestra que todos tienen al menos un caso. `count(t.id)` cuenta solo los valores que no son nulos y devuelve el cero correcto.
 
 ## 4. Truncar fechas sin fijar el huso
 
-`created_at` es `timestamptz`. `date_trunc('month', created_at)` usa la zona de la sesión, así que la misma consulta da otro reparto por mes en un servidor configurado en otra zona. El sandbox fija UTC —resultados reproducibles para todos— y por eso aquí las dos versiones coinciden; el entrevistador no te está preguntando por este entorno sino por el suyo. Escribe `date_trunc('month', created_at AT TIME ZONE 'UTC')` y **dilo**: «los meses están cortados en UTC; si el estándar de la empresa es otro, lo cambio».
+`created_at` es de tipo `timestamptz`, así que guarda un instante absoluto. `date_trunc('month', created_at)` corta ese instante según la zona horaria configurada en la sesión, y por eso la misma consulta reparte los datos entre meses distintos en un servidor configurado en otra zona. El simulador de este curso fija UTC para que los resultados sean reproducibles, pero el entrevistador no te está preguntando por este entorno sino por el suyo. Escribe `date_trunc('month', created_at AT TIME ZONE 'UTC')` y **dilo en voz alta**: «los meses están cortados en UTC; si el estándar de la empresa es otro, lo cambio».
 
 ## 5. `BETWEEN` con marcas de tiempo
 
-`BETWEEN '2025-08-01' AND '2025-08-31'` deja fuera casi todo el 31 de agosto, porque el extremo se interpreta como medianoche. El rango semiabierto `>= '2025-08-01' AND < '2025-09-01'` no tiene ese borde y funciona igual con fechas y con marcas de tiempo.
+`BETWEEN '2025-08-01' AND '2025-08-31'` deja afuera casi todo el 31 de agosto, porque ese extremo se interpreta como la medianoche del día 31 y los movimientos posteriores quedan fuera del rango. El rango semiabierto `>= '2025-08-01' AND < '2025-09-01'` no tiene ese problema y funciona igual con fechas y con marcas de tiempo.
 
 ## 6. Confundir el grano
 
-Unir pedidos con sus ítems multiplica las filas de pedido. Sumar `orders.total` después de ese join infla el total tantas veces como ítems tenga cada pedido. Antes de agregar, pregúntate siempre: **¿una fila de este resultado es qué cosa?**
+Unir pedidos con sus ítems multiplica las filas de pedido, porque cada pedido aparece una vez por cada ítem que contiene. Si después sumas `orders.total`, el total de cada pedido se suma tantas veces como ítems tenga y el resultado queda inflado. Antes de agregar, pregúntate siempre: **una fila de este resultado, ¿qué representa exactamente?**
 
 ## 7. Suponer que una fila es una persona
 
-Dos cuentas con el mismo correo escrito con distinta capitalización son la misma persona para el negocio y dos filas para el motor. En cualquier pregunta sobre clientes únicos, normaliza antes de contar y dilo en voz alta.
+Dos cuentas con el mismo correo escrito con distinta capitalización son la misma persona para el negocio y dos filas distintas para el motor. En cualquier pregunta sobre clientes únicos, normaliza el texto antes de contar y menciona que lo estás haciendo.
 
 ## 8. Entregar sin verificar
 
-El error más caro no es ninguno de los anteriores: es no mirar el resultado. Si una consulta sobre 300 comercios devuelve 0 filas o 40 000, hay algo roto. Contar filas y revisar un caso a mano toma menos de un minuto y evita defender un número falso.
+El error más caro no es ninguno de los anteriores: es no mirar el resultado antes de entregarlo. Si una consulta sobre 300 comercios devuelve 0 filas o 40 000, hay algo roto. Contar filas y revisar un caso a mano toma menos de un minuto y te evita defender un número falso.
 
 ## Cómo se ve la recuperación
 
-Encontrar tu propio error durante la entrevista suma puntos, no los resta. «Me devolvió cero filas y eso no puede ser; el `NOT IN` debe estar chocando con un nulo, lo cambio por `NOT EXISTS`» es exactamente lo que el entrevistador quiere escuchar de alguien que va a tocar datos de producción.
+Encontrar tu propio error durante la entrevista suma puntos en lugar de restarlos. «Me devolvió cero filas y eso no puede ser; el `NOT IN` debe estar chocando con un nulo, lo cambio por `NOT EXISTS`» es exactamente lo que el entrevistador quiere escuchar de alguien que va a trabajar con datos de producción.
 
 ## Resumen
 
 1. Los errores caros producen resultados plausibles: nulos, joins que filtran de más y husos horarios.
 2. Verifica el grano y el orden de magnitud antes de entregar.
-3. Detectar y corregir tu propio error en voz alta juega a favor.
+3. Detectar y corregir tu propio error en voz alta juega a tu favor.
 $c2195$, null, (select id from public.datasets where slug = $c2196$bolsillo$c2196$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2197$sql-analitico-avanzado$c2197$), $c2198$avanzado-consultas-en-capas$c2198$, $c2199$theory$c2199$, $c2200$Consultas en capas: CTE, ventanas y LATERAL$c2200$, 0, 13, $c2201$## Por qué importa
 
-A esta altura ya sabes escribir cada pieza por separado. El salto profesional no es aprender una función más: es **ordenar una consulta larga** para que otra persona (o tú dentro de seis meses) pueda leerla, probarla por partes y confiar en ella.
+A esta altura ya sabes escribir cada pieza por separado. El salto profesional no consiste en aprender una función más, sino en **ordenar una consulta larga** para que otra persona, o tú dentro de seis meses, pueda leerla, probarla por partes y confiar en su resultado.
 
-La técnica central es simple: una consulta compleja se escribe como una **secuencia de capas**, cada una con un contrato claro —qué grano tiene y qué columnas entrega—, y la última capa solo presenta.
+La técnica central es simple: una consulta compleja se escribe como una **secuencia de capas**. Cada capa es una CTE (por *common table expression*, su nombre en inglés: la consulta con nombre que defines en el `WITH`) con un contrato claro, es decir, con un grano y unas columnas declaradas. La última capa solo presenta el resultado.
 
 ## Una capa, un grano
 
-En **Bolsillo** (billetera digital) queremos, por rubro de comercio, los comercios con más operaciones y su participación:
+El **grano** de una capa es qué representa una fila suya: un comercio, un rubro, una transacción. En **Bolsillo**, la billetera digital, queremos los comercios con más operaciones de cada rubro, junto con su participación sobre el total del rubro:
 
 ```sql
 WITH pagos AS (                      -- grano: comercio
@@ -8131,14 +8346,14 @@ INNER JOIN totales AS t ON t.category = p.category
 ORDER BY p.category, p.operaciones DESC;
 ```
 
-Escribe el grano en un comentario arriba de cada CTE. Cuando una consulta da mal, la mayoría de las veces el problema es que dos capas tienen granos distintos y alguien las unió como si fueran iguales.
+Escribe el grano en un comentario arriba de cada CTE, como en el ejemplo. Cuando una consulta larga devuelve números equivocados, la causa más frecuente es que dos capas tienen granos distintos y alguien las unió como si fueran iguales, con lo que una de las dos multiplicó filas.
 
 ## Dónde se evalúa cada cosa
 
-Las funciones de ventana se calculan **después** de `WHERE`, `GROUP BY` y `HAVING`, y **antes** de `ORDER BY` y `LIMIT`. De ahí salen dos reglas que ahorran horas:
+Las funciones de ventana se calculan **después** de `WHERE`, `GROUP BY` y `HAVING`, y **antes** de `ORDER BY` y `LIMIT`. De ese orden salen dos reglas que ahorran horas de depuración:
 
-- No puedes filtrar por el resultado de una ventana en el mismo `WHERE`: necesitas una capa más.
-- Sí puedes usar una ventana **sobre un agregado**, porque el agregado ya ocurrió: `sum(count(*)) OVER ()` es válido y devuelve el total general junto a cada grupo.
+- No puedes filtrar por el resultado de una ventana en el `WHERE` de la misma consulta, porque en ese momento todavía no se calculó. Necesitas una capa más.
+- Sí puedes aplicar una ventana **sobre un agregado**, porque el agregado ya ocurrió: `sum(count(*)) OVER ()` es válido y devuelve el total general al lado de cada grupo.
 
 ```sql
 SELECT m.category,
@@ -8151,11 +8366,11 @@ GROUP BY m.category
 ORDER BY operaciones DESC;
 ```
 
-Esa combinación —agregar y, en la misma pasada, comparar contra el total— reemplaza una subconsulta entera.
+Esa combinación, agregar y comparar contra el total en la misma pasada, reemplaza una subconsulta entera y evita recorrer los datos dos veces.
 
 ## LATERAL: una subconsulta que ve la fila actual
 
-Una subconsulta en el `FROM` normalmente no puede mencionar columnas de las tablas que están a su izquierda. Con `LATERAL` sí puede, y eso habilita el patrón «para cada fila de A, calcula esto en B»:
+Una subconsulta escrita en el `FROM` normalmente no puede mencionar columnas de las tablas que están a su izquierda, porque se calcula de forma independiente. La palabra `LATERAL` levanta esa restricción, y eso habilita el patrón «para cada fila de A, calcula esto en B»:
 
 ```sql
 SELECT c.category, top.name, top.operaciones
@@ -8169,39 +8384,39 @@ CROSS JOIN LATERAL (
 ) AS top;
 ```
 
-Léelo como un bucle: por cada rubro, PostgreSQL ejecuta la subconsulta con `c.category` ya resuelto y pega las filas que devuelve. El `LIMIT` vive **adentro**, así que limita por rubro y no el resultado final: eso es lo que una subconsulta común no puede hacer.
+Léelo como un bucle: para cada rubro, PostgreSQL ejecuta la subconsulta con `c.category` ya reemplazado por el valor de esa fila y pega las filas que devuelve. El `LIMIT` vive **adentro** de la subconsulta, así que limita a tres comercios por rubro y no a tres filas en total. Eso es exactamente lo que una subconsulta común no puede hacer.
 
 ## Variantes
 
-- `CROSS JOIN LATERAL` descarta las filas de la izquierda cuya subconsulta no devuelve nada. Si quieres conservarlas, usa `LEFT JOIN LATERAL (...) AS x ON true`.
-- El mismo top-N por grupo se resuelve con `row_number()` y un filtro en una capa siguiente. Las dos formas son correctas: la ventana suele leerse mejor cuando ya tienes la capa armada; `LATERAL` gana cuando el cálculo por fila es caro y solo necesitas unas pocas filas de cada grupo.
-- `LATERAL` también acepta la forma con coma (`FROM a, LATERAL (...) AS x`), equivalente a `CROSS JOIN LATERAL`.
+- `CROSS JOIN LATERAL` descarta las filas de la izquierda cuya subconsulta no devuelve nada, igual que un INNER JOIN. Si quieres conservarlas, usa `LEFT JOIN LATERAL (...) AS x ON true`.
+- El mismo top-N por grupo se resuelve con `row_number()` y un filtro en la capa siguiente. Las dos formas son correctas: la función de ventana suele leerse mejor cuando ya tienes la capa agregada armada, y `LATERAL` conviene cuando el cálculo por fila es caro y solo necesitas unas pocas filas de cada grupo.
+- `LATERAL` también acepta la forma con coma (`FROM a, LATERAL (...) AS x`), que equivale a `CROSS JOIN LATERAL`.
 
 ## Errores comunes
 
-- Filtrar `WHERE puesto = 1` en el mismo nivel donde se calcula `row_number()`.
-- Poner el `LIMIT` afuera cuando querías top-N por grupo.
-- Olvidar el alias de la subconsulta lateral: PostgreSQL lo exige.
-- Encadenar diez CTE sin decir el grano de ninguna: es tan ilegible como una consulta de cien líneas.
+- Filtrar con `WHERE puesto = 1` en el mismo nivel donde se calcula `row_number()`.
+- Poner el `LIMIT` afuera de la subconsulta lateral cuando lo que querías era un top-N por grupo.
+- Olvidar el alias de la subconsulta lateral: PostgreSQL lo exige y devuelve un error de sintaxis.
+- Encadenar diez CTE sin declarar el grano de ninguna. El resultado es tan difícil de leer como una consulta de cien líneas sin cortes.
 
 ## Resumen
 
-1. Una capa, un grano, documentado en una línea.
-2. Las ventanas corren después de agregar: por eso `sum(count(*)) OVER ()` funciona y filtrar una ventana en el mismo `WHERE`, no.
-3. `LATERAL` es «por cada fila de la izquierda, corre esta consulta»: el `LIMIT` queda adentro.
+1. Una capa, un grano, declarado en una línea de comentario.
+2. Las ventanas corren después de agregar. Por eso `sum(count(*)) OVER ()` funciona y filtrar una ventana en el mismo `WHERE` no.
+3. `LATERAL` significa «para cada fila de la izquierda, ejecuta esta consulta», y el `LIMIT` queda adentro.
 $c2201$, null, (select id from public.datasets where slug = $c2202$bolsillo$c2202$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2203$sql-analitico-avanzado$c2203$), $c2204$avanzado-subtotales-rollup-cube$c2204$, $c2205$theory$c2205$, $c2206$Subtotales en una sola pasada: ROLLUP y CUBE$c2206$, 1, 12, $c2207$## Por qué importa
 
-Todo reporte de negocio termina pidiendo lo mismo: el detalle **y** los subtotales **y** el total general. La respuesta ingenua es repetir la consulta tres veces y unirla con `UNION ALL`: tres pasadas sobre los mismos datos y tres lugares donde el filtro puede quedar desalineado.
+Todo reporte de negocio termina pidiendo lo mismo: el detalle, **más** los subtotales por cada dimensión, **más** el total general. La respuesta ingenua es escribir la consulta tres veces y unir los resultados con `UNION ALL`. Eso hace que el motor recorra los mismos datos tres veces y, sobre todo, deja tres lugares donde el filtro puede quedar desalineado cuando alguien lo modifique.
 
-PostgreSQL resuelve eso en una sola pasada con `ROLLUP` y `CUBE`.
+PostgreSQL resuelve el problema en una sola pasada con `ROLLUP` y `CUBE`.
 
 ## ROLLUP: subtotales jerárquicos
 
-En **TiendaViva**, pedidos entregados por país y canal:
+En **TiendaViva**, los pedidos entregados por país y por canal de venta:
 
 ```sql
 SELECT c.country, o.channel, count(*) AS pedidos
@@ -8211,11 +8426,13 @@ WHERE o.status = 'delivered'
 GROUP BY ROLLUP (c.country, o.channel);
 ```
 
-`ROLLUP (a, b)` calcula tres niveles: por `(a, b)`, por `(a)` y el total general. Va sacando columnas **de derecha a izquierda**, así que el orden importa: `ROLLUP (country, channel)` da subtotal por país y `ROLLUP (channel, country)` da subtotal por canal. Es la jerarquía natural de un reporte.
+`ROLLUP (a, b)` calcula tres niveles de agregación en la misma consulta: por la combinación `(a, b)`, por `(a)` sola y el total general. Va quitando columnas **de derecha a izquierda**, así que el orden en que las escribes cambia el reporte: `ROLLUP (country, channel)` da un subtotal por país, y `ROLLUP (channel, country)` da un subtotal por canal. Es la jerarquía natural de un informe, de lo más detallado a lo más general.
 
 ## El NULL ambiguo y la función GROUPING
 
-En las filas de subtotal, las columnas agrupadas vienen en `NULL`. ¿Y si la columna ya tenía `NULL` en los datos? A simple vista no se distingue. Para eso existe `grouping()`, que devuelve 1 cuando la columna **fue agregada** por el subtotal y 0 cuando es un valor real:
+En las filas de subtotal, las columnas que se agregaron vienen con valor `NULL`, porque esa fila ya no corresponde a un solo país ni a un solo canal. El problema aparece si la columna además puede tener `NULL` en los datos reales: a simple vista no hay forma de distinguir un subtotal de un dato faltante.
+
+Para eso existe `grouping()`, que devuelve 1 cuando la columna **fue agregada** por el subtotal y 0 cuando el valor es un dato real:
 
 ```sql
 SELECT
@@ -8229,20 +8446,20 @@ GROUP BY ROLLUP (c.country, o.channel)
 ORDER BY grouping(c.country), pais, grouping(o.channel), canal;
 ```
 
-Dos usos que valen oro en producción:
+Tiene dos usos que valen mucho en producción:
 
-- `grouping()` también sirve para **ordenar**: poniéndolo primero en el `ORDER BY`, cada subtotal cae debajo de su bloque y el total general queda al final.
-- Con `HAVING grouping(c.country) = 1` te quedas solo con las filas de subtotal.
+- `grouping()` también sirve para **ordenar**. Si lo pones primero en el `ORDER BY`, cada subtotal queda debajo de su bloque de detalle y el total general queda al final, que es como se lee un reporte impreso.
+- Con `HAVING grouping(c.country) = 1` te quedas únicamente con las filas de subtotal.
 
 ## CUBE: todos los cortes
 
-`CUBE (a, b)` calcula las cuatro combinaciones: `(a, b)`, `(a)`, `(b)` y el total. Úsalo cuando las dos dimensiones son independientes —cocina y medio de pago, por ejemplo— y quieres los márgenes de la tabla en los dos sentidos. Con *n* columnas genera 2 elevado a *n* niveles: con cuatro dimensiones son 16, y el resultado se vuelve ilegible antes de volverse lento.
+`CUBE (a, b)` calcula las cuatro combinaciones posibles: `(a, b)`, `(a)`, `(b)` y el total general. Úsalo cuando las dos dimensiones son independientes entre sí, por ejemplo tipo de cocina y medio de pago, y quieres los márgenes de la tabla en los dos sentidos. Ten en cuenta que con *n* columnas genera 2 elevado a *n* niveles: con cuatro dimensiones son 16 niveles, y el resultado se vuelve ilegible para quien lo recibe mucho antes de volverse lento para el motor.
 
-**Nota del entorno de práctica:** la forma explícita `GROUP BY GROUPING SETS ((a, b), (a), ())` no está disponible en el simulador; `ROLLUP` y `CUBE` cubren los mismos casos. En un PostgreSQL real, `GROUPING SETS` existe y te deja elegir exactamente qué niveles calcular.
+**Nota del entorno de práctica:** la forma explícita `GROUP BY GROUPING SETS ((a, b), (a), ())` no está disponible en el simulador, y `ROLLUP` con `CUBE` cubren los mismos casos. En un PostgreSQL real, `GROUPING SETS` existe y te permite elegir exactamente qué niveles calcular.
 
 ## Pivotes a escala
 
-El otro pedido eterno es la tabla cruzada: una fila por categoría y una columna por período. Se arma con agregación condicional, y `FILTER` la hace legible:
+El otro pedido eterno es la tabla cruzada: una fila por categoría y una columna por período o por canal. Se arma con agregación condicional, y la cláusula `FILTER` la hace legible:
 
 ```sql
 SELECT c.country,
@@ -8255,31 +8472,33 @@ WHERE o.status = 'delivered'
 GROUP BY c.country;
 ```
 
-Un pivote tiene columnas fijas: si mañana aparece un canal nuevo, hay que editar la consulta. Cuando las categorías cambian solas, entrega el resultado largo (una fila por combinación) y deja que la herramienta de visualización pivotee.
+Un pivote tiene columnas fijas, escritas a mano en la consulta. Si mañana la empresa agrega un canal nuevo, ese canal no aparece hasta que alguien edite el SQL, y el total deja de coincidir con la suma de las columnas visibles. Cuando las categorías cambian solas, conviene entregar el resultado en formato largo, con una fila por combinación, y dejar que la herramienta de visualización arme el pivote.
 
 ## Errores comunes
 
-- Leer el `NULL` de un subtotal como un dato faltante.
-- Sumar dinero de varios países en el total general cuando cada país tiene su moneda: el número no significa nada. Cuenta operaciones o convierte antes con un tipo de cambio.
-- Invertir el orden de `ROLLUP` y obtener el subtotal de la dimensión equivocada.
-- Ordenar solo por las etiquetas: los subtotales quedan mezclados alfabéticamente con el detalle.
+- Leer el `NULL` de una fila de subtotal como si fuera un dato faltante.
+- Sumar importes de varios países en el total general cuando cada país tiene su propia moneda. Ese número no significa nada; cuenta operaciones o convierte todo con un tipo de cambio antes de sumar.
+- Invertir el orden de las columnas de `ROLLUP` y obtener el subtotal de la dimensión equivocada.
+- Ordenar solo por las etiquetas, con lo que los subtotales quedan mezclados alfabéticamente entre las filas de detalle.
 
 ## Resumen
 
-1. `ROLLUP` da la jerarquía de subtotales de derecha a izquierda; `CUBE`, todos los cortes.
-2. `grouping()` distingue el `NULL` de subtotal del `NULL` de datos, etiqueta y ordena.
-3. El pivote con `FILTER` es legible pero de columnas fijas: piénsalo antes de fijarlas.
+1. `ROLLUP` genera la jerarquía de subtotales quitando columnas de derecha a izquierda; `CUBE` genera todos los cortes posibles.
+2. `grouping()` distingue el `NULL` de subtotal del `NULL` de los datos, y sirve para etiquetar y para ordenar.
+3. El pivote con `FILTER` es legible, pero sus columnas son fijas: decídelas sabiendo que hay que mantenerlas.
 $c2207$, null, (select id from public.datasets where slug = $c2208$tiendaviva$c2208$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2209$sql-analitico-avanzado$c2209$), $c2210$avanzado-arrays-y-json$c2210$, $c2211$theory$c2211$, $c2212$Listas y documentos: arrays y JSON$c2212$, 2, 12, $c2213$## Por qué importa
 
-Hay preguntas que no se responden bien con una tabla plana. «¿Qué secuencia de estados siguió cada pedido?» no es una columna: es una **lista ordenada**. Y cuando el resultado va a alimentar una API o un tablero, lo que piden no es una grilla sino un **documento**. PostgreSQL trae los dos tipos, y usarlos en el lugar correcto acorta consultas enteras.
+Hay preguntas que no se responden bien con una tabla plana. «¿Qué secuencia de estados siguió cada pedido?» no cabe en una columna, porque la respuesta es una **lista ordenada** de valores. Y cuando el resultado va a alimentar una API o un tablero, lo que piden no es una grilla de filas y columnas sino un **documento**, es decir, un objeto con claves y valores.
+
+PostgreSQL trae los dos tipos: los **arrays**, que son listas de valores del mismo tipo guardadas en una sola celda, y JSON (por *JavaScript Object Notation*), el formato estándar para documentos. Usarlos en el lugar correcto acorta consultas enteras.
 
 ## Armar una lista: array_agg
 
-En **Pídelo** (delivery), `order_events` guarda un evento por fila. La trayectoria de cada pedido es un array:
+En **Pídelo**, la plataforma de delivery, la tabla `order_events` guarda un evento por fila, con el estado y el momento en que ocurrió. La trayectoria completa de cada pedido es entonces un array:
 
 ```sql
 SELECT e.order_id,
@@ -8288,21 +8507,21 @@ FROM order_events AS e
 GROUP BY e.order_id;
 ```
 
-El `ORDER BY` **dentro** del agregado no es decorativo: sin él, el orden de los elementos no está garantizado y la lista deja de ser reproducible. Agrega un segundo criterio (`e.id`) para los empates de tiempo.
+El `ORDER BY` escrito **dentro** del agregado no es decorativo: sin él, el orden de los elementos de la lista no está garantizado y dos ejecuciones pueden devolver la misma trayectoria en distinto orden, con lo que el reporte deja de ser comparable. Agrega un segundo criterio (`e.id`) para los eventos que comparten el mismo instante.
 
-Con la lista armada, tres herramientas resuelven casi todo:
+Con la lista ya armada, tres herramientas resuelven casi todo:
 
-- `array_to_string(eventos, ' > ')` la vuelve texto legible.
-- `cardinality(eventos)` cuenta los elementos.
-- `GROUP BY eventos` agrupa por la lista completa: dos pedidos con la misma secuencia caen en el mismo grupo. Así se cuentan las trayectorias distintas sin escribir un `CASE` por cada camino posible.
+- `array_to_string(eventos, ' > ')` convierte la lista en un texto legible, como `creado > asignado > entregado`.
+- `cardinality(eventos)` devuelve cuántos elementos tiene.
+- `GROUP BY eventos` agrupa por la lista completa, de modo que dos pedidos con exactamente la misma secuencia caen en el mismo grupo. Así cuentas cuántas trayectorias distintas existen sin escribir un `CASE` por cada camino posible.
 
-También puedes ir en el sentido inverso con `unnest(arreglo)` en el `FROM`, que convierte cada elemento en una fila, y preguntar por pertenencia con `valor = ANY (arreglo)`.
+También puedes ir en el sentido inverso con `unnest(arreglo)` en el `FROM`, que convierte cada elemento de la lista en una fila, y preguntar si un valor pertenece a la lista con `valor = ANY (arreglo)`.
 
-Si solo necesitas el texto y nunca la lista, `string_agg(e.event, ' > ' ORDER BY e.event_at, e.id)` hace el mismo trabajo en un paso. Elige array cuando además vayas a contar elementos, mirar una posición o agrupar por la lista completa.
+Si solo necesitas el texto y nunca vas a usar la lista como lista, `string_agg(e.event, ' > ' ORDER BY e.event_at, e.id)` hace el mismo trabajo en un solo paso. Elige el array cuando además vayas a contar elementos, mirar una posición concreta o agrupar por la lista completa.
 
 ## Armar un documento: JSON
 
-`jsonb_build_object('clave', valor, ...)` construye un objeto y `json_agg` / `jsonb_agg` arman un arreglo de documentos. Para leer, `->` devuelve JSON y `->>` devuelve texto:
+`jsonb_build_object('clave', valor, ...)` construye un objeto a partir de pares de clave y valor, y `json_agg` o `jsonb_agg` arman un arreglo de documentos. Para leer un documento existente, el operador `->` devuelve el valor como JSON y `->>` lo devuelve como texto plano:
 
 ```sql
 SELECT o.id,
@@ -8315,81 +8534,85 @@ FROM orders AS o
 LIMIT 5;
 ```
 
-Hay dos tipos y la diferencia importa: `json` guarda el texto tal cual lo escribiste; `jsonb` lo guarda ya interpretado, **ordena las claves** y elimina duplicadas. Para un resultado reproducible —dos personas escriben las claves en distinto orden y obtienen el mismo texto— usa `jsonb`.
+Hay dos tipos y la diferencia importa. `json` guarda el texto exactamente como lo escribiste, con sus espacios y el orden original de las claves. `jsonb` lo guarda ya interpretado, **ordena las claves** y elimina las duplicadas. Para obtener un resultado reproducible, donde dos personas que escriben las claves en distinto orden obtienen el mismo texto, usa `jsonb`.
 
 ## Cuándo no usarlos
 
-Un array o un JSON dentro de una columna es cómodo para **presentar** y caro para **consultar**: filtrar por un elemento no aprovecha los índices habituales y cualquier análisis posterior empieza desarmando la estructura. La regla práctica: modela en tablas y agrupa en listas o documentos **al final**, en la capa de presentación.
+Un array o un JSON dentro de una columna es cómodo para **presentar** y caro para **consultar**. Filtrar por un elemento de la lista no aprovecha los índices habituales, y cualquier análisis posterior tiene que empezar desarmando la estructura para volver a tener filas. La regla práctica: modela en tablas normales y arma las listas o los documentos **al final**, en la capa que entrega el resultado.
 
 ## Jerarquías, otra vez
 
-El otro caso que no cabe en una tabla plana es el árbol, y ya lo resolviste con `WITH RECURSIVE`: caso base, `UNION ALL`, paso recursivo. Dos detalles del simulador conviene tenerlos a mano: la CTE recursiva necesita su **lista de columnas** (`WITH RECURSIVE arbol(id, raiz) AS ...`) y debe ser la **única** CTE de la consulta. Si necesitas más pasos, ponlos en el `SELECT` final o en subconsultas.
+El otro caso que no cabe en una tabla plana es el árbol, y ya lo resolviste con `WITH RECURSIVE`: un caso base, un `UNION ALL` y un paso recursivo que se apoya en el resultado anterior. Dos detalles del simulador conviene tenerlos a mano: la CTE recursiva necesita su **lista de columnas** declarada (`WITH RECURSIVE arbol(id, raiz) AS ...`) y debe ser la **única** CTE de la consulta. Si necesitas más pasos, escríbelos en el `SELECT` final o en subconsultas.
 
-Un uso frecuente en analítica: reasignar cada fila a su **raíz** para reportar por categoría de primer nivel sin importar cuántos niveles tenga el árbol hoy.
+Un uso frecuente en analítica es reasignar cada fila a su categoría **raíz**, para reportar por categoría de primer nivel sin que importe cuántos niveles tenga el árbol en este momento.
 
 ## Errores comunes
 
-- `array_agg` sin `ORDER BY`: la lista puede cambiar entre ejecuciones y el reporte deja de ser reproducible.
-- Confundir `->` con `->>`: el primero devuelve JSON (el texto queda entre comillas), el segundo devuelve texto plano.
-- Usar `json` donde hace falta reproducibilidad de claves; para eso está `jsonb`.
-- Guardar listas en la base para evitarse una tabla de detalle: se paga en cada consulta posterior.
+- Usar `array_agg` sin `ORDER BY`: la lista puede cambiar de orden entre ejecuciones y el reporte deja de ser reproducible.
+- Confundir `->` con `->>`: el primero devuelve JSON, así que el texto llega entre comillas, y el segundo devuelve texto plano.
+- Usar `json` cuando necesitas que el orden de las claves sea siempre el mismo; para eso está `jsonb`.
+- Guardar listas en la base para evitarse una tabla de detalle. Ese ahorro se paga en cada consulta posterior.
 
 ## Resumen
 
-1. `array_agg(... ORDER BY ...)` construye listas reproducibles; `array_to_string`, `cardinality` y `GROUP BY` sobre el array hacen el resto.
-2. `jsonb_build_object` arma documentos y ordena las claves; `->>` extrae texto.
-3. Listas y documentos son para la capa de presentación, no para reemplazar el modelo.
+1. `array_agg(... ORDER BY ...)` construye listas reproducibles, y `array_to_string`, `cardinality` y el `GROUP BY` sobre el array hacen el resto.
+2. `jsonb_build_object` arma documentos y ordena las claves; `->>` extrae un valor como texto.
+3. Las listas y los documentos son para la capa de presentación, no para reemplazar el modelo de datos.
 $c2213$, null, (select id from public.datasets where slug = $c2214$pidelo$c2214$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2215$proyectos-finales$c2215$), $c2216$proyectos-finales-planificar-antes-de-escribir$c2216$, $c2217$theory$c2217$, $c2218$Planificar el análisis antes de escribir SQL$c2218$, 0, 12, $c2219$## Por qué importa
 
-Un pedido real casi nunca llega con la consulta adentro. Llega así: «necesito saber cómo venimos con las entregas tarde». Si abres el editor y empiezas a escribir, vas a entregar un número que nadie puede usar o, peor, uno que alguien va a usar mal.
+Un pedido real casi nunca llega con la consulta adentro. Llega así: «necesito saber cómo venimos con las entregas tarde». Si abres el editor y empiezas a escribir, lo más probable es que entregues un número que nadie pueda usar o, peor, uno que alguien use para decidir sin saber qué mide exactamente.
 
-Los analistas que rinden en su primera semana no escriben SQL más rápido: escriben **menos** SQL porque deciden antes. Este es el orden de esas decisiones.
+Los analistas que rinden desde su primera semana no escriben SQL más rápido: escriben **menos** SQL porque deciden antes de escribir. Este es el orden de esas decisiones.
+
+Vas a verlo sobre **Pídelo**, la app de delivery.
 
 ## 1. Convierte el pedido en una pregunta con respuesta
 
-Una pregunta está lista cuando puedes escribir, en una línea, **qué devuelve cada fila del resultado**. «Cómo venimos con las entregas» no lo dice. «Una fila por ciudad y mes, con el porcentaje de pedidos entregados fuera del tiempo prometido» sí.
+Una pregunta está lista cuando puedes escribir en una sola línea **qué representa cada fila del resultado**. «Cómo venimos con las entregas» no lo dice. «Una fila por ciudad y mes, con el porcentaje de pedidos entregados fuera del tiempo prometido» sí lo dice.
 
-Esa frase fija tres cosas de golpe: la **granularidad** (ciudad × mes), el **universo** (pedidos entregados) y la **métrica** (porcentaje sobre ese universo).
+Esa frase fija tres cosas de golpe: la **granularidad** (una fila por ciudad y mes), el **universo** (solo los pedidos entregados) y la **métrica** (un porcentaje calculado sobre ese universo).
 
 ## 2. Escribe la definición de la métrica
 
-Toda métrica de negocio esconde una decisión. «Tarde» puede significar:
+Toda métrica de negocio esconde una decisión. «Tarde» puede significar al menos tres cosas distintas:
 
-- `delivered_at > placed_at + promised_minutes`, o
-- lo mismo con cinco minutos de tolerancia, o
-- comparar contra el momento en que el repartidor retiró el pedido y no contra el momento en que se hizo.
+- `delivered_at > placed_at + promised_minutes`, es decir, que la entrega ocurrió después del tiempo prometido al hacer el pedido; o
+- lo mismo, pero admitiendo cinco minutos de tolerancia; o
+- comparar contra el momento en que el repartidor retiró el pedido, en lugar del momento en que el cliente lo hizo.
 
-Ninguna es la correcta: son tres métricas distintas. Tu trabajo es elegir una, escribirla junto al resultado y que quien lo lea pueda discutirla. Un número sin definición no se puede auditar.
+Ninguna de las tres es la correcta: son tres métricas distintas que van a dar tres porcentajes distintos. Tu trabajo es elegir una, escribir la definición junto al resultado y permitir que quien lo lea la discuta. Un número sin definición no se puede auditar, porque nadie puede reproducirlo.
 
 Lo mismo pasa con el denominador. ¿El porcentaje de tardíos se calcula sobre los pedidos entregados o sobre todos, incluidos los cancelados? Cambia el número y cambia la conclusión.
 
 ## 3. Fija el período y el huso
 
-Los rangos se escriben cerrados a la izquierda y abiertos a la derecha:
+Los rangos de fechas se escriben cerrados a la izquierda y abiertos a la derecha, es decir, incluyendo el primer instante y excluyendo el último:
 
 ```sql
 WHERE o.placed_at AT TIME ZONE 'UTC' >= '2025-01-01'
   AND o.placed_at AT TIME ZONE 'UTC' <  '2025-07-01'
 ```
 
-`BETWEEN '2025-01-01' AND '2025-06-30'` pierde todo lo que ocurrió después de la medianoche del 30 de junio. Y como las marcas son `timestamptz`, sin `AT TIME ZONE 'UTC'` el mes al que cae cada pedido depende de la zona de la sesión (UTC en el sandbox, para que tus resultados sean reproducibles; en el servidor de tu empresa, la que hayan configurado). Deja el huso escrito en la consulta y declarado en el informe.
+Escribirlo como `BETWEEN '2025-01-01' AND '2025-06-30'` pierde todos los pedidos hechos después de la medianoche del 30 de junio, porque esa fecha sin hora se interpreta como las 00:00 de ese día: perderías casi un día entero de datos.
+
+Y como las marcas de tiempo son de tipo `timestamptz`, sin el `AT TIME ZONE 'UTC'` el mes al que cae cada pedido dependería del huso configurado en la sesión, que en esta plataforma es UTC para que tus resultados sean reproducibles, y en el servidor de tu empresa será el que hayan configurado. Deja el huso escrito en la consulta y declarado en el informe.
 
 ## 4. Dibuja el camino de tablas y cuenta filas
 
-Antes de unir nada, escribe el camino: `orders → restaurants → cities`. Para cada salto contesta: ¿esta unión puede multiplicar filas?
+Antes de unir nada, escribe el camino que vas a recorrer: `orders → restaurants → cities`. Para cada salto contesta una sola pregunta: ¿esta unión puede multiplicar filas?
 
-- `orders → restaurants`: muchos a uno. No multiplica.
-- `orders → order_items`: uno a muchos. **Multiplica**, y si sumas `orders.total` después de ese join, cuentas cada pedido tantas veces como ítems tenga.
+- De `orders` a `restaurants` la relación es de muchos a uno, porque cada pedido pertenece a un solo restaurante. No multiplica.
+- De `orders` a `order_items` la relación es de uno a muchos, porque un pedido tiene varios ítems. **Multiplica**: si después de ese join sumas `orders.total`, que es la columna `total` de la tabla `orders`, cuentas el importe de cada pedido tantas veces como ítems tenga, y el total del informe queda inflado.
 
-La regla práctica: agrega primero al nivel de detalle que necesitas y recién después une. Una CTE por paso hace visible ese nivel.
+La regla práctica es agregar primero al nivel de detalle que necesitas y unir recién después. Una CTE por paso hace visible en qué nivel está cada cosa.
 
 ## 5. Elige el nivel donde vive cada métrica
 
-En un mismo informe conviven métricas de niveles distintos: la cantidad de pedidos vive en `orders`, el importe de los ítems vive en `order_items` y la calificación vive en `ratings`. Mezclarlas en un solo `FROM` con tres joins es la causa número uno de informes inflados.
+En un mismo informe conviven métricas que viven en niveles distintos: la cantidad de pedidos vive en `orders`, el importe de los ítems vive en `order_items` y la calificación vive en `ratings`. Mezclarlas en un solo `FROM` con tres joins es la causa número uno de informes con números inflados.
 
 ```sql
 WITH por_pedido AS (
@@ -8406,22 +8629,24 @@ JOIN restaurants r ON r.id = p.restaurant_id
 GROUP BY r.id, r.name;
 ```
 
-La CTE deja una fila por pedido; el `GROUP BY` decide el nivel del informe. Cualquiera que lea la consulta ve los dos niveles por separado.
+La CTE deja una fila por pedido, con una columna que dice si ese pedido llegó tarde; el `GROUP BY` decide el nivel del informe final, que es el restaurante. Quien lea la consulta ve los dos niveles por separado.
 
 ## 6. Anota los supuestos que vas a declarar
 
-Mientras planificas van a aparecer huecos: pedidos sin ítems, pagos que faltan, una moneda distinta por país. No los resuelvas en silencio. Anótalos y decide: los excluyo, los muestro aparte o los dejo y lo aclaro. Esa lista corta es la mitad del valor de tu entrega.
+Mientras planificas van a ir apareciendo huecos: pedidos sin ítems, pagos que faltan, una moneda distinta por país. No los resuelvas en silencio. Anótalos y decide para cada uno si lo excluyes, si lo muestras aparte o si lo dejas y lo aclaras en el informe.
+
+Esa lista corta de supuestos es la mitad del valor de tu entrega: le permite a quien recibe el número saber hasta dónde puede confiar en él.
 
 ## Errores comunes al planificar
 
-- Empezar por el `SELECT` y descubrir la granularidad cuando el resultado ya tiene filas de más.
-- Definir la métrica después de ver el número, para que el número quede «lindo».
-- Sumar importes de países con monedas distintas porque el esquema no tiene una columna que lo impida.
+- Empezar por el `SELECT` y descubrir cuál era la granularidad recién cuando el resultado ya tiene filas de más.
+- Definir la métrica después de ver el número, para que el número quede más favorable.
+- Sumar importes de países con monedas distintas porque el esquema permite hacerlo y nada lo impide.
 
 ## Resumen
 
-- Una pregunta está lista cuando puedes describir en una línea qué es una fila del resultado.
-- Toda métrica necesita definición explícita: numerador, denominador, período y huso.
+- Una pregunta está lista cuando puedes describir en una línea qué representa una fila del resultado.
+- Toda métrica necesita una definición explícita: numerador, denominador, período y huso horario.
 - Dibuja el camino de tablas y pregúntate en cada salto si multiplica filas; agrega antes de unir.
 $c2219$, null, (select id from public.datasets where slug = $c2220$pidelo$c2220$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
@@ -8429,19 +8654,19 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2221$proyectos-finales$c2221$), $c2222$proyectos-finales-revisar-tu-propio-trabajo$c2222$, $c2223$theory$c2223$, $c2224$Revisar tu propio trabajo antes de entregarlo$c2224$, 1, 12, $c2225$## Por qué importa
 
-El error que te va a costar caro no es el de sintaxis: ese lo marca el motor. Es la consulta que corre, devuelve un número creíble y está mal. Nadie lo nota hasta que alguien toma una decisión con él.
+El error que te va a costar caro no es el de sintaxis: ese lo marca el motor y lo corriges en un minuto. Es la consulta que se ejecuta sin problemas, devuelve un número creíble y está mal. Nadie lo nota hasta que alguien toma una decisión con ese número.
 
-Por eso, entre «la consulta anda» y «esto se entrega» hay un paso obligatorio: revisarla como si la hubiera escrito otra persona. Son cinco chequeos y tardan menos que escribir la consulta.
+Por eso, entre «la consulta anda» y «esto se entrega» hay un paso obligatorio: revisarla como si la hubiera escrito otra persona. Son cinco chequeos y juntos tardan menos que escribir la consulta.
 
 ## 1. ¿Cuántas filas esperabas?
 
-Antes de mirar el resultado, di cuántas filas debería tener. Un informe por país y mes sobre seis países y 21 meses tiene como máximo 126 filas. Si devuelve 1200, hay un join que multiplica; si devuelve 40, hay un filtro que borró grupos enteros.
+Antes de mirar el resultado, di en voz alta cuántas filas debería tener. Un informe por país y mes, sobre seis países y 21 meses, tiene como máximo 126 filas. Si la consulta devuelve 1200, hay un join que está multiplicando filas; si devuelve 40, hay un filtro que borró grupos enteros.
 
-Es el chequeo más barato y el que más errores encuentra.
+Es el chequeo más barato de todos y el que más errores encuentra.
 
 ## 2. ¿Los totales cierran contra la tabla base?
 
-Toma una métrica del informe y recalcúlala sin joins:
+Toma una métrica del informe y vuelve a calcularla sin ningún join:
 
 ```sql
 SELECT sum(amount) AS cobrado
@@ -8449,13 +8674,13 @@ FROM payments
 WHERE status IN ('approved', 'refunded');
 ```
 
-Si la suma del informe no coincide con ese total, el join agregó o borró filas. Cuando no coincide **de menos**, sospecha de un `INNER JOIN` que descartó registros sin correspondencia; cuando no coincide **de más**, sospecha de una relación uno a muchos.
+Si la suma del informe no coincide con ese total, algún join agregó o eliminó filas. Cuando el informe da **de menos**, sospecha de un `INNER JOIN` que descartó los registros sin correspondencia; cuando da **de más**, sospecha de una relación de uno a muchos que multiplicó filas.
 
-Este chequeo tiene una versión aún más útil: comparar dos caminos hacia el mismo número. En TiendaViva, todo pedido con envío debería tener un pago cobrado. Si cuentas los envíos y filtras los pagos solo por `status = 'approved'`, te van a sobrar envíos: los pedidos devueltos tienen su pago en `refunded`, no en `approved`. La diferencia no es un error del dato, es un error de tu definición.
+Este chequeo tiene una versión todavía más útil: comparar dos caminos distintos hacia el mismo número. En TiendaViva, todo pedido con envío debería tener un pago cobrado. Si cuentas los envíos y filtras los pagos solo por `status = 'approved'`, te van a sobrar envíos, porque los pedidos devueltos tienen su pago registrado con estado `refunded` y no `approved`. Esa diferencia no es un error de los datos: es un error de tu definición, y solo aparece cuando comparas dos caminos.
 
 ## 3. ¿El join cambió la cantidad de filas de la tabla principal?
 
-Cuando agregas un `LEFT JOIN` a un informe ya armado, verifica que la cantidad de filas no cambió:
+Cuando agregas un `LEFT JOIN` a un informe que ya estaba armado, verifica que la cantidad de filas no haya cambiado:
 
 ```sql
 SELECT count(*) AS solo_pedidos FROM orders;
@@ -8465,34 +8690,36 @@ FROM orders o
 LEFT JOIN returns r ON r.order_id = o.id;
 ```
 
-Si el segundo número es mayor, la tabla de la derecha tiene más de una fila por clave y tu `sum()` está contando de más. La solución no es `DISTINCT`: es agregar la tabla de la derecha en una CTE antes de unirla.
+Si el segundo número es mayor que el primero, la tabla de la derecha tiene más de una fila por cada pedido y cualquier `sum()` que hagas después está contando importes repetidos.
+
+La solución no es agregar `DISTINCT`, porque eso esconde las filas de más pero no corrige las sumas. La solución es agregar la tabla de la derecha en una CTE, dejándola con una sola fila por pedido, y recién entonces unirla.
 
 ## 4. ¿Hay NULL donde no los esperas?
 
-Revisa cada columna del resultado. Un `NULL` puede ser correcto —«ningún pedido llegó tarde, así que no hay demora promedio»— o puede ser el síntoma de un `LEFT JOIN` sin correspondencia que estás tratando como cero.
+Revisa columna por columna el resultado. Un `NULL` puede ser perfectamente correcto —«ningún pedido de esa ciudad llegó tarde, así que no hay demora promedio»— o puede ser el síntoma de un `LEFT JOIN` sin correspondencia que estás interpretando como si fuera un cero.
 
-Y recuerda la trampa clásica: un promedio ignora los nulos, así que `avg(rating)` sobre 100 pedidos con 40 calificaciones es el promedio de esos 40, no de los 100. Si eso importa, dilo en el informe.
+Y recuerda la trampa clásica: un promedio ignora los valores nulos, así que `avg(rating)` sobre 100 pedidos de los cuales solo 40 tienen calificación es el promedio de esos 40, no de los 100. Si esa diferencia importa para la conclusión, dilo en el informe.
 
 ## 5. ¿El resultado es estable?
 
-Ejecuta la consulta dos veces. Si el orden de las filas cambia, te falta un `ORDER BY` determinista: cuando ordenas por una columna con empates, el motor puede devolver los empates en cualquier orden. Agrega un criterio de desempate único (un id, un nombre) y el resultado deja de moverse.
+Ejecuta la consulta dos veces seguidas. Si el orden de las filas cambia entre una y otra, te falta un `ORDER BY` determinista: cuando ordenas por una columna en la que hay empates, el motor puede devolver esas filas empatadas en cualquier orden. Agrega un criterio de desempate único, como un identificador, y el resultado deja de moverse.
 
-Lo mismo con `LIMIT`: un top 10 sin desempate no es reproducible, y un informe que no se puede reproducir no se puede auditar.
+Lo mismo vale con `LIMIT`: un top 10 sin criterio de desempate no es reproducible, porque los puestos del final pueden cambiar en cada ejecución, y un informe que no se puede reproducir no se puede auditar.
 
 ## El chequeo de razonabilidad
 
-El último es el menos técnico y el que más veces salva: mira los extremos. ¿El mes con más ventas es diciembre? ¿La ciudad más grande tiene más pedidos? ¿Algún porcentaje da más de 100? ¿Alguna tasa da exactamente 0,00 % en todas las filas?
+El último es el menos técnico y el que más veces salva un entregable: mira los extremos del resultado. ¿El mes con más ventas es diciembre, como esperarías? ¿La ciudad más grande tiene más pedidos? ¿Hay algún porcentaje que dé más de 100? ¿Hay alguna tasa que dé exactamente 0,00 % en todas las filas, lo que suele indicar una división entera?
 
-Cuando un número te sorprende, la explicación correcta casi nunca es «los datos son raros». Suele ser tu consulta.
+Cuando un número te sorprende, la explicación correcta casi nunca es que los datos sean raros. Lo más probable es que haya un problema en tu consulta, así que revísala antes de salir a explicar el hallazgo.
 
 ## Cómo se entrega
 
-Junto al resultado van cuatro líneas: la definición de cada métrica, el período y el huso, los registros excluidos y por qué, y la limitación más grande que tenga el análisis. Eso convierte una tabla en un entregable.
+Junto al resultado van cuatro líneas: la definición de cada métrica, el período y el huso horario, los registros que excluiste y por qué, y la limitación más importante que tenga el análisis. Esas cuatro líneas son lo que convierte una tabla de números en un entregable.
 
 ## Resumen
 
 - Predice la cantidad de filas antes de mirar el resultado; la diferencia te dice qué join falló.
-- Reconcilia cada métrica contra la tabla base sin joins y contra un segundo camino.
+- Reconcilia cada métrica contra la tabla base sin joins, y después contra un segundo camino.
 - Entrega definición, período, exclusiones y limitaciones: sin eso, el número no se puede auditar.
 $c2225$, null, (select id from public.datasets where slug = $c2226$tiendaviva$c2226$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
@@ -8500,11 +8727,13 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2227$proyectos-finales$c2227$), $c2228$proyectos-finales-del-curso-al-trabajo$c2228$, $c2229$theory$c2229$, $c2230$Del curso al trabajo: qué hacer con esto$c2230$, 2, 10, $c2231$## Dónde estás
 
-Terminaste una ruta que va de `SELECT` a cohortes, funnels, ventanas, deduplicación y auditoría de calidad. Eso cubre, con holgura, lo que se pide en una vacante de analista de datos junior o semi senior en la región. Lo que falta no es más SQL: es el contexto alrededor del SQL.
+Terminaste una ruta que va desde `SELECT` hasta cohortes, funnels, funciones de ventana, deduplicación y auditoría de calidad de datos. Eso cubre con holgura lo que se pide en una vacante de analista de datos junior o semi senior en la región.
+
+Lo que todavía te falta no es más SQL: es el contexto que rodea al SQL, es decir, cómo se organiza el trabajo de datos dentro de una empresa y cómo se comunican los resultados.
 
 ## Cómo se ve esto en un trabajo real
 
-Un día típico no es una consulta grande: son cinco pedidos chicos y uno grande. Estos son los que vas a ver desde la primera semana, con lo que ya practicaste al lado:
+Un día típico no es una consulta grande: son cinco pedidos chicos y uno grande. Estos son los pedidos que vas a recibir desde tu primera semana, con lo que ya practicaste al lado:
 
 | Pedido real                                   | Lo que ya sabes hacer                         |
 | --------------------------------------------- | --------------------------------------------- |
@@ -8515,60 +8744,60 @@ Un día típico no es una consulta grande: son cinco pedidos chicos y uno grande
 | «Necesito el top 10 de vendedores por región» | Rankings con criterio de desempate explícito  |
 | «¿Podemos confiar en esta tabla?»             | Perfilado, duplicados, integridad referencial |
 
-La diferencia entre un pedido del curso y uno real es que el real llega sin definición. Ese hueco lo llenas tú, con la pregunta de vuelta: «¿cuenta el pedido cancelado?».
+La diferencia entre un pedido del curso y uno real es que el real llega sin definición. Ese hueco lo llenas tú, con la pregunta de vuelta: «¿cuentan los pedidos cancelados?».
 
 ## Qué agregar después
 
-Tres cosas, en este orden de retorno:
+Tres cosas, ordenadas por lo que más te va a devolver al principio:
 
-1. **Modelado y herramientas del equipo**: cómo se documenta una métrica, qué es una tabla de hechos y una dimensión, y qué hace una herramienta de transformación cuando el equipo ya la usa.
-2. **Visualización**: la misma tabla en un gráfico de líneas convence diez veces más. Cualquier herramienta sirve para aprender el criterio: escala, comparación y una idea por gráfico.
-3. **Un lenguaje de propósito general** (Python suele ser el primero) para lo que SQL no hace: automatizar, consumir una API, probar una hipótesis estadística.
+1. **Modelado y herramientas del equipo**: cómo se documenta una métrica para que todos calculen lo mismo, qué es una tabla de hechos y qué es una dimensión, y qué hace una herramienta de transformación de datos cuando el equipo ya usa una.
+2. **Visualización**: la misma tabla presentada en un gráfico de líneas convence diez veces más que una planilla. Cualquier herramienta sirve para aprender el criterio, que es lo que importa: elegir bien la escala, mostrar una comparación clara y transmitir una sola idea por gráfico.
+3. **Un lenguaje de propósito general**, normalmente Python, para lo que SQL no hace: automatizar una tarea que se repite, consumir datos de una API o probar una hipótesis estadística.
 
 Nada de esto reemplaza al SQL. Todo lo demás se apoya en la consulta que escribes bien.
 
 ## Cómo se arma un portafolio que sirve
 
-El error común es publicar un cuaderno con veinte consultas. Nadie lo lee. Lo que se lee es **un análisis corto y bien cerrado**:
+El error común es publicar un cuaderno con veinte consultas sueltas. Nadie lo lee, porque no hay forma de saber por dónde empezar. Lo que sí se lee es **un análisis corto y bien cerrado**, con estas partes:
 
 - Una pregunta de negocio en una línea.
-- El dataset y su alcance, con volumen y período.
-- Las definiciones de las métricas, explícitas.
-- Dos o tres resultados, cada uno con la consulta al lado.
-- Una conclusión accionable y una limitación honesta.
+- El dataset y su alcance, con la cantidad de filas y el período que cubre.
+- Las definiciones de las métricas, escritas de forma explícita.
+- Dos o tres resultados, cada uno con la consulta que lo produjo al lado.
+- Una conclusión que se pueda accionar y una limitación declarada con honestidad.
 
-Los proyectos de esta sección tienen exactamente esa forma. Tomar uno, reescribir el contexto con tus palabras y agregar un gráfico es un proyecto de portafolio terminado.
+Los proyectos de esta sección tienen exactamente esa forma. Tomar uno, reescribir el contexto con tus palabras y agregarle un gráfico ya es un proyecto de portafolio terminado.
 
-Y algo que casi nadie hace y siempre destaca: incluye el chequeo de calidad que corriste **antes** de confiar en los datos. Mostrar que encontraste 178 pedidos sin ítems y decidiste qué hacer con ellos dice más de ti que la consulta más larga.
+Y hay algo que casi nadie incluye y que siempre destaca: el chequeo de calidad que corriste **antes** de confiar en los datos. Mostrar que encontraste 178 pedidos sin ítems y que decidiste qué hacer con ellos dice más sobre tu criterio profesional que la consulta más larga del cuaderno.
 
 ## En una entrevista técnica
 
-Vas a resolver un problema con alguien mirando. Tres hábitos valen más que la respuesta:
+Vas a resolver un problema con alguien mirándote escribir. Hay tres hábitos que valen más que llegar a la respuesta:
 
-- Repite el enunciado con tus palabras y pregunta por la definición ambigua antes de escribir.
-- Di qué devuelve cada fila del resultado antes de tipear el `SELECT`.
-- Al terminar, menciona un caso borde que tu consulta no cubre. Nadie espera perfección; esperan criterio.
+- Repite el enunciado con tus palabras y pregunta por la definición ambigua antes de empezar a escribir.
+- Di qué va a representar cada fila del resultado antes de tipear el `SELECT`.
+- Al terminar, menciona un caso borde que tu consulta no cubre. Nadie espera una solución perfecta en una entrevista; lo que se evalúa es el criterio.
 
 ## El certificado
 
-El certificado **Analista SQL Profesional** se emite cuando completas las secciones del tramo aplicado y profesional —desde cohortes y retención hasta estos proyectos finales— con al menos 80 % en los cuestionarios. Certifica que resolviste estos análisis con datos sucios de verdad, no que viste los videos.
+El certificado **Analista SQL Profesional** se emite cuando completas las secciones del tramo aplicado y profesional —desde cohortes y retención hasta estos proyectos finales— con al menos 80 % de respuestas correctas en los cuestionarios. Certifica que resolviste estos análisis sobre datos sucios de verdad, no que miraste los videos.
 
-Úsalo como lo que es: una línea verificable en tu perfil. Lo que te va a conseguir la entrevista es el proyecto que puedes explicar en cinco minutos.
+Úsalo como lo que es: una línea verificable en tu perfil profesional. Lo que te va a conseguir la entrevista es el proyecto que puedas explicar en cinco minutos.
 
 ## Resumen
 
 - Lo que falta después de este curso no es SQL: es modelado, visualización y contexto de negocio.
 - Un proyecto de portafolio bien cerrado vale más que veinte consultas sueltas.
-- En la entrevista, el criterio para preguntar y declarar supuestos pesa más que la consulta perfecta.
+- En la entrevista pesa más el criterio para preguntar y declarar supuestos que la consulta perfecta.
 $c2231$, null, (select id from public.datasets where slug = $c2232$ritmo$c2232$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2233$fundamentos-de-optimizacion$c2233$), $c2234$optimizacion-el-trabajo-que-hace-el-motor$c2234$, $c2235$theory$c2235$, $c2236$El trabajo que hace el motor$c2236$, 0, 12, $c2237$## Por qué importa
 
-Una consulta lenta casi nunca es lenta por el motor: es lenta porque **le pediste que tocara más filas de las necesarias**. Optimizar, en el día a día de un analista, es sobre todo aprender a contar el trabajo que tu consulta genera antes de ejecutarla.
+Una consulta lenta casi nunca es lenta por culpa del motor: es lenta porque **le pediste que tocara más filas de las necesarias**. Optimizar, en el día a día de un analista, consiste sobre todo en aprender a estimar cuánto trabajo genera tu consulta antes de ejecutarla.
 
-Trabajas con **Pídelo**, la plataforma de delivery. `orders` tiene 14 437 filas, `order_items` 35 589 y `order_events` 69 724. Son tablas chicas, así que todo te va a responder rápido; el objetivo de esta sección no es ganar milisegundos aquí, es que salgas con el criterio que necesitas cuando la misma consulta corra contra 400 millones de filas en el trabajo.
+Trabajas con **Pídelo**, la plataforma de delivery. La tabla `orders` tiene 14 437 filas, `order_items` tiene 35 589 y `order_events` tiene 69 724. Son tablas chicas, así que todo lo que escribas aquí va a responder rápido. El objetivo de esta sección no es ganar milisegundos en el simulador: es que salgas con el criterio que vas a necesitar cuando la misma consulta corra contra 400 millones de filas en tu trabajo.
 
 ## El orden lógico manda
 
@@ -8576,7 +8805,7 @@ PostgreSQL evalúa una consulta en este orden conceptual:
 
 `FROM` y los joins → `WHERE` → `GROUP BY` → `HAVING` → funciones de ventana → `SELECT` → `DISTINCT` → `ORDER BY` → `LIMIT`.
 
-De ahí salen casi todas las reglas prácticas de esta sección. Si `WHERE` corre antes de agrupar, cada fila que descartas ahí es una fila que el `GROUP BY` no ordena ni acumula. Si `HAVING` corre después, un filtro puesto en `HAVING` que podría haber ido en `WHERE` obliga al motor a formar grupos que después tira a la basura.
+De ese orden salen casi todas las reglas prácticas de esta sección. Como el `WHERE` corre antes de agrupar, cada fila que descartas ahí es una fila que el `GROUP BY` ya no tiene que ordenar ni acumular. Como el `HAVING` corre después, un filtro puesto en `HAVING` que podría haber ido en `WHERE` obliga al motor a formar grupos completos para descartarlos enseguida.
 
 Mismo resultado, distinto trabajo:
 
@@ -8594,7 +8823,7 @@ GROUP BY restaurant_id, status
 HAVING status = 'delivered';
 ```
 
-Las dos devuelven lo mismo. La primera agrupa 13 284 filas; la segunda agrupa 14 437 y arma grupos de más para descartarlos. El planificador de PostgreSQL es lo bastante bueno como para arreglar varios casos así por su cuenta, pero **no siempre puede**, y el hábito de escribir el filtro donde corresponde no te cuesta nada.
+Las dos devuelven lo mismo. La primera agrupa 13 284 filas, y la segunda agrupa las 14 437 y arma grupos de más que después tira. El **planificador** de PostgreSQL, que es el componente que decide cómo ejecutar cada consulta, es lo bastante bueno como para corregir varios casos así por su cuenta, pero **no siempre puede**, y escribir el filtro donde corresponde no te cuesta nada.
 
 ## Medir el trabajo: contar filas en cada paso
 
@@ -8606,13 +8835,13 @@ SELECT count(*) FROM orders WHERE status = 'delivered';         -- 13 284
 SELECT count(*) FROM order_items;                               -- 35 589
 ```
 
-Si unes `orders` con `order_items`, el resultado intermedio tiene ~35 589 filas, no 14 437: cada pedido se repite una vez por ítem. Saber ese número **antes** de escribir el `SELECT` final te dice dos cosas: cuánto trabajo va a hacer el motor, y —más importante— si tu `count(*)` va a contar pedidos o va a contar ítems. En esta sección el costo y la corrección son el mismo tema una y otra vez.
+Si unes `orders` con `order_items`, el resultado intermedio tiene alrededor de 35 589 filas y no 14 437, porque cada pedido se repite una vez por cada ítem que contiene. Conocer ese número **antes** de escribir el `SELECT` final te dice dos cosas: cuánto trabajo va a hacer el motor y, más importante todavía, si tu `count(*)` va a contar pedidos o va a contar ítems. En esta sección el costo y la corrección del resultado son el mismo tema una y otra vez.
 
 ## `SELECT *` no es gratis
 
-`SELECT *` sobre una tabla ancha lee y transporta columnas que nadie va a mirar. En una tabla con textos largos o JSON, la diferencia entre traer tres columnas y traerlas todas puede ser de un orden de magnitud, porque el motor tiene que leer bloques completos y mandarlos por la red.
+`SELECT *` sobre una tabla ancha lee y transporta columnas que nadie va a mirar. En una tabla con textos largos o documentos JSON, la diferencia entre traer tres columnas y traerlas todas puede ser de diez veces, porque el motor tiene que leer bloques completos del disco y mandarlos por la red.
 
-Hay un segundo efecto, menos conocido y más valioso: si una consulta pide solo columnas que están en un índice, PostgreSQL puede responder **sin tocar la tabla**. Ese atajo desaparece en cuanto agregas una columna de más. Pide lo que necesitas; `SELECT *` es para explorar, no para producir.
+Hay un segundo efecto, menos conocido y más valioso. Un **índice** es una estructura auxiliar ordenada que guarda algunas columnas de la tabla. Si la consulta pide únicamente columnas que están en el índice, PostgreSQL puede responder **sin tocar la tabla**, y eso es mucho más rápido. Ese atajo desaparece en cuanto agregas una columna que el índice no tiene. Pide las columnas que necesitas; `SELECT *` sirve para explorar, no para producir un reporte.
 
 ## `LIMIT` sin `ORDER BY` no significa nada
 
@@ -8620,22 +8849,22 @@ Hay un segundo efecto, menos conocido y más valioso: si una consulta pide solo 
 SELECT id, total FROM orders LIMIT 10;
 ```
 
-Esta consulta no devuelve «los primeros diez pedidos»: devuelve diez pedidos cualesquiera, los que el motor tenga más a mano. Mañana, con la tabla reorganizada o con otro plan, pueden ser otros diez. Si `LIMIT` responde una pregunta de negocio, necesita un `ORDER BY` **con desempate único**: `ORDER BY total DESC, id`. Sin el `id` final, dos pedidos con el mismo total se alternan entre ejecuciones y tu reporte deja de ser defendible.
+Esta consulta no devuelve «los primeros diez pedidos»: devuelve diez pedidos cualesquiera, los que el motor tenga más a mano en ese momento. Mañana, con la tabla reorganizada o con otro plan de ejecución, pueden ser otros diez distintos. Si el `LIMIT` responde una pregunta de negocio, necesita un `ORDER BY` **con desempate único**, por ejemplo `ORDER BY total DESC, id`. Sin ese `id` final, dos pedidos con el mismo total se alternan entre ejecuciones y no puedes explicarle a nadie por qué el reporte cambió.
 
 ## Y sí, existe `EXPLAIN`
 
-En un servidor PostgreSQL real, `EXPLAIN` y `EXPLAIN ANALYZE` te muestran el plan que eligió el motor y cuántas filas pasó por cada nodo. Es la herramienta definitiva y la vas a usar en tu trabajo; la sección siguiente del curso está dedicada a leerla. **En este entorno de práctica no está disponible**, y es a propósito: todo lo de esta sección se decide antes de mirar un plan, contando filas y leyendo tu propia consulta. Si solo sabes optimizar con un plan delante, no sabes optimizar.
+En un servidor PostgreSQL real, `EXPLAIN` y `EXPLAIN ANALYZE` te muestran el plan que eligió el motor y cuántas filas pasaron por cada paso de ese plan. Es la herramienta definitiva y la vas a usar en tu trabajo; la sección siguiente del curso está dedicada a leerla. **En este entorno de práctica no está disponible**, y es a propósito: todo lo de esta sección se decide antes de mirar un plan, contando filas y leyendo tu propia consulta. Si solo puedes detectar un problema cuando tienes el plan delante, se te van a escapar la mayoría de los casos, porque la mayoría se ven en el SQL.
 
 ## Errores comunes
 
-- Suponer que «anda rápido en mi muestra» significa que anda rápido en producción: los costos crecen con las filas, no con tu paciencia.
-- Filtrar en `HAVING` algo que no depende de una agregación.
-- Dejar `SELECT *` en una consulta que va a un reporte o a un panel.
+- Suponer que «anda rápido en mi muestra» significa que va a andar rápido en producción. El costo crece con la cantidad de filas, no con tu paciencia.
+- Poner en `HAVING` un filtro que no depende de ninguna agregación.
+- Dejar un `SELECT *` en una consulta que alimenta un reporte o un panel.
 
 ## Resumen
 
 1. El orden lógico (`WHERE` antes de `GROUP BY`, `HAVING` después) explica dónde poner cada filtro.
-2. Cuenta las filas de cada paso: es tu medición y también tu control de cardinalidad.
+2. Cuenta las filas de cada paso: es tu medición del costo y también tu control de cuántas filas genera cada join.
 3. Pide solo las columnas que usas y nunca uses `LIMIT` sin un `ORDER BY` con desempate único.
 $c2237$, null, (select id from public.datasets where slug = $c2238$pidelo$c2238$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
@@ -8643,13 +8872,13 @@ on conflict (slug) do update set section_id = excluded.section_id, kind = exclud
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2239$fundamentos-de-optimizacion$c2239$), $c2240$optimizacion-predicados-sargables$c2240$, $c2241$theory$c2241$, $c2242$Filtros que el motor puede aprovechar$c2242$, 1, 12, $c2243$## Por qué importa
 
-Un índice es una estructura ordenada por el **valor de una columna**. Solo sirve si tu filtro habla de ese valor. En cuanto envuelves la columna en una función, el motor ya no puede usar el orden del índice: tiene que calcular la función en cada fila para saber si pasa. Un filtro que el motor puede aprovechar se llama **sargable**; uno que no, obliga a recorrer todo.
+Un índice es una estructura auxiliar ordenada por el **valor de una columna**, y solo sirve si tu filtro habla de ese valor tal cual está guardado. En cuanto envuelves la columna en una función, el motor pierde la posibilidad de usar ese orden: tiene que calcular la función en cada fila de la tabla para saber cuáles pasan el filtro.
 
-Esto no es un detalle de ingeniería: es la diferencia más frecuente entre una consulta de 200 ms y una de 40 segundos, y la escribes tú.
+Un filtro que el motor puede aprovechar con un índice se llama **sargable** (del inglés *search argument able*, es decir, «apto como argumento de búsqueda»). Uno que no lo es obliga a recorrer la tabla entera. Esto no es un detalle de ingeniería: es la diferencia más frecuente entre una consulta que tarda 200 milisegundos y una que tarda 40 segundos, y la decide cómo escribes tú el `WHERE`.
 
 ## El caso de las fechas
 
-Quieres los pedidos de julio de 2025 (en UTC). La forma intuitiva:
+Quieres los pedidos de julio de 2025, cortando el mes en UTC. La forma intuitiva es esta:
 
 ```sql
 -- No sargable
@@ -8658,9 +8887,9 @@ FROM orders
 WHERE date_trunc('month', placed_at AT TIME ZONE 'UTC') = DATE '2025-07-01';
 ```
 
-El motor no tiene forma de saltar directo a julio: para cada una de las 14 437 filas tiene que calcular `date_trunc` y comparar. Con un índice sobre `placed_at`, ese índice queda inutilizado.
+El motor no tiene forma de saltar directo a julio, porque el índice guarda los valores de `placed_at` y no los resultados de `date_trunc`. Para cada una de las 14 437 filas tiene que calcular la función y comparar, así que el índice queda sin usar.
 
-La forma sargable dice exactamente lo mismo con un rango:
+La forma sargable dice exactamente lo mismo, pero como un rango de valores:
 
 ```sql
 -- Sargable
@@ -8670,7 +8899,7 @@ WHERE placed_at >= TIMESTAMPTZ '2025-07-01 00:00:00+00'
   AND placed_at <  TIMESTAMPTZ '2025-08-01 00:00:00+00';
 ```
 
-Las dos devuelven 1214. La segunda le permite al motor ubicar el comienzo del rango en el índice y leer en orden hasta el final. La regla se generaliza: **la columna sola de un lado, la expresión constante del otro**.
+Las dos devuelven 1214. La segunda le permite al motor ubicar el comienzo del rango dentro del índice y leer en orden hasta el final, sin mirar el resto de la tabla. La regla se generaliza así: **la columna sola de un lado del operador y la expresión constante del otro**.
 
 | En vez de | Escribe |
 | --- | --- |
@@ -8680,7 +8909,7 @@ Las dos devuelven 1214. La segunda le permite al motor ubicar el comienzo del ra
 | `total * 1.21 > 1000` | `total > 1000 / 1.21` |
 | `upper(name) = 'PIZZA'` | `name ILIKE 'pizza'` o un índice sobre `upper(name)` |
 
-Usa siempre rangos **semiabiertos** (`>= inicio` y `< fin`): así no dependes de si el instante final incluye o no los microsegundos del último segundo del mes.
+Usa siempre rangos **semiabiertos**, es decir, `>= inicio` y `< fin`. Así no tienes que preguntarte si el instante final incluye o no los microsegundos del último segundo del mes.
 
 ## Cuándo la función sí está bien
 
@@ -8694,11 +8923,11 @@ GROUP BY 1
 ORDER BY 1;
 ```
 
-Acá `date_trunc` se aplica solo a las filas que el rango ya dejó pasar, y no se está usando para decidir cuáles leer. Además, si de verdad necesitas filtrar por una expresión, un DBA puede crear un **índice por expresión** sobre `date_trunc('month', placed_at)`. Saber pedir eso con fundamento también es parte del trabajo.
+Aquí `date_trunc` se aplica solo a las filas que el rango del `WHERE` ya dejó pasar, y no se usa para decidir cuáles leer. Además, si de verdad necesitas filtrar por una expresión, un DBA (por *database administrator*, la persona que administra la base de datos) puede crear un **índice por expresión** sobre `date_trunc('month', placed_at)`, que guarda ya calculado ese valor. Saber pedir eso con fundamento también es parte del trabajo.
 
 ## `LIKE`, comodines y el orden del índice
 
-`name LIKE 'Pizza%'` puede usar un índice: el prefijo fija por dónde empezar a leer. `name LIKE '%Pizza'` y `name LIKE '%Pizza%'` no pueden: el valor buscado puede estar en cualquier parte y no hay orden que ayude. Para búsquedas de texto libre existen herramientas específicas (índices de texto completo, trigramas); no las resuelve un `LIKE` con comodín inicial.
+`name LIKE 'Pizza%'` puede usar un índice, porque el prefijo fijo le dice al motor desde qué punto del orden alfabético empezar a leer. `name LIKE '%Pizza'` y `name LIKE '%Pizza%'` no pueden, porque el texto buscado puede estar en cualquier posición y no hay ningún orden que ayude a descartar filas. Para las búsquedas de texto libre existen herramientas específicas, como los índices de texto completo o los de trigramas; un `LIKE` con comodín al principio no las reemplaza.
 
 ## `OR` entre columnas distintas
 
@@ -8707,7 +8936,7 @@ SELECT id FROM orders
 WHERE payment_method = 'cash' OR promotion_id = 12;
 ```
 
-Un índice sobre `payment_method` no dice nada sobre `promotion_id`. Ante un `OR` entre columnas distintas, el motor suele terminar recorriendo toda la tabla. La reescritura clásica es dos consultas, cada una con su filtro aprovechable, unidas:
+Un índice sobre `payment_method` no dice nada sobre `promotion_id`, así que ante un `OR` entre columnas distintas el motor suele terminar recorriendo la tabla completa. La reescritura clásica consiste en separar la consulta en dos, cada una con un filtro que sí puede aprovechar su índice, y unir los resultados:
 
 ```sql
 SELECT id FROM orders WHERE payment_method = 'cash'
@@ -8715,28 +8944,28 @@ UNION
 SELECT id FROM orders WHERE promotion_id = 12;
 ```
 
-Dos advertencias que no se negocian. Primero: `UNION` elimina duplicados, así que un pedido que cumple ambas condiciones aparece una sola vez, igual que con `OR`; si usas `UNION ALL` aparece dos veces y cambiaste el resultado. Segundo: esta reescritura vale la pena cuando hay índices y cada rama es selectiva; sin índices es simplemente más código. No la apliques como reflejo.
+Dos advertencias que no se negocian. La primera: `UNION` elimina los duplicados, así que un pedido que cumple las dos condiciones aparece una sola vez, igual que con `OR`. Si usas `UNION ALL` ese pedido aparece dos veces y cambiaste el resultado. La segunda: esta reescritura vale la pena cuando hay índices y cada rama descarta muchas filas. Sin índices detrás es solamente más código para el mismo trabajo, así que no la apliques como reflejo.
 
-Ojo: `OR` sobre **la misma** columna (`status = 'a' OR status = 'b'`) sí es aprovechable, y se escribe mejor como `status IN ('a','b')`.
+Ten en cuenta que un `OR` sobre **la misma** columna (`status = 'a' OR status = 'b'`) sí se puede aprovechar, y se escribe mejor como `status IN ('a','b')`.
 
 ## Errores comunes
 
 - Filtrar con `date_trunc`, `extract` o `to_char` sobre la columna de fecha por costumbre.
-- Comparar una columna `timestamptz` contra un texto sin zona y descubrir que el borde del mes se corrió unas horas.
-- Reescribir todo `OR` como `UNION` sin preguntarse si hay índices detrás.
+- Comparar una columna `timestamptz` contra un texto sin zona horaria y descubrir después que el borde del mes se corrió unas horas.
+- Reescribir todo `OR` como `UNION` sin preguntarse si hay índices que lo justifiquen.
 
 ## Resumen
 
-1. Sargable = la columna sola de un lado del operador; el motor puede usar el índice.
-2. Los filtros de fecha se escriben como rangos semiabiertos, no con funciones sobre la columna.
-3. `LIKE 'x%'` sirve, `LIKE '%x'` no; `OR` entre columnas distintas a veces se reescribe con `UNION`.
+1. Sargable significa que la columna aparece sola de un lado del operador, y por eso el motor puede usar el índice.
+2. Los filtros de fecha se escriben como rangos semiabiertos, no con funciones aplicadas sobre la columna.
+3. `LIKE 'x%'` aprovecha el índice y `LIKE '%x'` no; un `OR` entre columnas distintas a veces conviene reescribirlo con `UNION`.
 $c2243$, null, (select id from public.datasets where slug = $c2244$pidelo$c2244$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
 values ((select id from public.sections where slug = $c2245$fundamentos-de-optimizacion$c2245$), $c2246$optimizacion-reducir-antes-de-unir$c2246$, $c2247$theory$c2247$, $c2248$Reducir filas antes de unir y de agregar$c2248$, 2, 12, $c2249$## La regla más rentable
 
-De todas las decisiones de esta sección, una sola explica la mayoría de las consultas lentas: **cuántas filas entran al join**. Un join es la operación cara, y su costo depende del tamaño de lo que unes. Reducir antes de unir es casi siempre la mejora más grande y la más fácil de defender.
+De todas las decisiones de esta sección, hay una que explica la mayoría de las consultas lentas: **cuántas filas entran al join**. Unir tablas es la operación cara, y su costo depende del tamaño de lo que unes. Reducir antes de unir suele ser la mejora más grande y también la más fácil de explicar en una revisión de código.
 
 ```sql
 -- Une todo y filtra después
@@ -8764,11 +8993,11 @@ FROM entregados AS e
 JOIN restaurants AS r ON r.id = e.restaurant_id;
 ```
 
-La segunda agrupa 1200 filas y une 330 con 400. La primera une 1200 filas contra `restaurants` y agrupa después. Con estas tablas la diferencia es imperceptible; con cientos de millones de pedidos es la diferencia entre un panel que carga y uno que no. El planificador suele **bajar** los filtros por su cuenta, pero no puede adivinar una pre-agregación: eso lo escribes tú.
+La segunda versión agrupa 1200 filas y después une 330 filas con 400. La primera une las 1200 filas contra `restaurants` y recién entonces agrupa. Con estas tablas la diferencia es imperceptible; con cientos de millones de pedidos es la diferencia entre un panel que carga y uno que se queda esperando. El planificador suele **bajar** los filtros por su cuenta hasta antes del join, pero no puede adivinar una agregación previa: esa la escribes tú.
 
 ## El join que multiplica y la agregación que miente
 
-Necesitas, por restaurante: unidades vendidas (de `order_items`) y cantidad de calificaciones (de `ratings`). El reflejo es unir las tres tablas:
+Necesitas, para cada restaurante, dos números: las unidades vendidas, que están en `order_items`, y la cantidad de calificaciones, que están en `ratings`. El reflejo es unir las tres tablas:
 
 ```sql
 -- Incorrecta
@@ -8779,9 +9008,11 @@ LEFT JOIN ratings AS rt ON rt.order_id = o.id
 GROUP BY o.restaurant_id;
 ```
 
-Un pedido con 3 ítems y 1 calificación produce 3 filas. `sum(quantity)` sobrevive, pero `count(rt.id)` cuenta la calificación tres veces. Y si un pedido tuviera dos calificaciones, también se multiplicarían las unidades. **El error de performance y el error de cardinalidad son el mismo error**: estás generando filas que no representan nada.
+Un pedido con 3 ítems y 1 calificación produce 3 filas, una por ítem. La suma de unidades sigue siendo correcta, pero `count(rt.id)` cuenta esa única calificación tres veces y el informe muestra el triple de calificaciones que las que existen. Y si un pedido tuviera dos calificaciones, también se multiplicarían las unidades.
 
-La forma correcta agrega cada rama por separado y une resultados que ya están al grano de restaurante:
+Fíjate en lo que acaba de pasar: **el problema de rendimiento y el problema de resultado son el mismo problema**, porque en los dos casos estás generando filas que no representan nada real.
+
+La forma correcta agrega cada rama por separado y después une resultados que ya están al grano de restaurante, es decir, con una sola fila por restaurante:
 
 ```sql
 WITH base AS (
@@ -8804,11 +9035,11 @@ LEFT JOIN calif AS c ON c.restaurant_id = u.restaurant_id;
 
 ## `DISTINCT` casi nunca es la respuesta
 
-Cuando un total sale inflado, agregar `DISTINCT` lo hace parecer correcto. Es una venda: el motor igual generó todas las filas de más y después las ordenó para descartarlas —trabajo puro— y además `DISTINCT` no arregla las sumas, solo las repeticiones exactas. Si tu reflejo ante un número raro es `DISTINCT`, frena y cuenta filas: casi siempre hay un join al grano equivocado.
+Cuando un total sale inflado, agregar `DISTINCT` hace que el resultado parezca correcto. Es un parche por dos motivos. Primero, el motor igual generó todas las filas de más y después tuvo que ordenarlas para descartarlas, o sea que el trabajo extra lo hizo igual. Segundo, `DISTINCT` elimina filas repetidas por completo, pero no corrige una suma que ya contó el mismo importe varias veces. Si tu reflejo ante un número raro es escribir `DISTINCT`, frena y cuenta filas: casi siempre hay un join hecho al grano equivocado.
 
 ## Existencia: `EXISTS`, `IN`, `JOIN`
 
-Para «restaurantes activos que tuvieron al menos un pedido entregado en agosto», tres caminos:
+Para responder «restaurantes activos que tuvieron al menos un pedido entregado en agosto» hay tres caminos:
 
 ```sql
 -- 1. EXISTS: se detiene en la primera coincidencia
@@ -8828,22 +9059,22 @@ JOIN orders AS o ON o.restaurant_id = r.id AND o.status = 'delivered'
 WHERE r.is_active;
 ```
 
-Las tres dan lo mismo y PostgreSQL suele planificar 1 y 2 igual (como *semi join*). La tercera es la peor de las tres: materializa una fila por pedido y recién ahí deduplica. Y si además necesitaras una columna de `orders`, el `DISTINCT` dejaría de alcanzar.
+Las tres devuelven lo mismo, y PostgreSQL suele ejecutar la primera y la segunda de la misma manera, como una *semi join*, que es el tipo de unión que se detiene apenas encuentra una coincidencia. La tercera es la peor de las tres, porque genera una fila por pedido y recién después elimina los duplicados. Además, si más adelante necesitaras mostrar una columna de `orders`, el `DISTINCT` dejaría de alcanzar y tendrías que reescribir la consulta entera.
 
-Para la negación, la elección **sí** cambia el resultado: `NOT IN` contra una subconsulta que puede devolver `NULL` no devuelve ninguna fila, nunca. `NOT EXISTS` no tiene ese problema. Usa `NOT EXISTS`.
+Para la negación, en cambio, la elección **sí** cambia el resultado: `NOT IN` contra una subconsulta que puede devolver `NULL` no devuelve ninguna fila, nunca. `NOT EXISTS` no tiene ese problema, así que úsalo siempre.
 
 ## Errores comunes
 
-- Unir todas las tablas «por las dudas» y filtrar al final.
-- Unir dos tablas hijas al mismo padre en una sola consulta y creer los conteos.
-- Tapar un total inflado con `DISTINCT` en lugar de corregir el grano.
+- Unir todas las tablas «por las dudas» y filtrar recién al final.
+- Unir dos tablas hijas al mismo padre en una sola consulta y creerles a los conteos.
+- Tapar un total inflado con `DISTINCT` en lugar de corregir el grano del join.
 - Usar `NOT IN` sobre una columna que admite nulos.
 
 ## Resumen
 
-1. Filtra y agrega antes de unir: el costo del join depende de cuántas filas entran.
+1. Filtra y agrega antes de unir, porque el costo del join depende de cuántas filas entran.
 2. Dos tablas hijas del mismo padre se agregan por separado y después se unen.
-3. Para existencia usa `EXISTS` o `IN`; para no-existencia usa siempre `NOT EXISTS`.
+3. Para preguntar por existencia usa `EXISTS` o `IN`; para preguntar por no-existencia usa siempre `NOT EXISTS`.
 $c2249$, null, (select id from public.datasets where slug = $c2250$pidelo$c2250$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 

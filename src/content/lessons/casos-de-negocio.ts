@@ -18,17 +18,17 @@ export const lessons: LessonDef[] = [
 
 Nadie te va a pedir «un \`GROUP BY\` por mes con \`FILTER\` sobre el estado». Te van a escribir «¿por qué cayeron las ventas en México el mes pasado?» y van a esperar una respuesta el jueves. Todo lo que aprendiste hasta aquí es la parte fácil: la parte difícil es convertir esa frase en una consulta que responda algo concreto y defendible.
 
-Un pedido así no tiene una respuesta correcta; tiene una **respuesta especificada**. Especificar es elegir, y elegir mal en silencio es la manera más común de entregar un número que nadie puede usar.
+Un pedido así no tiene una única respuesta correcta. Tiene una **respuesta especificada**, es decir, una respuesta en la que alguien decidió qué se cuenta, en qué período y contra qué se compara. Esas decisiones las vas a tomar tú, y si las tomas sin decirlas, entregas un número que nadie puede interpretar ni verificar.
 
 ## Las cuatro preguntas
 
-Antes de escribir SQL, respóndete estas cuatro. Si no puedes, no te falta SQL: te falta pedido.
+Antes de escribir SQL, respóndete estas cuatro preguntas. Si no puedes responderlas, el problema no es de SQL: el pedido todavía no está definido y definirlo es el primer paso del trabajo.
 
-**1. ¿Cuál es la unidad de análisis (el grano)?** ¿Una fila por pedido, por cliente, por producto, por mes, por mes y país? «Ventas en México» puede ser una sola cifra, una serie mensual o una tabla por canal. El grano define el \`GROUP BY\` y, con él, el 80 % de la consulta.
+**1. ¿Cuál es la unidad de análisis, también llamada grano?** El **grano** es qué representa una fila de tu resultado: ¿una fila por pedido, por cliente, por producto, por mes, o por mes y país? «Ventas en México» puede ser una sola cifra, una serie mensual o una tabla con un canal por columna. El grano define el \`GROUP BY\` y, con él, la mayor parte de la consulta.
 
 **2. ¿Qué cuenta y qué no?** En \`orders\` de **TiendaViva** hay seis estados. ¿Una venta es un pedido creado, uno pagado o uno entregado? ¿Las devoluciones se restan? Cada opción da un número distinto y ninguna es falsa. La que sirve es la que coincide con lo que hace el resto de la empresa.
 
-**3. ¿Qué período, en qué huso?** «El mes pasado» no es una fecha. \`created_at\` es \`timestamptz\`: si no fijas el huso, el corte del mes se mueve según la zona horaria de quien ejecuta la consulta. Siempre \`AT TIME ZONE 'UTC'\` (o el huso del negocio, declarado), y siempre con límite superior abierto.
+**3. ¿Qué período, medido en qué huso horario?** «El mes pasado» todavía no es una fecha. \`created_at\` es la columna de \`orders\` que guarda cuándo se creó el pedido, y su tipo es \`timestamptz\`, un instante que se interpreta según un huso horario. Si no fijas ese huso, el corte entre un mes y el siguiente se mueve según la zona horaria de quien ejecuta la consulta, y los pedidos de las últimas horas del mes cambian de bando. Escribe siempre \`AT TIME ZONE 'UTC'\` —UTC, por *coordinated universal time*, es el huso de referencia mundial— o el huso del negocio, declarado en el informe. Y usa siempre un límite superior abierto: mayor o igual que el primer día del mes y menor que el primer día del mes siguiente.
 
 **4. ¿Contra qué se compara?** «Cayeron» implica una comparación. ¿Contra julio? ¿Contra agosto del año pasado? ¿Contra el plan? Sin base de comparación no hay caída, hay un número suelto.
 
@@ -65,13 +65,13 @@ GROUP BY 1
 ORDER BY 1;
 \`\`\`
 
-La consulta A devuelve 1 879 865,71. Verdadero e inútil: no dice si es mucho o poco. La B devuelve dos filas y, con ellas, la respuesta: los ingresos pasaron de 2 075 796,94 a 1 879 865,71 (−9,4 %), con 306 pedidos contra 281 (−8,2 %) y un ticket casi idéntico (6783,65 contra 6689,91). La caída es de **volumen**, no de precio. Eso ya es una pista para el equipo comercial.
+La consulta A devuelve 1 879 865,71. El número es verdadero y al mismo tiempo inservible, porque por sí solo no dice si ese mes fue bueno o malo. La consulta B devuelve dos filas y, con ellas, la respuesta: los ingresos pasaron de 2 075 796,94 a 1 879 865,71 (−9,4 %), con 306 pedidos contra 281 (−8,2 %) y un ticket promedio casi idéntico (6783,65 contra 6689,91). Como el ticket casi no se movió y la cantidad de pedidos sí, la caída es de **volumen** y no de precio. Eso ya le dice al equipo comercial dónde buscar.
 
-El patrón se repite en casi todo pedido de negocio: **descompón la métrica en factores multiplicativos**. Ingresos = pedidos × ticket. Pedidos = clientes × frecuencia. Volumen = usuarios activos × transacciones por usuario × monto medio. Cuando una métrica se mueve, uno de los factores explica el movimiento y los demás se quedan quietos.
+El patrón se repite en casi cualquier pedido de negocio: **descompón la métrica en los factores que la multiplican**. Los ingresos son pedidos × ticket promedio. Los pedidos son clientes × frecuencia de compra. El volumen es usuarios activos × transacciones por usuario × monto medio. Cuando la métrica total se mueve, casi siempre uno de esos factores explica el movimiento y los demás se quedan quietos, y ese factor es el que hay que informar.
 
 ## Lo que sí conviene preguntar
 
-No todas las ambigüedades se resuelven solas. Vale la pena una pregunta corta cuando la elección cambia el signo de la respuesta: qué estado cuenta como venta, si «México» es el país del cliente o el del vendedor, si el mes es calendario o los últimos 30 días. El resto —el formato, el orden de las filas, si el porcentaje lleva dos decimales— lo decides tú y lo escribes.
+No todas las ambigüedades las puedes resolver por tu cuenta. Vale la pena una pregunta corta cuando la elección cambia la conclusión: qué estado del pedido cuenta como venta, si «México» es el país del cliente o el del vendedor, si el mes es el mes calendario o los últimos 30 días. El resto —el formato, el orden de las filas, si el porcentaje lleva dos decimales— lo decides tú y lo dejas escrito en la entrega.
 
 Una regla práctica: pregunta una sola vez, en una lista de tres puntos, con tu propuesta ya escrita («voy a contar pedidos \`delivered\` por país del cliente, mes calendario UTC; avísame si prefieres otra cosa»). Es mucho más probable que te respondan eso que un cuestionario abierto.
 
@@ -102,21 +102,21 @@ Una regla práctica: pregunta una sola vez, en una lista de tres puntos, con tu 
     dataset: "bolsillo",
     body_md: `## Por qué importa
 
-Toda consulta de negocio contiene decisiones que no estaban en el pedido. La diferencia entre un análisis profesional y uno que se cae en la primera reunión no es que el primero no tenga supuestos: es que están escritos, al lado del número, en el idioma del que pregunta.
+Toda consulta de negocio contiene decisiones que no estaban en el pedido: esas decisiones son los **supuestos**. Un análisis profesional no tiene menos supuestos que uno que se cae en la primera reunión; tiene los mismos, pero escritos al lado del número y en el lenguaje de quien pregunta, no en el de la consulta.
 
 Un supuesto escrito se puede discutir y corregir. Un supuesto implícito se descubre tres semanas después, cuando alguien compara tu tabla con la de otro equipo y no cierran.
 
 ## Dónde se esconden
 
-**En el filtro.** ¿\`status = 'completed'\` o también \`pending\`? En **Bolsillo**, los pagos con tarjeta tienen cuatro estados y los \`reversed\` ya se devolvieron al cliente. Contarlos infla el volumen que le muestras a Finanzas.
+**En el filtro.** ¿Cuentas solo \`status = 'completed'\` o también los \`pending\`? En **Bolsillo**, los pagos con tarjeta pasan por cuatro estados, y los que quedaron en \`reversed\` son pagos cuyo dinero ya volvió al cliente. Si los cuentas como ventas, el volumen que le muestras a Finanzas queda inflado y no va a coincidir con el suyo.
 
-**En el join.** Un \`INNER JOIN\` con \`merchants\` descarta los movimientos sin comercio (recargas, comisiones, transferencias). Es correcto si mediste «pagos en comercios» y es un error silencioso si dijiste «movimientos».
+**En el join.** Un \`INNER JOIN\` con \`merchants\` (la tabla de comercios) conserva solo los movimientos que tienen un comercio asociado y descarta en silencio las recargas, las comisiones y las transferencias entre personas. Esa exclusión es correcta si lo que mediste son «pagos en comercios», y es un error que nadie ve si dijiste «movimientos».
 
-**En el NULL.** \`ended_on IS NULL\` significa «vigente», no «desconocido». \`rating\` nulo en un restaurante no es un rating cero: es un restaurante sin calificar. Promediarlos como cero baja la media y nadie lo ve.
+**En el NULL.** Un NULL es la ausencia de dato, y qué significa esa ausencia lo define el negocio en cada columna. En una suscripción, \`ended_on IS NULL\` —la fecha de baja vacía— significa que la suscripción sigue vigente, no que se desconozca cuándo terminó. En cambio, un \`rating\` nulo no es una calificación de cero: es un restaurante que nadie calificó. Si lo promedias como cero, la media baja y ningún error te avisa.
 
-**En la unidad.** \`amount_minor\` está en unidades menores. Los montos de Bolsillo están en la moneda de la cuenta. Sumar ARS con MXN produce un número con muchos dígitos y cero significado.
+**En la unidad.** En Ritmo, la columna \`amount_minor\` de la tabla \`subscriptions\` guarda el importe en unidades menores, es decir, en centavos: leerla como si fueran pesos multiplica todo por cien. En Bolsillo, además, cada movimiento está en la moneda de su cuenta, así que sumar ARS (pesos argentinos) con MXN (pesos mexicanos) da un número que no corresponde a ninguna cantidad real de dinero.
 
-**En la ventana.** «Últimos 30 días» desde qué día, y si el último día está incluido.
+**En la ventana de tiempo.** «Últimos 30 días» no dice desde qué día se cuentan ni si el último día entra completo. Dos analistas con el mismo pedido pueden entregar dos cifras distintas y las dos ser defendibles.
 
 ## Convertir, y decir cómo
 
@@ -136,9 +136,9 @@ GROUP BY 1
 ORDER BY 1;
 \`\`\`
 
-Tres supuestos en seis líneas, y los tres hay que escribirlos en la entrega: solo pagos completados en comercios; conversión a dólares con el tipo de cambio **del día de la operación** (no el de hoy, que reescribiría la historia cada vez que corras la consulta); y las cuentas en USD, que no figuran en \`fx_rates\`, se toman con tasa 1 gracias al \`LEFT JOIN\` con \`coalesce\`.
+Hay tres supuestos en seis líneas, y los tres tienen que aparecer en la entrega. Primero: se cuentan solo los pagos completados en comercios. Segundo: la conversión a dólares usa el tipo de cambio **del día de la operación**, que está en la tabla \`fx_rates\` (por *foreign exchange rates*, tipos de cambio); si usaras el de hoy, la historia se reescribiría cada vez que alguien ejecutara la consulta. Tercero: las cuentas en USD no figuran en \`fx_rates\`, y el \`LEFT JOIN\` junto con \`coalesce\` hace que se tomen con tasa 1, tal cual están.
 
-Ese \`coalesce\` es justamente el tipo de decisión que desaparece si no la anotas. Con \`INNER JOIN\` los pagos en dólares se habrían esfumado del informe sin ningún mensaje de error.
+Ese \`coalesce\` es justamente el tipo de decisión que se vuelve invisible si no la anotas. Con un \`INNER JOIN\` en lugar del \`LEFT JOIN\`, los pagos en dólares habrían quedado fuera del informe sin ningún mensaje de error y el total sería menor sin que nadie supiera por qué.
 
 ## Cómo se escribe
 
@@ -148,14 +148,14 @@ Tres o cuatro líneas alcanzan. Van **arriba** del resultado, no en un anexo:
 >
 > **Limitaciones.** Agosto de 2025 cierra el 31; los movimientos posteriores al 15 de septiembre no están en los datos.
 
-Fíjate en lo que no dice: no menciona \`LEFT JOIN\`, ni CTE, ni \`coalesce\`. Quien pregunta no quiere leer tu SQL, quiere saber qué entra y qué queda afuera.
+Fíjate en lo que no dice. No menciona el \`LEFT JOIN\`, ni las CTE (por *common table expression*, los bloques \`WITH\` que nombran pasos intermedios de una consulta), ni el \`coalesce\`. Quien pregunta no necesita leer tu SQL: necesita saber qué entra en el número y qué queda afuera.
 
 ## Reversible y reproducible
 
 Dos costumbres que hacen que los supuestos valgan:
 
-- **Parámetros arriba.** Las fechas y los umbrales van en una CTE o en las primeras líneas, no dispersos en cinco \`WHERE\`. Cambiar «30 días» por «60 días» debería ser una edición, no seis.
-- **Sin «hoy» implícito.** Una consulta con \`now()\` da un resultado distinto cada día y no se puede auditar. Para un informe que alguien va a revisar, fija la fecha de corte como constante y decláralo.
+- **Parámetros arriba.** Las fechas y los umbrales van juntos en una CTE inicial o en las primeras líneas de la consulta, en lugar de repetidos dentro de cinco \`WHERE\` distintos. Así, pasar de «30 días» a «60 días» se hace editando un solo lugar y no seis, y ninguno queda sin actualizar.
+- **Sin «hoy» implícito.** Una consulta que usa \`now()\` devuelve un resultado distinto cada día, así que nadie puede volver a obtener el número que entregaste. Para un informe que alguien va a revisar, escribe la fecha de corte como una constante y dila en el texto.
 
 ## Errores comunes
 
@@ -184,7 +184,7 @@ Dos costumbres que hacen que los supuestos valgan:
     dataset: "pidelo",
     body_md: `## Por qué importa
 
-Una consulta que se ejecuta sin errores no es una consulta correcta. Los errores que llegan a una reunión no son de sintaxis: son filas duplicadas por un join, un denominador equivocado, un porcentaje calculado sobre nueve casos. Nada de eso se ve mirando el SQL; se ve mirando el resultado con desconfianza.
+Una consulta que se ejecuta sin errores todavía puede estar mal. Los errores que llegan a una reunión no son de sintaxis: son filas duplicadas por un join, un denominador equivocado o un porcentaje calculado sobre nueve casos. Ninguno de los tres se nota leyendo el SQL. Se notan mirando el resultado con desconfianza y comparándolo con cifras que ya conoces.
 
 Antes de enviar cualquier tabla, dedícale cinco minutos a estas comprobaciones. Son las mismas que va a hacer quien te quiera corregir.
 
@@ -200,7 +200,7 @@ Guarda ese número y compáralo con el \`sum()\` de tu tabla final. Es la prueba
 
 ## 2. Contar filas antes de agregar
 
-La duplicación por join no se nota después del \`GROUP BY\`: un \`sum()\` inflado sigue pareciendo un número. En **Pídelo**, unir \`orders\` con \`order_items\` multiplica cada pedido por su cantidad de ítems. Si después sumas \`total\`, el importe se dispara.
+La duplicación que provoca un join deja de verse en cuanto agregas: un \`sum()\` inflado tiene el mismo aspecto que uno correcto. En **Pídelo**, unir \`orders\` con \`order_items\` hace que cada pedido aparezca tantas veces como ítems tenga, porque a una fila de pedido le corresponden varias líneas de detalle. Si después sumas la columna \`total\` de \`orders\`, cada importe se suma varias veces y el resultado se dispara.
 
 \`\`\`sql
 SELECT count(*) AS filas, count(DISTINCT o.id) AS pedidos
@@ -208,29 +208,29 @@ FROM orders AS o
 INNER JOIN order_items AS oi ON oi.order_id = o.id;
 \`\`\`
 
-Cuando \`filas\` supera a \`pedidos\`, cualquier métrica a nivel pedido calculada sobre ese join está mal. La salida es agregar los ítems en una CTE antes de unirlos, o usar \`count(DISTINCT o.id)\`.
+Cuando \`filas\` supera a \`pedidos\`, cualquier métrica que se refiera al pedido y se calcule sobre ese join está mal. Hay dos salidas: agregar primero los ítems en una CTE (por *common table expression*, el bloque \`WITH\` que da nombre a un paso intermedio) para volver a una fila por pedido, o contar con \`count(DISTINCT o.id)\` en lugar de \`count(*)\`.
 
 ## 3. Mirar los extremos, no el promedio
 
 Ordena tu resultado por la métrica, hacia arriba y hacia abajo, y mira las cinco primeras filas de cada lado. Los valores absurdos viven en los bordes: una ciudad con 400 % de crecimiento, un restaurante con calificación 5,0, un género con −50 %.
 
-Casi siempre es un denominador chico. Un restaurante con dos pedidos y ambos tardíos tiene 100 % de tardanza y no significa nada. Por eso los rankings de negocio llevan un **umbral mínimo de volumen**, declarado:
+Casi siempre la causa es un denominador chico. Un restaurante con dos pedidos, los dos tardíos, tiene 100 % de tardanza, y ese 100 % no describe su desempeño: describe dos casos. Por eso los rankings de negocio llevan un **umbral mínimo de volumen**, declarado en la consulta y en la entrega:
 
 \`\`\`sql
 HAVING count(*) >= 30
 \`\`\`
 
-El umbral es un supuesto más: elígelo antes de ver los resultados, no después, o estarás eligiendo la conclusión.
+El umbral es un supuesto más. Elígelo antes de ver los resultados y no después, porque si lo ajustas mirando la tabla estás eligiendo qué filas quedan arriba, es decir, estás eligiendo la conclusión.
 
 ## 4. Revisar los nulos y los ceros
 
 ¿Hay filas con \`NULL\` donde esperabas un valor? En Pídelo, \`restaurant_rating\` es nulo en el 12 % de las calificaciones y \`courier_id\` falta en los pedidos cancelados. Un \`avg()\` los ignora —lo cual suele ser correcto—, pero entonces el promedio se calcula sobre menos filas de las que muestra tu columna de conteo. Si esas dos columnas van juntas en la tabla, aclara cuál es cuál.
 
-Y los ceros: una división puede fallar o, peor, devolver un resultado engañoso. \`nullif(denominador, 0)\` convierte el error en \`NULL\`, que es honesto.
+Revisa también los ceros. Una división por cero corta la consulta con un error, y un cero en el lugar equivocado puede devolver un resultado que parece válido. \`nullif(denominador, 0)\` convierte ese cero en \`NULL\`, de modo que la celda dice «no se puede calcular» en lugar de mostrar un número inventado.
 
 ## 5. ¿La magnitud es creíble?
 
-Este es el chequeo que no es técnico. ¿El 45 % de recompra es plausible para un delivery? ¿La caída de 9 % en agosto coincide con algo que pasó? Si tu número contradice lo que la organización cree saber, es mucho más probable que el error sea tuyo a que hayas descubierto algo. Vuelve a los filtros antes de escribir el correo.
+Este chequeo no es técnico, sino de sentido común sobre el negocio. ¿Un 45 % de recompra es plausible para una app de delivery? ¿La caída de 9 % en agosto coincide con algo que efectivamente pasó? Si tu número contradice lo que la organización cree saber, es mucho más probable que tengas un error a que hayas descubierto algo nuevo. Revisa otra vez los filtros antes de escribir el correo.
 
 Cuando sí es un hallazgo real, el chequeo previo te va a servir igual: la primera pregunta que te van a hacer es «¿estás seguro?».
 

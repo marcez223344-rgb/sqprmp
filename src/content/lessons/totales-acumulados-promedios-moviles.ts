@@ -16,13 +16,13 @@ export const lessons: LessonDef[] = [
     dataset: "ritmo",
     body_md: `## Por qué importa
 
-Casi todo tablero de negocio tiene una curva que sube: oyentes registrados hasta la fecha, ingresos del año, suscripciones netas. Esa curva es un **total acumulado**: en cada período, la suma de todo lo ocurrido hasta ese período inclusive. En SQL se resuelve con una función de ventana, sin unir la tabla consigo misma ni exportar nada a una planilla.
+Casi todo tablero de negocio tiene una curva que sube: oyentes registrados hasta la fecha, ingresos del año, suscripciones netas. Esa curva es un **total acumulado**, es decir, una serie en la que cada período muestra la suma de todo lo ocurrido desde el principio hasta ese período inclusive. En SQL se calcula con una función de ventana, una función que mira varias filas relacionadas con la actual sin agruparlas, así que no hace falta unir la tabla consigo misma ni exportar nada a una planilla.
 
-Trabajas con **Ritmo**, un servicio de streaming musical en seis mercados: \`users\` (oyentes), \`plays\` (reproducciones), \`tracks\`, \`albums\`, \`artists\` y \`subscriptions\`.
+Trabajas con **Ritmo**, un servicio de streaming musical presente en seis mercados. Sus tablas son \`users\` (los oyentes), \`plays\` (una fila por reproducción), \`tracks\` (las canciones), \`albums\`, \`artists\` y \`subscriptions\` (las suscripciones pagas).
 
 ## El patrón de dos pasos
 
-Un acumulado casi nunca se calcula sobre filas crudas: primero agregas por período, después acumulas. Separar ambos pasos con una CTE hace la consulta legible y evita el error clásico de mezclar niveles de agregación.
+Un acumulado casi nunca se calcula sobre las filas originales. Primero agrupas por período para obtener una fila por mes, y recién después acumulas esas filas. Separar los dos pasos con una CTE (por *common table expression*, el bloque \`WITH\` que le pone nombre a un paso intermedio) deja la consulta legible y evita el error clásico de mezclar dos niveles de agregación en la misma línea.
 
 \`\`\`sql
 WITH altas_por_mes AS (
@@ -40,9 +40,9 @@ FROM altas_por_mes
 ORDER BY mes;
 \`\`\`
 
-La CTE produce una fila por mes. Luego \`sum(altas) OVER (ORDER BY mes)\` suma las filas **desde la primera hasta la actual** en ese orden. La última fila del resultado vale 5000: todos los oyentes registrados.
+La CTE produce una fila por mes, con la cantidad de altas de ese mes. Después, \`sum(altas) OVER (ORDER BY mes)\` suma las filas **desde la primera hasta la actual** siguiendo ese orden, y por eso cada fila muestra el total acumulado hasta su mes. La última fila del resultado vale 5000, que es el total de oyentes registrados en la plataforma.
 
-\`AT TIME ZONE 'UTC'\` fija el huso con el que se corta el calendario. Sin él, el mes de cada alta queda a merced de la zona de la sesión (UTC en el sandbox, para que tus resultados sean reproducibles; en un servidor real, la que haya configurado quien lo instaló). El total acumulado final no cambia, pero sí cambia en qué escalón sube: un acumulado que alguien más reproduce con otra configuración no coincide con el tuyo. Escríbelo explícito y di en el informe en qué huso están cortados los meses.
+\`AT TIME ZONE 'UTC'\` fija el huso horario con el que se corta el calendario. UTC (por *coordinated universal time*) es el huso de referencia mundial. Sin esa indicación, el mes al que se asigna cada alta depende de la zona horaria de la sesión: en este sandbox siempre es UTC, para que tus resultados sean reproducibles, pero en un servidor real es la que haya configurado quien lo instaló. El total acumulado al final de la serie no cambia, porque las altas son las mismas; lo que cambia es en qué mes sube cada escalón, así que dos personas con configuraciones distintas obtienen curvas distintas. Escribe el huso de forma explícita y aclara en el informe con qué huso están cortados los meses.
 
 ## El ORDER BY de la ventana no es el de la consulta
 
@@ -51,7 +51,7 @@ Son dos cosas distintas y conviene tenerlo muy claro:
 - El \`ORDER BY\` **dentro de \`OVER\`** define en qué orden se acumula. Cambia los **valores**.
 - El \`ORDER BY\` **final** define cómo se muestra el resultado. Cambia solo la **presentación**.
 
-Puedes acumular por fecha y mostrar de mayor a menor; los acumulados no se alteran. Lo que no puedes es omitir el \`ORDER BY\` dentro de \`OVER\`: sin él la ventana no tiene noción de «hasta aquí» y \`sum\` devuelve el total completo repetido en cada fila.
+Puedes acumular por fecha y mostrar el resultado de mayor a menor: los valores acumulados no se alteran, solo cambia el orden en que se ven. Lo que no puedes es omitir el \`ORDER BY\` dentro de \`OVER\`. Sin él, la ventana no tiene ninguna noción de «hasta aquí», así que \`sum\` toma todas las filas del grupo y devuelve el total completo repetido en cada fila.
 
 ## Acumular por grupo
 
@@ -76,11 +76,11 @@ FROM mensual
 ORDER BY country, mes;
 \`\`\`
 
-Cada país arranca su propia curva desde cero. Es exactamente lo que necesitas para comparar mercados que empezaron en momentos distintos.
+Cada país arranca su propia curva desde cero y el acumulado de un país nunca incluye reproducciones de otro. Es exactamente lo que necesitas para comparar mercados que empezaron a operar en momentos distintos.
 
 ## Participación acumulada (curva de Pareto)
 
-Combinando dos ventanas obtienes el porcentaje acumulado, la herramienta estándar para responder «¿cuántos artistas explican la mitad de las reproducciones?»:
+Combinando dos ventanas obtienes el porcentaje acumulado, también llamado curva de Pareto: cada fila indica qué parte del total explican esa fila y todas las anteriores. Es la herramienta estándar para responder «¿cuántos artistas explican la mitad de las reproducciones?». El ejemplo parte de \`por_artista\`, una CTE previa con una fila por artista y su cantidad de reproducciones:
 
 \`\`\`sql
 SELECT
@@ -95,19 +95,19 @@ FROM por_artista
 ORDER BY reproducciones DESC, artista;
 \`\`\`
 
-El numerador acumula en orden descendente; el denominador, \`sum(...) OVER ()\` sin \`ORDER BY\`, es el gran total. Incluye un segundo criterio de desempate (\`artista\`) para que el resultado sea reproducible cuando dos artistas empatan.
+El numerador acumula las reproducciones en orden descendente, empezando por el artista más escuchado. El denominador es \`sum(...) OVER ()\`, una ventana sin \`ORDER BY\` y sin \`PARTITION BY\`, que por eso abarca todas las filas y da el gran total. El segundo criterio de orden, \`artista\`, desempata a quienes tienen la misma cantidad de reproducciones, de modo que la consulta devuelva siempre el mismo resultado.
 
 ## Errores comunes
 
 - Olvidar el \`ORDER BY\` dentro de \`OVER\`: obtienes el total, no el acumulado.
 - Acumular sobre filas crudas en vez de sobre el agregado por período.
-- Usar \`PARTITION BY mes\`: eso agrupa por mes y el acumulado nunca avanza. El período va en el \`ORDER BY\`; el grupo, en el \`PARTITION BY\`.
+- Usar \`PARTITION BY mes\`. Eso crea un grupo por cada mes, y como cada grupo tiene una sola fila, el acumulado nunca avanza y repite el valor del mes. El período va en el \`ORDER BY\` de la ventana. El grupo por el que se reinicia la curva va en el \`PARTITION BY\`.
 - Empates sin criterio de desempate: dos filas con la misma clave de orden comparten valor acumulado (lo verás en detalle en la próxima lección).
 
 ## Resumen
 
 1. Acumulado = \`sum(metrica) OVER (ORDER BY periodo)\`, casi siempre sobre una CTE ya agregada.
-2. \`PARTITION BY\` reinicia la curva por grupo; el \`ORDER BY\` de la ventana define el avance.
+2. \`PARTITION BY\` reinicia la curva en cada grupo. El \`ORDER BY\` de la ventana define en qué orden avanza la suma.
 3. \`sum(x) OVER ()\` es el gran total y sirve de denominador para la participación acumulada.
 `,
   },
@@ -124,7 +124,7 @@ El numerador acumula en orden descendente; el denominador, \`sum(...) OVER ()\` 
     dataset: "ritmo",
     body_md: `## Por qué importa
 
-Cuando escribes \`sum(x) OVER (ORDER BY mes)\` obtienes un acumulado sin haber pedido ningún marco. No es magia: Postgres aplicó un marco por omisión. Esta es la parte de las funciones de ventana que más resultados silenciosamente incorrectos produce, porque la consulta no falla: devuelve números plausibles pero equivocados.
+Cuando escribes \`sum(x) OVER (ORDER BY mes)\` obtienes un acumulado aunque no hayas pedido ningún marco. Lo que ocurre es que Postgres aplicó un **marco** por omisión: el marco es el subconjunto de filas que la función mira para calcular el valor de la fila actual. Esta es la parte de las funciones de ventana que más resultados incorrectos produce en silencio, porque la consulta no falla nunca: devuelve números plausibles que responden otra pregunta.
 
 ## Las tres partes de OVER
 
@@ -136,12 +136,12 @@ OVER (
 )
 \`\`\`
 
-El marco se define **dentro** de cada partición y se recalcula para cada fila. Los límites posibles son \`UNBOUNDED PRECEDING\`, \`N PRECEDING\`, \`CURRENT ROW\`, \`N FOLLOWING\` y \`UNBOUNDED FOLLOWING\`, y el inicio nunca puede ser posterior al fin.
+El marco se define **dentro** de cada partición y se vuelve a calcular para cada fila, así que la fila 3 y la fila 40 miran conjuntos distintos. Los límites disponibles son \`UNBOUNDED PRECEDING\` (desde el comienzo de la partición), \`N PRECEDING\` (N filas o N unidades hacia atrás), \`CURRENT ROW\` (la fila actual), \`N FOLLOWING\` (hacia adelante) y \`UNBOUNDED FOLLOWING\` (hasta el final de la partición). El límite de inicio nunca puede quedar después del de fin.
 
 ## Los valores por omisión
 
-- **Sin \`ORDER BY\`**: el marco es toda la partición. Por eso \`avg(x) OVER (PARTITION BY country)\` da el promedio del país, igual en cada fila.
-- **Con \`ORDER BY\` y sin marco explícito**: el marco es \`RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW\`. De ahí sale el acumulado.
+- **Sin \`ORDER BY\`**, el marco es la partición completa. Por eso \`avg(x) OVER (PARTITION BY country)\` devuelve el promedio del país entero, repetido igual en todas las filas de ese país.
+- **Con \`ORDER BY\` y sin marco escrito**, el marco es \`RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW\`, es decir, desde el comienzo de la partición hasta la fila actual. De ese valor por omisión sale el total acumulado.
 
 Escribir ese marco a mano es válido y a veces aclara la intención:
 
@@ -153,10 +153,10 @@ sum(altas) OVER (ORDER BY mes ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
 
 La diferencia aparece con **empates** en la clave de orden.
 
-- \`ROWS\` cuenta posiciones físicas: \`ROWS BETWEEN 2 PRECEDING AND CURRENT ROW\` son siempre tres filas (menos al principio, donde el marco se recorta).
-- \`RANGE\` trabaja sobre **valores** del \`ORDER BY\`: \`CURRENT ROW\` significa «todas las filas cuyo valor de orden es igual al mío». Las filas empatadas comparten marco y, por lo tanto, el mismo resultado.
+- \`ROWS\` cuenta posiciones físicas. \`ROWS BETWEEN 2 PRECEDING AND CURRENT ROW\` son siempre tres filas, salvo al principio de la partición, donde todavía no hay dos filas anteriores y el marco se recorta.
+- \`RANGE\` trabaja sobre los **valores** de la columna del \`ORDER BY\`. Ahí \`CURRENT ROW\` significa «todas las filas cuyo valor de orden es igual al mío», así que las filas empatadas comparten el mismo marco y obtienen el mismo resultado.
 
-Si tres oyentes se registraron el mismo día y acumulas con \`ORDER BY fecha\`, el marco \`RANGE\` por omisión les da a los tres el acumulado del día completo. Con \`ROWS\` verías 1, 2, 3. Ninguno está mal: son preguntas distintas. Lo que está mal es no saber cuál pediste.
+Si tres oyentes se registraron el mismo día y acumulas con \`ORDER BY fecha\`, el marco \`RANGE\` por omisión les asigna a los tres el acumulado del día completo, porque los tres comparten la misma fecha. Con \`ROWS\` verías 1, 2 y 3, un valor distinto para cada uno según su posición. Ninguno de los dos comportamientos es incorrecto: responden preguntas diferentes. El problema aparece cuando no sabes cuál de las dos pediste.
 
 **Regla práctica**: si tu clave de orden es única (un mes por fila, un día por fila), \`ROWS\` y \`RANGE\` coinciden y conviene \`ROWS\` por ser más barato y más explícito. Si hay empates, elige a conciencia.
 
@@ -177,11 +177,11 @@ Compáralo con \`ROWS BETWEEN 6 PRECEDING AND CURRENT ROW\` sobre esa misma seri
 
 ## GROUPS
 
-\`GROUPS BETWEEN 1 PRECEDING AND CURRENT ROW\` cuenta **grupos de empate** en lugar de filas o valores: el grupo actual más el anterior. Se usa poco, pero es la respuesta cuando piensas en «los dos días distintos más recientes» y hay varias filas por día.
+\`GROUPS BETWEEN 1 PRECEDING AND CURRENT ROW\` cuenta **grupos de filas empatadas** en lugar de filas sueltas o de valores: toma el grupo de la fila actual más el grupo anterior completo. Se usa poco, pero es la respuesta exacta cuando quieres «los dos días distintos más recientes» y cada día tiene varias filas.
 
 ## Errores comunes
 
-- Creer que \`ORDER BY\` sin marco promedia toda la partición: no, acumula.
+- Creer que un \`ORDER BY\` sin marco hace que la función mire toda la partición. No la mira: acumula desde el comienzo hasta la fila actual.
 - Usar \`ROWS BETWEEN N PRECEDING\` en una serie con días faltantes y llamarlo «últimos N días».
 - Usar \`ROWS\` con empates en la clave de orden sin desempatar: el resultado depende de un orden arbitrario y puede cambiar entre ejecuciones.
 - Definir un marco con desplazamiento en una ventana sin \`ORDER BY\`: es un error de sintaxis.
@@ -189,7 +189,7 @@ Compáralo con \`ROWS BETWEEN 6 PRECEDING AND CURRENT ROW\` sobre esa misma seri
 ## Resumen
 
 1. El marco por omisión con \`ORDER BY\` es \`RANGE UNBOUNDED PRECEDING … CURRENT ROW\`; sin \`ORDER BY\`, toda la partición.
-2. \`ROWS\` cuenta filas, \`RANGE\` compara valores (y admite desplazamientos de intervalo), \`GROUPS\` cuenta grupos de empate.
+2. \`ROWS\` cuenta filas. \`RANGE\` compara valores del \`ORDER BY\` y admite desplazamientos con \`INTERVAL\`. \`GROUPS\` cuenta grupos de filas empatadas.
 3. Con clave de orden única elige \`ROWS\`; con huecos de calendario y ventanas temporales, \`RANGE\` con \`INTERVAL\`.
 `,
   },
@@ -206,7 +206,7 @@ Compáralo con \`ROWS BETWEEN 6 PRECEDING AND CURRENT ROW\` sobre esa misma seri
     dataset: "ritmo",
     body_md: `## Por qué importa
 
-Una serie diaria de negocio es ruidosa: los fines de semana suben, los feriados caen, un día cualquiera se dispara. El **promedio móvil** suaviza ese ruido y deja ver la tendencia. Es la métrica que aparece en todos los tableros de producto y la forma más común de usar un marco de ventana explícito.
+Una serie diaria de negocio es ruidosa: los fines de semana suben, los feriados caen y un día cualquiera se dispara por una campaña. El **promedio móvil** reemplaza el valor de cada día por el promedio de ese día y los anteriores, de modo que las variaciones sueltas se compensan y queda a la vista la tendencia. Es la métrica que aparece en todos los tableros de producto y el uso más común de un marco de ventana escrito de forma explícita.
 
 ## Media móvil de 7 días
 
@@ -231,16 +231,16 @@ FROM diario
 ORDER BY dia;
 \`\`\`
 
-El error más frecuente aquí es escribir \`7 PRECEDING\`: eso da una ventana de ocho días.
+El error más frecuente es escribir \`7 PRECEDING\`, que toma siete días anteriores más el actual y da una ventana de ocho días. Para una media de N días hacia atrás, el marco siempre lleva \`N-1 PRECEDING\`.
 
 ## El borde inicial
 
-Las primeras seis filas de la serie no tienen seis días previos, así que el marco se **recorta** y promedian menos valores. No es un error de Postgres: es lo que pediste. Tienes dos opciones honestas:
+Las primeras seis filas de la serie no tienen seis días anteriores disponibles, así que el marco se **recorta** y esas filas promedian menos valores de los que indica el nombre de la columna. No es un error de Postgres: es exactamente lo que pediste. Tienes dos opciones honestas:
 
 1. Dejarlas así y advertirlo en el tablero.
 2. Calcular la ventana sobre una serie que empiece **antes** del período que quieres mostrar y filtrar después.
 
-La segunda es la profesional, y obliga a entender el orden de evaluación: \`WHERE\` se ejecuta **antes** que las ventanas, así que un filtro de fechas en el \`WHERE\` recorta los datos que la ventana puede ver. Para filtrar después hace falta otro nivel:
+La segunda opción es la que se usa en un informe serio, y obliga a tener presente el orden de evaluación. El \`WHERE\` se ejecuta **antes** que las funciones de ventana, así que un filtro de fechas escrito ahí también recorta los datos que la ventana puede mirar hacia atrás. Para filtrar después de calcular la media hace falta otro nivel de consulta:
 
 \`\`\`sql
 WITH diario AS (
@@ -263,7 +263,7 @@ WHERE dia >= DATE '2025-08-01'
 ORDER BY dia;
 \`\`\`
 
-Julio entra en el cálculo y no se muestra: la media del 1 de agosto ya es una media de siete días reales.
+Julio participa del cálculo pero no aparece en el resultado, porque el filtro final lo descarta. Gracias a eso, la media del 1 de agosto ya está calculada sobre siete días reales y es comparable con la del resto del mes.
 
 ## Media móvil centrada
 
@@ -276,16 +276,16 @@ avg(reproducciones) OVER (
 ) AS media_centrada_7d
 \`\`\`
 
-Sigue mejor la forma de la curva porque no la desplaza hacia la derecha, pero **usa información futura**: no sirve para pronosticar ni para un tablero en vivo, y los últimos tres días quedan incompletos. Para análisis histórico es la mejor opción; para operación diaria, la móvil hacia atrás.
+La media centrada sigue mejor la forma de la curva porque no la desplaza hacia la derecha, pero para calcular el valor de un día **usa información de días posteriores**. Eso la vuelve inservible para pronosticar y para un tablero en vivo, y además deja incompletos los últimos tres días de la serie. Para un análisis histórico es la mejor opción; para el seguimiento diario de la operación, usa la media móvil hacia atrás.
 
 ## Días sin datos
 
-Si un día no tiene filas, no existe en la serie y \`ROWS BETWEEN 6 PRECEDING\` tomará siete días **con actividad**, no siete días de calendario. Dos soluciones:
+Si un día no tuvo ninguna reproducción, ese día no aparece como fila en la serie, así que \`ROWS BETWEEN 6 PRECEDING\` toma siete días **con actividad**, que pueden estar repartidos en dos semanas o en un mes. No son siete días de calendario. Hay dos soluciones:
 
 - \`RANGE BETWEEN INTERVAL '6 days' PRECEDING AND CURRENT ROW\`: la ventana es temporal y los huecos simplemente aportan menos filas. El promedio se calcula sobre los días presentes.
 - Construir un calendario completo (con \`generate_series\`) y unirlo con \`LEFT JOIN\` para que los días vacíos existan con valor 0. Solo así el **promedio** trata los huecos como ceros, que a veces es lo correcto y a veces no.
 
-Decide cuál pide el negocio: «promedio de los días con actividad» y «promedio diario del período» no son la misma métrica.
+Decide con el negocio cuál de las dos corresponde, porque «promedio de los días con actividad» y «promedio diario del período» son métricas distintas y la segunda siempre da un número menor cuando hay días vacíos.
 
 ## Errores comunes
 

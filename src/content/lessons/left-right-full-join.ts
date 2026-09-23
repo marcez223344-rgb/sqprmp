@@ -16,7 +16,9 @@ export const lessons: LessonDef[] = [
     dataset: "pidelo",
     body_md: `## Por qué importa
 
-«Clientes que **nunca** pidieron», «promociones que **nadie** usó», «pedidos **sin** calificación». Un INNER JOIN no puede responderlas: descarta justamente las filas sin correspondencia. Los OUTER JOIN las conservan.
+Hay una familia de preguntas de negocio que se trata justamente de lo que **no** pasó: «clientes que nunca pidieron», «promociones que nadie usó», «pedidos entregados sin calificación». Son las preguntas que alimentan una campaña de reactivación o una revisión de calidad.
+
+Un INNER JOIN no puede responderlas. Un INNER JOIN devuelve solo las filas que encuentran pareja en la otra tabla, así que un cliente sin ningún pedido desaparece del resultado, que es exactamente el cliente que querías listar. Los OUTER JOIN existen para conservar esas filas sin pareja, y el más usado de los tres es \`LEFT JOIN\`.
 
 ## LEFT JOIN
 
@@ -26,11 +28,13 @@ FROM customers AS c
 LEFT JOIN orders AS o ON o.customer_id = c.id;
 \`\`\`
 
-Devuelve **todas** las filas de la tabla izquierda (\`customers\`). Cuando un cliente tiene pedidos, aparece una fila por pedido; cuando no tiene ninguno, aparece **una** fila con las columnas de \`orders\` en **NULL**.
+La condición \`ON o.customer_id = c.id\` empareja la columna \`customer_id\` de la tabla \`orders\` —que guarda quién hizo cada pedido— con la columna \`id\` de la tabla \`customers\`.
+
+\`LEFT JOIN\` devuelve **todas** las filas de la tabla de la izquierda, que es la que está en el \`FROM\`, en este caso \`customers\`. Cuando un cliente tiene pedidos, aparece una fila por cada pedido. Cuando un cliente no tiene ninguno, aparece igual, en **una** fila, y las columnas que vienen de \`orders\` traen **NULL**, es decir, el marcador de «no hay valor».
 
 ## El patrón «sin correspondencia»
 
-Para quedarte solo con los clientes sin pedidos, filtra los NULL que produjo el JOIN:
+Como las filas sin pareja son las únicas que traen NULL en las columnas de la tabla derecha, filtrar por ese NULL te deja exactamente los clientes que nunca pidieron:
 
 \`\`\`sql
 SELECT c.id, c.full_name
@@ -39,7 +43,7 @@ LEFT JOIN orders AS o ON o.customer_id = c.id
 WHERE o.id IS NULL;
 \`\`\`
 
-Usa una columna **NOT NULL** de la tabla derecha (la clave primaria es ideal): si es NULL, seguro que no hubo pareja.
+Para esa prueba elige una columna de la tabla derecha que nunca pueda ser NULL en los datos reales; la clave primaria (PK, por *primary key*, su nombre en inglés) es la mejor opción. Así, si ves un NULL ahí, la única explicación posible es que no hubo pareja.
 
 ## Contar incluyendo ceros
 
@@ -51,11 +55,11 @@ GROUP BY p.code
 ORDER BY usos DESC;
 \`\`\`
 
-\`count(o.id)\` ignora los NULL, así que una promoción sin uso da 0. \`count(*)\` daría 1 (la fila con NULL): es el error clásico.
+\`count(o.id)\` cuenta solo los valores que no son NULL, así que una promoción que nadie usó da 0, que es la respuesta correcta. Si escribieras \`count(*)\` obtendrías 1 para esa promoción, porque \`count(*)\` cuenta filas y la fila con NULL sigue siendo una fila. Es el error clásico de este patrón, y produce un reporte donde toda promoción parece haberse usado al menos una vez.
 
 ## La trampa del WHERE
 
-Poner una condición sobre la tabla derecha en \`WHERE\` **convierte el LEFT JOIN en INNER**, porque las filas sin pareja tienen NULL ahí y no pasan el filtro:
+Si pones una condición sobre una columna de la tabla derecha en el \`WHERE\`, el LEFT JOIN se comporta como un INNER JOIN y vuelves a perder las filas sin pareja. La razón es que esas filas traen NULL en la columna que estás filtrando, y una comparación contra NULL nunca da verdadero, así que no pasan el filtro:
 
 \`\`\`sql
 -- MAL: pierde los restaurantes sin pedidos en agosto
@@ -68,7 +72,9 @@ LEFT JOIN orders AS o
  AND o.placed_at >= '2025-08-01' AND o.placed_at < '2025-09-01'
 \`\`\`
 
-Regla: las condiciones sobre la tabla **derecha** de un LEFT JOIN van en el \`ON\`; las de la tabla izquierda pueden ir en \`WHERE\`.
+La diferencia es cuándo se aplica la condición. En el \`ON\` se usa para decidir qué filas de \`orders\` se emparejan, y los restaurantes sin pedidos de agosto quedan igual en el resultado con NULL. En el \`WHERE\` se aplica después de unir y los elimina.
+
+La regla práctica: las condiciones sobre la tabla **derecha** de un LEFT JOIN van en el \`ON\`, y las condiciones sobre la tabla izquierda pueden ir en el \`WHERE\` sin problema.
 
 ## Ejemplo resuelto
 
@@ -83,7 +89,7 @@ WHERE o.status = 'delivered'
   AND r.id IS NULL;
 \`\`\`
 
-Las condiciones sobre \`orders\` (izquierda) están bien en \`WHERE\`; la única sobre \`ratings\` es la prueba de NULL.
+Las dos condiciones sobre \`orders\`, que es la tabla izquierda, están bien en el \`WHERE\`. La única condición sobre \`ratings\` es la prueba de NULL, que es justamente la que necesita que el LEFT JOIN ya se haya aplicado.
 `,
   },
   {
@@ -99,11 +105,11 @@ Las condiciones sobre \`orders\` (izquierda) están bien en \`WHERE\`; la única
     dataset: "bolsillo",
     body_md: `## RIGHT JOIN
 
-Es un LEFT JOIN escrito al revés: conserva todas las filas de la tabla **derecha**. Cualquier RIGHT JOIN se puede reescribir como LEFT JOIN cambiando el orden de las tablas, y la mayoría de los equipos prefiere LEFT por consistencia. Reconócelo cuando lo leas; evita escribirlo.
+\`RIGHT JOIN\` es un LEFT JOIN escrito al revés: conserva todas las filas de la tabla **derecha**, la que está después del \`JOIN\`, y completa con NULL cuando no encuentra pareja en la izquierda. Cualquier RIGHT JOIN se puede reescribir como LEFT JOIN intercambiando el orden de las dos tablas, y la mayoría de los equipos prefiere escribir siempre LEFT para no tener que cambiar de dirección mentalmente al leer. Necesitas reconocerlo cuando lo encuentres en código de otra persona, pero no hace falta que lo escribas.
 
 ## FULL JOIN
 
-Conserva las filas de **ambas** tablas, con NULL donde falte pareja. Sirve para auditorías de conciliación: «qué hay en A y no en B, y qué hay en B y no en A», en una sola consulta.
+\`FULL JOIN\` conserva las filas de **ambas** tablas y pone NULL del lado donde falta la pareja. Sirve para las auditorías de conciliación, donde la pregunta es «qué hay en A que no está en B, y qué hay en B que no está en A», y quieres las dos respuestas en una sola consulta.
 
 \`\`\`sql
 SELECT a.id AS account_id, t.id AS transaction_id
@@ -112,7 +118,7 @@ FULL JOIN transactions AS t ON t.account_id = a.id
 WHERE a.id IS NULL OR t.id IS NULL;
 \`\`\`
 
-En **Bolsillo** esto lista cuentas sin movimientos y movimientos huérfanos (si los hubiera).
+En **Bolsillo**, la billetera digital, esta consulta lista dos cosas a la vez: las cuentas que no tienen ningún movimiento y los movimientos huérfanos, es decir, los que apuntan a una cuenta que no existe, si los hubiera.
 
 ## Elegir el JOIN
 
@@ -125,11 +131,13 @@ En **Bolsillo** esto lista cuentas sin movimientos y movimientos huérfanos (si 
 
 ## Cardinalidad, otra vez
 
-Un LEFT JOIN con relación uno-a-muchos también multiplica filas. «Personas con sus tarjetas» devuelve una fila por tarjeta y una fila (con NULL) por persona sin tarjeta. Antes de contar personas, cuenta con \`count(DISTINCT u.id)\` o agrega en una subconsulta.
+Un LEFT JOIN también multiplica filas cuando la relación es uno a muchos, o sea, cuando una fila de la izquierda puede emparejarse con varias de la derecha. Si unes personas con sus tarjetas, obtienes una fila por cada tarjeta, así que alguien con tres tarjetas aparece tres veces, y una fila con NULL por cada persona sin ninguna tarjeta.
+
+La consecuencia es que \`count(*)\` sobre ese resultado cuenta tarjetas, no personas, y el reporte va a decir que tienes más clientes de los que tienes. Para contar personas usa \`count(DISTINCT u.id)\`, que cuenta identificadores distintos, o agrega primero en una subconsulta y después une.
 
 ## Verificar
 
-Después de un LEFT JOIN, la cantidad de filas nunca es menor que la de la tabla izquierda. Si lo es, alguna condición en \`WHERE\` lo convirtió en INNER.
+Después de un LEFT JOIN, la cantidad de filas del resultado nunca puede ser menor que la cantidad de filas de la tabla izquierda. Si te da menos, alguna condición del \`WHERE\` sobre la tabla derecha lo convirtió en un INNER JOIN y estás perdiendo filas sin darte cuenta. Es una verificación de diez segundos que conviene hacer siempre.
 
 ## Ejemplo resuelto
 
@@ -143,7 +151,7 @@ WHERE u.country = 'UY'
   AND c.id IS NULL;
 \`\`\`
 
-\`u.country = 'UY'\` es sobre la tabla izquierda: puede ir en \`WHERE\` sin romper el LEFT JOIN.
+La condición \`u.country = 'UY'\` es sobre \`users\`, que es la tabla izquierda, así que puede ir en el \`WHERE\` sin romper el LEFT JOIN: esas filas existen con valor propio, no dependen de la unión.
 `,
   },
 ];

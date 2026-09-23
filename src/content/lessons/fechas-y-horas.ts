@@ -14,7 +14,7 @@ export const lessons: LessonDef[] = [
     dataset: "tiendaviva",
     body_md: `## Por qué importa
 
-Casi todo reporte de negocio tiene una dimensión temporal: ventas del mes, tiempo de entrega, antigüedad de un cliente. Si te equivocas con el tipo de dato o con el borde de un rango, el número que entregas queda mal por poco... y nadie lo nota hasta que alguien audita.
+Casi todo reporte de negocio tiene una dimensión temporal: las ventas del mes, el tiempo de entrega, la antigüedad de un cliente. Si te equivocas con el tipo de dato o con el extremo de un rango de fechas, el número que entregas queda mal por poco: lo bastante parecido al correcto como para que nadie lo note hasta que alguien audite el reporte.
 
 ## DATE, TIMESTAMP y TIMESTAMPTZ
 
@@ -22,13 +22,13 @@ PostgreSQL distingue tres tipos que se ven parecidos:
 
 - \`date\` guarda **solo el día**: \`2025-09-15\`.
 - \`timestamp\` guarda día y hora, **sin zona horaria**: \`2025-09-15 23:54:47\`.
-- \`timestamptz\` guarda un instante absoluto y lo **muestra** en la zona horaria de la sesión.
+- \`timestamptz\` (por *timestamp with time zone*, marca de tiempo con zona horaria) guarda un instante absoluto y lo **muestra** en la zona horaria de la sesión desde la que consultas.
 
 En TiendaViva, \`sellers.joined_at\` es \`date\` (solo interesa el día del alta), mientras que \`orders.created_at\`, \`payments.paid_at\` y \`shipments.delivered_at\` son \`timestamptz\`: un pedido ocurre en un instante, no en un día.
 
-Esa diferencia es la fuente número uno de errores en reportes. Un valor \`date\` equivale a ese día **a las 00:00**, así que \`created_at <= DATE '2025-08-31'\` deja fuera casi todo el 31 de agosto. Lo veremos en detalle en la tercera lección.
+Esa diferencia es la causa número uno de errores en los reportes. Cuando comparas un \`timestamptz\` con un valor \`date\`, ese \`date\` se entiende como el **primer instante** de ese día, las 00:00, así que \`created_at <= DATE '2025-08-31'\` deja fuera todo lo que ocurrió el 31 de agosto después de la medianoche, o sea casi todo el día. Lo veremos en detalle en la tercera lección.
 
-Con \`timestamptz\` el motor convierte al mostrar: el mismo instante se ve como \`2025-09-13 22:43\` en UTC y como \`2025-09-13 19:43\` en Buenos Aires. El dataset se ejecuta en UTC, así que todos los ejemplos son directos, pero en producción conviene fijar la zona horaria con \`AT TIME ZONE\` cuando el reporte es «por día local».
+Con \`timestamptz\` el motor hace la conversión al mostrar el valor: el mismo instante se ve como \`2025-09-13 22:43\` en UTC (por *Coordinated Universal Time*, el tiempo universal coordinado, la referencia horaria mundial) y como \`2025-09-13 19:43\` en Buenos Aires. El entorno de práctica trabaja siempre en UTC, así que todos los ejemplos dan el mismo resultado para cualquier persona. En un sistema real, cuando el reporte se pide «por día local», conviene fijar la zona horaria de forma explícita con \`AT TIME ZONE\` en lugar de confiar en la de la sesión.
 
 ## EXTRACT: obtener una parte
 
@@ -41,9 +41,9 @@ SELECT store_name,
 FROM sellers;
 \`\`\`
 
-Campos habituales: \`YEAR\`, \`MONTH\`, \`DAY\`, \`HOUR\`, \`MINUTE\`, \`DOW\` (día de la semana, 0 = domingo), \`DOY\` (día del año), \`QUARTER\`, \`EPOCH\` (segundos desde 1970). \`DATE_PART('year', joined_at)\` hace exactamente lo mismo con otra sintaxis; usa la que prefieras y sé consistente.
+Campos habituales: \`YEAR\` (año), \`MONTH\` (mes), \`DAY\` (día), \`HOUR\` (hora), \`MINUTE\` (minuto), \`DOW\` (por *day of week*, el día de la semana, donde 0 es domingo), \`DOY\` (por *day of year*, el día del año), \`QUARTER\` (el trimestre) y \`EPOCH\` (la cantidad de segundos transcurridos desde el 1 de enero de 1970, la referencia de tiempo que usan los sistemas informáticos). \`DATE_PART('year', joined_at)\` hace exactamente lo mismo con otra sintaxis; elige una y úsala de forma consistente.
 
-Detalle importante: \`EXTRACT(MONTH FROM created_at)\` devuelve \`8\` tanto para agosto de 2024 como para agosto de 2025. Sirve para analizar estacionalidad, no para armar una serie mensual.
+Detalle importante: \`EXTRACT(MONTH FROM created_at)\` devuelve \`8\` tanto para agosto de 2024 como para agosto de 2025, porque solo mira el número de mes. Sirve para analizar la estacionalidad, o sea, en qué meses del año se vende más sin importar el año; no sirve para armar una serie mensual, donde cada mes de cada año tiene que ser un punto distinto.
 
 ## DATE_TRUNC: quedarse con el período
 
@@ -72,13 +72,13 @@ FROM orders;
 | ¿Qué días de la semana hay más pedidos? | \`EXTRACT(DOW ...)\` |
 | ¿Cuántos pedidos hubo cada semana? | \`DATE_TRUNC('week', ...)\` |
 
-La regla corta: \`EXTRACT\` responde «qué parte»; \`DATE_TRUNC\` responde «qué período».
+La regla corta es esta: \`EXTRACT\` responde «qué parte de la fecha es» y \`DATE_TRUNC\` responde «a qué período pertenece esta fecha».
 
 ## Errores comunes
 
 - Usar \`EXTRACT(MONTH ...)\` para una serie temporal: enero de 2024 y enero de 2025 se mezclan en un solo \`1\`.
 - Suponer que \`DATE_TRUNC('week', ...)\` empieza el domingo: en PostgreSQL empieza el lunes (ISO).
-- Comparar el resultado de \`EXTRACT\` con un texto: devuelve un número, así que compara con \`2025\`, no con \`'2025'\`.
+- Comparar el resultado de \`EXTRACT\` con un texto: \`EXTRACT\` devuelve un número, así que compara con \`2025\` y no con \`'2025'\`, que es texto.
 
 ## Resumen
 
@@ -117,7 +117,7 @@ SELECT TIMESTAMP '2025-09-10 08:00' - TIMESTAMP '2025-09-01 20:00';
 -- 8 days 12:00:00
 \`\`\`
 
-Las dos respuestas son correctas, pero miden cosas distintas: 9 días calendario frente a 8 días y medio reales. Antes de escribir la consulta, define qué pide el negocio. Para «días de entrega» en TiendaViva usamos días calendario, así que llevamos ambos extremos a \`date\`:
+Las dos respuestas son correctas, pero miden cosas distintas: 9 días de calendario frente a 8 días y medio de tiempo real transcurrido. Antes de escribir la consulta, define cuál de las dos pide quien te hizo el pedido. Para los «días de entrega» en TiendaViva usamos días de calendario, así que convertimos los dos extremos a \`date\`:
 
 \`\`\`sql
 SELECT order_id,
@@ -126,7 +126,7 @@ FROM shipments
 WHERE delivered_at IS NOT NULL;
 \`\`\`
 
-El \`::date\` es la sintaxis corta de \`CAST(delivered_at AS date)\`. Y el filtro \`IS NOT NULL\` importa: 1110 envíos todavía no se entregaron, y cualquier operación con NULL devuelve NULL.
+El \`::date\` es la forma abreviada de \`CAST(delivered_at AS date)\`, que convierte el instante en una fecha sin hora. El filtro \`IS NOT NULL\` también importa: hay 1110 envíos que todavía no se entregaron y tienen \`delivered_at\` en NULL. Como cualquier operación que incluye un NULL devuelve NULL, esas filas aparecerían con la columna \`delivery_days\` vacía y ensuciarían el reporte.
 
 ## Convertir un interval en un número
 
@@ -138,9 +138,9 @@ FROM shipments
 WHERE delivered_at IS NOT NULL;
 \`\`\`
 
-\`EPOCH\` sobre un interval devuelve su duración total en segundos: divide entre 60 para minutos, 3600 para horas, 86 400 para días.
+\`EPOCH\` aplicado a un interval devuelve su duración total en segundos. A partir de ahí divides según la unidad que necesites: entre 60 para minutos, entre 3600 para horas y entre 86 400 para días.
 
-Cuidado con \`EXTRACT(DAY FROM ...)\`: devuelve **solo el componente de días** del interval. Para \`8 days 12:00:00\` da \`8\` y descarta las 12 horas restantes; no es un redondeo, es un truncamiento por componente.
+Cuidado con \`EXTRACT(DAY FROM ...)\`: devuelve **solo el componente de días** del interval. Para \`8 days 12:00:00\` devuelve \`8\` y descarta las 12 horas restantes. No las redondea ni las suma: simplemente lee el componente «días» y olvida el resto, así que tu promedio de entrega sale más bajo que el real.
 
 ## AGE: la diferencia «humana»
 
@@ -150,7 +150,7 @@ Cuidado con \`EXTRACT(DAY FROM ...)\`: devuelve **solo el componente de días** 
 SELECT AGE(DATE '2025-09-15', DATE '2022-02-06');  -- 3 years 7 mons 9 days
 \`\`\`
 
-Es ideal para antigüedades. Combinado con \`EXTRACT\` te da los años cumplidos:
+Es la función indicada para calcular antigüedades. Combinada con \`EXTRACT\` te da los años cumplidos:
 
 \`\`\`sql
 SELECT store_name,
@@ -189,7 +189,7 @@ SELECT TO_CHAR(created_at, 'YYYY-MM')            AS periodo,     -- 2025-08
 FROM orders;
 \`\`\`
 
-Úsalo para presentar, no para ordenar ni comparar: el resultado es texto, y \`'31/08/2025'\` se ordena alfabéticamente. \`'YYYY-MM'\` es la excepción práctica, porque su orden alfabético coincide con el cronológico.
+Úsalo solo para presentar el dato, nunca para ordenarlo ni compararlo. El resultado es texto, y el texto se ordena carácter por carácter: con el formato \`'DD/MM/YYYY'\`, la fecha \`'01/09/2025'\` queda antes que \`'31/08/2025'\` aunque sea un día posterior. El formato \`'YYYY-MM'\` es la excepción práctica, porque al empezar por el año su orden alfabético coincide con el cronológico.
 
 ## Errores comunes
 
@@ -218,11 +218,11 @@ FROM orders;
     dataset: "tiendaviva",
     body_md: `## Por qué importa
 
-Este es el error más caro de toda la sección, porque no falla: devuelve un número creíble, apenas más bajo que el correcto. Filtrar «agosto» con \`BETWEEN\` sobre una columna \`timestamptz\` pierde casi todo el último día del mes.
+Este es el error más caro de toda la sección, justamente porque la consulta no falla: se ejecuta sin un solo mensaje y devuelve un número creíble, apenas más bajo que el correcto. Filtrar «agosto» con \`BETWEEN\` sobre una columna \`timestamptz\` deja fuera casi todo el último día del mes.
 
 ## Qué hace realmente BETWEEN
 
-\`BETWEEN a AND b\` equivale a \`>= a AND <= b\`: incluye los dos extremos. El problema no es \`BETWEEN\`, es que el extremo \`DATE '2025-08-31'\` se convierte a \`2025-08-31 00:00:00\`.
+\`BETWEEN a AND b\` equivale a \`>= a AND <= b\`, así que incluye los dos extremos. El problema no está en \`BETWEEN\` sino en el extremo: al compararlo con una columna que tiene hora, \`DATE '2025-08-31'\` se convierte en \`2025-08-31 00:00:00\`, la medianoche con la que empieza ese día.
 
 \`\`\`sql
 -- Intención: todos los pedidos de agosto de 2025
@@ -231,7 +231,7 @@ FROM orders
 WHERE created_at BETWEEN DATE '2025-08-01' AND DATE '2025-08-31';
 \`\`\`
 
-En TiendaViva esa consulta devuelve **1172** pedidos. Los pedidos reales de agosto son **1208**: faltan los 36 que se crearon el 31 de agosto después de la medianoche, es decir, prácticamente todos los de ese día. Un 3 % de la facturación evaporado sin un solo mensaje de error.
+En TiendaViva esa consulta devuelve **1172** pedidos, pero los pedidos reales de agosto son **1208**. Faltan los 36 que se crearon el 31 de agosto después de la medianoche, es decir, prácticamente todos los de ese día. Es un 3 % de la facturación que desaparece del reporte sin que el motor avise de nada.
 
 ## El patrón correcto: rango medio abierto
 
@@ -265,15 +265,15 @@ WHERE created_at::date = DATE '2025-08-31'                 -- legible
 WHERE DATE_TRUNC('month', created_at) = DATE '2025-08-01'  -- período completo
 \`\`\`
 
-Ambas son correctas y se leen muy bien. Su desventaja es de rendimiento: al aplicar una función a la columna, el motor no puede aprovechar un índice común sobre \`created_at\` y termina recorriendo la tabla entera. En tablas chicas da igual; en millones de filas, el rango medio abierto gana.
+Ambas son correctas y se leen muy bien. Su desventaja es de rendimiento: al aplicar una función sobre la columna, el motor ya no puede usar el índice de \`created_at\` —un índice es la estructura auxiliar que le permite encontrar filas sin leer la tabla completa— y termina recorriendo todas las filas. En una tabla chica no se nota; con millones de filas, el rango medio abierto es claramente más rápido.
 
 ¿Y \`BETWEEN\`? Es perfectamente válido con columnas \`date\`, con enteros o con importes, donde ambos extremos significan lo que aparentan. El problema es exclusivo de las columnas que llevan hora.
 
 ## Errores comunes
 
 - \`BETWEEN '2025-01-01' AND '2025-01-31'\` sobre un \`timestamptz\`: pierde el último día.
-- «Arreglarlo» con \`<= DATE '2025-08-31' + INTERVAL '1 day' - INTERVAL '1 second'\`: falla con milisegundos y es ilegible.
-- Mezclar criterios entre reportes: si un tablero usa \`<=\` y otro \`<\`, los totales nunca cuadran.
+- «Arreglarlo» con \`<= DATE '2025-08-31' + INTERVAL '1 day' - INTERVAL '1 second'\`: además de ser difícil de leer, deja fuera lo que haya ocurrido en el último segundo del día, porque los instantes se guardan con milisegundos.
+- Mezclar criterios entre reportes: si un tablero filtra con \`<=\` y otro con \`<\`, los dos totales se diferencian en un día y nunca terminan de cuadrar.
 - Filtrar por \`shipped_at\` cuando la pregunta es sobre entregas: revisa **qué** columna de fecha responde la pregunta.
 
 ## Resumen

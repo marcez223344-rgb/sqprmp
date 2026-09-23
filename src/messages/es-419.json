@@ -113,7 +113,7 @@
   },
   "auth": {
     "title": "Ingresa a tu cuenta",
-    "subtitle": "Usa tu cuenta de Google. Los primeros {count} ejercicios son gratis.",
+    "subtitle": "Entra con tu cuenta de Google. Si es tu primera vez, la cuenta se crea en el momento y no necesitas tarjeta.",
     "googleButton": "Continuar con Google",
     "legal": "Al continuar aceptas los <terms>Términos</terms> y la <privacy>Política de privacidad</privacy>.",
     "errors": {
@@ -132,6 +132,7 @@
       "badges": "Insignias",
       "access": "Mi acceso",
       "review": "Repaso",
+      "savedQueries": "Consultas",
       "certificates": "Certificados"
     },
     "signOut": "Salir",
@@ -347,7 +348,7 @@
   },
   "path": {
     "title": "Tu ruta de aprendizaje",
-    "intro": "Avanza en orden: cada sección desbloquea la siguiente. Los primeros niveles incluyen teoría gratuita.",
+    "intro": "Las secciones están ordenadas de menor a mayor dificultad y cada una supone lo aprendido en las anteriores. Ese es el camino recomendado, pero puedes entrar directamente a la sección que te interese. Los primeros niveles incluyen teoría gratuita.",
     "sectionNumber": "Sección {number}",
     "freeTheory": "Teoría gratis",
     "certificateMilestone": "Al completar esta sección obtienes un certificado",
@@ -572,6 +573,7 @@
     "revealSolution": "Ver la solución explicada",
     "revealAnyway": "Quiero verla igual",
     "revealWarning": "Si revelas la solución ahora conservarás solo el {percent} % del XP de este ejercicio. No hay penalización adicional: lo importante es aprender.",
+    "revealWithoutHints": "Todavía no usaste ninguna pista. Cada pista cuesta {hintPenalty} % del XP y te deja resolver el ejercicio por tu cuenta; ver la solución te deja con el {percent} %. Te conviene empezar por la pista 1.",
     "revealConfirm": "Sí, revelar",
     "revealCancel": "Mejor sigo intentando",
     "alternative": "Alternativa: {label}",
@@ -586,6 +588,8 @@
       "save": "Guardar",
       "cancel": "Cancelar",
       "saved": "Consulta guardada",
+      "savedWhere": "La encuentras en Consultas guardadas.",
+      "savedLink": "Ver mis consultas guardadas",
       "error": "No pudimos guardar la consulta."
     },
     "rewardEarned": "+{xp} XP · +{coins} monedas",

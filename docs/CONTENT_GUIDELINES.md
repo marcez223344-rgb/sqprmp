@@ -95,3 +95,29 @@ Content is code-reviewed data in `src/content/`: `course.ts`, `sections.ts` (39 
 Tables and columns are named in English (`orders`, `customer_id`, `created_at`) because that is the convention in the jobs this course prepares for; teaching `pedidos.fecha_creacion` would make the product feel more Spanish and leave graduates less prepared. Everything around the identifier — scenario, business question, hints, explanations, column descriptions — is Spanish.
 
 So that English is never the barrier, `src/config/sql-glossary.ts` maps identifiers to a short Spanish gloss, shown next to each table and column in the schema panel. It resolves an exact name first, then a suffix rule (`_id`, `_at`, `_on`, `_count`, `is_`), and returns nothing when it is not confident: a missing gloss is better than a wrong one. A new dataset should add its table names and any domain-specific column to that file.
+
+## 9. Clarity rules (owner feedback, 2026-09-23)
+
+Prose that is _correct_ but compressed reads as unclear to a learner meeting the idea for the
+first time. Two owner-cited rewrites set the standard; `src/content/lessons/tablas-filas-columnas-tipos.ts`
+("Anatomía de una tabla") is the reference implementation.
+
+1. **Define the term inside the sentence that introduces it.** Not "leer su esquema" but
+   "leer su esquema, es decir, cómo están estructurados los datos".
+2. **Expand every acronym on first use, with its English origin.** "Clave primaria (PK, por
+   _primary key_, su nombre en inglés)". The learner will meet `PK` in English documentation.
+3. **Never leave a qualified identifier unexplained.** Not "`orders.customer_id` apunta a
+   `customers.id`" but "`orders.customer_id` es la columna `customer_id` de la tabla `orders`,
+   y apunta a la columna `id` de la tabla `customers`". Then give the business meaning.
+4. **Name the consequence plainly instead of gesturing at it.** Not "multiplica filas sin darse
+   cuenta" as a standalone punchline, but "comete errores que producen resultados incorrectos o
+   inesperados". Keep the vivid detail _after_ the plain statement, never instead of it.
+5. **One concrete anchor per abstract concept** — an analogy ("funciona como el número de
+   documento de identidad de la fila") or a TiendaViva example. Abstraction alone is a rewrite.
+6. **Prefer the unambiguous phrasing over the idiomatic one**: "desde la primera vez", not
+   "a la primera".
+7. **No rhetorical compression**: semicolon contrasts, elided verbs and aphorisms cost the reader
+   a re-read. Spend the extra clause.
+
+What these rules are _not_: an invitation to pad. Sentences get longer only where the added words
+carry meaning the learner needs. Nothing here relaxes §1 (neutral es-419, "tú", no childish tone).

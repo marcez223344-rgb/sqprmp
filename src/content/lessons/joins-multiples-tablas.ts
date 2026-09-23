@@ -16,7 +16,7 @@ export const lessons: LessonDef[] = [
     dataset: "tiendaviva",
     body_md: `## Por qué importa
 
-Ya sabes unir dos tablas. Las preguntas reales piden tres, cuatro o cinco: «unidades vendidas por tienda y categoría», «bebidas pedidas por ciudad». Ninguna tabla tiene esas columnas juntas; hay que recorrer un **camino** por el modelo de datos.
+Ya sabes unir dos tablas. Las preguntas reales suelen necesitar tres, cuatro o cinco: «unidades vendidas por tienda y categoría», «bebidas pedidas por ciudad». Ninguna tabla guarda todas esas columnas juntas, así que hay que recorrer un **camino**: una secuencia de tablas conectadas entre sí por sus claves, desde la que tiene el dato que ya conoces hasta la que tiene el dato que te falta.
 
 ## Dibuja el camino antes de escribir
 
@@ -24,17 +24,23 @@ En TiendaViva, para llegar del vendedor a la línea de pedido el camino es:
 
 \`sellers → products → order_items → orders\`
 
-Cada flecha es una clave foránea existente: \`products.seller_id\`, \`order_items.product_id\`, \`order_items.order_id\`. Escribe el camino en una línea antes de tocar el teclado; cada flecha se convierte en un \`INNER JOIN ... ON\`.
+Cada flecha es una clave foránea (FK, por *foreign key*) que ya existe en el modelo:
 
-Si no encuentras una flecha entre dos tablas, no puedes unirlas directamente: falta una tabla intermedia. \`sellers\` y \`orders\` no se tocan; se comunican a través de \`products\` y \`order_items\`.
+- \`products.seller_id\` es la columna \`seller_id\` de la tabla \`products\` y apunta a la columna \`id\` de la tabla \`sellers\`: dice qué vendedor publicó ese producto.
+- \`order_items.product_id\` es la columna \`product_id\` de la tabla \`order_items\` y apunta a la columna \`id\` de la tabla \`products\`: dice qué producto se vendió en esa línea del pedido.
+- \`order_items.order_id\` es la columna \`order_id\` de la tabla \`order_items\` y apunta a la columna \`id\` de la tabla \`orders\`: dice a qué pedido pertenece esa línea.
+
+Escribe el camino completo en una línea antes de tocar el teclado; después, cada flecha se convierte en un \`INNER JOIN ... ON\`.
+
+Si no encuentras una flecha entre dos tablas, no puedes unirlas directamente porque falta una tabla intermedia. \`sellers\` y \`orders\` no comparten ninguna columna que las relacione: se comunican a través de \`products\` y \`order_items\`.
 
 ## La tabla conductora
 
-La **tabla conductora** es la que escribes en el \`FROM\`. Marca el nivel de detalle de la lectura: «parto de las líneas de pedido y les agrego información» se lee distinto que «parto de los vendedores y busco sus ventas», aunque el resultado sea el mismo.
+La **tabla conductora** es la que escribes en el \`FROM\`, la primera de la cadena. No cambia el resultado, pero sí cambia cómo se lee la consulta: «parto de las líneas de pedido y les voy agregando información» se entiende distinto que «parto de los vendedores y busco sus ventas», aunque las dos versiones devuelvan exactamente las mismas filas.
 
 Dos criterios prácticos:
 
-1. Empieza por la tabla que define el **grano** del resultado (una fila por línea de pedido, por pedido, por cliente).
+1. Empieza por la tabla que define el **grano** del resultado, es decir, qué representa cada fila de la salida: una línea de pedido, un pedido completo o un cliente.
 2. O empieza por la tabla que llevará el filtro más restrictivo; se lee mejor tener el \`WHERE\` cerca de la tabla que filtra.
 
 \`\`\`sql
@@ -63,7 +69,7 @@ INNER JOIN orders      AS o  ON o.id = oi.order_id
 
 ## El orden no cambia el resultado (con INNER)
 
-Con solo \`INNER JOIN\`, reordenar los joins **no** cambia el conjunto de filas: la unión interna es conmutativa y asociativa. El planificador de PostgreSQL además elige su propio orden de ejecución sin importar cómo lo escribiste.
+Cuando todas las uniones son \`INNER JOIN\`, reordenarlas **no** cambia el conjunto de filas que sale. La unión interna es conmutativa y asociativa: da lo mismo cuál tabla pongas primero y cómo agrupes las uniones entre sí. Además, el planificador de PostgreSQL —el componente que decide cómo ejecutar la consulta— elige su propio orden de ejecución sin importar el orden en que la escribiste.
 
 Lo que sí cambia es la legibilidad. Una regla que funciona: **cada tabla nueva se une a algo que ya está arriba**. Si el \`ON\` de la cuarta tabla menciona una tabla que aparece dos líneas más abajo, reordena.
 
@@ -78,13 +84,13 @@ Un \`ON\` no está obligado a usar claves primarias. Es válido —y a veces nec
 INNER JOIN orders AS o ON o.currency = p.currency
 \`\`\`
 
-Cuidado: si ninguno de los dos lados es único, esa unión **multiplica filas** sin avisar. Antes de unir por una columna que no es clave, pregúntate si es única en al menos un lado.
+Cuidado con esto: si el valor de esa columna se repite en las dos tablas, la unión combina cada fila de un lado con cada fila del otro y devuelve muchas más filas de las que corresponde, sin ningún mensaje de error. Antes de unir por una columna que no es clave, verifica que sus valores no se repitan al menos en una de las dos tablas.
 
 También puedes unir por más de una columna (\`ON a.city = b.city AND a.day = b.day\`) o agregar condiciones fijas al \`ON\` (\`AND pay.status = 'approved'\`).
 
 ## Alias y formato
 
-Con cuatro tablas, los alias dejan de ser comodidad y pasan a ser necesidad: \`id\`, \`name\` y \`created_at\` existen en casi todas. Usa alias cortos y estables (\`o\`, \`oi\`, \`p\`, \`s\`), alinea los \`ON\` y pon una tabla por línea. Tu yo de la semana próxima lo agradecerá.
+Con cuatro tablas los alias dejan de ser una comodidad y pasan a ser necesarios. Un **alias** es un nombre corto que le das a una tabla dentro de la consulta (\`orders AS o\`) para después referirte a sus columnas como \`o.id\`. Hace falta porque columnas como \`id\`, \`name\` y \`created_at\` existen en casi todas las tablas y, sin alias, el motor no sabe a cuál te refieres. Usa alias cortos y estables (\`o\`, \`oi\`, \`p\`, \`s\`), alinea los \`ON\` y escribe una tabla por línea: la consulta queda legible para quien la revise, incluido tú dentro de un mes.
 
 ## Resumen
 
@@ -106,7 +112,7 @@ Con cuatro tablas, los alias dejan de ser comodidad y pasan a ser necesidad: \`i
     dataset: "tiendaviva",
     body_md: `## Una cadena con dos tipos de unión
 
-Casi todo reporte real mezcla los dos: hay tablas **obligatorias** (el pedido tiene cliente, el producto tiene vendedor) y tablas **opcionales** (la devolución, la reseña, la calificación).
+Casi todo reporte real mezcla los dos tipos de unión que ya conoces. Hay tablas **obligatorias**, sin las cuales la fila no tiene sentido (un pedido siempre tiene cliente, un producto siempre tiene vendedor), y tablas **opcionales**, que aportan un dato que puede no existir (la devolución, la reseña, la calificación). Para las primeras se usa \`INNER JOIN\`, que descarta la fila si no encuentra pareja; para las segundas, \`LEFT JOIN\`, que conserva la fila y deja en NULL las columnas de la tabla que faltó.
 
 \`\`\`sql
 SELECT o.id AS order_id, c.full_name, sh.carrier, sh.delivered_at, r.refund_amount
@@ -122,16 +128,16 @@ Regla de lectura: **INNER cuando la fila no tiene sentido sin la otra tabla; LEF
 
 ## Aquí el orden sí importa
 
-Con un LEFT JOIN, la consulta se evalúa por pasos: el resultado acumulado hasta ese punto es «la izquierda». Por eso:
+Con un \`LEFT JOIN\`, la consulta se evalúa por pasos, y «la izquierda» no es la tabla del \`FROM\` sino el resultado acumulado hasta ese punto de la cadena. De ahí salen dos consecuencias:
 
 - Un \`INNER JOIN\` escrito **después** de un LEFT JOIN, si su \`ON\` apunta a la tabla opcional, elimina las filas sin pareja: el LEFT queda anulado.
-- Un \`LEFT JOIN\` cuyo \`ON\` apunta a una tabla que llegó por otro LEFT encadena opcionalidad; revisa qué pasa cuando la primera falta.
+- Un \`LEFT JOIN\` cuyo \`ON\` apunta a una tabla que ya había llegado por otro \`LEFT JOIN\` encadena dos opcionalidades: cuando falta la primera tabla, la segunda tampoco encuentra pareja. Revisa qué valores quedan en esas filas antes de darlas por buenas.
 
 Ubica los LEFT JOIN al final de la cadena siempre que puedas: primero el esqueleto obligatorio, después los agregados opcionales.
 
 ## La trampa del WHERE, ahora en cadena
 
-Ya la viste con dos tablas: una condición sobre la tabla derecha en el \`WHERE\` convierte el LEFT en INNER, porque \`NULL = 'algo'\` nunca es verdadero.
+Ya la viste con dos tablas: si escribes en el \`WHERE\` una condición sobre la tabla derecha, la opcional, el \`LEFT JOIN\` pasa a comportarse como un \`INNER JOIN\` y pierdes las filas que no tenían pareja. Ocurre porque en esas filas las columnas de la tabla derecha valen NULL, y una comparación como \`NULL = 'algo'\` nunca da verdadero.
 
 \`\`\`sql
 -- MAL: quedan solo los 8 pedidos que sí tienen devolución
@@ -150,7 +156,7 @@ En una consulta de cinco tablas esto es más difícil de ver, porque el \`WHERE\
 
 En un INNER JOIN, poner \`pay.status = 'approved'\` en el \`ON\` o en el \`WHERE\` produce el mismo resultado. Muchos equipos prefieren el \`ON\` para las condiciones que definen **qué fila se une** y el \`WHERE\` para las que filtran el reporte. Es una convención de legibilidad, no una regla del motor.
 
-Esa simetría existe **solo** con INNER. En un LEFT JOIN, \`ON\` y \`WHERE\` significan cosas distintas.
+Esa equivalencia existe **solo** con \`INNER JOIN\`. En un \`LEFT JOIN\`, poner la misma condición en el \`ON\` o en el \`WHERE\` devuelve resultados distintos, como acabas de ver.
 
 ## Verificar
 
@@ -159,7 +165,7 @@ Después de escribir la cadena, cuenta filas:
 - Si esperabas una fila por pedido y tienes más, algo se multiplicó (lección siguiente).
 - Si tienes menos que la tabla conductora filtrada, un LEFT se convirtió en INNER o un INNER descartó filas sin pareja.
 
-Comparar \`count(*)\` contra el conteo de la tabla conductora es la verificación más barata que existe.
+Comparar el \`count(*)\` del resultado contra la cantidad de filas de la tabla conductora ya filtrada es la verificación más rápida que puedes hacer, y detecta la mayoría de los errores de una cadena de joins.
 
 ## Resumen
 
@@ -181,13 +187,13 @@ Comparar \`count(*)\` contra el conteo de la tabla conductora es la verificació
     dataset: "tiendaviva",
     body_md: `## El error más caro del análisis
 
-Una consulta que suma de más no falla: devuelve un número creíble y equivocado. En TiendaViva, los pedidos entregados de clientes de Chile en agosto de 2025 suman **21 513 788 CLP**. Si unes esos mismos pedidos con \`order_items\` y sumas \`o.total_amount\`, el resultado es **47 823 913 CLP**: más del doble, porque los 80 pedidos se convirtieron en 134 líneas y cada total se contó una vez por línea.
+Una consulta que suma de más no da error: se ejecuta sin problemas y devuelve un número creíble pero equivocado, que nadie detecta hasta que alguien audita el reporte. En TiendaViva, los pedidos entregados de clientes de Chile en agosto de 2025 suman **21 513 788 CLP**. Si unes esos mismos pedidos con \`order_items\` y sumas \`o.total_amount\`, el resultado es **47 823 913 CLP**: más del doble, porque los 80 pedidos se convirtieron en 134 líneas y cada total se contó una vez por línea.
 
 ## Por qué pasa
 
-Un JOIN uno-a-muchos **repite** las filas del lado «uno». Un pedido con tres ítems aparece tres veces, con su \`total_amount\` intacto en cada copia. Sumar esa columna cuenta el mismo importe tres veces.
+En una relación uno a muchos —un pedido tiene muchas líneas, pero cada línea pertenece a un solo pedido— la tabla \`orders\` es el lado «uno» y \`order_items\` el lado «muchos». Al unirlas, el JOIN **repite** cada fila del lado «uno» una vez por cada fila que le corresponde del lado «muchos». Un pedido con tres ítems aparece tres veces, y en cada copia \`total_amount\` —la columna \`total_amount\` de la tabla \`orders\`, el importe total del pedido— sigue teniendo el mismo valor. Sumar esa columna cuenta el mismo importe tres veces.
 
-Regla: **una columna del lado «uno» no se puede agregar después de unirla con el lado «muchos»**.
+Regla: **una columna del lado «uno» no se puede sumar ni promediar después de haberla unido con el lado «muchos»**, porque sus valores quedaron repetidos.
 
 ## Dos veces uno-a-muchos: multiplicación
 
@@ -199,7 +205,7 @@ INNER JOIN order_items AS oi ON oi.order_id = o.id   -- 3 ítems
 INNER JOIN payments    AS pay ON pay.order_id = o.id  -- 2 intentos de pago
 \`\`\`
 
-El resultado no es 3 + 2 = 5 filas, es 3 × 2 = **6**. Cada ítem se combina con cada pago. En este dataset hay 2502 pedidos con más de un intento de pago, así que la trampa está activa.
+El resultado no es 3 + 2 = 5 filas, es 3 × 2 = **6**: cada ítem se combina con cada pago. En este dataset hay 2502 pedidos con más de un intento de pago, así que esta trampa no es teórica; se dispara en cuanto unes las dos tablas.
 
 ## Cómo evitarla
 

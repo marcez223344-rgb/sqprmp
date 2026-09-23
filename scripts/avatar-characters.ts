@@ -198,3 +198,171 @@ export function characterAvatars(): CharacterAvatar[] {
 
   return out;
 }
+
+/**
+ * Second wave (owner feedback, 2026-09-23: "add some more"). Appended through their own
+ * generator so that every avatar created before keeps its `sort_order`; the grid grows at the
+ * end instead of reshuffling.
+ */
+const EXTRA_STYLES = [
+  {
+    name: "recogido",
+    label: "Persona con pelo recogido",
+    draw: (hair: string) =>
+      `<circle cx="50" cy="22" r="8" fill="${hair}"/>` +
+      `<path d="M26 50 Q26 28 50 28 Q74 28 74 50 Q62 40 50 40 Q38 40 26 50Z" fill="${hair}"/>`,
+  },
+  {
+    name: "largo",
+    label: "Persona de pelo largo",
+    draw: (hair: string) =>
+      `<path d="M24 52 Q24 26 50 26 Q76 26 76 52 L76 74 Q70 66 70 52 Q62 42 50 42 Q38 42 30 52 Q30 66 24 74Z" fill="${hair}"/>`,
+  },
+  {
+    name: "barba",
+    label: "Persona con barba",
+    draw: (hair: string) =>
+      `<path d="M26 48 Q28 26 50 26 Q72 26 74 48 Q62 38 50 38 Q38 38 26 48Z" fill="${hair}"/>` +
+      `<path d="M28 56 Q30 78 50 78 Q70 78 72 56 Q66 70 50 70 Q34 70 28 56Z" fill="${hair}" opacity=".9"/>`,
+  },
+  {
+    // Slug stays ASCII: `avatars.slug` is constrained to ^[a-z0-9-]{2,40}$.
+    name: "panuelo",
+    label: "Persona con pañuelo",
+    draw: (hair: string) =>
+      `<path d="M26 46 Q28 24 50 24 Q72 24 74 46 Q62 36 50 36 Q38 36 26 46Z" fill="#F2652E"/>` +
+      `<path d="M74 44 L86 52 L72 56Z" fill="#F2652E"/>` +
+      `<circle cx="36" cy="38" r="3" fill="${hair}" opacity=".45"/>` +
+      `<circle cx="52" cy="32" r="3" fill="${hair}" opacity=".45"/>`,
+  },
+  {
+    name: "afro",
+    label: "Persona con peinado afro",
+    draw: (hair: string) =>
+      `<circle cx="50" cy="38" r="26" fill="${hair}"/>` +
+      `<circle cx="28" cy="44" r="10" fill="${hair}"/><circle cx="72" cy="44" r="10" fill="${hair}"/>`,
+  },
+] as const;
+
+/** Creatures with a Latin American accent, for learners who would rather not pick a face. */
+const EXTRA_CREATURES = [
+  {
+    slug: "llama",
+    label: "Llama serena",
+    body: () =>
+      `<ellipse cx="50" cy="60" rx="20" ry="22" fill="#E8D7BE"/>` +
+      `<rect x="38" y="20" width="8" height="18" rx="4" fill="#E8D7BE"/>` +
+      `<rect x="54" y="20" width="8" height="18" rx="4" fill="#E8D7BE"/>` +
+      `<circle cx="43" cy="56" r="3" fill="#1E1B18"/><circle cx="57" cy="56" r="3" fill="#1E1B18"/>` +
+      `<ellipse cx="50" cy="68" rx="8" ry="6" fill="#C2A882"/>`,
+  },
+  {
+    slug: "tucan",
+    label: "Tucán curioso",
+    body: () =>
+      `<circle cx="54" cy="50" r="23" fill="#1E2533"/>` +
+      `<path d="M34 46 Q12 52 34 60 Q40 53 34 46Z" fill="#F0B35A"/>` +
+      `<circle cx="56" cy="44" r="7" fill="#FFFFFF"/><circle cx="56" cy="44" r="3.5" fill="#1E1B18"/>` +
+      `<path d="M46 66 Q56 74 68 66" stroke="#F2652E" stroke-width="4" fill="none" stroke-linecap="round"/>`,
+  },
+  {
+    slug: "jaguar",
+    label: "Jaguar atento",
+    body: () =>
+      `<circle cx="32" cy="32" r="8" fill="#F0B35A"/><circle cx="68" cy="32" r="8" fill="#F0B35A"/>` +
+      `<circle cx="50" cy="52" r="24" fill="#F0B35A"/>` +
+      `<circle cx="36" cy="64" r="3" fill="#7A4F2A"/><circle cx="64" cy="64" r="3" fill="#7A4F2A"/>` +
+      `<circle cx="50" cy="72" r="3" fill="#7A4F2A"/>` +
+      `<circle cx="41" cy="48" r="3.5" fill="#1E1B18"/><circle cx="59" cy="48" r="3.5" fill="#1E1B18"/>` +
+      `<path d="M44 58 Q50 63 56 58" stroke="#1E1B18" stroke-width="2.5" fill="none" stroke-linecap="round"/>`,
+  },
+  {
+    slug: "tortuga",
+    label: "Tortuga paciente",
+    body: () =>
+      `<circle cx="50" cy="56" r="24" fill="#1C8A5A"/>` +
+      `<path d="M50 32 L50 80 M28 50 L72 50 M34 68 L66 68" stroke="#0F6B44" stroke-width="3"/>` +
+      `<circle cx="50" cy="28" r="10" fill="#3BAE7C"/>` +
+      `<circle cx="46" cy="27" r="2.5" fill="#1E1B18"/><circle cx="54" cy="27" r="2.5" fill="#1E1B18"/>`,
+  },
+  {
+    slug: "colibri",
+    label: "Colibrí veloz",
+    body: () =>
+      `<ellipse cx="52" cy="54" rx="16" ry="19" fill="#0EA5E9"/>` +
+      `<path d="M36 50 Q18 42 16 56 Q30 60 36 56Z" fill="#7C93FF" opacity=".9"/>` +
+      `<path d="M68 50 Q86 42 88 56 Q74 60 68 56Z" fill="#7C93FF" opacity=".9"/>` +
+      `<path d="M50 40 Q38 26 26 22" stroke="#F0B35A" stroke-width="4" fill="none" stroke-linecap="round"/>` +
+      `<circle cx="50" cy="44" r="3.5" fill="#FFFFFF"/><circle cx="50" cy="44" r="1.8" fill="#1E1B18"/>`,
+  },
+  {
+    slug: "abeja",
+    label: "Abeja trabajadora",
+    body: () =>
+      `<ellipse cx="50" cy="56" rx="20" ry="22" fill="#F0B35A"/>` +
+      `<path d="M31 48 H69 M31 60 H69 M35 70 H65" stroke="#1E2533" stroke-width="5"/>` +
+      `<ellipse cx="32" cy="34" rx="12" ry="8" fill="#FFFFFF" opacity=".75" transform="rotate(-25 32 34)"/>` +
+      `<ellipse cx="68" cy="34" rx="12" ry="8" fill="#FFFFFF" opacity=".75" transform="rotate(25 68 34)"/>` +
+      `<circle cx="43" cy="46" r="3" fill="#1E1B18"/><circle cx="57" cy="46" r="3" fill="#1E1B18"/>`,
+  },
+  {
+    slug: "delfin",
+    label: "Delfín juguetón",
+    body: () =>
+      `<path d="M20 64 Q34 34 62 36 Q78 37 84 52 Q70 52 62 60 Q48 74 20 64Z" fill="#7C93FF"/>` +
+      `<path d="M52 36 Q56 22 64 30Z" fill="#5C74E0"/>` +
+      `<path d="M20 64 Q12 58 10 70 Q18 72 24 68Z" fill="#5C74E0"/>` +
+      `<circle cx="70" cy="46" r="3" fill="#1E1B18"/>`,
+  },
+  {
+    slug: "cactus",
+    label: "Cactus optimista",
+    body: () =>
+      `<rect x="42" y="30" width="16" height="50" rx="8" fill="#1C8A5A"/>` +
+      `<path d="M42 52 H32 Q26 52 26 46 V40" stroke="#1C8A5A" stroke-width="9" fill="none" stroke-linecap="round"/>` +
+      `<path d="M58 60 H68 Q74 60 74 54 V48" stroke="#1C8A5A" stroke-width="9" fill="none" stroke-linecap="round"/>` +
+      `<circle cx="46" cy="44" r="2.5" fill="#1E1B18"/><circle cx="54" cy="44" r="2.5" fill="#1E1B18"/>` +
+      `<path d="M46 52 Q50 56 54 52" stroke="#1E1B18" stroke-width="2.2" fill="none" stroke-linecap="round"/>` +
+      `<circle cx="50" cy="26" r="5" fill="#F2652E"/>`,
+  },
+] as const;
+
+/** Appended after `characterAvatars()` so existing slugs keep their position in the grid. */
+export function extraCharacterAvatars(): CharacterAvatar[] {
+  const out: CharacterAvatar[] = [];
+
+  EXTRA_STYLES.forEach((style, i) => {
+    for (let k = 0; k < 4; k += 1) {
+      const skin = SKIN[(i + k + 1) % SKIN.length];
+      const hair = HAIR[(i * 3 + k) % HAIR.length];
+      const bg = BACKGROUNDS[(i + k * 3) % BACKGROUNDS.length];
+      const label = `${style.label}, piel ${skin.name}`;
+      out.push({
+        slug: `persona-${style.name}-${skin.name}`,
+        label,
+        svg:
+          `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="${label}">` +
+          `<rect width="100" height="100" rx="50" fill="${bg}"/>` +
+          face(skin.hex, style.draw(hair.hex)) +
+          `</svg>
+`,
+      });
+    }
+  });
+
+  EXTRA_CREATURES.forEach((c, i) => {
+    const bg = BACKGROUNDS[(i + 4) % BACKGROUNDS.length];
+    out.push({
+      slug: `mascota-${c.slug}`,
+      label: c.label,
+      svg:
+        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="${c.label}">` +
+        `<rect width="100" height="100" rx="50" fill="${bg}"/>` +
+        c.body() +
+        `</svg>
+`,
+    });
+  });
+
+  return out;
+}

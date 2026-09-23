@@ -87,6 +87,35 @@ From then on, `/admin` is visible in the app header for that account only, with:
 
 Scholarships in practice: for a handful of people use `/admin/accesos` (immediate, one learner). For a campaign — "20 becas para egresados de X" — create a `scholarship` promo code in `/admin/promos` with a redemption cap and an expiry, share the code, and deactivate it when the cap is reached. Both paths write to `audit_logs`.
 
+## 5d. Runbook: "No pudimos verificar tu acceso ahora mismo"
+
+Symptom: hints and submissions fail with that message, while lessons and exercise pages render
+normally. Cause: the page reads access through the learner's own client, but `requestHint`,
+`submitAnswer` and `revealSolution` call `can_access_exercise` through the **service-role** client.
+If `SUPABASE_SECRET_KEY` is wrong, only the actions break, and they break for every learner at once.
+
+Diagnose (never guess from the UI — a broken key and a real paywall look identical there):
+
+```bash
+curl -s -H "Authorization: Bearer $CRON_SECRET"   "https://dataminds-sql-academy.vercel.app/api/health/access?slug=<exercise-slug>"
+```
+
+- `{"ok":false,"step":"read_exercise","error":"Invalid API key"}` → the key is wrong. `keyShape`
+  in the same response says whether the value even reached the build (`kind`, `length`, `build`).
+- `{"ok":true,...,"access":{"value":"locked"}}` → genuinely a paywall, not an outage.
+
+Fix — the key must come from the **dashboard**, not from the CLI:
+
+1. Supabase dashboard → Project Settings → API Keys → secret key `default` → Reveal → Copy.
+   `npx supabase projects api-keys` returns the secret **masked**; pasting that masked string is
+   what produces "Invalid API key" (it is not ASCII and is not a usable key).
+2. `npx vercel env rm SUPABASE_SECRET_KEY production` then
+   `npx vercel env add SUPABASE_SECRET_KEY production` (paste at the prompt; never echo it).
+3. Put the same value in `.env.local`.
+4. Redeploy — env changes do not apply to existing deployments — then re-run the probe above.
+
+If the key was ever pasted into a chat, a log or a commit, rotate it in the dashboard first.
+
 ## 6. Rollback
 
 App: promote previous Vercel deployment. DB: migrations are forward-only; destructive changes require an expand/contract plan and a backup (Supabase Pro daily backups).

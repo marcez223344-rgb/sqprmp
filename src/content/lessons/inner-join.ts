@@ -16,11 +16,15 @@ export const lessons: LessonDef[] = [
     dataset: "tiendaviva",
     body_md: `## Por qué importa
 
-Los datos útiles están repartidos: \`products\` tiene el nombre del producto y \`sellers\` el de la tienda. Hasta ahora respondías preguntas sobre una tabla; la mayoría de las preguntas reales cruzan dos o más. \`JOIN\` es la herramienta central del análisis relacional.
+En una base relacional los datos están repartidos en varias tablas a propósito, para no repetir información. En TiendaViva, la tabla \`products\` guarda el nombre y el precio de cada producto, y la tabla \`sellers\` guarda el nombre de la tienda que lo vende. Si te piden «el catálogo con el nombre de la tienda», ninguna de las dos tablas alcanza por sí sola.
+
+Hasta ahora respondías preguntas que vivían en una sola tabla. La mayoría de las preguntas de negocio reales necesitan datos de dos o más, y la operación que las combina se llama \`JOIN\`. Es la herramienta central del análisis relacional.
 
 ## Claves que conectan tablas
 
-\`products.seller_id\` guarda el \`id\` del vendedor. Esa columna es una **clave foránea**: apunta a la **clave primaria** de \`sellers\`. Un JOIN une cada fila de una tabla con las filas de la otra que cumplen una condición, casi siempre la igualdad entre esas claves.
+\`products.seller_id\` es la columna \`seller_id\` de la tabla \`products\`, y guarda el identificador del vendedor que publicó ese producto. Ese valor es el mismo que aparece en la columna \`id\` de la tabla \`sellers\`. En términos de negocio, esa columna dice: «este producto lo vende esta tienda».
+
+Una columna así se llama **clave foránea** (FK, por *foreign key*, su nombre en inglés): es una columna que guarda el valor de la **clave primaria** de otra tabla (PK, por *primary key*), que es la columna que identifica de forma única cada fila. Un JOIN une cada fila de una tabla con las filas de la otra que cumplen una condición, y esa condición es casi siempre la igualdad entre la clave foránea de una y la clave primaria de la otra.
 
 ## La sintaxis
 
@@ -34,21 +38,25 @@ INNER JOIN sellers AS s
   ON s.id = p.seller_id;
 \`\`\`
 
-- \`FROM products AS p\`: la primera tabla, con alias \`p\`.
-- \`INNER JOIN sellers AS s\`: la segunda, con alias \`s\`.
-- \`ON s.id = p.seller_id\`: la condición de unión.
+- \`FROM products AS p\`: la primera tabla, a la que le damos el alias \`p\`.
+- \`INNER JOIN sellers AS s\`: la segunda tabla, con el alias \`s\`.
+- \`ON s.id = p.seller_id\`: la condición de unión, que empareja la columna \`id\` de \`sellers\` con la columna \`seller_id\` de \`products\`.
 
-Los alias de tabla evitan escribir el nombre completo y **resuelven ambigüedades**: ambas tablas tienen \`id\`, así que \`id\` a secas produce «column reference is ambiguous». Escribe siempre \`alias.columna\`.
+Un **alias de tabla** es un nombre corto que reemplaza al nombre completo dentro de la consulta. Además de ahorrarte escritura, resuelve las ambigüedades: las dos tablas tienen una columna llamada \`id\`, así que si escribes \`id\` a secas PostgreSQL no sabe a cuál te refieres y responde «column reference is ambiguous». Escribe siempre \`alias.columna\`.
 
-\`INNER JOIN\` y \`JOIN\` son sinónimos. \`INNER\` es explícito y se recomienda mientras aprendes.
+\`INNER JOIN\` y \`JOIN\` significan exactamente lo mismo en PostgreSQL. Conviene escribir \`INNER\` mientras aprendes, porque deja explícito qué tipo de unión elegiste.
 
 ## Qué filas salen
 
-Un INNER JOIN devuelve **solo las combinaciones que cumplen la condición**. Un producto cuyo \`seller_id\` no exista en \`sellers\` desaparecería del resultado; un vendedor sin productos tampoco aparece. Para conservar filas «huérfanas» existen los OUTER JOIN (sección 18).
+Un INNER JOIN devuelve **solo las combinaciones de filas que cumplen la condición del \`ON\`**. Todo lo que no encuentra pareja desaparece del resultado, y desaparece en silencio: no hay error ni advertencia.
+
+Dos casos concretos en TiendaViva. Si un producto tuviera un \`seller_id\` que no existe en \`sellers\`, ese producto no aparecería en el catálogo que entregas. Y un vendedor que todavía no publicó ningún producto tampoco aparece, porque no hay ninguna fila de \`products\` con la que emparejarlo. Eso importa para la respuesta de negocio: si te piden «cuántos vendedores tenemos por país», contar sobre un INNER JOIN con \`products\` te va a dar un número más bajo que el real, porque deja afuera a los vendedores sin catálogo.
+
+Cuando necesites conservar esas filas sin pareja, existen los OUTER JOIN, que verás en la sección 18.
 
 ## JOIN + WHERE
 
-El \`WHERE\` se aplica después de unir, y puede usar columnas de cualquiera de las dos tablas:
+El \`WHERE\` se aplica después de unir las tablas, y puede usar columnas de cualquiera de las dos:
 
 \`\`\`sql
 SELECT p.id, p.name, s.store_name
@@ -59,15 +67,17 @@ WHERE s.country = 'UY';
 
 ## Filas que se multiplican
 
-Si un pedido tiene **dos** pagos (uno rechazado y uno aprobado), \`orders JOIN payments\` devuelve **dos filas** para ese pedido. No es un error del JOIN: es la relación uno-a-muchos. Antes de sumar montos de \`orders\` en una consulta con JOIN, pregúntate si la unión duplicó filas. En este dataset, 2502 pedidos tienen más de un pago.
+Si un pedido tiene **dos** pagos registrados, por ejemplo uno rechazado y uno aprobado, entonces \`orders JOIN payments\` devuelve **dos filas** para ese pedido, una por cada pago. No es un error del JOIN: es la consecuencia de que la relación sea uno a muchos, o sea, un pedido puede tener varios pagos.
+
+La consecuencia práctica es que sumar \`orders.total_amount\` sobre ese resultado cuenta el importe del pedido dos veces y el total del reporte queda inflado. Antes de sumar montos en una consulta con JOIN, verifica si la unión multiplicó filas. En este dataset, 2502 pedidos tienen más de un pago.
 
 ## Ejemplo resuelto
 
 Pedido: «Productos de vendedores uruguayos, con el nombre de la tienda».
 
-1. Tablas: \`products\` (nombre) y \`sellers\` (tienda, país).
-2. Conexión: \`products.seller_id = sellers.id\`.
-3. Filtro: \`sellers.country = 'UY'\`.
+1. Tablas: \`products\` (nombre del producto) y \`sellers\` (nombre de la tienda y país).
+2. Conexión: la columna \`seller_id\` de \`products\` contra la columna \`id\` de \`sellers\`.
+3. Filtro: la columna \`country\` de \`sellers\` igual a \`'UY'\`.
 
 \`\`\`sql
 SELECT p.id, p.name, s.store_name
@@ -78,9 +88,9 @@ WHERE s.country = 'UY';
 
 ## Errores comunes
 
-- Olvidar el \`ON\`: PostgreSQL exige la condición (o produce un producto cartesiano con la sintaxis antigua de comas).
-- Unir por columnas equivocadas (\`ON s.id = p.id\`): filas sin sentido, sin error.
-- Referenciar columnas sin alias en tablas que comparten nombres.
+- Olvidar el \`ON\`. PostgreSQL exige la condición de unión, y con la sintaxis antigua de comas produce un producto cartesiano, es decir, combina cada fila de una tabla con todas las filas de la otra.
+- Unir por las columnas equivocadas, como \`ON s.id = p.id\`. El motor no da ningún error y el resultado son filas que emparejan productos con vendedores que no tienen nada que ver.
+- Escribir columnas sin el alias de su tabla cuando las dos tablas comparten ese nombre de columna.
 `,
   },
   {
@@ -96,7 +106,7 @@ WHERE s.country = 'UY';
     dataset: "tiendaviva",
     body_md: `## Un JOIN por relación
 
-Para llegar del cliente al producto que reseñó hay que pasar por \`reviews\`: \`customers → reviews → products\`. Cada flecha es un JOIN:
+Una consulta puede unir más de dos tablas, y necesita un \`JOIN\` por cada relación que atraviesa. Para llegar desde el cliente hasta el producto que reseñó hay que pasar por la tabla \`reviews\`, que guarda una fila por reseña con la columna \`customer_id\` (quién la escribió) y la columna \`product_id\` (sobre qué producto). El camino es \`customers → reviews → products\`, y cada flecha es un JOIN:
 
 \`\`\`sql
 SELECT
@@ -109,11 +119,13 @@ INNER JOIN products AS p ON p.id = r.product_id
 WHERE r.rating = 1;
 \`\`\`
 
-Empieza por la tabla «central» (la que tiene las claves foráneas) y agrega un JOIN por cada tabla que necesites. El orden de los JOIN no cambia el resultado de un INNER JOIN; elige el que se lea mejor.
+Empieza por la tabla «central», que es la que tiene las claves foráneas (FK, por *foreign key*) hacia las demás, y agrega un JOIN por cada tabla que necesites. En un INNER JOIN el orden en que escribes los JOIN no cambia el resultado, así que elige el orden que se lea mejor.
 
 ## La misma tabla dos veces
 
-\`categories\` se referencia a sí misma: \`parent_id\` apunta a otra categoría. Para mostrar la subcategoría y su padre, únela dos veces con **alias distintos**:
+La tabla \`categories\` se referencia a sí misma: su columna \`parent_id\` guarda el \`id\` de otra fila de \`categories\`, que es la categoría padre. Así se representa que «Zapatillas» está dentro de «Calzado».
+
+Para mostrar en la misma fila la subcategoría y su categoría padre necesitas unir \`categories\` dos veces, y darle a cada copia un **alias distinto**:
 
 \`\`\`sql
 SELECT
@@ -125,15 +137,15 @@ INNER JOIN categories AS sub  ON sub.id = p.category_id
 INNER JOIN categories AS raiz ON raiz.id = sub.parent_id;
 \`\`\`
 
-Sin alias distintos, PostgreSQL no puede saber a cuál \`categories\` te refieres. Este patrón se llama self join y tiene su sección (19).
+Sin alias distintos, PostgreSQL no tiene forma de saber a cuál de las dos copias de \`categories\` te refieres en cada columna. Este patrón se llama self join, o autounión, y tiene su propia sección (19).
 
 ## Elegir columnas con criterio
 
-Con tres tablas, \`SELECT *\` devuelve decenas de columnas, varias con el mismo nombre (\`id\`, \`name\`, \`created_at\`). Lista las columnas y ponles alias cuando el nombre se repita.
+Con tres tablas unidas, \`SELECT *\` devuelve decenas de columnas, y varias se llaman igual porque cada tabla tiene su \`id\`, su \`name\` y su \`created_at\`. Quien lea el resultado no puede saber de qué tabla vino cada una. Escribe la lista de columnas que necesitas y ponles un alias cuando el nombre se repita.
 
 ## Verificar el resultado
 
-Después de un JOIN múltiple, comprueba el número de filas contra lo que esperas: ¿hay una fila por reseña? ¿por producto? Si hay más, alguna relación es uno-a-muchos y multiplicó filas.
+Después de un JOIN múltiple, compara la cantidad de filas que obtuviste con la que esperabas. Pregúntate qué representa una fila del resultado: ¿una reseña?, ¿un producto? Si obtuviste más filas de las que esperabas, alguna de las relaciones es uno a muchos y multiplicó filas, y cualquier suma o conteo sobre ese resultado va a estar inflado.
 
 ## Ejemplo resuelto
 
@@ -148,7 +160,7 @@ WHERE o.currency = 'ARS'
   AND pay.status = 'approved';
 \`\`\`
 
-Un pedido con dos intentos de pago aprobados (no ocurre aquí) aparecería dos veces; \`WHERE pay.status = 'approved'\` acota la relación a un pago por pedido.
+Un pedido con dos intentos de pago aprobados aparecería dos veces en el resultado. En este dataset eso no ocurre, y además el filtro \`pay.status = 'approved'\` reduce la relación a un pago aprobado por pedido.
 `,
   },
 ];

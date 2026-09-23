@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { Bookmark } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
@@ -19,14 +20,28 @@ export function SaveQueryForm({
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [status, setStatus] = useState<string | null>(null);
+  // Saving told the learner nothing about where the query went, so it read as a dead end.
+  const [savedOk, setSavedOk] = useState(false);
   const [pending, startTransition] = useTransition();
 
   if (!open) {
     return (
-      <Button variant="ghost" onClick={() => setOpen(true)} disabled={!sql.trim()}>
-        <Bookmark aria-hidden="true" />
-        {t("open")}
-      </Button>
+      <div className="flex flex-wrap items-center gap-2">
+        <Button variant="ghost" onClick={() => setOpen(true)} disabled={!sql.trim()}>
+          <Bookmark aria-hidden="true" />
+          {t("open")}
+        </Button>
+        {status ? (
+          <span role="status" className="text-muted text-xs">
+            {status}{" "}
+            {savedOk ? (
+              <Link href="/consultas" className="underline underline-offset-2">
+                {t("savedLink")}
+              </Link>
+            ) : null}
+          </span>
+        ) : null}
+      </div>
     );
   }
   return (
@@ -36,7 +51,8 @@ export function SaveQueryForm({
         e.preventDefault();
         startTransition(async () => {
           const r = await saveQueryAction(exerciseId, datasetSlug, title, sql);
-          setStatus(r.ok ? t("saved") : t("error"));
+          setStatus(r.ok ? `${t("saved")} ${t("savedWhere")}` : t("error"));
+          setSavedOk(r.ok);
           if (r.ok) {
             setOpen(false);
             setTitle("");

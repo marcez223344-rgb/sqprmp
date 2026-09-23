@@ -14,11 +14,13 @@ export const lessons: LessonDef[] = [
     dataset: "tiendaviva",
     body_md: `## Por qué importa
 
-Los datos crudos rara vez están en la forma que el negocio necesita. Un reporte de ventas no muestra \`subtotal\` y \`discount\`: muestra el **neto**. Una lista para el equipo de logística no dice \`destination_city\`, dice «Ciudad». Con expresiones y alias transformas columnas en respuestas.
+Los datos crudos rara vez están en la forma que el negocio necesita. En TiendaViva, la tabla \`orders\` guarda por separado la columna \`subtotal\` (la suma de los productos del pedido) y la columna \`discount\` (el descuento aplicado). Un reporte de ventas no quiere esas dos columnas: quiere el **neto**, que es la resta de una menos la otra. Y una lista para el equipo de logística no debería encabezarse \`destination_city\`, sino «Ciudad».
+
+Las dos cosas se resuelven en el \`SELECT\`: con **expresiones**, que calculan un valor nuevo a partir de las columnas, y con **alias**, que son los nombres que le pones a cada columna del resultado.
 
 ## Columnas calculadas
 
-Dentro de \`SELECT\` puedes escribir expresiones, no solo nombres de columna:
+Dentro del \`SELECT\` puedes escribir expresiones, no solamente nombres de columna:
 
 \`\`\`sql
 SELECT
@@ -30,11 +32,13 @@ FROM orders
 LIMIT 5;
 \`\`\`
 
-La cuarta columna se calcula fila por fila. Operadores aritméticos: \`+\`, \`-\`, \`*\`, \`/\`. Cuidado con la división entre enteros: \`7 / 2\` da \`3\` en PostgreSQL; \`7 / 2.0\` da \`3.5\`.
+La cuarta columna no existe en la tabla: PostgreSQL la calcula fila por fila, restando en cada pedido su propio descuento a su propio subtotal. Los operadores aritméticos disponibles son \`+\`, \`-\`, \`*\` y \`/\`.
+
+Presta atención a la división entre enteros: PostgreSQL devuelve un entero y descarta los decimales, así que \`7 / 2\` da \`3\` y no \`3.5\`. Si necesitas decimales, haz que al menos uno de los dos valores lo sea, por ejemplo \`7 / 2.0\`.
 
 ## Alias: nombres para el resultado
 
-La columna calculada de arriba se llamaría \`?column?\`. Ponle nombre con \`AS\`:
+La columna calculada del ejemplo anterior aparece con el encabezado \`?column?\`, porque el motor no tiene ningún nombre que darle. Para ponerle uno usa \`AS\`:
 
 \`\`\`sql
 SELECT
@@ -46,15 +50,15 @@ LIMIT 5;
 
 Reglas prácticas:
 
-- Usa \`snake_case\` en minúsculas (\`neto\`, \`envio_pct\`), sin espacios ni acentos. Si necesitas espacios tendrás que usar comillas dobles (\`"Total neto"\`) y arrastrarlas en cada consulta que reutilice el resultado. Evítalo.
-- \`AS\` es opcional en PostgreSQL (\`subtotal - discount neto\` funciona), pero escribirlo hace la consulta más legible.
-- Un alias **no** se puede usar en el \`WHERE\` de la misma consulta (lo verás en la sección 6): el filtro se evalúa antes que la lista de columnas.
+- Usa \`snake_case\` en minúsculas (\`neto\`, \`envio_pct\`), sin espacios ni acentos. Si pones espacios vas a necesitar comillas dobles (\`"Total neto"\`) y tendrás que arrastrarlas en cada consulta que reutilice ese resultado, así que conviene evitarlo.
+- \`AS\` es opcional en PostgreSQL, de modo que \`subtotal - discount neto\` también funciona. Escribirlo igual hace que la consulta se lea mejor, sobre todo cuando alguien la revisa rápido.
+- Un alias **no** se puede usar en el \`WHERE\` de la misma consulta, porque el filtro se evalúa antes que la lista de columnas y en ese momento el alias todavía no existe. Lo verás en la sección 6.
 
-También puedes renombrar tablas (\`FROM orders AS o\`), útil cuando combinas varias tablas en la sección 17.
+También puedes ponerle un alias a una tabla (\`FROM orders AS o\`). Eso se vuelve necesario cuando combinas varias tablas en la misma consulta, en la sección 17.
 
 ## Texto: concatenar y dar formato
 
-El operador \`||\` une textos. Si una parte es número, PostgreSQL la convierte a texto automáticamente en la mayoría de los casos:
+El operador \`||\` une dos textos en uno solo. Si una de las partes es un número, PostgreSQL lo convierte a texto automáticamente en la mayoría de los casos:
 
 \`\`\`sql
 SELECT
@@ -63,7 +67,7 @@ SELECT
 FROM categories;
 \`\`\`
 
-Funciones útiles: \`upper()\`, \`lower()\`, \`length()\`. Las verás en detalle en la sección 9.
+Así, la categoría con \`id\` 7 sale como \`CAT-7\`, que es el formato que espera el catálogo impreso. Otras funciones útiles son \`upper()\` y \`lower()\`, que pasan un texto a mayúsculas o a minúsculas, y \`length()\`, que devuelve su cantidad de caracteres. Las verás en detalle en la sección 9.
 
 ## Redondeo y precedencia
 
@@ -75,7 +79,9 @@ FROM orders
 LIMIT 5;
 \`\`\`
 
-\`ROUND(valor, decimales)\` redondea. La precedencia es la de la aritmética escolar: \`*\` y \`/\` antes que \`+\` y \`-\`. Cuando dudes, **usa paréntesis**: \`(subtotal - discount) * 1.21\` deja claro qué se multiplica.
+\`ROUND(valor, decimales)\` redondea el valor a la cantidad de decimales que le indiques, así que este cálculo devuelve qué porcentaje del total del pedido se fue en envío, con un decimal.
+
+La precedencia de los operadores es la misma de la aritmética que ya conoces: primero se resuelven \`*\` y \`/\`, después \`+\` y \`-\`. Cuando tengas dudas, **usa paréntesis**: escribir \`(subtotal - discount) * 1.21\` deja explícito que el impuesto se aplica sobre el neto y no solo sobre el descuento.
 
 ## Ejemplo resuelto
 
@@ -91,14 +97,14 @@ ORDER BY total_amount DESC
 LIMIT 20;
 \`\`\`
 
-Fíjate: \`ORDER BY\` puede usar \`total_amount\` aunque no esté en el \`SELECT\`.
+Fíjate en un detalle: el \`ORDER BY\` ordena por \`total_amount\` aunque esa columna no esté en la lista del \`SELECT\`. Eso es válido porque el ordenamiento se resuelve sobre las filas de la tabla, no sobre las columnas que elegiste mostrar.
 
 ## Errores comunes
 
-- Olvidar el alias y entregar una columna llamada \`?column?\`.
-- Dividir dos enteros esperando decimales.
-- Usar el alias dentro de \`WHERE\` (error «column does not exist»).
-- Poner el alias entre comillas simples: \`AS 'neto'\` no es un alias, es un texto.
+- Olvidar el alias y entregar un reporte con una columna llamada \`?column?\`.
+- Dividir dos enteros esperando decimales y recibir un resultado truncado.
+- Usar el alias dentro del \`WHERE\`, que devuelve el error «column does not exist».
+- Poner el alias entre comillas simples: \`AS 'neto'\` no define un alias, define un texto.
 `,
   },
 ];

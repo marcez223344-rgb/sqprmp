@@ -20,6 +20,7 @@ export async function AppHeader({ alias, displayName, isAdmin, onboarded }: AppH
     { href: "/ruta", label: t("nav.path") },
     { href: "/logros", label: t("nav.badges") },
     { href: "/repaso", label: t("nav.review") },
+    { href: "/consultas", label: t("nav.savedQueries") },
     { href: "/certificados", label: t("nav.certificates") },
     { href: "/acceso", label: t("nav.access") },
     { href: "/perfil", label: t("nav.profile") },

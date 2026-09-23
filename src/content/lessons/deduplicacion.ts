@@ -16,7 +16,7 @@ export const lessons: LessonDef[] = [
     dataset: "ritmo",
     body_md: `## Por qué importa
 
-«Tenemos filas duplicadas» es una de las frases más peligrosas de una reunión de datos, porque suena técnica y no lo es. Antes de escribir una sola línea de SQL hay que responder una pregunta de negocio: **¿qué columnas definen la identidad de una fila?** Sin esa respuesta, deduplicar es adivinar.
+«Tenemos filas duplicadas» es una de las frases más peligrosas de una reunión de datos, porque suena a un problema técnico con solución técnica y no lo es. Antes de escribir una sola línea de SQL hay que responder una pregunta de negocio: **¿qué columnas definen la identidad de una fila?**, es decir, qué combinación de valores hace que dos filas representen la misma cosa. Sin esa respuesta, eliminar filas es una adivinanza, y el riesgo es borrar datos legítimos.
 
 Trabajas con **Ritmo**, un servicio de streaming musical. La tabla \`plays\` registra reproducciones: \`id\`, \`user_id\`, \`track_id\`, \`played_at\`, \`seconds_played\`, \`device\`, \`completed\`.
 
@@ -24,10 +24,10 @@ Trabajas con **Ritmo**, un servicio de streaming musical. La tabla \`plays\` reg
 
 Mira dos filas con el mismo \`user_id\` y el mismo \`track_id\`:
 
-- Si \`played_at\` es distinto, la misma persona escuchó la canción dos veces. **No es un duplicado**: es fidelidad, y borrarla destruye una métrica.
+- Si \`played_at\` —la columna \`played_at\` de la tabla \`plays\`, el instante en que empezó la reproducción— es distinto, la misma persona escuchó la canción dos veces en momentos diferentes. **No es un duplicado**: son dos escuchas reales, y borrar una hace que la canción figure como menos escuchada de lo que fue.
 - Si \`played_at\` es idéntico al segundo, es casi seguro que el evento se registró dos veces por un reintento del cliente móvil. **Sí es un duplicado.**
 
-La diferencia no la decide el motor: la decide alguien que entiende el producto. Tu trabajo es **escribir esa decisión** en forma de lista de columnas —la clave de identidad— y dejarla documentada en la consulta.
+La diferencia no la decide el motor de base de datos, la decide alguien que entiende el producto. Tu trabajo es **escribir esa decisión** en forma de lista de columnas, que es lo que llamamos la clave de identidad, y dejarla a la vista en la consulta para que cualquiera pueda discutirla.
 
 En \`plays\`, el acuerdo es: una reproducción queda identificada por \`(user_id, track_id, played_at)\`. La columna \`id\` no sirve como clave de identidad porque es un correlativo: dos filas duplicadas tienen ids distintos justamente porque se insertaron dos veces.
 
@@ -59,26 +59,26 @@ SELECT
 FROM plays;
 \`\`\`
 
-\`109382\`, \`109042\`, \`340\`. Los paréntesis alrededor de las tres columnas construyen un **valor compuesto**: \`count(DISTINCT ...)\` cuenta cuántos valores compuestos distintos hay.
+El resultado es \`109382\`, \`109042\` y \`340\`: hay 340 filas de más. Los paréntesis alrededor de las tres columnas construyen un **valor compuesto**, o sea, un único valor formado por esas tres columnas juntas, de modo que \`count(DISTINCT ...)\` cuenta cuántas combinaciones distintas existen.
 
-Un 0,3 % de sobrante puede parecer despreciable, pero no se reparte igual: si esos duplicados se concentran en un artista o en un país, el ranking cambia. Por eso la medición se hace **también por segmento**, no solo en total.
+Un 0,3 % de filas sobrantes puede parecer despreciable, pero esas filas no están repartidas de forma pareja. Si se concentran en un artista o en un país, el ranking de los más escuchados cambia de orden y el reporte pasa a ser incorrecto. Por eso la medición se hace **también por segmento**, no solo sobre el total.
 
 ## Duplicado exacto vs. duplicado de negocio
 
 Hay dos familias y conviene no confundirlas:
 
-- **Duplicado exacto**: todas las columnas coinciden (salvo el id técnico). Es el caso de \`plays\`. Cualquiera de las copias sirve; da igual cuál conserves.
+- **Duplicado exacto**: todas las columnas coinciden, salvo el identificador técnico que la base asigna sola. Es el caso de \`plays\`. Como las copias son idénticas, da igual cuál conserves.
 - **Duplicado por clave de negocio**: las filas representan la misma entidad del mundo real pero **difieren** en otras columnas. Dos cuentas con el mismo correo escrito distinto, con nombres y fechas de alta distintas. Aquí sí importa cuál conservas, y esa es la lección siguiente.
 
 ## DISTINCT: útil y limitado
 
-\`SELECT DISTINCT user_id, track_id, played_at FROM plays\` devuelve las 109 042 combinaciones únicas y resuelve el caso exacto en una línea. Su límite es que **solo puede proyectar las columnas por las que deduplica**: en cuanto necesitas arrastrar \`id\` o \`device\`, las filas vuelven a ser distintas entre sí y \`DISTINCT\` deja de descartar nada.
+\`SELECT DISTINCT user_id, track_id, played_at FROM plays\` devuelve las 109 042 combinaciones únicas y resuelve el caso exacto en una sola línea. Su límite es que **solo puede mostrar las columnas por las que deduplica**: en cuanto agregas \`id\` o \`device\` a la lista del \`SELECT\`, las filas vuelven a ser distintas entre sí y \`DISTINCT\` ya no descarta ninguna.
 
 ## Errores comunes
 
 - Incluir el id técnico en el \`GROUP BY\` de detección: todos los grupos quedan de tamaño 1 y concluyes que no hay duplicados.
 - Usar \`SELECT DISTINCT *\` como respuesta automática: con un id autoincremental nunca elimina nada.
-- Deduplicar antes de acordar la clave de identidad: borras reproducciones legítimas y nadie lo nota hasta el cierre de mes.
+- Eliminar filas antes de acordar la clave de identidad: borras reproducciones legítimas y el faltante recién se nota en el cierre de mes, cuando los totales no coinciden.
 
 ## Resumen
 
@@ -100,13 +100,13 @@ Hay dos familias y conviene no confundirlas:
     dataset: "tiendaviva",
     body_md: `## El caso difícil
 
-En **TiendaViva**, el marketplace, la tabla \`customers\` tiene una restricción de unicidad sobre \`email\`. Aun así, hay 39 cuentas de más: el registro aceptó \`Ana.Ruiz@ejemplo.lat\` y \`ana.ruiz@ejemplo.lat\` como correos distintos. Para la base de datos son distintos; para la persona detrás de la pantalla, es la misma cuenta.
+En **TiendaViva**, el marketplace, la tabla \`customers\` tiene una restricción de unicidad (\`UNIQUE\`) sobre \`email\`, es decir, una regla de la base de datos que impide guardar dos filas con el mismo valor en esa columna. Aun así hay 39 cuentas de más, porque el formulario de registro aceptó \`Ana.Ruiz@ejemplo.lat\` y \`ana.ruiz@ejemplo.lat\` como si fueran correos diferentes. Para la base de datos son dos valores distintos; para la persona que está del otro lado de la pantalla, es la misma cuenta.
 
 Esto es un **duplicado por clave de negocio**: filas que la restricción técnica no ve, pero que representan la misma entidad del mundo real.
 
 ## Normalizar antes de agrupar
 
-La clave de identidad no es la columna cruda: es la columna **normalizada**. Decides una forma canónica y agrupas por ella.
+La clave de identidad no es la columna tal como está guardada, sino la columna **normalizada**: eliges una forma canónica —una única manera de escribir el valor, por ejemplo todo en minúsculas y sin espacios al principio ni al final— y agrupas por ella.
 
 \`\`\`sql
 SELECT lower(btrim(email)) AS correo, count(*) AS cuentas
@@ -122,7 +122,7 @@ Las normalizaciones más usadas, y el criterio para elegirlas:
 
 | Técnica | Para qué | Riesgo |
 | --- | --- | --- |
-| \`lower(...)\` | Correos, códigos, siglas | Ninguno en correos; sí en contraseñas o hashes |
+| \`lower(...)\` | Correos, códigos, siglas | Ninguno en correos; sí en valores donde las mayúsculas cambian el significado, como contraseñas |
 | \`btrim(...)\` | Espacios pegados al copiar y pegar | Ninguno |
 | \`regexp_replace(tel, '[^0-9]', '', 'g')\` | Teléfonos con guiones y paréntesis | Pierde el prefijo internacional si no está escrito |
 | \`unaccent(...)\` | Nombres con tildes | Requiere una extensión; no siempre disponible |
@@ -140,19 +140,19 @@ GROUP BY seller_id, lower(btrim(name))
 HAVING count(*) > 1;
 \`\`\`
 
-Cada combinación que propongas es una hipótesis de negocio distinta. Escribir dos o tres y comparar cuántos grupos devuelve cada una es una forma honesta de discutirlo con el área dueña del dato.
+Cada combinación que propongas es una hipótesis de negocio distinta sobre qué significa «la misma entidad». Escribir dos o tres y comparar cuántos grupos devuelve cada una le da a la conversación con el área dueña del dato algo concreto sobre lo que decidir.
 
 ## Cuando la coincidencia no es exacta
 
 «Juan Pérez» y «Juan Perez Gómez» probablemente sean la misma persona, y ningún \`GROUP BY\` los junta. Ahí entra el emparejamiento aproximado: comparar por un prefijo, por una similitud de texto o por la coincidencia de varias columnas débiles a la vez (nombre + ciudad + año de nacimiento).
 
-Ese terreno es resbaladizo: siempre cambias falsos positivos por falsos negativos. La regla práctica es no automatizar una fusión aproximada sin revisión humana; en cambio, sí es muy útil **producir la lista de sospechosos** para que alguien la revise.
+Ese terreno es delicado: cuanto más flexible haces la comparación, más parejas falsas aceptas; cuanto más estricta, más parejas verdaderas se te escapan. No existe un ajuste que evite las dos cosas a la vez. Por eso la regla práctica es no automatizar nunca una fusión aproximada sin revisión humana, y sí, en cambio, **producir la lista de casos sospechosos** para que alguien la revise una por una.
 
 ## Duplicados que no están en la tabla
 
 Ojo con un caso que se confunde todo el tiempo: un join mal planteado **crea** filas repetidas que no existen en ningún lado. Si unes \`orders\` con \`payments\` y un pedido tiene tres intentos de pago, cada pedido aparece tres veces y el total se triplica.
 
-Eso no se arregla con \`DISTINCT\`: se arregla agregando \`payments\` a una fila por pedido **antes** de unir, o eligiendo un solo intento. Si tu reflejo ante un total inflado es agregar \`DISTINCT\`, casi siempre estás tapando un error de cardinalidad.
+Eso no se arregla con \`DISTINCT\`: se arregla resumiendo \`payments\` a una fila por pedido **antes** de unir, o eligiendo un único intento de pago. Si tu reflejo ante un total inflado es agregar \`DISTINCT\`, lo más probable es que estés ocultando un error de cardinalidad —es decir, de cuántas filas produce la unión—, y el total seguirá mal en cuanto cambies una columna del \`SELECT\`.
 
 ## Errores comunes
 
@@ -180,7 +180,7 @@ Eso no se arregla con \`DISTINCT\`: se arregla agregando \`payments\` a una fila
     dataset: "tiendaviva",
     body_md: `## La segunda decisión de negocio
 
-Ya sabes qué filas forman un grupo duplicado. Falta la segunda pregunta, igual de poco técnica: **¿cuál de ellas sobrevive?** La más reciente, la más completa, la que tiene actividad asociada. También esto lo decide el negocio y también se escribe explícito.
+Ya sabes qué filas forman un grupo duplicado. Falta la segunda pregunta, tan poco técnica como la primera: **¿cuál de esas filas se conserva?** Puede ser la más reciente, la que tiene más campos completos o la que tiene actividad asociada. También esto lo decide el negocio, y también conviene escribirlo de forma explícita en la consulta.
 
 ## ROW_NUMBER: el patrón general
 
@@ -198,7 +198,9 @@ FROM numeradas
 WHERE copia = 1;
 \`\`\`
 
-\`PARTITION BY\` es tu clave de identidad. El \`ORDER BY\` de la ventana es **tu regla de negocio**: quien queda primero se conserva. Con \`WHERE copia = 1\` te quedas con las ganadoras; con \`WHERE copia > 1\` obtienes exactamente la lista de filas a eliminar, que es lo que le entregas a quien vaya a hacer la limpieza.
+\`WITH numeradas AS (...)\` define una CTE (por *Common Table Expression*, expresión de tabla común): una consulta con nombre que se calcula primero y después se usa como si fuera una tabla. Dentro de ella, \`row_number()\` numera las filas de cada grupo: 1 para la primera según el \`ORDER BY\`, 2 para la siguiente, y así.
+
+El \`PARTITION BY\` es tu clave de identidad, la que arma los grupos. El \`ORDER BY\` de la ventana es **tu regla de negocio**: la fila que queda primera es la que se conserva. Con \`WHERE copia = 1\` te quedas con las ganadoras; con \`WHERE copia > 1\` obtienes la lista exacta de filas a eliminar, que es lo que le entregas a quien vaya a hacer la limpieza.
 
 Este patrón funciona siempre, incluso cuando las filas del grupo difieren entre sí, y es la razón por la que \`DISTINCT\` no lo reemplaza.
 
@@ -216,11 +218,11 @@ ORDER BY p.order_id, p.id DESC;
 1. El \`ORDER BY\` debe **empezar** por las mismas expresiones del \`DISTINCT ON\`; si no, PostgreSQL rechaza la consulta.
 2. Lo que viene después del primer criterio es lo que decide quién gana.
 
-Es más corto que la CTE y suele ser más rápido, pero es **específico de PostgreSQL**: en otros motores tendrás que volver a \`ROW_NUMBER\`. Además, el orden de salida queda atado al \`ORDER BY\` del \`DISTINCT ON\`; si necesitas presentar el resultado en otro orden, envuélvelo en una subconsulta.
+Es más corto que la CTE y suele ser más rápido, pero es **específico de PostgreSQL**: si mañana trabajas con otro motor, tendrás que volver a \`ROW_NUMBER\`. Además, el orden de salida queda atado al \`ORDER BY\` que exige el \`DISTINCT ON\`, así que si necesitas presentar el resultado en otro orden tienes que envolver la consulta en una subconsulta y ordenar ahí.
 
 ## El desempate tiene que ser total
 
-Si tu regla es «la más reciente» y dos filas comparten el instante, el ganador queda **indeterminado**: la misma consulta puede devolver una u otra en ejecuciones distintas. Un reporte que cambia solo se vuelve imposible de defender.
+Si tu regla es «la más reciente» y dos filas comparten exactamente el mismo instante, la fila ganadora queda **indeterminada**: la misma consulta puede devolver una u otra en ejecuciones distintas. Un reporte que da resultados diferentes en dos corridas seguidas no se puede defender ante quien lo recibe.
 
 Agrega siempre un criterio final único, normalmente la clave primaria:
 
@@ -236,7 +238,7 @@ En PostgreSQL, \`ORDER BY col DESC\` coloca los NULL **primero**. En \`payments\
 ORDER BY p.order_id, p.paid_at DESC NULLS LAST, p.id DESC
 \`\`\`
 
-Revisa esto **cada vez** que la columna de desempate admita nulos. Es de lejos el error más frecuente de esta sección.
+Revisa esto **cada vez** que la columna de desempate pueda contener nulos. Es, por mucho, el error más frecuente de esta sección.
 
 ## Un tercer camino: agregar en lugar de elegir
 
@@ -256,14 +258,14 @@ Es legítimo y a menudo lo correcto, pero deja de existir una fila «original» 
 
 ## Y lo que casi nadie hace
 
-Antes de eliminar: ¿qué cuelga de las filas que se van? Si borras una cuenta duplicada, sus pedidos quedan huérfanos. La secuencia sana es elegir ganadora → **repuntar** las filas dependientes → recién entonces eliminar.
+Antes de eliminar, pregúntate qué otras filas dependen de las que se van. Si borras una cuenta duplicada, sus pedidos quedan apuntando a un cliente que ya no existe y dejan de aparecer en cualquier consulta que una las dos tablas. La secuencia correcta es: elegir la fila ganadora, **actualizar las filas dependientes** para que apunten a ella y recién entonces eliminar las perdedoras.
 
 ## Errores comunes
 
 - Desempatar solo por una fecha que se repite: el resultado no es reproducible.
 - Ordenar por una columna con nulos sin \`NULLS LAST\` y conservar la fila vacía.
 - Filtrar \`row_number() = 1\` en el mismo \`WHERE\`: las ventanas se calculan después del \`WHERE\`, necesitas una CTE o subconsulta.
-- Eliminar sin repuntar las filas dependientes.
+- Eliminar filas sin actualizar antes las que dependían de ellas.
 
 ## Resumen
 

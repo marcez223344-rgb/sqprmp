@@ -20,7 +20,7 @@ const providerDetails = [
 export const termsMarkdown = `
 ## 1. Quiénes somos
 
-**${brand.productName}** es un servicio ofrecido por **${brand.legalName}** («nosotros»)${providerDetails ? `, ${providerDetails}` : ""}. Contacto: ${brand.supportEmail}. Emitimos comprobante por cada compra.
+**${brand.productName}** es un servicio ofrecido por **${brand.legalName}** («nosotros»)${providerDetails ? `, ${providerDetails}` : ""}. Contacto: ${brand.supportEmail}.
 
 ## 2. Qué ofrecemos
 
