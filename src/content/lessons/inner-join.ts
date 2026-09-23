@@ -69,7 +69,7 @@ WHERE s.country = 'UY';
 
 Si un pedido tiene **dos** pagos registrados, por ejemplo uno rechazado y uno aprobado, entonces \`orders JOIN payments\` devuelve **dos filas** para ese pedido, una por cada pago. No es un error del JOIN: es la consecuencia de que la relación sea uno a muchos, o sea, un pedido puede tener varios pagos.
 
-La consecuencia práctica es que sumar \`orders.total_amount\` sobre ese resultado cuenta el importe del pedido dos veces y el total del reporte queda inflado. Antes de sumar montos en una consulta con JOIN, verifica si la unión multiplicó filas. En este dataset, 2502 pedidos tienen más de un pago.
+La consecuencia práctica es que sumar \`orders.total_amount\` sobre ese resultado cuenta el importe del pedido dos veces y el total del reporte queda inflado. Antes de sumar montos en una consulta con JOIN, verifica si la unión multiplicó filas. En este dataset, 1251 pedidos tienen más de un pago.
 
 ## Ejemplo resuelto
 

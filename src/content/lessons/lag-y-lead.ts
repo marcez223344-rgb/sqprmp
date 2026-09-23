@@ -254,7 +254,7 @@ Con fechas (\`date\`) es más simple todavía: \`released_on - lag(released_on) 
 
 La primera fila de cada partición no tiene ninguna fila anterior, así que su brecha es \`NULL\`, y ese NULL es la respuesta correcta: no hubo un evento previo que medir. Rellenarlo con 0 afirmaría que la persona volvió de inmediato, y además bajaría cualquier promedio que calcules después.
 
-## Sesionizar: agrupar eventos cercanos
+## Armar sesiones: agrupar eventos cercanos
 
 Un patrón clásico: una sesión termina cuando pasan más de N minutos sin actividad. Se marca cada evento como inicio de sesión o continuación:
 

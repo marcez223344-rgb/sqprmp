@@ -69,7 +69,7 @@ En una hoja de cálculo harías lo mismo con una tabla dinámica. La diferencia 
 
 En una empresa de la región usan SQL los analistas de datos, de producto, de marketing y de finanzas, y también los ingenieros de datos, los científicos de datos y muchas personas del área de operaciones. En los procesos de selección para roles de datos, SQL es casi siempre la primera prueba técnica que te van a tomar.
 
-## En resumen
+## Resumen
 
 - Una base de datos relacional guarda información en tablas, y las tablas se conectan entre sí por identificadores.
 - Los datos operativos hacen funcionar el negocio; los analíticos responden preguntas sobre él.
@@ -130,7 +130,7 @@ Escribir esa definición y confirmarla con quien te pidió el dato toma cinco mi
 - Dar por hecho que «fecha del pedido» y «fecha de entrega» son lo mismo: un pedido de fin de mes se entrega al mes siguiente y cae en otro período.
 - No preguntar por la moneda cuando la empresa vende en varios países, y terminar sumando importes de monedas distintas como si fueran comparables.
 
-## En resumen
+## Resumen
 
 - Antes de escribir SQL define cuatro cosas: la pregunta, las tablas, las filas y la forma del resultado.
 - Las métricas de negocio necesitan una definición explícita de estado, fechas y moneda.

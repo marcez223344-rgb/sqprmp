@@ -221,7 +221,7 @@ La diferencia entre un pedido del curso y uno real es que el real llega sin defi
 Tres cosas, ordenadas por lo que más te va a devolver al principio:
 
 1. **Modelado y herramientas del equipo**: cómo se documenta una métrica para que todos calculen lo mismo, qué es una tabla de hechos y qué es una dimensión, y qué hace una herramienta de transformación de datos cuando el equipo ya usa una.
-2. **Visualización**: la misma tabla presentada en un gráfico de líneas convence diez veces más que una planilla. Cualquier herramienta sirve para aprender el criterio, que es lo que importa: elegir bien la escala, mostrar una comparación clara y transmitir una sola idea por gráfico.
+2. **Visualización**: la misma tabla presentada en un gráfico de líneas convence mucho más que una planilla. Cualquier herramienta sirve para aprender el criterio, que es lo que importa: elegir bien la escala, mostrar una comparación clara y transmitir una sola idea por gráfico.
 3. **Un lenguaje de propósito general**, normalmente Python, para lo que SQL no hace: automatizar una tarea que se repite, consumir datos de una API o probar una hipótesis estadística.
 
 Nada de esto reemplaza al SQL. Todo lo demás se apoya en la consulta que escribes bien.
@@ -234,23 +234,23 @@ El error común es publicar un cuaderno con veinte consultas sueltas. Nadie lo l
 - El dataset y su alcance, con la cantidad de filas y el período que cubre.
 - Las definiciones de las métricas, escritas de forma explícita.
 - Dos o tres resultados, cada uno con la consulta que lo produjo al lado.
-- Una conclusión que se pueda accionar y una limitación declarada con honestidad.
+- Una conclusión sobre la que se pueda decidir algo y una limitación declarada con honestidad.
 
 Los proyectos de esta sección tienen exactamente esa forma. Tomar uno, reescribir el contexto con tus palabras y agregarle un gráfico ya es un proyecto de portafolio terminado.
 
-Y hay algo que casi nadie incluye y que siempre destaca: el chequeo de calidad que corriste **antes** de confiar en los datos. Mostrar que encontraste 178 pedidos sin ítems y que decidiste qué hacer con ellos dice más sobre tu criterio profesional que la consulta más larga del cuaderno.
+Hay algo que casi nadie incluye y que siempre destaca: el chequeo de calidad que corriste **antes** de confiar en los datos. Mostrar que encontraste 178 pedidos sin ítems y que decidiste qué hacer con ellos dice más sobre tu criterio profesional que la consulta más larga del cuaderno.
 
 ## En una entrevista técnica
 
 Vas a resolver un problema con alguien mirándote escribir. Hay tres hábitos que valen más que llegar a la respuesta:
 
 - Repite el enunciado con tus palabras y pregunta por la definición ambigua antes de empezar a escribir.
-- Di qué va a representar cada fila del resultado antes de tipear el \`SELECT\`.
+- Di qué va a representar cada fila del resultado antes de escribir el \`SELECT\`.
 - Al terminar, menciona un caso borde que tu consulta no cubre. Nadie espera una solución perfecta en una entrevista; lo que se evalúa es el criterio.
 
 ## El certificado
 
-El certificado **Analista SQL Profesional** se emite cuando completas las secciones del tramo aplicado y profesional —desde cohortes y retención hasta estos proyectos finales— con al menos 80 % de respuestas correctas en los cuestionarios. Certifica que resolviste estos análisis sobre datos sucios de verdad, no que miraste los videos.
+El certificado **Analista SQL Profesional** se emite cuando completas las secciones del tramo aplicado y profesional —desde cohortes y retención hasta estos proyectos finales— con al menos 80 % de respuestas correctas en los cuestionarios. Certifica que resolviste estos análisis sobre datos sucios de verdad, no que leíste la teoría.
 
 Úsalo como lo que es: una línea verificable en tu perfil profesional. Lo que te va a conseguir la entrevista es el proyecto que puedas explicar en cinco minutos.
 

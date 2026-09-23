@@ -41,7 +41,7 @@ WHERE is_active
 ORDER BY seller_id ASC, list_price DESC;
 \`\`\`
 
-Las claves se leen de izquierda a derecha: el resultado queda agrupado visualmente por vendedor y, dentro de cada vendedor, aparece primero el producto más caro. Ten presente que \`ASC\` y \`DESC\` se aplican a cada clave de manera independiente, así que \`ORDER BY a, b DESC\` ordena \`a\` de forma ascendente y \`b\` de forma descendente.
+Las claves se leen de izquierda a derecha: el resultado queda agrupado visualmente por vendedor y, dentro de cada vendedor, aparece primero el producto más caro. El \`ASC\` y el \`DESC\` van pegados a cada clave, de modo que \`ORDER BY a, b DESC\` ordena \`a\` de forma ascendente y \`b\` de forma descendente.
 
 ### Desempate determinista
 
@@ -136,7 +136,7 @@ ORDER BY COALESCE(rating, -1) DESC           -- reemplaza el NULL por un valor e
 
 La primera hace exactamente lo mismo que \`NULLS LAST\` y funciona en cualquier motor. La segunda es riesgosa por dos motivos: te obliga a elegir un valor centinela, es decir, un valor inventado que representa «sin dato», y ese valor algún día puede aparecer de verdad en los datos, y si además muestras esa columna en el reporte, quien lo lea va a ver un \`-1\` donde debería ver «sin calificación».
 
-## Un detalle útil
+## Los NULL y el desempate
 
 Los NULL también participan del desempate. Si dos filas tienen NULL en \`rating\`, siguen empatadas y las ordena la clave siguiente. Por eso el ejemplo cierra con \`store_name\`: las tiendas sin calificación salen al final, pero en orden alfabético y siempre el mismo.
 

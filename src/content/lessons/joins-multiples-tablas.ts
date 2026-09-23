@@ -140,11 +140,13 @@ Ubica los LEFT JOIN al final de la cadena siempre que puedas: primero el esquele
 Ya la viste con dos tablas: si escribes en el \`WHERE\` una condición sobre la tabla derecha, la opcional, el \`LEFT JOIN\` pasa a comportarse como un \`INNER JOIN\` y pierdes las filas que no tenían pareja. Ocurre porque en esas filas las columnas de la tabla derecha valen NULL, y una comparación como \`NULL = 'algo'\` nunca da verdadero.
 
 \`\`\`sql
--- MAL: quedan solo los 8 pedidos que sí tienen devolución
+-- MAL: quedan solo los 336 pedidos que sí tienen una devolución por daño
+FROM orders AS o
 LEFT JOIN returns AS r ON r.order_id = o.id
 WHERE r.reason = 'damaged'
 
--- BIEN: 173 filas; la condición viaja al ON
+-- BIEN: los 18 000 pedidos; la condición viaja al ON
+FROM orders AS o
 LEFT JOIN returns AS r
   ON r.order_id = o.id
  AND r.reason = 'damaged'
@@ -205,7 +207,7 @@ INNER JOIN order_items AS oi ON oi.order_id = o.id   -- 3 ítems
 INNER JOIN payments    AS pay ON pay.order_id = o.id  -- 2 intentos de pago
 \`\`\`
 
-El resultado no es 3 + 2 = 5 filas, es 3 × 2 = **6**: cada ítem se combina con cada pago. En este dataset hay 2502 pedidos con más de un intento de pago, así que esta trampa no es teórica; se dispara en cuanto unes las dos tablas.
+El resultado no es 3 + 2 = 5 filas, es 3 × 2 = **6**: cada ítem se combina con cada pago. En este dataset hay 1251 pedidos con más de un intento de pago, así que esta trampa no es teórica; se dispara en cuanto unes las dos tablas.
 
 ## Cómo evitarla
 

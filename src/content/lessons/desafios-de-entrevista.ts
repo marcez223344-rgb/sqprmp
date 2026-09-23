@@ -109,7 +109,7 @@ En una entrevista técnica evalúan dos cosas a la vez: si llegas al resultado y
 
 ## Escribe en capas
 
-Las CTE (por *common table expression*, las consultas con nombre que se definen en el \`WITH\`) son tu mejor aliada bajo presión, porque cada paso queda con nombre, se puede explicar solo y se puede ejecutar por separado.
+Las CTE (por *common table expression*, las consultas con nombre que se definen en el \`WITH\`) son tus mejores aliadas bajo presión, porque cada paso queda con nombre, se puede explicar solo y se puede ejecutar por separado.
 
 El ejemplo calcula el GMV por restaurante, sigla de *gross merchandise value*, que es el valor total de lo vendido antes de descontar comisiones:
 
@@ -212,7 +212,7 @@ Unir pedidos con sus ítems multiplica las filas de pedido, porque cada pedido a
 
 ## 7. Suponer que una fila es una persona
 
-Dos cuentas con el mismo correo escrito con distinta capitalización son la misma persona para el negocio y dos filas distintas para el motor. En cualquier pregunta sobre clientes únicos, normaliza el texto antes de contar y menciona que lo estás haciendo.
+Dos cuentas con el mismo correo, una escrita con mayúsculas y otra con minúsculas, son la misma persona para el negocio y dos filas distintas para el motor. En cualquier pregunta sobre clientes únicos, normaliza el texto antes de contar y menciona que lo estás haciendo.
 
 ## 8. Entregar sin verificar
 

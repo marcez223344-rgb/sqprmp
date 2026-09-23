@@ -36,7 +36,7 @@ FROM customers;
 
 Las tres funciones respetan los acentos, así que \`UPPER('café')\` devuelve \`CAFÉ\` y no \`CAFE\`.
 
-## Comparar sin importar la capitalización
+## Comparar sin importar las mayúsculas
 
 \`\`\`sql
 SELECT id, email
@@ -44,7 +44,7 @@ FROM customers
 WHERE email <> LOWER(email);
 \`\`\`
 
-Esa consulta compara cada correo con su propia versión en minúsculas: si son distintos, es porque el correo tiene alguna mayúscula. Te muestra exactamente los registros con problema de capitalización.
+Esa consulta compara cada correo con su propia versión en minúsculas: si son distintos, es porque el correo tiene alguna mayúscula. Te muestra exactamente los registros que traen mayúsculas donde no debería haberlas.
 
 Cuando quieras comparar dos textos como los entiende el negocio, normaliza **los dos lados** de la igualdad:
 
@@ -56,7 +56,7 @@ Si normalizas solo uno, la comparación sigue siendo sensible a las mayúsculas 
 
 ## Los acentos no se ignoran
 
-Esta es la trampa que más reportes rompe: \`'José' = 'Jose'\` es **falso**, y \`LOWER\` no cambia eso, porque las mayúsculas y los acentos son dos cosas distintas. Normalizar la capitalización no normaliza la escritura.
+Esta es la trampa que más reportes rompe: \`'José' = 'Jose'\` es **falso**, y \`LOWER\` no cambia eso, porque las mayúsculas y los acentos son dos cosas distintas. Pasar todo a minúsculas no unifica la escritura de los acentos.
 
 La consecuencia práctica es que el mismo cliente, cargado una vez con tilde y otra sin ella, se cuenta como dos, y una ciudad se parte en dos filas del informe. Si necesitas tratar \`Córdoba\` y \`Cordoba\` como la misma ciudad, tienes que quitar las tildes de forma explícita, por ejemplo con la función \`TRANSLATE\`. Conviene decidirlo junto al área de negocio, porque en español la tilde a veces cambia el significado de la palabra.
 
@@ -86,7 +86,7 @@ Y recuerda la regla de NULL que viste en la sección 8: \`LENGTH(NULL)\` devuelv
 
 ## Resumen
 
-- \`LOWER\`, \`UPPER\` e \`INITCAP\` unifican la capitalización, pero los acentos siguen marcando diferencia.
+- \`LOWER\`, \`UPPER\` e \`INITCAP\` unifican el uso de mayúsculas y minúsculas, pero los acentos siguen marcando diferencia.
 - \`TRIM\` limpia los extremos del texto y acepta un conjunto de caracteres a eliminar.
 - \`LENGTH\` cuenta caracteres y devuelve NULL cuando el texto es NULL.
 `,

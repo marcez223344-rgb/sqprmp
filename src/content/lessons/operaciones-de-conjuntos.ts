@@ -64,7 +64,7 @@ ORDER BY customer_id;
 
 Quien compró por los dos canales aparece **una sola vez**. Con \`UNION ALL\` aparecería una vez por cada pedido que hizo, y entonces el resultado ya no sería una lista de clientes sino una lista de pedidos con el nombre del cliente repetido.
 
-Dos filas se consideran duplicadas cuando **todas** sus columnas coinciden. Si agregas \`o.id\` al \`SELECT\` —la columna \`id\` de la tabla \`orders\`, que identifica cada pedido—, ya no queda ningún duplicado por eliminar, porque cada pedido tiene un identificador distinto. Por eso, elegir qué columnas proyectas es también elegir qué vas a considerar "repetido".
+Dos filas se consideran duplicadas cuando **todas** sus columnas coinciden. Si agregas \`o.id\` al \`SELECT\` —la columna \`id\` de la tabla \`orders\`, que identifica cada pedido—, ya no queda ningún duplicado por eliminar, porque cada pedido tiene un identificador distinto. Por eso, elegir qué columnas proyectas es también elegir qué vas a considerar «repetido».
 
 ## Cuál elegir
 
@@ -100,7 +100,7 @@ En ese \`ORDER BY\` final solo puedes nombrar columnas de la **primera** rama, p
 
 ## Errores comunes
 
-- Usar \`UNION\` "por las dudas" y perder filas legítimas: en un reporte de montos, dos cobros reales del mismo importe se convierten en uno solo.
+- Usar \`UNION\` «por las dudas» y perder filas legítimas: en un reporte de montos, dos cobros reales del mismo importe se convierten en uno solo.
 - Ramas con distinta cantidad de columnas: PostgreSQL responde que cada rama debe tener el mismo número de columnas.
 - Confiar en que el nombre de la columna alinea los datos: alinea la **posición**.
 - Poner \`ORDER BY\` en medio de las ramas sin paréntesis.
@@ -148,7 +148,7 @@ WHERE u.country = 'PE' AND t.status = 'completed' AND t.kind = 'card_payment'
 ORDER BY user_id;
 \`\`\`
 
-\`INTERSECT\` devuelve las filas que aparecen en **las dos** ramas. Fíjate en la "y" de la pregunta: no se puede resolver con \`WHERE kind = 'qr_payment' AND kind = 'card_payment'\`, porque \`kind\` es la columna de \`transactions\` que guarda el tipo de movimiento y ninguna fila puede tener dos tipos a la vez. La condición no es sobre una fila, es sobre una **persona** que tiene filas de los dos tipos.
+\`INTERSECT\` devuelve las filas que aparecen en **las dos** ramas. Fíjate en la «y» de la pregunta: no se puede resolver con \`WHERE kind = 'qr_payment' AND kind = 'card_payment'\`, porque \`kind\` es la columna de \`transactions\` que guarda el tipo de movimiento y ninguna fila puede tener dos tipos a la vez. La condición no es sobre una fila, es sobre una **persona** que tiene filas de los dos tipos.
 
 ## EXCEPT: lo que está en la primera y no en la segunda
 
@@ -177,7 +177,7 @@ Existen también \`INTERSECT ALL\` y \`EXCEPT ALL\`, que conservan las repeticio
 
 ## La comparación usa todas las columnas
 
-Una fila de la primera rama se "encuentra" en la segunda solo si **todas** sus columnas coinciden. Esto es la fuente número uno de resultados vacíos inesperados:
+Una fila de la primera rama se «encuentra» en la segunda solo si **todas** sus columnas coinciden. Esto es la fuente número uno de resultados vacíos inesperados:
 
 \`\`\`sql
 -- Casi siempre devuelve todo: created_at nunca coincide entre ramas
@@ -212,7 +212,7 @@ En un \`WHERE\`, \`NULL = NULL\` no es verdadero. En las operaciones de conjunto
 - Esperar que \`EXCEPT\` funcione en cualquier orden: la primera rama manda.
 - Arrastrar columnas descriptivas (montos, fechas) y no encontrar coincidencias nunca.
 - Agregar \`DISTINCT\` en cada rama creyendo que hace falta.
-- Traducir "A y B" a un \`AND\` sobre la misma columna cuando la pregunta es sobre la entidad, no sobre la fila.
+- Traducir «A y B» a un \`AND\` sobre la misma columna cuando la pregunta es sobre la entidad, no sobre la fila.
 
 ## Resumen
 
@@ -232,7 +232,7 @@ En un \`WHERE\`, \`NULL = NULL\` no es verdadero. En las operaciones de conjunto
     dataset: "bolsillo",
     body_md: `## Por qué importa
 
-En una consulta real rara vez aparece un solo operador. Un pedido como "las cuentas marcadas por antifraude o con la verificación de identidad rechazada, menos las que ya están bloqueadas" combina dos operaciones de conjuntos. Además, casi siempre existe otra forma de escribir lo mismo con \`JOIN\` o con \`EXISTS\`, así que conviene saber en qué caso conviene cada una.
+En una consulta real rara vez aparece un solo operador. Un pedido como «las cuentas marcadas por antifraude o con la verificación de identidad rechazada, menos las que ya están bloqueadas» combina dos operaciones de conjuntos. Además, casi siempre existe otra forma de escribir lo mismo con \`JOIN\` o con \`EXISTS\`, así que conviene saber en qué caso conviene cada una.
 
 Esa verificación de identidad se conoce como KYC (por *Know Your Customer*, «conoce a tu cliente»): es el proceso con el que una billetera confirma quién es la persona detrás de una cuenta, y en Bolsillo cada intento queda registrado en la tabla \`kyc_events\`.
 
@@ -307,13 +307,13 @@ WHERE t.status = 'completed'
   );
 \`\`\`
 
-Ninguna es "la correcta". Elige así:
+Ninguna es «la correcta». Elige así:
 
 | Situación | Mejor opción |
 | --- | --- |
 | Comparas dos listas por su clave, la pregunta suena a conjuntos | \`INTERSECT\` / \`EXCEPT\` |
 | Necesitas columnas de la segunda tabla en el resultado | \`JOIN\` |
-| La condición es "existe alguna fila que…" y no quieres duplicar filas | \`EXISTS\` / \`NOT EXISTS\` |
+| La condición es «existe alguna fila que…» y no quieres duplicar filas | \`EXISTS\` / \`NOT EXISTS\` |
 | Hay que contar coincidencias, no solo saber si hay | \`JOIN\` + \`GROUP BY\` |
 
 Dos advertencias que valen para el trabajo real. La primera: un \`INNER JOIN\` **no** equivale a un \`INTERSECT\` cuando la clave se repite, porque el join devuelve una fila por cada coincidencia mientras que el \`INTERSECT\` deduplica. La segunda: \`NOT IN\` con una subconsulta que puede devolver \`NULL\` termina devolviendo cero filas sin ningún aviso; \`EXCEPT\` y \`NOT EXISTS\` no tienen ese problema.

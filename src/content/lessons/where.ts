@@ -140,7 +140,7 @@ Este rango funciona igual con columnas de tipo \`date\` (fecha sin hora) y te ev
 - \`date_trunc('month', created_at)\` devuelve el primer instante del mes al que pertenece esa fecha, por ejemplo \`2025-03-01 00:00\` para cualquier pedido de marzo.
 - \`extract(year from created_at)\` devuelve el año como número.
 
-Ten en cuenta algo al filtrar: si aplicas una función a la columna dentro del \`WHERE\`, como en \`WHERE created_at::date = '2025-03-15'\`, la consulta se lee bien, pero el motor tiene que calcular esa función en cada fila y no puede usar el índice de la columna. Para acotar períodos, prefiere la comparación directa por rango.
+Filtrar así tiene un costo: si aplicas una función a la columna dentro del \`WHERE\`, como en \`WHERE created_at::date = '2025-03-15'\`, la consulta se lee bien, pero el motor tiene que calcular esa función en cada fila y no puede usar el índice de la columna. Para acotar períodos, prefiere la comparación directa por rango.
 
 ## Zonas horarias
 

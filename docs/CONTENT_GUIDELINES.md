@@ -20,6 +20,26 @@ Content is code-reviewed data in `src/content/`: `course.ts`, `sections.ts` (39 
 - Structure: por qué importa → concepto → ejemplo ejecutable → variantes → errores comunes → resumen de 3 líneas.
 - Never state that only one SQL style is valid when equivalents exist; show alternatives when they matter (`JOIN ... USING` vs `ON`, `CASE` vs `FILTER`, CTE vs subquery).
 
+## 2b. Numeric claims about the datasets
+
+Lesson prose is full of figures taken from the data ("devuelve 13 156", "hay 120 filas con
+segundos negativos", "el ticket promedio real es 431 786,43"). A learner who runs the query and
+sees a different number stops trusting the course, so those figures are treated as testable
+assertions, not as decoration.
+
+- Every exact figure a lesson states about a dataset must be registered in
+  `src/content/lesson-claims.ts`: the lesson slug, the dataset, the sentence verbatim and a
+  one-row query whose columns are, in order, the numbers in that sentence.
+- `npm run content:claims` (part of `npm run quality`) runs each query against the committed
+  snapshot and fails when the prose and the data disagree, or when the sentence no longer exists.
+  Changing a figure therefore means changing the claim too — that is the point.
+- Keep out of the registry, and out of the prose where possible, anything the data cannot decide:
+  planner estimates copied from `EXPLAIN`, execution times, and figures whose defining query is
+  ambiguous. Where a rounded figure is unavoidable, make the rounding explicit in the sentence
+  ("alrededor de", "el 11 %") so nobody reads it as exact.
+- Write the query so it is reproducible: fixed UTC, half-open date ranges and the filters the
+  sentence itself names. If the sentence cannot name them, rewrite the sentence.
+
 ## 3. Exercises
 
 - Scenario reads like a real request from a colleague (marketing, finance, operations, product) with a clear business question and expected output columns.

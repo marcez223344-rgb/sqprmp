@@ -137,7 +137,7 @@ La ventaja frente a resolverlo con un join es que \`IN\` **no multiplica filas**
 
 ## NOT IN y la trampa de NULL
 
-Esta es la trampa que produce más consultas equivocadas en silencio. En Bolsillo, la columna \`card_id\` de la tabla \`transactions\` indica con qué tarjeta se hizo el movimiento, y solo tiene valor en los pagos con tarjeta: en 20 613 de los 32 243 movimientos está en \`NULL\`.
+Esta es la trampa que produce más consultas equivocadas en silencio. En Bolsillo, la columna \`card_id\` de la tabla \`transactions\` indica con qué tarjeta se hizo el movimiento, y solo tiene valor en los pagos con tarjeta: en 27 125 de los 32 243 movimientos está en \`NULL\`.
 
 La pregunta de negocio es razonable: ¿qué tarjetas nunca se usaron?
 

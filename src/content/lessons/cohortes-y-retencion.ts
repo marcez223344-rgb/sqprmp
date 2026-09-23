@@ -164,7 +164,7 @@ Aquí el \`INNER JOIN\` con \`plays\` sí es correcto, porque solo se usa para g
 
 ## El escalón del mes 0
 
-En Ritmo, promediando las cohortes que tienen seis meses completos, el mes 0 da 53,80 % y el mes 1 da 75,33 %: la retención **sube** en lugar de bajar. No es un error de la consulta. Quien se registra el 28 de marzo tiene solo tres días de marzo para reproducir algo, y treinta días completos de abril. El mes 0 siempre es un mes parcial y por eso queda artificialmente bajo.
+En Ritmo, promediando las cohortes de enero de 2024 a marzo de 2025, que son las que ya vivieron seis meses completos, el mes 0 da 53,40 % y el mes 1 da 74,77 %: la retención **sube** en lugar de bajar. No es un error de la consulta. Quien se registra el 28 de marzo tiene solo tres días de marzo para reproducir algo, y treinta días completos de abril. El mes 0 siempre es un mes parcial y por eso queda artificialmente bajo.
 
 Muchas empresas resuelven esto publicando la curva desde el mes 1, o usando ventanas relativas al alta de cada persona, que es el tema de la próxima lección. Lo importante es entender por qué ocurre y dejarlo dicho en el reporte.
 

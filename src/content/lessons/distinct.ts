@@ -47,14 +47,14 @@ FROM categories;
 
 Esa consulta devuelve los identificadores de las categorías que son padre de alguna otra, **más** una fila con NULL, que corresponde a las categorías de primer nivel, las que no dependen de ninguna otra.
 
-Vale la pena anotar la excepción, porque en la sección 8 vas a ver que al comparar valores \`NULL = NULL\` no es verdadero. \`DISTINCT\` no compara con \`=\`: agrupa valores idénticos, y para agrupar sí trata a todos los NULL como un mismo caso.
+Conviene anotar esa excepción: en la sección 8 vas a ver que, al comparar dos valores, \`NULL = NULL\` no da verdadero. \`DISTINCT\` no compara con \`=\`: agrupa valores idénticos, y para agrupar sí trata a todos los NULL como un mismo caso.
 
 ## DISTINCT no arregla un resultado mal armado
 
 Si una consulta devuelve filas repetidas que no esperabas, agregar \`DISTINCT\` hace desaparecer las repeticiones de la pantalla, pero el problema que las generó sigue ahí y puede estar alterando tus totales. Las causas habituales son dos:
 
 - Un \`JOIN\` que multiplica filas porque la tabla de la derecha tiene varias filas por cada fila de la izquierda (sección 17).
-- Datos realmente duplicados, por ejemplo el mismo correo cargado dos veces con distinta capitalización en \`customers\`.
+- Datos realmente duplicados, por ejemplo el mismo correo cargado dos veces en \`customers\`, una vez con mayúsculas y otra con minúsculas.
 
 En el primer caso, \`DISTINCT\` esconde las filas de más pero tus sumas siguen contando importes repetidos, y el informe queda mal sin que nada lo indique. En el segundo, hay un problema de calidad de datos que alguien debería conocer.
 

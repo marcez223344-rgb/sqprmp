@@ -72,7 +72,7 @@ FROM customers;
 - Dejar una coma antes de \`FROM\`: \`SELECT full_name, FROM customers\` falla.
 - Esperar que las filas vengan en un orden determinado: sin \`ORDER BY\`, la cláusula que ordena el resultado (sección 13), el motor devuelve las filas en el orden que le resulte más conveniente y ese orden puede cambiar entre una ejecución y otra.
 
-## En resumen
+## Resumen
 
 - \`SELECT columnas FROM tabla;\` devuelve esas columnas para todas las filas.
 - Usa \`SELECT *\` para explorar; lista columnas para entregar.
@@ -147,7 +147,7 @@ FROM customers;
 - Usar comillas dobles para texto: los literales de texto van con comillas **simples** (\`'MX'\`).
 - Escribir toda la consulta en una sola línea de 200 caracteres: quien la revise tiene que recorrerla entera para encontrar la cláusula que le interesa.
 
-## En resumen
+## Resumen
 
 - Mayúsculas para palabras clave, una cláusula por línea, columnas listadas.
 - Comillas simples para texto; evita comillas dobles en nombres.

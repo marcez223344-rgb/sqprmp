@@ -72,13 +72,13 @@ SELECT id, total FROM orders LIMIT 10;
 
 Esta consulta no devuelve «los primeros diez pedidos»: devuelve diez pedidos cualesquiera, los que el motor tenga más a mano en ese momento. Mañana, con la tabla reorganizada o con otro plan de ejecución, pueden ser otros diez distintos. Si el \`LIMIT\` responde una pregunta de negocio, necesita un \`ORDER BY\` **con desempate único**, por ejemplo \`ORDER BY total DESC, id\`. Sin ese \`id\` final, dos pedidos con el mismo total se alternan entre ejecuciones y no puedes explicarle a nadie por qué el reporte cambió.
 
-## Y sí, existe \`EXPLAIN\`
+## Por qué \`EXPLAIN\` no está en este entorno
 
-En un servidor PostgreSQL real, \`EXPLAIN\` y \`EXPLAIN ANALYZE\` te muestran el plan que eligió el motor y cuántas filas pasaron por cada paso de ese plan. Es la herramienta definitiva y la vas a usar en tu trabajo; la sección siguiente del curso está dedicada a leerla. **En este entorno de práctica no está disponible**, y es a propósito: todo lo de esta sección se decide antes de mirar un plan, contando filas y leyendo tu propia consulta. Si solo puedes detectar un problema cuando tienes el plan delante, se te van a escapar la mayoría de los casos, porque la mayoría se ven en el SQL.
+En un servidor PostgreSQL real, \`EXPLAIN\` y \`EXPLAIN ANALYZE\` te muestran el plan que eligió el motor y cuántas filas pasaron por cada paso de ese plan. Es la herramienta principal para diagnosticar el rendimiento de una consulta y la vas a usar en tu trabajo; la sección siguiente del curso está dedicada a leerla. **En este entorno de práctica no está disponible**, y es a propósito: todo lo de esta sección se decide antes de mirar un plan, contando filas y leyendo tu propia consulta. Si solo puedes detectar un problema cuando tienes el plan delante, se te van a escapar la mayoría de los casos, porque la mayoría se ven en el SQL.
 
 ## Errores comunes
 
-- Suponer que «anda rápido en mi muestra» significa que va a andar rápido en producción. El costo crece con la cantidad de filas, no con tu paciencia.
+- Suponer que «anda rápido en mi muestra» significa que va a andar rápido en producción. El costo crece con la cantidad de filas, y una muestra chica lo esconde.
 - Poner en \`HAVING\` un filtro que no depende de ninguna agregación.
 - Dejar un \`SELECT *\` en una consulta que alimenta un reporte o un panel.
 
@@ -241,7 +241,7 @@ FROM entregados AS e
 JOIN restaurants AS r ON r.id = e.restaurant_id;
 \`\`\`
 
-La segunda versión agrupa 1200 filas y después une 330 filas con 400. La primera une las 1200 filas contra \`restaurants\` y recién entonces agrupa. Con estas tablas la diferencia es imperceptible; con cientos de millones de pedidos es la diferencia entre un panel que carga y uno que se queda esperando. El planificador suele **bajar** los filtros por su cuenta hasta antes del join, pero no puede adivinar una agregación previa: esa la escribes tú.
+La segunda versión agrupa 1179 filas y después une 370 filas con 400. La primera une las 1179 filas contra \`restaurants\` y recién entonces agrupa. Con estas tablas la diferencia es imperceptible; con cientos de millones de pedidos es la diferencia entre un panel que carga y uno que se queda esperando. El planificador suele **bajar** los filtros por su cuenta hasta antes del join, pero no puede adivinar una agregación previa: esa la escribes tú.
 
 ## El join que multiplica y la agregación que miente
 

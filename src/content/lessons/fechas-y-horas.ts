@@ -231,7 +231,7 @@ FROM orders
 WHERE created_at BETWEEN DATE '2025-08-01' AND DATE '2025-08-31';
 \`\`\`
 
-En TiendaViva esa consulta devuelve **1172** pedidos, pero los pedidos reales de agosto son **1208**. Faltan los 36 que se crearon el 31 de agosto después de la medianoche, es decir, prácticamente todos los de ese día. Es un 3 % de la facturación que desaparece del reporte sin que el motor avise de nada.
+En TiendaViva esa consulta devuelve **1172** pedidos, pero los pedidos reales de agosto son **1208**. Faltan los 36 que se crearon el 31 de agosto después de la medianoche, es decir, prácticamente todos los de ese día. Es un 2 % de la facturación que desaparece del reporte sin que el motor avise de nada.
 
 ## El patrón correcto: rango medio abierto
 

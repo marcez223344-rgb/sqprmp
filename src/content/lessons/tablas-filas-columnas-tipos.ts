@@ -63,7 +63,7 @@ En cada ejercicio verás el panel **Esquema** con las tablas disponibles. Para c
 - Usar \`full_name\`, el nombre completo, como identificador de un cliente: dos personas distintas pueden llamarse igual, mientras que el valor de \`id\` nunca se repite.
 - Olvidar que una relación uno a muchos repite filas al combinar tablas, y entregar totales más altos que los reales.
 
-## En resumen
+## Resumen
 
 - Una tabla son columnas con tipo de dato más filas. La clave primaria (PK) identifica cada fila y la clave foránea (FK) conecta una tabla con otra.
 - La relación uno a muchos es la más común y la causa de la mayoría de las filas repetidas que aparecen por accidente.
@@ -133,7 +133,7 @@ A veces necesitas cambiar el tipo de un valor. Eso se llama conversión (en ingl
 - Guardar fechas como texto en formato local (\`'02/03/2025'\`: ¿es 2 de marzo o 3 de febrero?). Usa siempre el formato ISO 8601, la norma internacional que escribe año-mes-día: \`'2025-03-02'\`.
 - Sumar importes financieros guardados en \`double precision\` y entregar un total con centavos de diferencia.
 
-## En resumen
+## Resumen
 
 - Cada columna tiene un tipo; el tipo define qué operaciones son válidas.
 - El dinero va en \`numeric\`, los instantes en \`timestamptz\` y las fechas se escriben en formato ISO (año-mes-día).

@@ -32,7 +32,7 @@ Antes de escribir SQL, respóndete estas cuatro preguntas. Si no puedes responde
 
 **4. ¿Contra qué se compara?** «Cayeron» implica una comparación. ¿Contra julio? ¿Contra agosto del año pasado? ¿Contra el plan? Sin base de comparación no hay caída, hay un número suelto.
 
-## Una respuesta que se puede accionar
+## Una respuesta que sirve para decidir
 
 Compara estas dos entregas para el mismo pedido:
 
@@ -71,7 +71,7 @@ El patrón se repite en casi cualquier pedido de negocio: **descompón la métri
 
 ## Lo que sí conviene preguntar
 
-No todas las ambigüedades las puedes resolver por tu cuenta. Vale la pena una pregunta corta cuando la elección cambia la conclusión: qué estado del pedido cuenta como venta, si «México» es el país del cliente o el del vendedor, si el mes es el mes calendario o los últimos 30 días. El resto —el formato, el orden de las filas, si el porcentaje lleva dos decimales— lo decides tú y lo dejas escrito en la entrega.
+No todas las ambigüedades las puedes resolver por tu cuenta. Conviene hacer una pregunta corta cuando la elección cambia la conclusión: qué estado del pedido cuenta como venta, si «México» es el país del cliente o el del vendedor, si el mes es el mes calendario o los últimos 30 días. El resto —el formato, el orden de las filas, si el porcentaje lleva dos decimales— lo decides tú y lo dejas escrito en la entrega.
 
 Una regla práctica: pregunta una sola vez, en una lista de tres puntos, con tu propuesta ya escrita («voy a contar pedidos \`delivered\` por país del cliente, mes calendario UTC; avísame si prefieres otra cosa»). Es mucho más probable que te respondan eso que un cuestionario abierto.
 
@@ -224,7 +224,7 @@ El umbral es un supuesto más. Elígelo antes de ver los resultados y no despué
 
 ## 4. Revisar los nulos y los ceros
 
-¿Hay filas con \`NULL\` donde esperabas un valor? En Pídelo, \`restaurant_rating\` es nulo en el 12 % de las calificaciones y \`courier_id\` falta en los pedidos cancelados. Un \`avg()\` los ignora —lo cual suele ser correcto—, pero entonces el promedio se calcula sobre menos filas de las que muestra tu columna de conteo. Si esas dos columnas van juntas en la tabla, aclara cuál es cuál.
+¿Hay filas con \`NULL\` donde esperabas un valor? En Pídelo, \`restaurant_rating\` es nulo en el 11 % de las calificaciones y \`courier_id\` falta en los pedidos cancelados. Un \`avg()\` los ignora —lo cual suele ser correcto—, pero entonces el promedio se calcula sobre menos filas de las que muestra tu columna de conteo. Si esas dos columnas van juntas en la tabla, aclara cuál es cuál.
 
 Revisa también los ceros. Una división por cero corta la consulta con un error, y un cero en el lugar equivocado puede devolver un resultado que parece válido. \`nullif(denominador, 0)\` convierte ese cero en \`NULL\`, de modo que la celda dice «no se puede calcular» en lugar de mostrar un número inventado.
 

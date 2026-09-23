@@ -52,7 +52,7 @@ FROM base;
 
 Devuelve 13 156 y 13 156. Los dos números coinciden, así que hay una fila por pedido, como corresponde. Esa pareja de conteos, \`count(*)\` contra \`count(DISTINCT clave)\`, es tu herramienta de diagnóstico más útil. Mientras los dos valores sean iguales, el **grano** —lo que representa una fila— se mantiene. En cuanto se separan, algún join multiplicó filas.
 
-**3. Agrega un paso y vuelve a contar.** Después de unir con \`order_items\`, esa misma pareja de conteos da 21 974 y 13 156. El grano cambió: ya no tienes un pedido por fila, sino una línea de detalle, y cada pedido aparece repetido tantas veces como productos tenga. A partir de ahí, cualquier \`sum(o.total_amount)\` suma el total del pedido varias veces y queda inflado.
+**3. Agrega un paso y vuelve a contar.** Después de unir con \`order_items\`, esa misma pareja de conteos da 21 964 y 13 156. El grano cambió: ya no tienes un pedido por fila, sino una línea de detalle, y cada pedido aparece repetido tantas veces como productos tenga. A partir de ahí, cualquier \`sum(o.total_amount)\` suma el total del pedido varias veces y queda inflado.
 
 **4. Compara contra algo conocido.** La suma de \`orders.total_amount\` de los pedidos entregados de Argentina da 1 705 368 745,77. Si tu consulta con cinco joins devuelve el doble, no tienes un problema de datos: tienes un join que duplica.
 
@@ -129,7 +129,7 @@ INNER JOIN order_items AS oi ON oi.order_id = o.id
 WHERE o.status = 'delivered';
 \`\`\`
 
-21 974 filas para 13 156 pedidos entregados. El total de Argentina pasa de 1 705 368 745,77 a 3 631 177 874,05. No es «más o menos el doble por casualidad»: es exactamente la suma de cada pedido repetida una vez por línea.
+21 964 filas para 13 156 pedidos entregados. El total de Argentina pasa de 1 705 368 745,77 a 3 631 177 874,05. No es «más o menos el doble por casualidad»: es exactamente la suma de cada pedido repetida una vez por línea.
 
 Lo más engañoso es que el factor de inflación **no es constante**. Un pedido de una sola línea se cuenta una vez y uno de tres líneas se cuenta tres veces, así que los pedidos grandes pesan más de lo que les corresponde. Por eso no cambia solo la escala del total: también cambia el orden del ranking de categorías, y el error deja de ser fácil de detectar.
 

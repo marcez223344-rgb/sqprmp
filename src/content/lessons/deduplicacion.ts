@@ -150,7 +150,7 @@ Ese terreno es delicado: cuanto más flexible haces la comparación, más pareja
 
 ## Duplicados que no están en la tabla
 
-Ojo con un caso que se confunde todo el tiempo: un join mal planteado **crea** filas repetidas que no existen en ningún lado. Si unes \`orders\` con \`payments\` y un pedido tiene tres intentos de pago, cada pedido aparece tres veces y el total se triplica.
+Hay un caso que se confunde con frecuencia: un join mal planteado **crea** filas repetidas que no existen en ningún lado. Si unes \`orders\` con \`payments\` y un pedido tiene tres intentos de pago, cada pedido aparece tres veces y el total se triplica.
 
 Eso no se arregla con \`DISTINCT\`: se arregla resumiendo \`payments\` a una fila por pedido **antes** de unir, o eligiendo un único intento de pago. Si tu reflejo ante un total inflado es agregar \`DISTINCT\`, lo más probable es que estés ocultando un error de cardinalidad —es decir, de cuántas filas produce la unión—, y el total seguirá mal en cuanto cambies una columna del \`SELECT\`.
 
@@ -256,7 +256,7 @@ GROUP BY lower(email);
 
 Es legítimo y a menudo lo correcto, pero deja de existir una fila «original» que puedas señalar. Decide con el negocio si quieren un sobreviviente o un consolidado.
 
-## Y lo que casi nadie hace
+## Antes de eliminar, revisa qué filas dependen
 
 Antes de eliminar, pregúntate qué otras filas dependen de las que se van. Si borras una cuenta duplicada, sus pedidos quedan apuntando a un cliente que ya no existe y dejan de aparecer en cualquier consulta que una las dos tablas. La secuencia correcta es: elegir la fila ganadora, **actualizar las filas dependientes** para que apunten a ella y recién entonces eliminar las perdedoras.
 

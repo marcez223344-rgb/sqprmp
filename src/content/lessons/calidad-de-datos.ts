@@ -165,7 +165,7 @@ La expresión \`nullif(btrim(comment), '')\` es el traductor entre los dos mundo
 
 ## Categorías que no coinciden
 
-Es el problema clásico de todo sistema de gestión de clientes: el mismo correo cargado dos veces con distinta capitalización, y por lo tanto la misma persona contada dos veces.
+Es el problema clásico de todo sistema de gestión de clientes: el mismo correo cargado dos veces, una con mayúsculas y otra con minúsculas, y por lo tanto la misma persona contada dos veces.
 
 En el dataset \`tiendaviva\`, la tabla \`customers\` tiene 3000 filas y 2998 correos distintos. Si antes de contarlos los pasas a minúsculas y les sacas los espacios sobrantes, los correos distintos bajan a 2961. Es decir, hay 37 personas cargadas más de una vez, y cualquier métrica «por cliente» sobre esa tabla está mal.
 
