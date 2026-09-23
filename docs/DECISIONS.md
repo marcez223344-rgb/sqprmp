@@ -391,6 +391,18 @@ costs 10 % of the exercise XP and leaves the exercise solvable, revealing costs 
 Rejected: requiring a hint before the reveal. It converts a nudge into a wall, and the learner who
 genuinely already knows the answer and wants to check it is punished for the learner who does not.
 
+### D-28 · The 10-day refund clause stays as written
+
+Status: Accepted (owner decision, 2026-09-23).
+
+The owner questioned whether a 10-day refund window is wise "for a tiny project that is just
+starting". It is not a commitment he can withdraw: Ley 24.240 art. 34 makes the revocation right
+for distance consumer sales mandatory in Argentina and requires it to be disclosed. Removing the
+sentence would remove the disclosure, not the obligation, and would be a compliance problem rather
+than a saving. Offered a reworded version framing it as the legal right instead of a company
+promise; **owner chose to leave the text exactly as it is**, which already closes with the
+Ley 24.240 reference.
+
 ## Owner-only follow-ups from 2026-09-23
 
 - **`SUPABASE_SECRET_KEY` is invalid in production** (see the runbook note in
@@ -410,7 +422,6 @@ api-keys` returns it masked and the masked string is what is currently deployed.
 | P-4  | Free tiers for soft launch. **Owner, 2026-09-22: stay on Vercel Hobby while testing with first customers, upgrade later.** Hobby's terms forbid commercial use, so the risk (project suspension on review, no SLA) is accepted knowingly; Supabase Free pauses after 7 days idle — the nightly keep-alive covers it.           | Before scaling  | Free tiers, keep-alive workflow on |
 | P-5  | Content style: use "tú" (recommended) or "usted"?                                                                                                                                                                                                                                                                              | Phase 3         | "tú"                               |
 | D-17 | Launch price: USD 29 founder / USD 49 regular, ARS 39.900 / ARS 69.900 (recommended above) — or a different number                                                                                                                                                                                                             | Before selling  | Current USD 20 stays               |
-| D-28 | Refund window: keep the 10-day refund promise in the terms? In Argentina the 10-day revocation right for online consumer sales is **mandatory** (Ley 24.240 art. 34), so removing the sentence removes the disclosure, not the obligation. Recommendation: keep it, reworded as the legal right rather than a company promise. | Before charging | Text stays as it is                |
 | D-29 | Landing and pricing copy says "{free} ejercicios gratis", which understates the offer (two whole sections are free on top of the five gated exercises). Restate it?                                                                                                                                                            | Before launch   | Current wording stays              |
 | P-6  | Certificate name shown: founder as "Instructor" and company as issuer?                                                                                                                                                                                                                                                         | Phase 7         | Yes                                |
 
