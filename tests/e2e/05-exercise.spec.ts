@@ -111,20 +111,23 @@ test.describe("exercise workspace (journeys 3–8)", () => {
 
   test("the sixth gated exercise is locked server-side (free limit)", async ({ page }) => {
     test.setTimeout(180_000);
+    // Every exercise here must come from a gated section: those in `limits.freeExerciseSections`
+    // are always free and never consume the allowance, so opening five of them locks nothing.
     for (const slug of [
-      "tipos-en-pedidos",
-      "catalogo-de-categorias",
-      "vendedores-basico",
-      "columnas-en-orden",
+      "clientes-de-uruguay",
+      "paises-con-clientes",
+      "tiendas-en-espanol",
+      "pedidos-problematicos-del-partner",
+      "ultimos-clientes-registrados",
     ]) {
       await page.goto(`/ejercicio/${slug}`);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     }
-    await page.goto("/ejercicio/explorar-productos");
+    await page.goto("/ejercicio/productos-agotados-activos");
     await expect(page.getByText("Alcanzaste el límite gratuito")).toBeVisible();
     await expect(page.getByRole("link", { name: "Ver precios" })).toBeVisible();
     // Previously started exercises remain accessible.
-    await page.goto("/ejercicio/columnas-en-orden");
+    await page.goto("/ejercicio/clientes-de-uruguay");
     await expect(page.getByRole("button", { name: "Enviar respuesta" })).toBeVisible();
   });
 });
