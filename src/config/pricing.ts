@@ -92,15 +92,17 @@ export const manualTransferInstructions: Record<
   (typeof manualTransferChannels)[number]["id"],
   { holder: string; lines: string[] }
 > = {
+  // Owner-supplied 2026-09-23. The holder is the account's legal name, spelled exactly as the
+  // sender's banking app shows it on the confirmation screen — not the trade name. Someone about
+  // to transfer money compares those two strings character by character, and a mismatch there
+  // reads as a scam even when the CBU is right.
   bank_ars: {
-    // Owner-supplied 2026-09-23. Holder is the personal name the alias points at, not the trade
-    // name: a learner comparing it against what their banking app shows must see a match.
-    holder: "Marcelo Pisner",
+    holder: "Marcelo Hernan Pisner",
     lines: ["Banco Galicia", "Alias: MarceloPisner", "CBU: 0070040530004041083717"],
   },
   mercadopago_ars: {
-    holder: "Data Minds Solutions",
-    lines: ["Alias Mercado Pago: PENDIENTE-DE-CONFIGURAR"],
+    holder: "Marcelo Hernan Pisner",
+    lines: ["Mercado Pago", "Alias: marc.hern.pis", "CVU: 0000003100024616194588"],
   },
   wallbit_usd: { holder: "Data Minds Solutions", lines: ["Wallbit TAG: PENDIENTE-DE-CONFIGURAR"] },
 };
