@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { limits } from "@/config/limits";
 import { levelSchema, lessonKindSchema, markdownSchema, slugSchema, wordCount } from "./common";
 
 export const LESSON_MAX_WORDS = 900;
@@ -20,6 +21,19 @@ export const sectionSchema = z.object({
   title: z.string().min(3).max(120),
   summary: z.string().min(20).max(600),
   objectives: z.array(z.string().min(10).max(200)).min(3).max(6),
+  /**
+   * Questions served in one attempt at this section's quiz (D-37). Omitted means
+   * `limits.quiz.questionsPerAttempt`. The value must be one of `limits.quiz.lengthsAllowed` and
+   * the section's published bank must be at least `value + limits.quiz.minUnseenOnRetry`
+   * (checked in src/content/load.ts).
+   */
+  quiz_questions: z
+    .number()
+    .int()
+    .refine((n) => (limits.quiz.lengthsAllowed as readonly number[]).includes(n), {
+      message: `quiz length must be one of ${limits.quiz.lengthsAllowed.join(", ")} (see limits.quiz.lengthsAllowed)`,
+    })
+    .optional(),
   /** Section slug that must be completed before this one (linear inside a level). */
   requires: slugSchema.nullable(),
   /** Whether the theory (not the gated exercises) is available without an entitlement. */

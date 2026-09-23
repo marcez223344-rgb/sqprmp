@@ -14,6 +14,8 @@ export interface DashboardData {
   week: { minutes: number; target: number; xp: number };
   freeUsed: number;
   freeLimit: number;
+  /** Titles of the sections whose exercises never consume the free allowance (limits.ts). */
+  freeSectionTitles: string[];
   exercisesCompleted: number;
   badges: {
     slug: string;
@@ -194,6 +196,12 @@ export const getDashboard = cache(async (profile: Profile): Promise<DashboardDat
     week: { minutes: weekMinutes, target: goalRow.weekly_minutes_target, xp: weekXp },
     freeUsed: typeof freeUsed.data === "number" ? freeUsed.data : 0,
     freeLimit: limits.freeExerciseLimit,
+    // The counter alone reads as a bug next to a larger "exercises completed" number; naming the
+    // always-free sections is what makes the two numbers agree (owner feedback, 2026-09-23).
+    freeSectionTitles: limits.freeExerciseSections.flatMap((slug) => {
+      const s = (sections.data ?? []).find((x) => x.slug === slug && x.is_published);
+      return s ? [s.title] : [];
+    }),
     exercisesCompleted: completedExerciseSlugs.size,
     badges: (badges.data ?? []).map((b) => ({
       slug: b.slug,

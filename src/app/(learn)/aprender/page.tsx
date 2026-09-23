@@ -11,7 +11,7 @@ import {
   Star,
   Target,
 } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { getFormatter, getTranslations } from "next-intl/server";
 import { badgeContainerClasses } from "@/components/progress/badge-styles";
 import { GoalsForm } from "@/components/progress/goals-form";
 import { Meter, StatTile } from "@/components/progress/stat-tile";
@@ -31,7 +31,11 @@ export async function generateMetadata() {
 
 export default async function DashboardPage() {
   const profile = await requireOnboardedProfile("/aprender");
-  const [d, t] = await Promise.all([getDashboard(profile), getTranslations("dashboard")]);
+  const [d, t, format] = await Promise.all([
+    getDashboard(profile),
+    getTranslations("dashboard"),
+    getFormatter(),
+  ]);
   const earnedBadges = d.badges.filter((b) => b.earned_at);
   // Built from the parts that actually have a value: a learner with no history used to see a
   // dangling "·" because the longest-streak half of the line was meaningless at zero.
@@ -143,9 +147,13 @@ export default async function DashboardPage() {
             </>
           )}
           {d.freeLimit > 0 && profile.role !== "admin" ? (
-            <p className="text-muted text-xs">
-              {t("freeCounter", { used: d.freeUsed, limit: d.freeLimit })}
-            </p>
+            <div className="text-muted space-y-1 text-xs">
+              <p>{t("freeCounter", { used: d.freeUsed, limit: d.freeLimit })}</p>
+              {/* Without this line, "4 de 5 usados" next to "Ejercicios 6" reads as a bug. */}
+              {d.freeSectionTitles.length > 0 ? (
+                <p>{t("freeCounterSections", { sections: format.list(d.freeSectionTitles) })}</p>
+              ) : null}
+            </div>
           ) : null}
         </Card>
 

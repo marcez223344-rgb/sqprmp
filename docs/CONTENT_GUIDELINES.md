@@ -141,3 +141,57 @@ first time. Two owner-cited rewrites set the standard; `src/content/lessons/tabl
 
 What these rules are _not_: an invitation to pad. Sentences get longer only where the added words
 carry meaning the learner needs. Nothing here relaxes §1 (neutral es-419, "tú", no childish tone).
+
+## 10. Exercise copy rules (owner feedback, 2026-09-23)
+
+§9 applies to every kind of content. These four rules are specific to the exercise fields
+(`scenario_md`, `business_question_md`, `hints[].body_md`, `common_mistakes[].description_md`,
+`expert_explanation_md`) and were applied in a full sweep of `src/content/exercises/**`. New or
+changed exercises must follow them.
+
+### A. Explanations open with a full sentence, never with a bare number or identifier
+
+`expert_explanation_md` starts by saying what the figure **is**: "El resultado de la consulta da 123
+clientes.", not "123 clientes.". The same applies mid-text: introduce a statement with "la siguiente
+sentencia:" instead of dropping raw SQL after a colon, and say "la condición de país, que debe
+escribirse como `country = 'UY'`" instead of just naming the predicate. A sentence may not begin
+with a digit, a column name or a SQL keyword.
+
+### B. Scenarios name the department and end with why the data is being asked of the learner
+
+- The requester is "El departamento de Operaciones", "El departamento Comercial", "La dirección de
+  **Marca**" — never a bare "Operaciones" or "Catálogo".
+- Drop decorative literary asides ("una familia de vendedores con estilo propio"). They cost a
+  re-read and add nothing.
+- Close with the ask: "…y por eso te piden un reporte que lo muestre", "…y necesita tu ayuda para
+  obtener esos datos". The learner must know who wants the result and what for.
+
+### C. Task statements start with "Debes generar un dataset que…" and spell out the tie-break
+
+- Open the `business_question_md` with "Debes generar un dataset que devuelva…" (or "…que liste…",
+  "…de una sola fila con…"), not with an imperative verb alone ("Devuelve…", "Muestra…").
+- Name every output column with its heading: "el `store_name` bajo el encabezado `tienda`".
+- Write the tie-break as an instruction, in the indicative: "y, si dos tiendas se llaman igual,
+  debes desempatar usando `id` ascendente". Do not use the conditional-subjunctive flourish
+  ("si dos tiendas se llamaran igual") and do not compress it to "ante empates, por `id`".
+
+### D. Never translate a SQL literal into Spanish
+
+If a value has to be **typed** in the learner's query, the statement prints that literal, not a
+Spanish word for it. This covers booleans, `NULL`, string literals and dates.
+
+| Wrong                        | Right                                                     |
+| ---------------------------- | --------------------------------------------------------- |
+| `is_active` verdadero        | la columna `is_active` está en `true`                     |
+| `marketing_opt_in` verdadero | la columna `marketing_opt_in` está en `true`              |
+| los pedidos entregados       | los pedidos cuyo `status` es igual al texto `'delivered'` |
+| los productos activos        | los productos que tienen `is_active` en `true`            |
+| el país es Uruguay           | la columna `country` es exactamente el texto `'UY'`       |
+| el campo está vacío          | la columna está en `NULL`                                 |
+
+Prose explaining three-valued logic ("la comparación nunca es verdadera") is unaffected: there the
+word describes a truth value, not a literal the learner has to type.
+
+Screen for D with a grep over the prompts before publishing: `verdader|falso|booleano` must not
+appear in `business_question_md`, and any Spanish status word (entregado, cancelado, aprobado,
+activo, vigente) must sit next to its literal or its column condition.

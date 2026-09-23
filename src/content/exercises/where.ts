@@ -19,9 +19,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["customers"],
     scenario_md:
-      "El equipo de **TiendaViva** abre un centro de distribución en Montevideo y quiere contactar a los clientes de Uruguay.",
+      "El equipo de **TiendaViva** está por abrir un centro de distribución en Montevideo y quiere contactar a los clientes que viven en Uruguay. El departamento de Operaciones necesita ese listado para preparar la comunicación y por eso te pide que lo obtengas de la base.",
     business_question_md:
-      "Muestra `id`, `full_name` y `city` de los clientes cuyo país (`country`) es `'UY'`. El orden no importa.",
+      "Debes generar un dataset que devuelva el `id`, el `full_name` y el `city` de los clientes cuyo país, guardado en la columna `country`, es exactamente el texto `'UY'`. El orden de las filas no importa.",
     learning_objective: "Filtrar filas por igualdad de texto con WHERE.",
     theory_ref: "where-filtros-basicos",
     expected_columns: [
@@ -34,13 +34,14 @@ export const exercises: ExerciseDef[] = [
     hints: [
       {
         level: 1,
-        body_md: "`WHERE` va después de `FROM` y contiene la condición que cada fila debe cumplir.",
+        body_md:
+          "La cláusula `WHERE` va escrita después de `FROM` y contiene la condición que cada fila debe cumplir para aparecer en el resultado.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "El país es un texto: compáralo con `'UY'` entre comillas simples y en mayúsculas.",
+          "El país es un valor de texto, así que debes compararlo con el literal `'UY'`: entre comillas simples y en mayúsculas, tal como está guardado en la tabla.",
         ...defaultHintMeta(2),
       },
       {
@@ -52,20 +53,22 @@ export const exercises: ExerciseDef[] = [
     common_mistakes: [
       {
         category: "missing_filter",
-        description_md: "Olvidar el `WHERE`: devuelve los 3000 clientes.",
+        description_md:
+          "Olvidar la cláusula `WHERE` por completo: la consulta devuelve los 3000 clientes de la tabla en lugar de los de Uruguay.",
       },
       {
         category: "syntax",
-        description_md: "Escribir `country = UY` sin comillas o con comillas dobles.",
+        description_md:
+          "Escribir la condición como `country = UY`, sin comillas, o con comillas dobles: PostgreSQL interpreta esas formas como un nombre de columna y no como un texto.",
       },
       {
         category: "row_count",
         description_md:
-          "Usar `'uy'` en minúsculas: la comparación distingue mayúsculas y devuelve 0 filas.",
+          "Escribir el literal en minúsculas, como `'uy'`: la comparación de texto distingue mayúsculas de minúsculas y el resultado sale con 0 filas.",
       },
     ],
     expert_explanation_md:
-      "123 clientes. La condición `country = 'UY'` se evalúa fila por fila y solo pasan las verdaderas.\n\nSi no estás seguro de cómo están escritos los valores, primero explora con `SELECT DISTINCT country FROM customers` (sección 5).",
+      "El resultado de la consulta da 123 clientes. La condición de país, que debe escribirse como `country = 'UY'`, se evalúa fila por fila y solo pasan al resultado las filas para las que la condición es verdadera.\n\nSi no estás seguro de cómo están escritos los valores de esa columna, primero explora los datos con la siguiente sentencia: `SELECT DISTINCT country FROM customers` (sección 5).",
     reward: defaultReward("very_easy"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -80,9 +83,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["products"],
     scenario_md:
-      "Un producto activo sin stock genera visitas que terminan en frustración. Catálogo quiere avisar a los vendedores.",
+      "Debes tener en cuenta que ver publicado un producto que ya no tiene unidades disponibles puede generar frustración en la persona que quiere comprarlo. El departamento de Catálogo quiere avisar de esa situación a los vendedores y por eso te pide un reporte que muestre esos productos.",
     business_question_md:
-      "Devuelve `id`, `seller_id` y `name` de los productos con `stock` igual a 0 **y** `is_active` verdadero. El orden no importa.",
+      "Debes generar un dataset que devuelva el `id`, el `seller_id` y el `name` de los productos que cumplen dos condiciones a la vez: la columna `stock` vale `0` **y** la columna `is_active` está en `true`. El orden de las filas no importa.",
     learning_objective: "Combinar una condición numérica y una booleana con AND.",
     theory_ref: "where-filtros-basicos",
     expected_columns: [
@@ -102,13 +105,14 @@ export const exercises: ExerciseDef[] = [
     hints: [
       {
         level: 1,
-        body_md: "Son dos condiciones que deben cumplirse a la vez: únelas con `AND`.",
+        body_md:
+          "Son dos condiciones que deben cumplirse al mismo tiempo en la misma fila, así que debes unirlas con el operador `AND`.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "`stock = 0` es numérica (sin comillas). `is_active` es booleana: puedes escribirla sola o como `is_active = TRUE`.",
+          "La condición `stock = 0` es numérica, por lo que el cero se escribe sin comillas. La columna `is_active` es de tipo booleano: puedes nombrarla sola, porque ya vale `true` o `false`, o escribirla de forma explícita como `is_active = TRUE`.",
         ...defaultHintMeta(2),
       },
       {
@@ -122,20 +126,21 @@ export const exercises: ExerciseDef[] = [
       {
         category: "row_count",
         description_md:
-          "Usar `OR` en lugar de `AND`: devuelve todos los activos más todos los agotados.",
+          "Unir las condiciones con `OR` en lugar de `AND`: el resultado trae todos los productos que están en `true` más todos los que tienen `stock` en `0`, sin exigir las dos cosas juntas.",
       },
       {
         category: "syntax",
         description_md:
-          "Escribir `stock = '0'`: funciona por conversión implícita, pero los números no llevan comillas.",
+          "Escribir `stock = '0'` con comillas: funciona por conversión implícita de tipos, pero los valores numéricos se escriben sin comillas y conviene acostumbrarse a eso.",
       },
       {
         category: "missing_filter",
-        description_md: "Filtrar solo por `stock = 0` e ignorar `is_active`.",
+        description_md:
+          "Filtrar solo por `stock = 0` y no incluir la condición sobre `is_active`: entran también los productos que ya fueron dados de baja del catálogo.",
       },
     ],
     expert_explanation_md:
-      "89 productos activos sin stock. `is_active` ya es una condición booleana; escribir `= TRUE` es opcional pero explícito.\n\nEn un marketplace real, esta lista alimentaría una alerta automática a cada vendedor: SQL suele ser el primer paso de un proceso operativo.",
+      "El resultado de la consulta da 89 productos que están en `true` en `is_active` y no tienen stock. La columna `is_active` es booleana, así que nombrarla sola ya funciona como condición; escribir `is_active = TRUE` es opcional y solo agrega claridad para quien lea la consulta.\n\nEn un marketplace real, esta lista alimentaría una alerta automática a cada vendedor: SQL suele ser el primer paso de un proceso operativo, no el último.",
     reward: defaultReward("easy"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -150,9 +155,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["sellers"],
     scenario_md:
-      "Comercial arma un programa de fidelización para las tiendas cuyo nombre comienza con «Bazar», una familia de vendedores con estilo propio.",
+      "El departamento Comercial está armando un programa de fidelización para las tiendas cuyo nombre comienza con «Bazar» y necesita tu ayuda para obtener esos datos de la base.",
     business_question_md:
-      "Devuelve `id` y `store_name` de los vendedores cuyo nombre **empieza** con `Bazar`, ordenados alfabéticamente por `store_name` y, si dos tiendas se llamaran igual, por `id` ascendente.",
+      "Debes generar un dataset que devuelva el `id` y el `store_name` de los comercios cuyo nombre **empieza** con el texto `Bazar`, ordenados alfabéticamente por `store_name` y, si dos tiendas se llaman igual, debes desempatar usando `id` ascendente.",
     learning_objective: "Filtrar texto por patrón con LIKE y el comodín %.",
     theory_ref: "where-texto-y-fechas",
     expected_columns: [
@@ -171,13 +176,14 @@ export const exercises: ExerciseDef[] = [
     hints: [
       {
         level: 1,
-        body_md: "«Empieza con» se expresa con `LIKE` y un patrón que termina en `%`.",
+        body_md:
+          "La idea de «empieza con» se expresa en SQL con el operador `LIKE` y un patrón de texto que termina en el comodín `%`, que representa cualquier cantidad de caracteres.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "El patrón es `'Bazar%'` (con B mayúscula si usas `LIKE`). Ordena por `store_name` y agrega `id` como segunda clave.",
+          "El patrón que necesitas es el literal `'Bazar%'`, con la B en mayúscula si usas `LIKE`. Para el orden, escribe primero `store_name` y agrega `id` como segunda clave de ordenamiento.",
         ...defaultHintMeta(2),
       },
       {
@@ -191,21 +197,21 @@ export const exercises: ExerciseDef[] = [
       {
         category: "row_count",
         description_md:
-          "Usar `'%Bazar%'`: aquí da lo mismo, pero en general incluye nombres que contienen la palabra en el medio.",
+          "Usar el patrón `'%Bazar%'`: en estos datos devuelve lo mismo, pero en general también incluye los nombres que llevan la palabra en el medio, que no es lo que pidió el negocio.",
       },
       {
         category: "row_count",
         description_md:
-          "Escribir `LIKE 'bazar%'` en minúsculas: `LIKE` distingue mayúsculas y devuelve 0 filas.",
+          "Escribir el patrón en minúsculas, como `LIKE 'bazar%'`: el operador `LIKE` distingue mayúsculas de minúsculas y el resultado sale con 0 filas.",
       },
       {
         category: "wrong_order",
         description_md:
-          "Ordenar por `id`: el listado sale en el orden en que se dieron de alta las tiendas, que a quien busca un nombre en la planilla no le sirve de nada.",
+          "Ordenar únicamente por `id`: el listado sale en el orden en que se dieron de alta las tiendas, y quien busque un nombre concreto en la planilla no lo va a encontrar con facilidad.",
       },
     ],
     expert_explanation_md:
-      "20 tiendas, de «Bazar Artesanal 49» a «Bazar Urbano 9» en orden alfabético. `LIKE 'Bazar%'` compara desde el inicio del texto, lo que además permite usar índices; `'%Bazar%'` obliga a recorrer todas las filas.\n\nEl orden alfabético no es un detalle estético: quien recibe la planilla va a buscar tiendas por nombre. El `id` queda como segunda clave para que el resultado sea reproducible si algún día se repite un nombre.\n\n`ILIKE` es cómodo cuando los datos vienen con capitalización inconsistente, algo frecuente en campos cargados a mano.",
+      "El resultado de la consulta da 20 tiendas, que van desde «Bazar Artesanal 49» hasta «Bazar Urbano 9» en orden alfabético. El patrón `LIKE 'Bazar%'` compara desde el inicio del texto, lo que además permite que el motor use un índice; el patrón `'%Bazar%'` lo obliga a recorrer todas las filas de la tabla.\n\nEl orden alfabético no es un detalle estético: quien reciba la planilla va a buscar las tiendas por nombre. La columna `id` queda como segunda clave de ordenamiento para que el resultado sea reproducible si algún día se repite un nombre de tienda.\n\nEl operador `ILIKE` es cómodo cuando los datos vienen con capitalización inconsistente, algo frecuente en campos que se cargan a mano.",
     reward: defaultReward("easy"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -220,9 +226,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["orders"],
     scenario_md:
-      "Finanzas cierra la primera quincena de marzo de 2025 y necesita todos los pedidos creados entre el **1 y el 15 de marzo inclusive**, sin importar la hora. `created_at` es un `timestamptz`.",
+      "El departamento de Finanzas está cerrando la primera quincena de marzo de 2025 y necesita todos los pedidos creados entre el 1 y el 15 de marzo inclusive, sin importar la hora del día. La columna `created_at` es de tipo `timestamptz`, es decir, guarda fecha y hora con zona horaria. Te piden ese listado para poder conciliar los importes del período.",
     business_question_md:
-      "Devuelve `id`, `created_at` y `total_amount` de los pedidos creados desde el 2025-03-01 hasta el 2025-03-15 **inclusive** (todo el día 15). El orden no importa.",
+      "Debes generar un dataset que devuelva el `id`, el `created_at` y el `total_amount` de los pedidos creados desde el `'2025-03-01'` hasta el `'2025-03-15'` **inclusive**, contando el día 15 completo, de las 00:00 a las 23:59. El orden de las filas no importa.",
     learning_objective:
       "Filtrar rangos de fecha sobre timestamps sin perder los registros del último día.",
     theory_ref: "where-texto-y-fechas",
@@ -244,13 +250,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "`created_at` incluye la hora. Compararlo con `'2025-03-15'` equivale a las 00:00 de ese día.",
+          "La columna `created_at` incluye la hora además de la fecha. Compararla con el literal `'2025-03-15'` equivale a compararla con las 00:00 de ese día, no con el día entero.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Usa un rango semiabierto: mayor o igual al 1 de marzo y **menor** que el 16 de marzo.",
+          "Usa un rango semiabierto: mayor o igual que el literal `'2025-03-01'` y **menor** que el literal `'2025-03-16'`, es decir, el día siguiente al último que quieres incluir.",
         ...defaultHintMeta(2),
       },
       {
@@ -264,20 +270,21 @@ export const exercises: ExerciseDef[] = [
       {
         category: "date_boundary",
         description_md:
-          "`BETWEEN '2025-03-01' AND '2025-03-15'` deja afuera casi todo el día 15 (solo incluye las 00:00:00).",
+          "Escribir `BETWEEN '2025-03-01' AND '2025-03-15'`: deja afuera casi todo el día 15, porque solo incluye los pedidos creados exactamente a las 00:00:00.",
       },
       {
         category: "date_boundary",
         description_md:
-          "`created_at <= '2025-03-16'` incluye el instante exacto de las 00:00 del 16.",
+          "Escribir `created_at <= '2025-03-16'`: incluye de más, porque entra también el instante exacto de las 00:00 del día 16.",
       },
       {
         category: "date_boundary",
-        description_md: "`created_at < '2025-03-15'` excluye el día 15 completo.",
+        description_md:
+          "Escribir `created_at < '2025-03-15'`: excluye el día 15 completo, que el negocio pidió incluir.",
       },
     ],
     expert_explanation_md:
-      "510 pedidos. Con `BETWEEN` hasta el 15 obtendrías 479: los 31 pedidos del 15 de marzo con hora posterior a las 00:00 desaparecen sin ningún error.\n\nLa alternativa `created_at::date BETWEEN ...` es correcta y legible, pero al aplicar una conversión a la columna el índice de `created_at` no se usa. En tablas grandes prefiere el rango semiabierto.",
+      "El resultado de la consulta da 510 pedidos. Si hubieras usado `BETWEEN` hasta el literal `'2025-03-15'` obtendrías 479: los 31 pedidos del 15 de marzo con hora posterior a las 00:00 desaparecen del reporte sin que el motor devuelva ningún error.\n\nLa alternativa `created_at::date BETWEEN ...` es correcta y se lee bien, pero al aplicar una conversión de tipo sobre la columna el índice de `created_at` deja de usarse. En tablas grandes conviene el rango semiabierto.",
     reward: defaultReward("intermediate"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,

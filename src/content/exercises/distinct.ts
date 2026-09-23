@@ -20,9 +20,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["customers"],
     scenario_md:
-      "Marketing prepara campañas por país y necesita saber en qué países hay clientes registrados en **TiendaViva**.",
+      "El departamento de Marketing está preparando campañas por país y necesita saber en qué países hay clientes registrados en **TiendaViva**. Te piden esa lista para decidir en qué mercados invertir el presupuesto del trimestre.",
     business_question_md:
-      "Devuelve la lista de países (`country`) que aparecen en `customers`, **sin repeticiones**. El orden no importa.",
+      "Debes generar un dataset que devuelva la lista de países, guardados en la columna `country` de la tabla `customers`, **sin repeticiones**: cada país debe aparecer una sola vez. El orden de las filas no importa.",
     learning_objective: "Obtener los valores únicos de una columna con DISTINCT.",
     theory_ref,
     expected_columns: [{ name: "country", type: "text" }],
@@ -32,12 +32,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Sin `DISTINCT` obtendrías 3000 filas (una por cliente). Necesitas eliminar repeticiones.",
+          "Si no eliminas las repeticiones obtendrías 3000 filas, una por cada cliente registrado. Necesitas una cláusula que deje un solo ejemplar de cada valor.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
-        body_md: "`DISTINCT` va justo después de `SELECT`, antes del nombre de la columna.",
+        body_md:
+          "La palabra clave `DISTINCT` va escrita justo después de `SELECT`, antes del nombre de la columna.",
         ...defaultHintMeta(2),
       },
       { level: 3, body_md: "```sql\nSELECT DISTINCT ___\nFROM ___;\n```", ...defaultHintMeta(3) },
@@ -45,21 +46,22 @@ export const exercises: ExerciseDef[] = [
     common_mistakes: [
       {
         category: "duplicates",
-        description_md: "Olvidar `DISTINCT`: la consulta devuelve una fila por cliente.",
+        description_md:
+          "Olvidar la palabra clave `DISTINCT`: la consulta devuelve una fila por cada cliente, con el país repetido cientos de veces.",
       },
       {
         category: "wrong_columns",
         description_md:
-          "Agregar `city` u otra columna: entonces las combinaciones país–ciudad ya no son «países únicos».",
+          "Agregar la columna `city` u otra columna al `SELECT`: el resultado pasa a ser la lista de combinaciones de país y ciudad, que ya no es la lista de países únicos que pidió Marketing.",
       },
       {
         category: "syntax",
         description_md:
-          "Escribir `SELECT country DISTINCT`: `DISTINCT` debe ir antes de la columna.",
+          "Escribir `SELECT country DISTINCT`: la palabra clave `DISTINCT` debe ir antes del nombre de la columna, no después.",
       },
     ],
     expert_explanation_md:
-      "Seis filas: AR, CL, CO, MX, PE y UY. Con 3000 clientes, el motor compara los valores y conserva uno por país.\n\nEs la consulta de exploración más útil que existe: antes de filtrar por una columna de texto, mira qué valores tiene realmente (mayúsculas, abreviaturas, errores de carga).",
+      "El resultado de la consulta da seis filas: los países `'AR'`, `'CL'`, `'CO'`, `'MX'`, `'PE'` y `'UY'`. Sobre las 3000 filas de clientes, el motor compara los valores de la columna y conserva uno por cada país distinto.\n\nEsta es la consulta de exploración más útil que existe: antes de filtrar por una columna de texto conviene mirar qué valores tiene realmente, porque ahí aparecen las mayúsculas inesperadas, las abreviaturas y los errores de carga.",
     reward: defaultReward("very_easy"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -74,9 +76,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["shipments"],
     scenario_md:
-      "Logística negocia tarifas con cada transportista y quiere saber a qué ciudades entregó cada uno alguna vez.",
+      "El departamento de Logística está negociando tarifas con cada transportista y quiere saber a qué ciudades entregó cada uno alguna vez. Te piden ese cruce para llegar a la negociación sabiendo quién cubre qué.",
     business_question_md:
-      "Devuelve las combinaciones **únicas** de `carrier` y `destination_city` presentes en `shipments`. El orden no importa.",
+      "Debes generar un dataset que devuelva las combinaciones **únicas** de `carrier` y `destination_city` que aparecen en la tabla `shipments`: cada par de transportista y ciudad debe aparecer una sola vez. El orden de las filas no importa.",
     learning_objective:
       "Aplicar DISTINCT a varias columnas y entender que actúa sobre la fila completa.",
     theory_ref,
@@ -90,13 +92,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "`DISTINCT` puede aplicarse a dos columnas a la vez: elimina las filas donde **ambas** se repiten.",
+          "La palabra clave `DISTINCT` puede aplicarse a dos columnas a la vez: elimina las filas en las que **ambas** columnas se repiten, no una sola de ellas.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Lista las dos columnas después de `SELECT DISTINCT`, separadas por coma, desde `shipments`.",
+          "Escribe las dos columnas después de `SELECT DISTINCT`, separadas por una coma, y toma las filas de la tabla `shipments`.",
         ...defaultHintMeta(2),
       },
       {
@@ -108,21 +110,22 @@ export const exercises: ExerciseDef[] = [
     common_mistakes: [
       {
         category: "duplicates",
-        description_md: "Sin `DISTINCT` devuelves 15 000 envíos.",
+        description_md:
+          "Olvidar la palabra clave `DISTINCT`: la consulta devuelve los 15 000 envíos, uno por fila.",
       },
       {
         category: "wrong_columns",
         description_md:
-          "Incluir `id` o `order_id`: cada envío es único y `DISTINCT` no elimina nada.",
+          "Incluir la columna `id` o la columna `order_id`: cada envío es único, así que `DISTINCT` no elimina nada y vuelves a tener todas las filas.",
       },
       {
         category: "wrong_columns",
         description_md:
-          "Devolver solo `carrier`: pierdes la cobertura por ciudad que pide Logística.",
+          "Devolver solo la columna `carrier`: se pierde el detalle por ciudad, que es justamente la cobertura que pidió Logística.",
       },
     ],
     expert_explanation_md:
-      "170 combinaciones: 5 transportistas × 34 ciudades, y en este dataset todos cubren todas las ciudades. En un dataset real esa matriz tendría huecos, y justamente esos huecos serían la información valiosa para negociar.",
+      "El resultado de la consulta da 170 combinaciones: 5 transportistas por 34 ciudades, porque en este dataset todos los transportistas cubren todas las ciudades. En un dataset real esa matriz tendría huecos, y esos huecos serían justamente la información valiosa para la negociación.",
     reward: defaultReward("easy"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -137,9 +140,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["categories"],
     scenario_md:
-      "El árbol de categorías tiene dos niveles. Catálogo quiere ver qué valores toma `parent_id`, incluido el caso de las categorías raíz (sin padre).",
+      "El árbol de categorías del catálogo tiene dos niveles: hay categorías raíz y categorías que cuelgan de otra. El departamento de Catálogo quiere ver qué valores toma la columna `parent_id`, incluido el caso de las categorías raíz, que no tienen padre. Te piden ese listado para entender la estructura antes de reorganizarla.",
     business_question_md:
-      "Devuelve los valores **únicos** de `parent_id` en `categories`, ordenados de menor a mayor. Las categorías raíz tienen `parent_id` NULL y también deben aparecer.",
+      "Debes generar un dataset que devuelva los valores **únicos** de la columna `parent_id` de la tabla `categories`, ordenados de menor a mayor. Las categorías raíz tienen `parent_id` en `NULL` y esa fila también debe aparecer en el resultado.",
     learning_objective: "Observar cómo DISTINCT y ORDER BY tratan a NULL.",
     theory_ref,
     expected_columns: [{ name: "parent_id", type: "integer" }],
@@ -148,13 +151,14 @@ export const exercises: ExerciseDef[] = [
     hints: [
       {
         level: 1,
-        body_md: "No necesitas filtrar nada: `DISTINCT` conserva una fila NULL por sí solo.",
+        body_md:
+          "No necesitas filtrar nada: la palabra clave `DISTINCT` conserva por sí sola una única fila con el valor `NULL`.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Agrega `ORDER BY parent_id` al final; en PostgreSQL los NULL quedan últimos en orden ascendente.",
+          "Agrega `ORDER BY parent_id` al final de la consulta. En PostgreSQL, los valores `NULL` quedan al final cuando el orden es ascendente.",
         ...defaultHintMeta(2),
       },
       {
@@ -166,19 +170,22 @@ export const exercises: ExerciseDef[] = [
     common_mistakes: [
       {
         category: "null_handling",
-        description_md: "Filtrar `parent_id IS NOT NULL`: la consigna pide incluir a las raíces.",
+        description_md:
+          "Agregar el filtro `parent_id IS NOT NULL`: la consigna pide incluir a las categorías raíz, que son justamente las que tienen `NULL` en esa columna.",
       },
       {
         category: "wrong_order",
-        description_md: "Omitir `ORDER BY`: el resultado debe estar ordenado.",
+        description_md:
+          "Omitir la cláusula `ORDER BY`: el resultado debe salir ordenado de menor a mayor.",
       },
       {
         category: "duplicates",
-        description_md: "Sin `DISTINCT` aparecen 30 filas, una por categoría.",
+        description_md:
+          "Olvidar la palabra clave `DISTINCT`: aparecen 30 filas, una por cada categoría.",
       },
     ],
     expert_explanation_md:
-      "Siete filas: los ids 1 a 6 (las raíces, que son padre de las subcategorías) y una fila NULL al final. PostgreSQL ordena los NULL **después** de los valores en `ASC` (y antes en `DESC`); puedes forzarlo con `NULLS FIRST` / `NULLS LAST`.\n\nQue `DISTINCT` agrupe los NULL es una de las pocas situaciones en que NULL «se compara» con NULL; en `WHERE` no ocurre, como verás en la sección 8.",
+      "El resultado de la consulta da siete filas: los identificadores del 1 al 6, que son las categorías raíz y a la vez padre de las subcategorías, y una fila con `NULL` al final. PostgreSQL ordena los valores `NULL` **después** de los demás valores cuando el orden es ascendente, y antes cuando es descendente; puedes forzar el comportamiento que quieras con `NULLS FIRST` o `NULLS LAST`.\n\nQue `DISTINCT` agrupe todos los `NULL` en una sola fila es una de las pocas situaciones en las que `NULL` se compara con `NULL`. En la cláusula `WHERE` eso no ocurre, como vas a ver en la sección 8.",
     reward: defaultReward("easy"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,

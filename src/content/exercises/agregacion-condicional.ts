@@ -19,9 +19,9 @@ export const exercises: ExerciseDef[] = [
     dataset: tiendaviva,
     tables_used: ["orders"],
     scenario_md:
-      "La reunión semanal de operaciones de **TiendaViva** empieza con el mismo tablero: cuántos pedidos hay en total y cómo se reparten entre entregados, cancelados y devueltos. Hoy ese tablero se arma con tres consultas separadas y alguien copia los números a mano.",
+      "La reunión semanal del departamento de Operaciones de **TiendaViva** empieza siempre con el mismo tablero: cuántos pedidos hay en total y cómo se reparten entre entregados, cancelados y devueltos. Hoy ese tablero se arma con tres consultas separadas y alguien copia los números a mano, así que te piden resolverlo en una sola consulta.",
     business_question_md:
-      "Devuelve **una sola fila** con el total histórico de pedidos y el conteo de cada estado: `total_orders` (todos los pedidos), `delivered_orders` (estado `delivered`), `cancelled_orders` (estado `cancelled`) y `returned_orders` (estado `returned`). Usa una única consulta sobre `orders`.",
+      "Debes generar un dataset de **una sola fila** con el total histórico de pedidos y el conteo de cada estado: el total de pedidos bajo el encabezado `total_orders`, los pedidos cuyo `status` es igual al texto `'delivered'` bajo el encabezado `delivered_orders`, los que están en `'cancelled'` bajo el encabezado `cancelled_orders` y los que están en `'returned'` bajo el encabezado `returned_orders`. Debes resolverlo con una única consulta sobre la tabla `orders`.",
     learning_objective:
       "Calcular varias métricas con condiciones distintas en una sola pasada usando agregación condicional.",
     theory_ref: "agregacion-condicional-case-y-filter",
@@ -48,13 +48,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "No uses `WHERE` para separar los estados: un `WHERE` recorta la consulta entera y perderías el total. La condición tiene que vivir **dentro** de cada función de agregación, para que cada columna cuente su propio subconjunto de las mismas filas.",
+          "No uses la cláusula `WHERE` para separar los estados: un `WHERE` recorta la consulta entera y perderías el total. La condición tiene que vivir **dentro** de cada función de agregación, para que cada columna cuente su propio subconjunto de las mismas filas.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "En `orders`, la columna `status` toma los valores `pending`, `paid`, `shipped`, `delivered`, `cancelled` y `returned`. Necesitas cuatro agregados en el mismo `SELECT`: uno sin condición (`count(*)`) y tres con condición, escritos con `FILTER (WHERE ...)` o con un `CASE` como argumento. No hay `GROUP BY`: el resultado es una sola fila.",
+          "En la tabla `orders`, la columna `status` toma los valores `'pending'`, `'paid'`, `'shipped'`, `'delivered'`, `'cancelled'` y `'returned'`. Necesitas cuatro agregados en el mismo `SELECT`: uno sin condición, que es `count(*)`, y tres con condición, escritos con `FILTER (WHERE ...)` o con un `CASE` como argumento. No lleva `GROUP BY`, porque el resultado es una sola fila.",
         ...defaultHintMeta(2),
       },
       {
@@ -68,26 +68,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "missing_filter",
         description_md:
-          "Poner la condición en un `WHERE` (`WHERE status = 'delivered'`): todas las columnas quedan calculadas sobre el mismo recorte y `total_orders` deja de ser el total.",
+          "Poner la condición en una cláusula `WHERE`, como `WHERE status = 'delivered'`: todas las columnas quedan calculadas sobre el mismo recorte y la columna `total_orders` deja de ser el total.",
       },
       {
         category: "cell_values",
         description_md:
-          "Escribir `count(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END)`: el `ELSE 0` devuelve un valor no nulo, así que `count` cuenta todas las filas y la columna repite el total.",
+          "Escribir `count(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END)`: la rama `ELSE 0` devuelve un valor que no es `NULL`, así que la función `count` cuenta todas las filas y la columna repite el total.",
       },
       {
         category: "aggregation_level",
         description_md:
-          "Agregar `GROUP BY status`: obtendrías una fila por estado (formato largo) en lugar de la fila única con cuatro columnas que pidió operaciones.",
+          "Agregar una cláusula `GROUP BY status`: obtendrías una fila por estado, en formato largo, en lugar de la fila única con cuatro columnas que pidió Operaciones.",
       },
       {
         category: "wrong_columns",
         description_md:
-          "Olvidar los alias: sin `AS total_orders` y compañía, las columnas llegan como `count`, `count_1`… y el reporte no se puede leer ni validar.",
+          "Olvidar los alias: sin `AS total_orders` y los demás, las columnas llegan con nombres como `count` y `count_1`, y el reporte no se puede leer ni validar.",
       },
     ],
     expert_explanation_md:
-      "Una fila: 18 000 pedidos en total, 13 156 entregados, 2313 cancelados y 1073 devueltos.\n\nLas tres formas (`FILTER`, `sum(CASE ... ELSE 0 END)` y `count(CASE ... END)`) recorren la tabla **una sola vez** y producen exactamente lo mismo. `FILTER` es estándar SQL y está disponible en PostgreSQL desde la versión 9.4; se lee mejor porque la condición aparece separada del valor que se agrega. La versión con `CASE` es la que vas a necesitar si la misma consulta debe correr en motores que no implementan `FILTER`.\n\nDetalle de rendimiento: tres consultas separadas leen la tabla tres veces y, además, pueden ejecutarse en momentos distintos. Con una sola consulta los cuatro números son consistentes entre sí por construcción, que es lo que hace auditable un tablero.",
+      "El resultado de la consulta da una sola fila: 18 000 pedidos en total, 13 156 entregados, 2313 cancelados y 1073 devueltos.\n\nLas tres formas posibles, que son `FILTER`, `sum(CASE ... ELSE 0 END)` y `count(CASE ... END)`, recorren la tabla **una sola vez** y producen exactamente lo mismo. La cláusula `FILTER` es parte del estándar SQL y está disponible en PostgreSQL desde la versión 9.4; se lee mejor porque la condición aparece separada del valor que se agrega. La versión con `CASE` es la que vas a necesitar si la misma consulta tiene que correr en motores que no implementan `FILTER`.\n\nUn detalle de rendimiento: tres consultas separadas leen la tabla tres veces y, además, pueden ejecutarse en momentos distintos. Con una sola consulta los cuatro números son consistentes entre sí por construcción, que es lo que hace auditable un tablero.",
     improvement_feedback: [
       {
         condition: "missing_alias_on_aggregate",
@@ -110,9 +110,9 @@ export const exercises: ExerciseDef[] = [
     dataset: tiendaviva,
     tables_used: ["orders", "customers"],
     scenario_md:
-      "Marketing prepara la presentación trimestral y quiere una tabla que se lea de un vistazo: **un país por fila y un canal por columna**. La consulta que existe hoy devuelve 18 filas (una por combinación de país y canal) y nadie logra leerla en una diapositiva.",
+      "El departamento de Marketing está preparando la presentación trimestral y quiere una tabla que se lea de un vistazo: **un país por fila y un canal por columna**. La consulta que existe hoy devuelve 18 filas, una por cada combinación de país y canal, y nadie logra leerla en una diapositiva. Te piden darle el formato que necesitan.",
     business_question_md:
-      "Arma la tabla pivote con una fila por país del **cliente** y estas columnas, en este orden: `country`, `total_orders` (todos los pedidos del país), `app_orders` (canal `app`), `web_orders` (canal `web`) y `partner_orders` (canal `marketplace_partner`). Ordena por `country` ascendente.",
+      "Debes generar un dataset con formato de tabla pivote, con una fila por país del **cliente** y estas columnas en este orden: el `country`, el total de pedidos del país bajo el encabezado `total_orders`, los pedidos cuyo `channel` es igual al texto `'app'` bajo el encabezado `app_orders`, los que están en `'web'` bajo el encabezado `web_orders` y los que están en `'marketplace_partner'` bajo el encabezado `partner_orders`. Ordena por `country` ascendente.",
     learning_objective:
       "Convertir una dimensión del GROUP BY en columnas mediante agregados condicionales, conservando un total de control.",
     theory_ref: "agregacion-condicional-tablas-pivote",
@@ -139,13 +139,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Lo que quieres como **filas** va en el `GROUP BY`; lo que quieres como **columnas** sale del `GROUP BY` y se transforma en un agregado con condición por cada valor posible.",
+          "Lo que quieres ver como **filas** va en la cláusula `GROUP BY`; lo que quieres ver como **columnas** sale del `GROUP BY` y se transforma en un agregado con condición por cada valor posible.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "El país está en `customers.country`, así que necesitas unir `orders` con `customers` por `customer_id`. Agrupa solo por `c.country` y escribe tres conteos condicionales sobre `o.channel`, más un `count(*)` sin condición para el total de la fila.",
+          "El país está en la columna `customers.country`, así que necesitas unir la tabla `orders` con `customers` por `customer_id`. Agrupa solamente por `c.country` y escribe tres conteos condicionales sobre `o.channel`, más un `count(*)` sin condición para el total de cada fila.",
         ...defaultHintMeta(2),
       },
       {
@@ -159,26 +159,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "aggregation_level",
         description_md:
-          "Dejar `o.channel` en el `GROUP BY`: vuelves al formato largo con 18 filas, justo lo que marketing no puede leer.",
+          "Dejar la columna `o.channel` dentro del `GROUP BY`: vuelves al formato largo con 18 filas, que es justamente lo que Marketing no puede leer.",
       },
       {
         category: "join_condition",
         description_md:
-          "Unir por `c.id = o.id` en lugar de `c.id = o.customer_id`: los totales cambian sin que la consulta falle, que es el peor tipo de error.",
+          "Unir con la condición `c.id = o.id` en lugar de `c.id = o.customer_id`: los totales cambian sin que la consulta falle, que es el peor tipo de error.",
       },
       {
         category: "cell_values",
         description_md:
-          "Usar `country` de otra tabla o filtrar por país en un `WHERE`: la pregunta es por el país del cliente y pide los seis países en la misma salida.",
+          "Usar la columna `country` de otra tabla, o filtrar por país en una cláusula `WHERE`: la pregunta es por el país del cliente y pide los seis países en la misma salida.",
       },
       {
         category: "wrong_order",
         description_md:
-          "No ordenar por `country`: la presentación necesita el mismo orden siempre; el motor no garantiza ninguno por su cuenta.",
+          "No ordenar por `country`: la presentación necesita el mismo orden siempre, y el motor no garantiza ninguno por su cuenta.",
       },
     ],
     expert_explanation_md:
-      "Seis filas, una por país. México (5854 pedidos) y Argentina (5446) concentran el volumen, y en todos los países la app supera a la web con una proporción parecida, cerca del 55 % contra el 37 %.\n\nLa columna `total_orders` no es decorativa: es el control de la tabla pivote. `3015 + 2038 + 393 = 5446` para Argentina, así que sabes que no quedó ningún canal fuera. El día que aparezca un canal nuevo, la suma dejará de cuadrar y lo vas a notar.\n\nAlternativas: el mismo resultado sale con `sum(CASE WHEN ... THEN 1 ELSE 0 END)` o con `crosstab()` de la extensión `tablefunc`, que no está disponible aquí y que obliga a declarar los tipos de las columnas a mano. Para dos o tres columnas, la agregación condicional es más simple y más clara.\n\nSi el reporte necesitara además el porcentaje por canal, se agrega dividiendo cada conteo condicional por `count(*)`; ese es el tema del siguiente ejercicio.",
+      "El resultado de la consulta da seis filas, una por país. México, con 5854 pedidos, y Argentina, con 5446, concentran el volumen, y en todos los países la app supera a la web con una proporción parecida, cercana al 55 % contra el 37 %.\n\nLa columna `total_orders` no es decorativa: es el control de la tabla pivote. Para Argentina se cumple que 3015 más 2038 más 393 da 5446, así que sabes que no quedó ningún canal fuera. El día que aparezca un canal nuevo, la suma va a dejar de cuadrar y lo vas a notar.\n\nSobre las alternativas: el mismo resultado sale con `sum(CASE WHEN ... THEN 1 ELSE 0 END)` o con la función `crosstab()` de la extensión `tablefunc`, que no está disponible en este entorno y que obliga a declarar los tipos de las columnas a mano. Para dos o tres columnas, la agregación condicional es más simple y más clara.\n\nSi el reporte necesitara además el porcentaje por canal, se agrega dividiendo cada conteo condicional por `count(*)`; ese es el tema del ejercicio siguiente.",
     improvement_feedback: [
       { condition: "no_table_alias_in_join", message_key: "improve.no_table_alias_in_join" },
       { condition: "uses_implicit_join", message_key: "improve.uses_implicit_join" },
@@ -206,9 +206,9 @@ export const exercises: ExerciseDef[] = [
     dataset: tiendaviva,
     tables_used: ["orders", "customers"],
     scenario_md:
-      "Operaciones quiere saber dónde se cancelan más pedidos. El conteo absoluto no sirve para decidir: México cancela más que Uruguay porque vende diez veces más. Lo que hace falta es el **porcentaje de pedidos cancelados sobre el total de cada país**.",
+      "El departamento de Operaciones quiere saber dónde se cancelan más pedidos. El conteo absoluto no sirve para decidir, porque México cancela más que Uruguay simplemente porque vende diez veces más. Lo que hace falta es el **porcentaje de pedidos cancelados sobre el total de cada país**, y te piden ese indicador.",
     business_question_md:
-      "Devuelve una fila por país del cliente con estas columnas: `country`, `total_orders`, `cancelled_orders` (estado `cancelled`) y `cancellation_rate_pct`, el porcentaje de cancelados sobre el total del país expresado de 0 a 100 y **redondeado a 2 decimales**. Ordena de mayor a menor tasa y, ante un empate, por `country` ascendente.",
+      "Debes generar un dataset con una fila por país del cliente y estas columnas: el `country`, el total de pedidos bajo el encabezado `total_orders`, los pedidos cuyo `status` es igual al texto `'cancelled'` bajo el encabezado `cancelled_orders` y el porcentaje de cancelados sobre el total del país, expresado en escala de 0 a 100 y **redondeado a 2 decimales**, bajo el encabezado `cancellation_rate_pct`. Ordena de mayor a menor tasa y, si dos países empatan, debes desempatar usando `country` ascendente.",
     learning_objective:
       "Calcular una tasa con numerador condicional y denominador total, evitando la división entera y la división por cero.",
     theory_ref: "agregacion-condicional-tasas-y-proporciones",
@@ -238,13 +238,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Una tasa es un cociente entre dos agregados calculados sobre el mismo grupo: arriba, el conteo con condición; abajo, el conteo total. Los dos salen de la misma consulta, no de dos consultas distintas.",
+          "Una tasa es un cociente entre dos agregados calculados sobre el mismo grupo: arriba, el conteo con condición; abajo, el conteo total. Los dos salen de la misma consulta y no de dos consultas distintas.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Parte del ejercicio anterior: une `orders` con `customers` y agrupa por `c.country`. Para el porcentaje, cuida tres cosas: multiplica por `100.0` (con decimal) antes de dividir para que no se trunque a entero, protege el denominador con `nullif(..., 0)` y aplica `round(..., 2)` al final.",
+          "Parte del ejercicio anterior: une la tabla `orders` con `customers` y agrupa por `c.country`. Para el porcentaje cuida tres cosas: multiplica por `100.0`, escrito con decimal, antes de dividir, para que el resultado no se trunque a entero; protege el denominador con `nullif(..., 0)`; y aplica `round(..., 2)` al final.",
         ...defaultHintMeta(2),
       },
       {
@@ -258,17 +258,17 @@ export const exercises: ExerciseDef[] = [
       {
         category: "cell_values",
         description_md:
-          "Dividir dos enteros (`count(*) FILTER (...) / count(*)`): PostgreSQL trunca y la tasa da 0 en todos los países. Multiplica por `100.0` o convierte a `numeric` antes de dividir.",
+          "Dividir dos enteros, como en `count(*) FILTER (...) / count(*)`: PostgreSQL trunca el resultado y la tasa da 0 en todos los países. Multiplica por `100.0` o convierte a `numeric` antes de dividir.",
       },
       {
         category: "null_handling",
         description_md:
-          "Dejar el denominador sin `nullif(..., 0)`: aquí ningún país tiene cero pedidos, pero el mismo reporte aplicado a un recorte más chico se cae con «division by zero» y no devuelve nada.",
+          "Dejar el denominador sin `nullif(..., 0)`: acá ningún país tiene cero pedidos, pero el mismo reporte aplicado a un recorte más chico se cae con el error «division by zero» y no devuelve nada.",
       },
       {
         category: "missing_filter",
         description_md:
-          "Filtrar con `WHERE o.status = 'cancelled'`: el denominador pasa a ser solo los cancelados y la tasa da 100 % en todos los países.",
+          "Filtrar con `WHERE o.status = 'cancelled'`: el denominador pasa a ser solamente los cancelados y la tasa da 100 % en todos los países.",
       },
       {
         category: "wrong_order",
@@ -277,7 +277,7 @@ export const exercises: ExerciseDef[] = [
       },
     ],
     expert_explanation_md:
-      "Seis filas. Uruguay encabeza con 14,18 % de cancelaciones sobre 684 pedidos, seguido de Perú (13,85 %) y México (13,41 %); Chile cierra con 11,12 %. Las diferencias son de dos o tres puntos: el ranking por conteo absoluto (México primero con 785 cancelados) contaba otra historia.\n\nPor qué funciona: `count(*)` y `count(*) FILTER (...)` se calculan sobre el mismo grupo, así que numerador y denominador siempre corresponden a las mismas filas. El `100.0` fuerza aritmética numérica —`706 / 5446` en enteros da `0`—, y `nullif(count(*), 0)` cambia un error fatal por un NULL informativo.\n\nAlternativas: `avg(CASE WHEN ... THEN 1.0 ELSE 0.0 END)` calcula directamente la proporción y evita escribir el denominador, un patrón muy usado cuando la condición es binaria. También existe `avg((o.status = 'cancelled')::int)`, más corto pero menos explícito.\n\nLegibilidad: si la expresión se repite en varias columnas, una CTE con los conteos y un `SELECT` externo que haga las divisiones suele leerse mejor que una fórmula de tres líneas.",
+      "El resultado de la consulta da seis filas. Uruguay encabeza con 14,18 % de cancelaciones sobre 684 pedidos, seguido por Perú con 13,85 % y México con 13,41 %; Chile cierra la tabla con 11,12 %. Las diferencias son de dos o tres puntos: el ranking por conteo absoluto, donde México va primero con 785 cancelados, contaba otra historia.\n\nPor qué funciona: las expresiones `count(*)` y `count(*) FILTER (...)` se calculan sobre el mismo grupo, así que el numerador y el denominador siempre corresponden a las mismas filas. El factor `100.0` fuerza aritmética numérica, porque `706 / 5446` entre enteros da `0`, y la función `nullif(count(*), 0)` cambia un error fatal por un `NULL` informativo.\n\nSobre las alternativas: la expresión `avg(CASE WHEN ... THEN 1.0 ELSE 0.0 END)` calcula directamente la proporción y evita escribir el denominador, que es un patrón muy usado cuando la condición es binaria. También existe `avg((o.status = 'cancelled')::int)`, que es más corta pero menos explícita.\n\nSobre la legibilidad: si la expresión se repite en varias columnas, una expresión de tabla común con los conteos y un `SELECT` externo que haga las divisiones suele leerse mejor que una fórmula de tres líneas.",
     improvement_feedback: [
       { condition: "no_table_alias_in_join", message_key: "improve.no_table_alias_in_join" },
       {
@@ -308,9 +308,9 @@ export const exercises: ExerciseDef[] = [
     dataset: tiendaviva,
     tables_used: ["payments", "orders"],
     scenario_md:
-      "El equipo de pagos negocia comisiones con los procesadores y necesita el desempeño de cada medio de pago **solo en los pedidos facturados en pesos mexicanos** (`currency = 'MXN'`), para no mezclar monedas en una misma suma. Un mismo pedido puede tener un intento rechazado y otro aprobado: cada fila de `payments` es un intento.",
+      "El departamento de Pagos está negociando comisiones con los procesadores y necesita el desempeño de cada medio de pago **solo en los pedidos facturados en pesos mexicanos**, es decir, aquellos cuyo `currency` es igual al texto `'MXN'`, para no mezclar monedas dentro de una misma suma. Ten en cuenta que un mismo pedido puede tener un intento rechazado y otro aprobado: cada fila de la tabla `payments` es un intento. Te piden ese resumen para la negociación.",
     business_question_md:
-      "Devuelve una fila por `method` con estas columnas: `payment_attempts` (intentos de pago del método), `approved_amount` (suma de `amount` de los intentos con estado `approved`), `refunded_amount` (suma de `amount` de los intentos con estado `refunded`) y `approval_rate_pct` (porcentaje de intentos aprobados sobre los intentos del método, de 0 a 100, redondeado a 2 decimales). Considera únicamente los pagos de pedidos con `currency = 'MXN'` y ordena por `approved_amount` de mayor a menor.",
+      "Debes generar un dataset con una fila por `method` y estas columnas: la cantidad de intentos de pago del método bajo el encabezado `payment_attempts`, la suma de `amount` de los intentos cuyo `status` es igual al texto `'approved'` bajo el encabezado `approved_amount`, la suma de `amount` de los intentos cuyo `status` es igual al texto `'refunded'` bajo el encabezado `refunded_amount`, y el porcentaje de intentos aprobados sobre el total de intentos del método, en escala de 0 a 100 y redondeado a 2 decimales, bajo el encabezado `approval_rate_pct`. Considera únicamente los pagos de pedidos cuyo `currency` es igual al texto `'MXN'` y ordena por `approved_amount` de mayor a menor.",
     learning_objective:
       "Combinar un filtro global de la consulta con sumas condicionales por estado y una tasa sobre el mismo grupo.",
     theory_ref: "agregacion-condicional-tasas-y-proporciones",
@@ -337,13 +337,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Hay dos niveles de filtrado que no se pisan: el recorte del universo (una sola moneda) va en `WHERE`, y la separación por estado del intento va dentro de cada agregado.",
+          "Hay dos niveles de filtrado que no se pisan entre sí: el recorte del universo, que deja una sola moneda, va en la cláusula `WHERE`, y la separación por estado del intento va dentro de cada agregado.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Une `payments` con `orders` por `order_id` para poder filtrar `o.currency = 'MXN'`, y agrupa por `p.method`. `approved_amount` y `refunded_amount` son sumas de `p.amount` con condición sobre `p.status`; la tasa se calcula con conteos, no con importes.",
+          "Une la tabla `payments` con `orders` por la columna `order_id` para poder filtrar con `o.currency = 'MXN'`, y agrupa por `p.method`. Las columnas `approved_amount` y `refunded_amount` son sumas de `p.amount` con condición sobre `p.status`; la tasa, en cambio, se calcula con conteos y no con importes.",
         ...defaultHintMeta(2),
       },
       {
@@ -357,26 +357,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "missing_filter",
         description_md:
-          "Omitir `WHERE o.currency = 'MXN'`: sumarías pesos argentinos, colombianos y mexicanos en la misma columna, un importe que no significa nada.",
+          "Omitir la condición `WHERE o.currency = 'MXN'`: sumarías pesos argentinos, colombianos y mexicanos dentro de la misma columna, un importe que no significa nada.",
       },
       {
         category: "cell_values",
         description_md:
-          "Calcular la tasa con importes (`approved_amount / sum(amount)`) en vez de con intentos: la pregunta es qué porcentaje de intentos se aprueba, no qué porcentaje del dinero.",
+          "Calcular la tasa con importes, como `approved_amount / sum(amount)`, en lugar de calcularla con intentos: la pregunta es qué porcentaje de intentos se aprueba y no qué porcentaje del dinero.",
       },
       {
         category: "aggregation_level",
         description_md:
-          "Agrupar por `p.method, p.status`: cada método se abriría en tres filas y desaparecería la comparación entre aprobado y reembolsado en la misma línea.",
+          "Agrupar por `p.method` y `p.status` a la vez: cada método se abre en tres filas y desaparece la comparación entre lo aprobado y lo reembolsado dentro de la misma línea.",
       },
       {
         category: "join_condition",
         description_md:
-          "Unir por `o.id = p.id` en lugar de `o.id = p.order_id`: la consulta corre, pero cruza pagos con pedidos que no les corresponden.",
+          "Unir con la condición `o.id = p.id` en lugar de `o.id = p.order_id`: la consulta se ejecuta, pero cruza pagos con pedidos que no les corresponden.",
       },
     ],
     expert_explanation_md:
-      "Cinco filas, una por método. La tarjeta de crédito domina el volumen (15 641 417,55 MXN aprobados sobre 2838 intentos) pero tiene una de las tasas de aprobación más bajas, 80,76 %; el efectivo, con muchísimo menos volumen, aprueba el 83,88 %. La billetera es la que más rechaza (78,75 %).\n\nDos decisiones de negocio están en la consulta. La primera es el `WHERE` sobre la moneda: sumar importes de monedas distintas es el error silencioso más común en reportes de pagos. La segunda es que la tasa se calcula sobre intentos y no sobre importes, porque mide la salud técnica del procesador, no el ticket promedio.\n\nSobre la escritura: `sum(p.amount) FILTER (WHERE p.status = 'approved')` equivale a `sum(CASE WHEN p.status = 'approved' THEN p.amount END)`. Aquí conviene **no** poner `ELSE 0`: sumar ceros no cambia el resultado, pero si un método no tuviera ningún intento aprobado querrás ver NULL («no hubo») y no `0`. Si el tablero necesita un cero explícito, envuelve con `coalesce(..., 0)` y documenta la decisión.",
+      "El resultado de la consulta da cinco filas, una por método de pago. La tarjeta de crédito domina el volumen, con 15 641 417,55 pesos mexicanos aprobados sobre 2838 intentos, pero tiene una de las tasas de aprobación más bajas, del 80,76 %; el efectivo, con muchísimo menos volumen, aprueba el 83,88 %. La billetera es la que más rechaza, con 78,75 %.\n\nHay dos decisiones de negocio incorporadas en la consulta. La primera es la condición sobre la moneda: sumar importes de monedas distintas es el error silencioso más común en los reportes de pagos. La segunda es que la tasa se calcula sobre intentos y no sobre importes, porque mide la salud técnica del procesador y no el ticket promedio.\n\nSobre la escritura: la expresión `sum(p.amount) FILTER (WHERE p.status = 'approved')` equivale a `sum(CASE WHEN p.status = 'approved' THEN p.amount END)`. Acá conviene **no** poner `ELSE 0`: sumar ceros no cambia el resultado, pero si un método no tuviera ningún intento aprobado querrás ver `NULL`, que significa «no hubo», en lugar de un `0`. Si el tablero necesita un cero explícito, envuélvelo con `coalesce(..., 0)` y documenta la decisión.",
     improvement_feedback: [
       { condition: "no_table_alias_in_join", message_key: "improve.no_table_alias_in_join" },
       { condition: "uses_select_star", message_key: "improve.uses_select_star" },
@@ -404,9 +404,9 @@ export const exercises: ExerciseDef[] = [
     dataset: tiendaviva,
     tables_used: ["reviews", "products", "sellers"],
     scenario_md:
-      "El área de calidad arma el ranking de reputación de los vendedores. Definen **promotora** a toda reseña con `rating` de 4 o 5 y **detractora** a la de 1 o 2 (las de 3 son neutras y no suman ni restan). El indicador que reportan es el porcentaje de promotoras menos el porcentaje de detractoras. Para que el número sea confiable, solo entran los vendedores con al menos 20 reseñas.",
+      "El departamento de Calidad está armando el ranking de reputación de los vendedores. Definieron como **promotora** a toda reseña con `rating` de 4 o 5, y como **detractora** a la de 1 o 2; las de 3 son neutras y no suman ni restan. El indicador que reportan es el porcentaje de promotoras menos el porcentaje de detractoras. Para que el número sea confiable, solo entran los vendedores con al menos 20 reseñas. Te piden ese ranking para la revisión trimestral.",
     business_question_md:
-      "Devuelve una fila por vendedor con `store_name`, `total_reviews` (reseñas de sus productos), `promoter_reviews` (`rating >= 4`), `detractor_reviews` (`rating <= 2`) y `nps`, calculado como `(promotoras - detractoras) / total * 100` **redondeado a 1 decimal**. Incluye solo a los vendedores con 20 reseñas o más. Ordena por `nps` de mayor a menor y, ante un empate, por `store_name` ascendente.",
+      "Debes generar un dataset con una fila por vendedor, con el `store_name`, la cantidad de reseñas de sus productos bajo el encabezado `total_reviews`, las reseñas con `rating` mayor o igual a 4 bajo el encabezado `promoter_reviews`, las reseñas con `rating` menor o igual a 2 bajo el encabezado `detractor_reviews` y el indicador bajo el encabezado `nps`, calculado como las promotoras menos las detractoras, dividido por el total y multiplicado por 100, **redondeado a 1 decimal**. Debes incluir solamente a los vendedores con 20 reseñas o más. Ordena por `nps` de mayor a menor y, si dos vendedores empatan, debes desempatar usando `store_name` ascendente.",
     learning_objective:
       "Combinar agregados condicionales en una fórmula de negocio y filtrar grupos con HAVING sobre una cadena de joins.",
     theory_ref: "agregacion-condicional-tasas-y-proporciones",
@@ -433,13 +433,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Las reseñas no apuntan al vendedor: apuntan al producto. Necesitas encadenar dos joins para llegar desde la reseña hasta la tienda. Y el corte por cantidad de reseñas es un filtro **de grupos**, no de filas.",
+          "Las reseñas no apuntan al vendedor: apuntan al producto. Necesitas encadenar dos cruces para llegar desde la reseña hasta la tienda. Y el corte por cantidad de reseñas es un filtro **de grupos**, no de filas.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "El camino es `reviews.product_id → products.id` y `products.seller_id → sellers.id`. Agrupa por el vendedor (incluye `s.id` en el `GROUP BY` para no fusionar dos tiendas que tengan el mismo nombre), usa `HAVING count(*) >= 20` y arma el `nps` con la resta de los dos conteos condicionales dividida por el total.",
+          "El camino va de `reviews.product_id` hacia `products.id`, y de `products.seller_id` hacia `sellers.id`. Agrupa por el vendedor, incluyendo `s.id` en el `GROUP BY` para no fusionar dos tiendas que tengan el mismo nombre, usa `HAVING count(*) >= 20` y arma la columna `nps` con la resta de los dos conteos condicionales dividida por el total.",
         ...defaultHintMeta(2),
       },
       {
@@ -453,26 +453,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "missing_filter",
         description_md:
-          "Poner el corte de 20 reseñas en `WHERE`: `WHERE count(*) >= 20` no es válido, porque el conteo del grupo todavía no existe cuando se evalúa `WHERE`. Ese filtro va en `HAVING`.",
+          "Poner el corte de 20 reseñas en la cláusula `WHERE`: la condición `WHERE count(*) >= 20` no es válida, porque el conteo del grupo todavía no existe cuando se evalúa el `WHERE`. Ese filtro va en la cláusula `HAVING`.",
       },
       {
         category: "cell_values",
         description_md:
-          "Tratar las reseñas de 3 como detractoras (`rating < 4`): el enunciado las define como neutras y el `nps` queda sistemáticamente más bajo.",
+          "Tratar las reseñas de 3 estrellas como detractoras, usando `rating < 4`: el enunciado las define como neutras y el indicador queda sistemáticamente más bajo.",
       },
       {
         category: "join_condition",
         description_md:
-          "Unir `reviews` directamente con `sellers` por `customer_id` o saltarse `products`: no hay relación directa entre la reseña y la tienda.",
+          "Unir la tabla `reviews` directamente con `sellers` por `customer_id`, o saltarse la tabla `products`: no hay ninguna relación directa entre la reseña y la tienda.",
       },
       {
         category: "aggregation_level",
         description_md:
-          "Agrupar solo por `s.store_name`: si dos tiendas compartieran nombre quedarían sumadas en una fila. Agrupar por `s.id` mantiene un vendedor por fila.",
+          "Agrupar solamente por `s.store_name`: si dos tiendas compartieran nombre quedarían sumadas en una sola fila. Agrupar también por `s.id` mantiene un vendedor por fila.",
       },
     ],
     expert_explanation_md:
-      "95 vendedores superan el umbral de 20 reseñas. El mejor es «Casa Tropical 128» con 84,0 (21 promotoras y ninguna detractora sobre 25 reseñas); la cola del ranking queda cerca de 30.\n\nLa fórmula es un caso típico de varias agregaciones condicionales combinadas en una expresión: dos conteos con condiciones distintas se restan y el resultado se divide por el total del mismo grupo. Escribir eso con subconsultas exigiría recorrer `reviews` tres veces.\n\nEl `HAVING count(*) >= 20` protege la lectura del indicador: un vendedor con 2 reseñas positivas daría 100,0 y encabezaría el ranking sin ninguna evidencia real. Cuando un umbral así aparece en un reporte, conviene dejarlo escrito en el título de la tabla, no solo en el SQL.\n\nAlternativa elegante: `sum(CASE WHEN rating >= 4 THEN 1 WHEN rating <= 2 THEN -1 ELSE 0 END)` calcula el saldo de promotoras menos detractoras en un solo agregado, aprovechando que gana la primera rama verdadera. Es más corto, aunque menos evidente para quien lea la consulta por primera vez.",
+      "El resultado de la consulta da 95 vendedores que superan el umbral de 20 reseñas. El mejor es «Casa Tropical 128», con 84,0 puntos, resultado de 21 reseñas promotoras y ninguna detractora sobre 25 reseñas en total; la cola del ranking queda cerca de 30.\n\nLa fórmula es un caso típico de varias agregaciones condicionales combinadas dentro de una misma expresión: dos conteos con condiciones distintas se restan y el resultado se divide por el total del mismo grupo. Escribir eso con subconsultas exigiría recorrer la tabla `reviews` tres veces.\n\nLa condición `HAVING count(*) >= 20` protege la lectura del indicador: un vendedor con 2 reseñas positivas daría 100,0 y encabezaría el ranking sin ninguna evidencia real. Cuando un umbral así aparece en un reporte, conviene dejarlo escrito en el título de la tabla y no solamente en el SQL.\n\nUna alternativa elegante: la expresión `sum(CASE WHEN rating >= 4 THEN 1 WHEN rating <= 2 THEN -1 ELSE 0 END)` calcula el saldo de promotoras menos detractoras en un solo agregado, aprovechando que gana la primera rama verdadera. Es más corta, aunque menos evidente para quien lea la consulta por primera vez.",
     improvement_feedback: [
       { condition: "no_table_alias_in_join", message_key: "improve.no_table_alias_in_join" },
       {
@@ -504,9 +504,9 @@ export const exercises: ExerciseDef[] = [
     dataset: tiendaviva,
     tables_used: ["orders", "customers"],
     scenario_md:
-      "Producto quiere medir la adopción de la app, y la pregunta no es cuántos **pedidos** entran por cada canal sino cuántas **personas distintas** usan cada uno. Un cliente que hizo 20 pedidos por la app cuenta igual que uno que hizo uno solo. Los pedidos cancelados no se consideran uso real del canal y quedan fuera del análisis.",
+      "El departamento de Producto quiere medir la adopción de la aplicación móvil, y la pregunta no es cuántos **pedidos** entran por cada canal sino cuántas **personas distintas** usan cada uno. Un cliente que hizo 20 pedidos por la app cuenta igual que uno que hizo uno solo. Los pedidos cancelados no se consideran uso real del canal y quedan fuera del análisis. Te piden ese indicador para decidir cuánto invertir en la app.",
     business_question_md:
-      "Devuelve una fila por país del cliente, considerando únicamente los pedidos cuyo `status` sea distinto de `cancelled`, con estas columnas: `country`, `buying_customers` (clientes distintos con al menos un pedido), `app_customers` (clientes distintos con al menos un pedido por `app`), `web_customers` (clientes distintos con al menos un pedido por `web`) y `app_adoption_pct` (`app_customers` sobre `buying_customers`, de 0 a 100, redondeado a 1 decimal). Ordena por `app_adoption_pct` de mayor a menor y, ante un empate, por `country` ascendente.",
+      "Debes generar un dataset con una fila por país del cliente, considerando únicamente los pedidos cuyo `status` sea distinto del texto `'cancelled'`, con estas columnas: el `country`, la cantidad de clientes distintos con al menos un pedido bajo el encabezado `buying_customers`, la cantidad de clientes distintos con al menos un pedido cuyo `channel` es igual al texto `'app'` bajo el encabezado `app_customers`, la cantidad de clientes distintos con al menos un pedido cuyo `channel` es igual al texto `'web'` bajo el encabezado `web_customers`, y el cociente entre `app_customers` y `buying_customers`, en escala de 0 a 100 y redondeado a 1 decimal, bajo el encabezado `app_adoption_pct`. Ordena por `app_adoption_pct` de mayor a menor y, si dos países empatan, debes desempatar usando `country` ascendente.",
     learning_objective:
       "Contar entidades distintas bajo condición con COUNT(DISTINCT ...) FILTER y reconocer por qué SUM(CASE ...) no resuelve este caso.",
     theory_ref: "agregacion-condicional-tasas-y-proporciones",
@@ -539,7 +539,7 @@ export const exercises: ExerciseDef[] = [
       {
         level: 2,
         body_md:
-          "Une `orders` con `customers`, descarta los cancelados en el `WHERE` y agrupa por `c.country`. Para cada canal necesitas contar clientes distintos solo entre las filas de ese canal: `count(DISTINCT ...)` admite un `FILTER (WHERE ...)`, y la variante portable es poner un `CASE` sin `ELSE` dentro del `DISTINCT`. Nota que las columnas no suman el total: hay clientes que usan los dos canales.",
+          "Une la tabla `orders` con `customers`, descarta los pedidos cancelados en la cláusula `WHERE` y agrupa por `c.country`. Para cada canal necesitas contar clientes distintos solo entre las filas de ese canal: la función `count(DISTINCT ...)` admite una cláusula `FILTER (WHERE ...)`, y la variante portable consiste en poner un `CASE` sin `ELSE` dentro del `DISTINCT`. Ten en cuenta que las columnas no suman el total, porque hay clientes que usan los dos canales.",
         ...defaultHintMeta(2),
       },
       {
@@ -553,26 +553,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "duplicates",
         description_md:
-          "Usar `count(*) FILTER (...)` o `sum(CASE WHEN channel = 'app' THEN 1 ELSE 0 END)`: cuentan pedidos, no personas, y quien compró 20 veces pesa 20 veces.",
+          "Usar `count(*) FILTER (...)` o `sum(CASE WHEN channel = 'app' THEN 1 ELSE 0 END)`: esas formas cuentan pedidos y no personas, así que quien compró 20 veces pesa 20 veces en el resultado.",
       },
       {
         category: "missing_filter",
         description_md:
-          "Olvidar `WHERE o.status <> 'cancelled'`: entrarían pedidos cancelados, que el enunciado excluye por no representar uso real del canal.",
+          "Olvidar la condición `WHERE o.status <> 'cancelled'`: entrarían pedidos cancelados, que el enunciado excluye por no representar uso real del canal.",
       },
       {
         category: "cell_values",
         description_md:
-          "Esperar que `app_customers + web_customers` sea igual a `buying_customers`: un cliente puede comprar por los dos canales y aparecer en ambas columnas. Las columnas se solapan a propósito.",
+          "Esperar que la suma de `app_customers` y `web_customers` sea igual a `buying_customers`: un cliente puede comprar por los dos canales y aparecer en las dos columnas. Las columnas se solapan a propósito.",
       },
       {
         category: "aggregation_level",
         description_md:
-          "Agrupar por `c.country, o.channel`: se pierde el formato ancho y la tasa deja de ser comparable entre canales dentro de la misma fila.",
+          "Agrupar por `c.country` y `o.channel`: se pierde el formato ancho y la tasa deja de ser comparable entre canales dentro de la misma fila.",
       },
     ],
     expert_explanation_md:
-      "Seis filas. Uruguay lidera con 90,9 % de sus 110 compradores usando la app; Colombia queda último con 82,9 % sobre 434. La suma de `app_customers` y `web_customers` supera a `buying_customers` en todos los países: mucha gente usa ambos canales, y eso es información, no un error.\n\nEste ejercicio es el caso donde las dos formas de agregación condicional dejan de ser intercambiables. `sum(CASE WHEN ... THEN 1 ELSE 0 END)` cuenta filas; para contar entidades distintas hay que eliminar duplicados antes de contar, y eso solo lo hace `DISTINCT` dentro del agregado. Las dos escrituras válidas son `count(DISTINCT o.customer_id) FILTER (WHERE o.channel = 'app')` y `count(DISTINCT CASE WHEN o.channel = 'app' THEN o.customer_id END)`: el `CASE` sin `ELSE` devuelve NULL para las filas de otros canales y `count` ignora los NULL.\n\nRendimiento: `count(DISTINCT ...)` obliga al motor a ordenar los valores de cada grupo o a armar una tabla auxiliar con ellos, y es bastante más caro que un `count(*)`. Con volúmenes grandes, el patrón habitual es agregar primero en una CTE a nivel cliente-canal y contar después; aquí, con 18 000 pedidos, la consulta directa es más clara y la diferencia es imperceptible.\n\nDefinición de negocio: «cliente activo» quedó definido como quien tiene al menos un pedido no cancelado en toda la historia del marketplace. Si el tablero fuera mensual, habría que agregar el recorte de fechas al `WHERE`, y la tasa cambiaría bastante.",
+      "El resultado de la consulta da seis filas. Uruguay lidera con un 90,9 % de sus 110 compradores usando la app; Colombia queda último con un 82,9 % sobre 434 compradores. La suma de `app_customers` y `web_customers` supera a `buying_customers` en todos los países: mucha gente usa los dos canales, y eso es información y no un error.\n\nEste ejercicio es el caso donde las dos formas de agregación condicional dejan de ser intercambiables. La expresión `sum(CASE WHEN ... THEN 1 ELSE 0 END)` cuenta filas; para contar entidades distintas hay que eliminar duplicados antes de contar, y eso solo lo hace la palabra clave `DISTINCT` dentro del agregado. Las dos escrituras válidas son `count(DISTINCT o.customer_id) FILTER (WHERE o.channel = 'app')` y `count(DISTINCT CASE WHEN o.channel = 'app' THEN o.customer_id END)`: el `CASE` sin `ELSE` devuelve `NULL` para las filas de otros canales y la función `count` ignora los `NULL`.\n\nSobre el rendimiento: la función `count(DISTINCT ...)` obliga al motor a ordenar los valores de cada grupo, o a armar una tabla auxiliar con ellos, y es bastante más cara que un `count(*)`. Con volúmenes grandes, el patrón habitual es agregar primero en una expresión de tabla común a nivel de cliente y canal, y contar después; acá, con 18 000 pedidos, la consulta directa es más clara y la diferencia es imperceptible.\n\nSobre la definición de negocio: «cliente activo» quedó definido como quien tiene al menos un pedido no cancelado en toda la historia del marketplace. Si el tablero fuera mensual, habría que agregar el recorte de fechas a la cláusula `WHERE`, y la tasa cambiaría bastante.",
     improvement_feedback: [
       { condition: "no_table_alias_in_join", message_key: "improve.no_table_alias_in_join" },
       {

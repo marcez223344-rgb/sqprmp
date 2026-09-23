@@ -80,8 +80,18 @@ export function SchemaBrowser({
                 className="border-border bg-surface-2 border-t px-3 py-2"
               >
                 <p className="text-muted mb-2 text-xs">{table.description}</p>
-                <table className="w-full text-xs">
+                {/* `table-fixed` plus explicit widths is what keeps this inside its column: with
+                    the automatic algorithm the non-wrapping name and type cells widened the table
+                    past the panel and the description spilled under the results panel next to it
+                    (owner report, 2026-09-23). Now every cell wraps and nothing ever overflows,
+                    from 360 px to 1536 px. */}
+                <table className="w-full table-fixed text-xs">
                   <caption className="sr-only">{t("columnsOf", { table: table.name })}</caption>
+                  <colgroup>
+                    <col className="w-[40%]" />
+                    <col className="w-[22%]" />
+                    <col className="w-[38%]" />
+                  </colgroup>
                   <thead>
                     <tr className="text-muted text-left">
                       <th scope="col" className="py-1 pr-2 font-medium">
@@ -98,7 +108,7 @@ export function SchemaBrowser({
                   <tbody>
                     {table.columns.map((c) => (
                       <tr key={c.name} className="border-border/60 border-t align-top">
-                        <td className="py-1 pr-2 font-mono whitespace-nowrap">
+                        <td className="py-1 pr-2 font-mono wrap-break-word">
                           {c.name}
                           {/* The identifiers stay in English, as in any data job; the gloss is
                               there so that is never a barrier to reading the schema. */}
@@ -124,10 +134,10 @@ export function SchemaBrowser({
                             </span>
                           ) : null}
                         </td>
-                        <td className="text-muted py-1 pr-2 font-mono whitespace-nowrap">
+                        <td className="text-muted py-1 pr-2 font-mono wrap-break-word">
                           {c.data_type}
                         </td>
-                        <td className="text-muted py-1">{c.description}</td>
+                        <td className="text-muted py-1 wrap-break-word">{c.description}</td>
                       </tr>
                     ))}
                   </tbody>

@@ -4,7 +4,7 @@
 
 ## 1. Learning path structure
 
-One course ("Ruta SQL para Analistas de Datos") organized in **6 levels** and **39 sections**. Each section = objectives + concise theory (1–3 lessons) + worked examples + common mistakes + 4–7 practical exercises + 8–15 theory questions + 1 section challenge + completion rule.
+One course ("Ruta SQL para Analistas de Datos") organized in **6 levels** and **39 sections**. Each section = objectives + concise theory (1–3 lessons) + worked examples + common mistakes + 4–7 practical exercises + 8–15 theory questions (of which 5, 6 or 10 are served per quiz attempt — see §3) + 1 section challenge + completion rule.
 
 | Level                        | Sections                                                                                                                                                                                           | Certificate                                           |
 | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
@@ -49,6 +49,30 @@ Depth over volume. Launch with **8 fully authored sections** spanning free and p
 | **Total**                                           | **38 exercises** (+ 8 section challenges) | **~104 questions** | 3 datasets           |
 
 The table above is the MVP scope note kept for history. **The course is now fully authored.** Counts reported by `npm run content:validate` on 2026-09-23, after section 35 (índices y planes de ejecución) closed the last gap: `courses 1, sections 39 (39 published), lessons 347, questions 414, exercises 209, datasets 4`. `npm run content:verify` on the same state: `OK (209 exercise(s) verified, expected results written)`. Every section has objectives, a summary, theory lessons, a question bank and verified exercises, so no section shows "Próximamente" and none is excluded from certificate requirements. Further sections are post-MVP additions, not gaps.
+
+### Quiz length per section (D-37)
+
+The bank is what is authored (8–12 questions); the **attempt** is a sample of it, and how big that
+sample is depends on the section. The number is authored in `quizQuestionsBySection`
+(`src/content/sections.ts`) and validated by `npm run content:validate` against the bank.
+
+| Length                             | When                                                                                                       | Sections                                                                                                   |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| **5** (check)                      | ≥ 5 authored exercises: the graded queries are the evidence, the quiz probes what a result set cannot show | 31 sections                                                                                                |
+| **6** (standard, also the default) | ≤ 4 exercises, so the quiz carries more of the judgement                                                   | 1, 2, 6, 14 · plus the four gate sections until their banks grow                                           |
+| **10** (gate)                      | closes a level and feeds a certificate                                                                     | 8 `null`, 20 `joins-multiples-tablas`, 28 `lag-y-lead`, 39 `proyectos-finales` — **pending a deeper bank** |
+
+Two constraints bind the choice and are enforced in code, not by convention:
+
+- Only `limits.quiz.lengthsAllowed` (5, 6, 10, 11, 12) may be declared. At 7, 8 or 9 the 80 % pass
+  threshold silently becomes 86–89 %, and at 4 one mistake fails the attempt.
+- The published bank must be at least `length + limits.quiz.minUnseenOnRetry` (3), so a retry is a
+  new measurement rather than a recall of the feedback the failed attempt showed.
+
+The four gate sections need **+3, +3, +1 and +1 published questions** respectively (a bank of 13;
+14 is better) before they can move to 10. Until then they run at 6. `distinct`,
+`alias-y-expresiones` and `operadores-comparacion-logicos` have banks of 8 and belong at 6 by tier;
++2 questions each would get them there.
 
 ### Published sections (2026-09-22)
 
@@ -130,7 +154,7 @@ Later datasets (post-MVP): ride-hailing (`rutaya`), SaaS subscriptions (`nubeflo
 3. Ejemplo resuelto paso a paso (worked example)
 4. Errores comunes (≥ 3)
 5. Ejercicios prácticos (progresivos; al menos uno por nivel de dificultad presente)
-6. Preguntas de teoría (≥ 8, tipos variados)
+6. Preguntas de teoría (≥ 8, tipos variados; el quiz sirve una muestra — largo por sección en §3)
 7. Desafío de sección (intermedio/avanzado, integra los conceptos)
 8. Requisitos de completado: todos los ejercicios correctos + quiz ≥ 80 % + desafío
 9. Elegibilidad de certificado (si aplica)

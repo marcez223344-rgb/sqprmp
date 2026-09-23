@@ -50,7 +50,8 @@ export default async function AccessPage() {
         ) : (
           <>
             <p className="text-muted text-sm">
-              {t("plan.free", { used: status.freeUsed, limit: status.freeLimit })}
+              {t("plan.free", { used: status.freeUsed, limit: status.freeLimit })}{" "}
+              {t("plan.freeNote")}
             </p>
             <Link href="/precios" className={cn(buttonVariants(), "w-fit")}>
               {t("plan.upgrade")}

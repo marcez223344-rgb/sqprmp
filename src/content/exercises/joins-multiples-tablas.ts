@@ -23,9 +23,9 @@ export const exercises: ExerciseDef[] = [
     dataset: tiendaviva,
     tables_used: ["orders", "order_items", "products", "sellers"],
     scenario_md:
-      "El equipo de expansión de **TiendaViva** prepara una reunión con las cinco tiendas uruguayas del marketplace y necesita el detalle de lo que vendieron en agosto de 2025.",
+      "El departamento de Expansión de **TiendaViva** está preparando una reunión con las cinco tiendas uruguayas del marketplace y necesita el detalle de lo que vendieron en agosto de 2025. Te piden ese listado porque el vendedor y la línea de pedido están en tablas separadas.",
     business_question_md:
-      "Devuelve una fila por línea de pedido de productos publicados por vendedores con `country = 'UY'`, en pedidos creados en agosto de 2025 (del 1 al 31 inclusive), con las columnas `order_id` (el `id` del pedido), `store_name`, `product_name` (el `name` del producto) y `quantity`. El orden no importa.",
+      "Debes generar un dataset con una fila por línea de pedido de productos publicados por vendedores cuyo `country` es igual al texto `'UY'`, dentro de pedidos creados en agosto de 2025, del día 1 al 31 inclusive, con las columnas `order_id`, que es el `id` del pedido, el `store_name`, el `product_name`, que es el `name` del producto, y la `quantity`. El orden de las filas no importa.",
     learning_objective:
       "Encadenar cuatro tablas siguiendo el camino de claves foráneas y usar alias para evitar ambigüedades.",
     theory_ref: camino,
@@ -48,13 +48,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Ninguna columna conecta directamente al vendedor con el pedido. Dibuja el camino: ¿por qué tablas intermedias hay que pasar para ir de uno al otro?",
+          "Ninguna columna conecta directamente al vendedor con el pedido. Dibuja el camino en un papel: por qué tablas intermedias hay que pasar para ir de uno al otro.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "El camino es `orders → order_items → products → sellers`, con `order_items.order_id`, `order_items.product_id` y `products.seller_id`. Los filtros de país y de fecha van en el `WHERE`.",
+          "El camino es `orders`, después `order_items`, después `products` y por último `sellers`, usando las columnas `order_items.order_id`, `order_items.product_id` y `products.seller_id`. Los filtros de país y de fecha van en la cláusula `WHERE`.",
         ...defaultHintMeta(2),
       },
       {
@@ -68,17 +68,17 @@ export const exercises: ExerciseDef[] = [
       {
         category: "join_condition",
         description_md:
-          "Unir `sellers` directamente con `orders` (`ON s.id = o.customer_id`): son entidades distintas y el resultado no tiene sentido, aunque la consulta corra.",
+          "Unir la tabla `sellers` directamente con `orders`, escribiendo `ON s.id = o.customer_id`: son entidades distintas y el resultado no tiene ningún sentido, aunque la consulta se ejecute sin error.",
       },
       {
         category: "date_boundary",
         description_md:
-          "Usar `o.created_at <= '2025-08-31'`: deja afuera casi todo el 31, porque `created_at` incluye la hora.",
+          "Usar la condición `o.created_at <= '2025-08-31'`: deja afuera casi todo el día 31, porque la columna `created_at` incluye también la hora.",
       },
       {
         category: "syntax",
         description_md:
-          "Escribir `name` o `id` sin alias de tabla: varias tablas de la cadena tienen esas columnas y PostgreSQL responde «column reference is ambiguous».",
+          "Escribir `name` o `id` sin el alias de la tabla: varias tablas de la cadena tienen esas columnas y PostgreSQL responde con el error «column reference is ambiguous».",
       },
       {
         category: "wrong_columns",
@@ -87,7 +87,7 @@ export const exercises: ExerciseDef[] = [
       },
     ],
     expert_explanation_md:
-      "68 filas. La consulta recorre el camino `orders → order_items → products → sellers`; cada `INNER JOIN` corresponde a una clave foránea real del modelo.\n\nLa solución alternativa arranca en `sellers` y llega a `orders` en sentido inverso: mismas 68 filas. Con solo INNER JOIN el orden es libre, así que se elige por legibilidad; aquí conviene empezar por `orders` porque ahí está el filtro de fecha.\n\nUna fila por línea de pedido es el grano correcto para esta pregunta: si el equipo quisiera «cuánto vendió cada tienda», habría que agregar, y entonces habría que revisar qué columnas se pueden sumar.",
+      "El resultado de la consulta da 68 filas. La consulta recorre el camino que va de `orders` a `order_items`, después a `products` y después a `sellers`; cada `INNER JOIN` corresponde a una clave foránea real del modelo de datos.\n\nLa solución alternativa arranca en la tabla `sellers` y llega a `orders` en el sentido inverso: devuelve las mismas 68 filas. Cuando todos los cruces son `INNER JOIN`, el orden es libre, así que se elige por legibilidad; aquí conviene empezar por `orders` porque ahí está el filtro de fecha.\n\nUna fila por línea de pedido es el nivel de detalle correcto para esta pregunta. Si el equipo quisiera saber cuánto vendió cada tienda, habría que agregar, y entonces habría que revisar con cuidado qué columnas se pueden sumar sin duplicar importes.",
     improvement_feedback: [
       { condition: "no_table_alias_in_join", message_key: "improve.no_table_alias_in_join" },
       { condition: "uses_select_star", message_key: "improve.uses_select_star" },
@@ -106,9 +106,9 @@ export const exercises: ExerciseDef[] = [
     dataset: tiendaviva,
     tables_used: ["orders", "order_items", "products", "sellers", "categories"],
     scenario_md:
-      "Compras quiere identificar los productos con mejor rotación en lo que va de 2025 para negociar reposición con sus tiendas.",
+      "El departamento de Compras quiere identificar los productos con mejor rotación en lo que va de 2025 para negociar la reposición con las tiendas que los publican. Te piden ese ranking con el nombre de la tienda y la categoría al lado, para poder llevarlo a las reuniones.",
     business_question_md:
-      "Para las líneas de pedidos creados desde el 1 de enero de 2025 cuyo `status` no sea `cancelled`, devuelve `product_name` (el `name` del producto), `store_name`, `category_name` (el `name` de la categoría del producto) y `unidades` (la suma de `quantity`), quedándote solo con los productos que acumulan **24 unidades o más**. Ordena por `unidades` descendente y, en caso de empate, por `product_name` ascendente.",
+      "Debes generar un dataset que, tomando las líneas de pedidos creados desde el 1 de enero de 2025 cuyo `status` sea distinto del texto `'cancelled'`, devuelva el `product_name`, que es el `name` del producto, el `store_name`, el `category_name`, que es el `name` de la categoría del producto, y la suma de `quantity` bajo el encabezado `unidades`, quedándote solamente con los productos que acumulan **24 unidades o más**. Ordena por `unidades` descendente y, si dos productos empatan, debes desempatar usando `product_name` ascendente.",
     learning_objective:
       "Agregar sobre una cadena de cinco tablas y filtrar el resultado agregado con HAVING.",
     theory_ref: camino,
@@ -134,13 +134,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Necesitas dos datos descriptivos del producto que viven en tablas distintas: quién lo vende y a qué categoría pertenece. Ambas cuelgan de `products`.",
+          "Necesitas dos datos descriptivos del producto que viven en tablas distintas: quién lo vende y a qué categoría pertenece. Las dos relaciones cuelgan de la tabla `products`.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Une `categories` por `products.category_id` y `sellers` por `products.seller_id`. Suma `order_items.quantity`, agrupa por las tres columnas descriptivas y aplica el umbral con `HAVING`.",
+          "Une la tabla `categories` por `products.category_id` y la tabla `sellers` por `products.seller_id`. Suma la columna `order_items.quantity`, agrupa por las tres columnas descriptivas y aplica el umbral con la cláusula `HAVING`.",
         ...defaultHintMeta(2),
       },
       {
@@ -154,26 +154,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "aggregation_level",
         description_md:
-          "Sumar `p.list_price` o `o.total_amount` en lugar de `oi.quantity`: son columnas del lado «uno» y se repiten una vez por línea.",
+          "Sumar `p.list_price` o `o.total_amount` en lugar de `oi.quantity`: son columnas del lado «uno» de la relación y se repiten una vez por cada línea del pedido.",
       },
       {
         category: "missing_filter",
         description_md:
-          "Filtrar el umbral de 24 unidades en el `WHERE`: ahí todavía no existe la suma. El filtro sobre un agregado va en `HAVING`.",
+          "Poner el umbral de 24 unidades en la cláusula `WHERE`: ahí todavía no existe la suma. El filtro sobre un valor agregado va en la cláusula `HAVING`.",
       },
       {
         category: "join_condition",
         description_md:
-          "Unir `categories` con `order_items` o con `sellers`: la categoría depende del producto (`products.category_id`).",
+          "Unir la tabla `categories` con `order_items` o con `sellers`: la categoría depende del producto, a través de `products.category_id`.",
       },
       {
         category: "wrong_order",
         description_md:
-          "Ordenar solo por `unidades`: hay empates y el desempate por `product_name` es parte del pedido.",
+          "Ordenar solamente por `unidades`: hay empates y el desempate por `product_name` es parte de lo que pidió el negocio.",
       },
     ],
     expert_explanation_md:
-      "26 productos. La cadena tiene cinco tablas, pero solo tres relaciones distintas: la línea con su pedido, la línea con su producto, y el producto con su vendedor y su categoría.\n\nAgrupar por `p.name` funciona porque en este dataset los nombres de producto son únicos; la alternativa agrupa por `p.id` (y agrega `p.name` al `GROUP BY` para poder seleccionarlo), que es el hábito robusto: si mañana dos tiendas publican un producto con el mismo nombre, la primera versión los mezclaría en una sola fila.\n\n`sum(oi.quantity)` es correcto porque `order_items` es la tabla más detallada de la consulta: cada fila se cuenta una sola vez. Repetir la expresión en `HAVING` es lo habitual; PostgreSQL no permite usar el alias `unidades` ahí, pero sí en `ORDER BY`.",
+      "El resultado de la consulta da 26 productos. La cadena tiene cinco tablas, pero solo tres relaciones distintas: la línea con su pedido, la línea con su producto, y el producto con su vendedor y con su categoría.\n\nAgrupar por `p.name` funciona porque en este dataset los nombres de producto son únicos; la alternativa agrupa por `p.id`, agregando además `p.name` al `GROUP BY` para poder seleccionarlo, que es el hábito robusto: si mañana dos tiendas publican un producto con el mismo nombre, la primera versión los mezclaría en una sola fila.\n\nLa expresión `sum(oi.quantity)` es correcta porque `order_items` es la tabla más detallada de la consulta, así que cada fila se cuenta una sola vez. Repetir la expresión dentro del `HAVING` es lo habitual: PostgreSQL no permite usar el alias `unidades` ahí, pero sí lo permite en la cláusula `ORDER BY`.",
     improvement_feedback: [
       {
         condition: "missing_alias_on_aggregate",
@@ -195,9 +195,9 @@ export const exercises: ExerciseDef[] = [
     dataset: tiendaviva,
     tables_used: ["orders", "customers", "shipments", "returns"],
     scenario_md:
-      "Atención al cliente audita el segundo semestre en Perú: quiere ver **todos** los pedidos que llegaron a destino y, cuando además hubo devolución, el importe reembolsado.",
+      "El departamento de Atención al Cliente está auditando el segundo semestre en Perú: quiere ver **todos** los pedidos que llegaron a destino y, cuando además hubo una devolución, el importe reembolsado. Te piden ese reporte para cerrar la auditoría.",
     business_question_md:
-      "Devuelve `order_id` (el `id` del pedido), `full_name` del cliente, `carrier` y `delivered_at` del envío, y `refund_amount` de la devolución (NULL si el pedido no tuvo devolución), para los pedidos de clientes con `country = 'PE'`, con `status` igual a `delivered` o `returned`, creados en julio o agosto de 2025. Ordena por `order_id` ascendente.",
+      "Debes generar un dataset que devuelva el `order_id`, que es el `id` del pedido, el `full_name` del cliente, el `carrier` y el `delivered_at` del envío, y el `refund_amount` de la devolución, que debe quedar en `NULL` cuando el pedido no tuvo devolución, para los pedidos de clientes cuyo `country` es igual al texto `'PE'`, cuyo `status` es igual a `'delivered'` o a `'returned'` y que fueron creados en julio o agosto de 2025. Ordena por `order_id` ascendente.",
     learning_objective:
       "Combinar tablas obligatorias con INNER JOIN y una tabla opcional con LEFT JOIN sin perder filas.",
     theory_ref: mezcla,
@@ -224,13 +224,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Dos de las tablas acompañantes existen siempre para estos pedidos y una solo a veces. Esa diferencia decide el tipo de unión de cada una.",
+          "Dos de las tablas acompañantes existen siempre para estos pedidos y una sola existe a veces. Esa diferencia es la que decide el tipo de unión de cada una.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "`customers` y `shipments` van con INNER JOIN; `returns` con LEFT JOIN por `returns.order_id`. Cuidado: si mencionas alguna columna de `returns` en el `WHERE`, el LEFT deja de conservar los pedidos sin devolución.",
+          "Las tablas `customers` y `shipments` van con `INNER JOIN`; la tabla `returns` va con `LEFT JOIN` por la columna `returns.order_id`. Ten cuidado: si mencionas alguna columna de `returns` en la cláusula `WHERE`, el `LEFT JOIN` deja de conservar los pedidos sin devolución.",
         ...defaultHintMeta(2),
       },
       {
@@ -244,26 +244,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "join_condition",
         description_md:
-          "Unir `returns` con INNER JOIN: el reporte baja de 173 a 8 filas y parece que casi todo se devolvió.",
+          "Unir la tabla `returns` con `INNER JOIN`: el reporte baja de 173 a 8 filas y da la impresión de que casi todo se devolvió.",
       },
       {
         category: "null_handling",
         description_md:
-          "Agregar `r.refund_amount > 0` o `r.reason IS NOT NULL` en el `WHERE`: anula el LEFT JOIN, porque las filas sin devolución tienen NULL ahí.",
+          "Agregar la condición `r.refund_amount > 0` o `r.reason IS NOT NULL` en la cláusula `WHERE`: eso anula el `LEFT JOIN`, porque las filas sin devolución tienen `NULL` en esas columnas.",
       },
       {
         category: "date_boundary",
         description_md:
-          "Escribir el rango como `o.created_at <= '2025-08-31'`: pierde los pedidos del 31 de agosto posteriores a la medianoche.",
+          "Escribir el rango como `o.created_at <= '2025-08-31'`: se pierden los pedidos del 31 de agosto posteriores a la medianoche.",
       },
       {
         category: "missing_filter",
         description_md:
-          "Olvidar `status IN ('delivered', 'returned')` e incluir pedidos enviados o cancelados que no corresponden a la auditoría.",
+          "Olvidar la condición `status IN ('delivered', 'returned')` e incluir pedidos enviados o cancelados, que no corresponden a esta auditoría.",
       },
     ],
     expert_explanation_md:
-      "173 filas, de las cuales solo 8 traen `refund_amount` con valor. Ese contraste es la razón del LEFT JOIN: si `returns` se uniera con INNER, el reporte mostraría 8 filas y la auditoría concluiría algo falso.\n\nLa alternativa escribe el LEFT JOIN antes del INNER sobre `shipments`. Funciona porque el `ON` del INNER apunta a `orders`, no a `returns`: no puede eliminar filas generadas por el LEFT. Si ese INNER apuntara a alguna columna de `returns`, anularía el LEFT JOIN igual que lo haría un `WHERE`. Por eso la convención práctica es dejar los LEFT JOIN al final de la cadena.\n\nDato para mirar con ojo crítico: una de las 173 filas tiene `delivered_at` en NULL a pesar del estado; en `shipments` hay 1110 envíos sin fecha de entrega. Un reporte de entregas honesto debería mencionar ese caso en vez de esconderlo.",
+      "El resultado de la consulta da 173 filas, de las cuales solo 8 traen la columna `refund_amount` con valor. Ese contraste es la razón del `LEFT JOIN`: si la tabla `returns` se uniera con `INNER JOIN`, el reporte mostraría 8 filas y la auditoría concluiría algo falso.\n\nLa solución alternativa escribe el `LEFT JOIN` antes del `INNER JOIN` sobre `shipments`. Funciona porque el `ON` de ese `INNER JOIN` apunta a la tabla `orders` y no a `returns`, así que no puede eliminar las filas generadas por el `LEFT JOIN`. Si ese cruce apuntara a alguna columna de `returns`, anularía el `LEFT JOIN` igual que lo haría un `WHERE`. Por eso la convención práctica es dejar los `LEFT JOIN` al final de la cadena.\n\nUn dato para mirar con ojo crítico: una de las 173 filas tiene la columna `delivered_at` en `NULL` a pesar del estado del pedido; en la tabla `shipments` hay 1110 envíos sin fecha de entrega. Un reporte de entregas honesto debería mencionar ese caso en lugar de esconderlo.",
     improvement_feedback: [
       { condition: "no_table_alias_in_join", message_key: "improve.no_table_alias_in_join" },
       {
@@ -285,9 +285,9 @@ export const exercises: ExerciseDef[] = [
     dataset: tiendaviva,
     tables_used: ["orders", "customers", "payments", "order_items"],
     scenario_md:
-      "Finanzas revisa las entregas de agosto de 2025 en Chile y quiere, en una sola tabla, cómo pagó cada cliente y cuánto compró. Advertencia del equipo de datos: en TiendaViva hay 2502 pedidos con más de un intento de pago.",
+      "El departamento de Finanzas está revisando las entregas de agosto de 2025 en Chile y quiere, en una sola tabla, cómo pagó cada cliente y cuánto compró. El equipo de datos les avisó de algo importante: en TiendaViva hay 2502 pedidos con más de un intento de pago registrado. Te piden el reporte cuidando ese detalle.",
     business_question_md:
-      "Devuelve una fila por pedido con `order_id` (el `id` del pedido), `full_name` del cliente, `method` e `installments` del **pago aprobado**, `lineas` (cantidad de líneas del pedido) y `unidades` (suma de `quantity`), para los pedidos con `status = 'delivered'` creados en agosto de 2025 de clientes con `country = 'CL'`. Ordena por `unidades` descendente y, en caso de empate, por `order_id` ascendente.",
+      "Debes generar un dataset con una fila por pedido que devuelva el `order_id`, que es el `id` del pedido, el `full_name` del cliente, el `method` y el `installments` del **pago aprobado**, la cantidad de líneas del pedido bajo el encabezado `lineas` y la suma de `quantity` bajo el encabezado `unidades`, tomando los pedidos cuyo `status` es igual al texto `'delivered'`, creados en agosto de 2025, de clientes cuyo `country` es igual al texto `'CL'`. Ordena por `unidades` descendente y, si dos pedidos empatan, debes desempatar usando `order_id` ascendente.",
     learning_objective:
       "Evitar la multiplicación de filas cuando dos relaciones uno-a-muchos cuelgan de la misma tabla.",
     theory_ref: duplicacion,
@@ -315,13 +315,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "De un mismo pedido cuelgan dos relaciones uno-a-muchos. Si las unes tal cual, las filas no se suman: se multiplican. Piensa qué condición vuelve única a una de ellas.",
+          "De un mismo pedido cuelgan dos relaciones uno-a-muchos. Si las unes tal cual, las filas no se suman: se multiplican entre sí. Piensa qué condición vuelve única a una de las dos.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Un pedido tiene como máximo un pago aprobado, así que restringe `payments` por su `status` en el `ON` (o en el `WHERE`: con INNER JOIN es equivalente). Después agrupa por pedido y agrega sobre `order_items`.",
+          "Un pedido tiene como máximo un pago aprobado, así que restringe la tabla `payments` por su `status` dentro del `ON`, o en el `WHERE`, que con un `INNER JOIN` es equivalente. Después agrupa por pedido y agrega sobre la tabla `order_items`.",
         ...defaultHintMeta(2),
       },
       {
@@ -335,26 +335,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "duplicates",
         description_md:
-          "Unir `payments` sin filtrar el estado: los 8 pedidos de este recorte que tuvieron un pago rechazado y otro aprobado duplican sus líneas y sus unidades.",
+          "Unir la tabla `payments` sin filtrar el estado: los 8 pedidos de este recorte que tuvieron un pago rechazado y otro aprobado duplican sus líneas y sus unidades.",
       },
       {
         category: "aggregation_level",
         description_md:
-          "Sumar `o.total_amount` junto con `order_items`: el total del pedido se repite una vez por línea e infla el importe.",
+          "Sumar `o.total_amount` junto con las filas de `order_items`: el total del pedido se repite una vez por línea e infla el importe.",
       },
       {
         category: "cell_values",
         description_md:
-          "Contar `count(DISTINCT oi.id)` no hace daño aquí, pero contar `count(pay.id)` como `lineas` devuelve la cantidad de pagos, no de líneas.",
+          "Contar con `count(DISTINCT oi.id)` no hace daño en este caso, pero contar `count(pay.id)` como `lineas` devuelve la cantidad de pagos y no la cantidad de líneas.",
       },
       {
         category: "wrong_order",
         description_md:
-          "Ordenar por `unidades` sin desempatar por `order_id`: el resultado deja de ser reproducible.",
+          "Ordenar por `unidades` sin desempatar por `order_id`: el resultado deja de ser reproducible entre ejecuciones.",
       },
     ],
     expert_explanation_md:
-      "80 filas, una por pedido entregado. La clave está en el `AND pay.status = 'approved'` dentro del `ON`: sin él, `payments` aporta hasta dos filas por pedido y el producto con `order_items` duplica todo. En este recorte son 8 los pedidos afectados; con la condición, la relación pasa a ser uno-a-uno y `sum(oi.quantity)` vuelve a ser confiable.\n\nLa alternativa mueve esa condición al `WHERE`. Con un INNER JOIN ambas formas son equivalentes; con un LEFT JOIN no lo serían, porque el `WHERE` eliminaría los pedidos sin pago aprobado. Escribirla en el `ON` deja explícito que define **qué pago se une**, no qué pedidos entran en el reporte.\n\n`count(*)` y `count(oi.id)` coinciden porque el INNER JOIN garantiza que cada fila tiene una línea real. Si `order_items` se hubiera unido con LEFT JOIN, `count(*)` contaría 1 para los pedidos sin líneas y `count(oi.id)` contaría 0: siempre conviene contar una columna del lado «muchos».",
+      "El resultado de la consulta da 80 filas, una por pedido entregado. La clave está en la condición `AND pay.status = 'approved'` escrita dentro del `ON`: sin ella, la tabla `payments` aporta hasta dos filas por pedido y el cruce con `order_items` duplica todo. En este recorte son 8 los pedidos afectados; con la condición, la relación pasa a ser uno a uno y la expresión `sum(oi.quantity)` vuelve a ser confiable.\n\nLa solución alternativa mueve esa condición a la cláusula `WHERE`. Con un `INNER JOIN` las dos formas son equivalentes; con un `LEFT JOIN` no lo serían, porque el `WHERE` eliminaría los pedidos sin pago aprobado. Escribirla en el `ON` deja explícito que define **qué pago se une**, y no qué pedidos entran en el reporte.\n\nLas expresiones `count(*)` y `count(oi.id)` coinciden porque el `INNER JOIN` garantiza que cada fila tiene una línea real. Si la tabla `order_items` se hubiera unido con `LEFT JOIN`, `count(*)` informaría 1 para los pedidos sin líneas y `count(oi.id)` informaría 0: siempre conviene contar una columna del lado «muchos».",
     improvement_feedback: [
       { condition: "no_table_alias_in_join", message_key: "improve.no_table_alias_in_join" },
       {
@@ -376,9 +376,9 @@ export const exercises: ExerciseDef[] = [
     dataset: pidelo,
     tables_used: ["cities", "restaurants", "orders", "order_items", "menu_items"],
     scenario_md:
-      "En **Pídelo**, comercial quiere lanzar un combo de bebidas y necesita saber en qué ciudades y con qué tipos de cocina se venden más, mirando las entregas de agosto de 2025.",
+      "En **Pídelo**, el departamento Comercial quiere lanzar un combo de bebidas y necesita saber en qué ciudades y con qué tipos de cocina se venden más, mirando las entregas de agosto de 2025. Te piden ese cruce para decidir dónde lanzar la prueba piloto.",
     business_question_md:
-      "Para los pedidos con `status = 'delivered'` y `delivered_at` en agosto de 2025, considerando solo los ítems cuya categoría de menú sea `bebida`, devuelve `city_name` (el `name` de la ciudad), `cuisine` del restaurante, `unidades` (suma de `quantity`) e `ingreso` (suma de `quantity * unit_price` redondeada a 2 decimales). Ordena por `city_name` ascendente, luego por `unidades` descendente y, en caso de empate, por `cuisine` ascendente.",
+      "Debes generar un dataset que, tomando los pedidos cuyo `status` es igual al texto `'delivered'` y cuya columna `delivered_at` cae en agosto de 2025, y considerando solamente los ítems cuya categoría de menú es igual al texto `'bebida'`, devuelva el `city_name`, que es el `name` de la ciudad, el `cuisine` del restaurante, la suma de `quantity` bajo el encabezado `unidades` y la suma de `quantity * unit_price` redondeada a 2 decimales bajo el encabezado `ingreso`. Ordena por `city_name` ascendente, después por `unidades` descendente y, si dos filas empatan, debes desempatar usando `cuisine` ascendente.",
     learning_objective:
       "Recorrer una cadena de cinco tablas eligiendo el camino correcto entre dos rutas posibles hacia el menú.",
     theory_ref: camino,
@@ -405,13 +405,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "El camino tiene cinco tablas: ciudad, restaurante, pedido, línea del pedido y plato. Escríbelo en una línea antes de empezar y fíjate por qué columna se conecta cada par.",
+          "El camino tiene cinco tablas: la ciudad, el restaurante, el pedido, la línea del pedido y el plato. Escríbelo en una línea antes de empezar y fíjate por qué columna se conecta cada par.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Llega a `menu_items` desde `order_items.menu_item_id`, no desde `restaurants`: te interesa el plato que efectivamente se pidió. El ingreso se calcula con el precio cobrado en la línea (`oi.unit_price`), no con el precio de lista del menú.",
+          "Llega a la tabla `menu_items` desde `order_items.menu_item_id` y no desde `restaurants`: te interesa el plato que efectivamente se pidió. El ingreso se calcula con el precio cobrado en la línea, que está en `oi.unit_price`, y no con el precio de lista del menú.",
         ...defaultHintMeta(2),
       },
       {
@@ -425,26 +425,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "join_condition",
         description_md:
-          "Unir `menu_items` por `mi.restaurant_id = r.id`: trae todo el menú del restaurante y no solo los platos pedidos, multiplicando las filas.",
+          "Unir la tabla `menu_items` con la condición `mi.restaurant_id = r.id`: trae todo el menú del restaurante y no solamente los platos pedidos, lo que multiplica las filas del resultado.",
       },
       {
         category: "cell_values",
         description_md:
-          "Calcular el ingreso con `mi.price` en lugar de `oi.unit_price`: el precio de lista actual no es el que se cobró en agosto.",
+          "Calcular el ingreso con la columna `mi.price` en lugar de `oi.unit_price`: el precio de lista actual no es el precio que se cobró en agosto.",
       },
       {
         category: "date_boundary",
         description_md:
-          "Filtrar por `o.placed_at` en vez de `o.delivered_at`: la pregunta habla de entregas de agosto, no de pedidos hechos en agosto.",
+          "Filtrar por la columna `o.placed_at` en vez de `o.delivered_at`: la pregunta habla de entregas de agosto y no de pedidos hechos en agosto.",
       },
       {
         category: "missing_filter",
         description_md:
-          "Olvidar `mi.category = 'bebida'` y reportar el total del menú, que incluye principales y acompañamientos.",
+          "Olvidar la condición `mi.category = 'bebida'` y reportar el total del menú, que incluye platos principales y acompañamientos.",
       },
     ],
     expert_explanation_md:
-      "67 filas: no todas las combinaciones de ciudad y cocina vendieron bebidas en agosto.\n\nEl punto fino está en cómo se llega a `menu_items`. Existen dos caminos: `restaurants → menu_items` (todo el menú publicado) y `order_items → menu_items` (el plato que se pidió). Solo el segundo responde la pregunta; el primero produce el producto cartesiano entre las líneas del pedido y la carta completa del restaurante. Cuando dos tablas se pueden unir por más de una ruta, la ruta elegida **es** la definición del indicador.\n\n`sum(oi.quantity * oi.unit_price)` usa el precio congelado en la línea, que es el criterio contable correcto. Y el `ingreso` no es comparable entre ciudades: cada una factura en su moneda, así que Ciudad de México y Buenos Aires están en escalas distintas. Comparar `unidades` sí tiene sentido; comparar `ingreso` entre países requeriría una conversión que este dataset no trae.",
+      "El resultado de la consulta da 67 filas: no todas las combinaciones de ciudad y tipo de cocina vendieron bebidas en agosto.\n\nEl punto fino está en cómo se llega a la tabla `menu_items`. Existen dos caminos posibles: desde `restaurants`, que trae todo el menú publicado, y desde `order_items`, que trae el plato que efectivamente se pidió. Solo el segundo responde la pregunta; el primero produce el producto cartesiano entre las líneas del pedido y la carta completa del restaurante. Cuando dos tablas se pueden unir por más de una ruta, la ruta elegida **es** la definición del indicador.\n\nLa expresión `sum(oi.quantity * oi.unit_price)` usa el precio congelado en la línea, que es el criterio contable correcto. Y la columna `ingreso` no es comparable entre ciudades, porque cada una factura en su moneda, así que Ciudad de México y Buenos Aires están en escalas distintas. Comparar la columna `unidades` sí tiene sentido; comparar `ingreso` entre países requeriría una conversión de monedas que este dataset no incluye.",
     improvement_feedback: [
       { condition: "no_table_alias_in_join", message_key: "improve.no_table_alias_in_join" },
       {

@@ -20,9 +20,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["ratings"],
     scenario_md:
-      "En **Pídelo**, tras cada entrega el cliente puede calificar al restaurante y al repartidor por separado; muchos califican solo a uno. Producto quiere dimensionar cuántas calificaciones útiles hay.",
+      "En **Pídelo**, después de cada entrega el cliente puede calificar al restaurante y al repartidor por separado, y muchos clientes califican solo a uno de los dos. El departamento de Producto quiere dimensionar cuántas calificaciones útiles hay y te pide esos números para decidir si el sistema de calificaciones necesita cambios.",
     business_question_md:
-      "Devuelve, en una sola fila: el total de filas de `ratings` como `calificaciones`, cuántas tienen `restaurant_rating` como `con_restaurante`, cuántas tienen `courier_rating` como `con_repartidor`, y los promedios de cada puntaje redondeados a 2 decimales como `promedio_restaurante` y `promedio_repartidor`.",
+      "Debes generar un dataset de una sola fila que devuelva el total de filas de la tabla `ratings` bajo el encabezado `calificaciones`, cuántas de ellas tienen valor en `restaurant_rating` bajo el encabezado `con_restaurante`, cuántas tienen valor en `courier_rating` bajo el encabezado `con_repartidor`, y los promedios de cada puntaje redondeados a 2 decimales bajo los encabezados `promedio_restaurante` y `promedio_repartidor`.",
     learning_objective: "Distinguir count(*) de count(columna) y ver cómo avg ignora los NULL.",
     theory_ref,
     expected_columns: [
@@ -38,13 +38,14 @@ export const exercises: ExerciseDef[] = [
     hints: [
       {
         level: 1,
-        body_md: "`count(*)` cuenta filas; `count(columna)` cuenta solo las que no son NULL.",
+        body_md:
+          "La función `count(*)` cuenta todas las filas, mientras que `count(columna)` cuenta solo aquellas en las que esa columna tiene un valor distinto de `NULL`.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Cinco agregaciones en un mismo `SELECT`, cada una con su alias. `round(avg(x), 2)` redondea el promedio.",
+          "Necesitas cinco agregaciones dentro de un mismo `SELECT`, cada una con su alias. La expresión `round(avg(x), 2)` redondea el promedio a dos decimales.",
         ...defaultHintMeta(2),
       },
       {
@@ -58,20 +59,21 @@ export const exercises: ExerciseDef[] = [
       {
         category: "null_handling",
         description_md:
-          "Usar `count(*)` en las tres cuentas: los NULL se cuentan y las cifras coinciden.",
+          "Usar `count(*)` en las tres cuentas: los valores `NULL` se cuentan igual y las tres cifras salen idénticas, lo que oculta justamente la diferencia que se quería medir.",
       },
       {
         category: "cell_values",
         description_md:
-          "Promediar con `COALESCE(restaurant_rating, 0)`: los promedios bajan artificialmente.",
+          "Promediar con `COALESCE(restaurant_rating, 0)`: los promedios bajan de forma artificial, porque quien no calificó se convierte en alguien que puso cero.",
       },
       {
         category: "cell_values",
-        description_md: "Olvidar `round(..., 2)`.",
+        description_md:
+          "Olvidar la función `round(..., 2)`: los promedios salen con todos los decimales que calcula el motor.",
       },
     ],
     expert_explanation_md:
-      "7353 calificaciones, 6576 con puntaje de restaurante y 5864 con puntaje de repartidor; promedios 4.23 y 4.14. Las diferencias entre las tres cuentas son exactamente los NULL de cada columna.\n\n`avg` ignora los NULL, por eso el promedio del repartidor se calcula sobre 5864 valores, no sobre 7353. Es el comportamiento correcto: quien no calificó no opinó.",
+      "El resultado de la consulta da 7353 calificaciones, de las cuales 6576 tienen puntaje de restaurante y 5864 tienen puntaje de repartidor, con promedios de 4.23 y 4.14 respectivamente. La diferencia entre las tres cuentas es exactamente la cantidad de valores `NULL` de cada columna.\n\nLa función `avg` ignora los valores `NULL`, y por eso el promedio del repartidor se calcula sobre 5864 valores y no sobre 7353. Ese es el comportamiento correcto: quien no calificó no opinó, y contarlo como un cero sería inventar una opinión.",
     reward: defaultReward("easy"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -86,9 +88,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["orders"],
     scenario_md:
-      "Dirección quiere tres números para la presentación mensual: cuántos pedidos se entregaron, a cuántos clientes distintos y desde cuántos restaurantes distintos.",
+      "La dirección de **Pídelo** quiere tres números para la presentación mensual: cuántos pedidos se entregaron, a cuántos clientes distintos y desde cuántos restaurantes distintos. Te piden esas tres cifras para abrir la reunión con una foto del alcance del servicio.",
     business_question_md:
-      "Para los pedidos con `status` igual a `'delivered'`, devuelve en una fila `pedidos` (cantidad), `clientes` (clientes distintos) y `restaurantes` (restaurantes distintos).",
+      "Debes generar un dataset de una sola fila que, tomando únicamente los pedidos cuyo `status` es igual al texto `'delivered'`, devuelva la cantidad de pedidos bajo el encabezado `pedidos`, la cantidad de clientes distintos bajo el encabezado `clientes` y la cantidad de restaurantes distintos bajo el encabezado `restaurantes`.",
     learning_objective: "Usar count(DISTINCT columna) junto a un filtro previo a la agregación.",
     theory_ref,
     expected_columns: [
@@ -102,12 +104,14 @@ export const exercises: ExerciseDef[] = [
     hints: [
       {
         level: 1,
-        body_md: "«Distintos» dentro de una agregación se escribe `count(DISTINCT columna)`.",
+        body_md:
+          "La idea de «distintos» dentro de una agregación se escribe como `count(DISTINCT columna)`.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
-        body_md: "El filtro por estado va en `WHERE`, antes de agregar. Tres cuentas con alias.",
+        body_md:
+          "El filtro por estado va en la cláusula `WHERE`, porque debe aplicarse antes de agregar. Después necesitas tres cuentas, cada una con su alias.",
         ...defaultHintMeta(2),
       },
       {
@@ -120,20 +124,22 @@ export const exercises: ExerciseDef[] = [
     common_mistakes: [
       {
         category: "cell_values",
-        description_md: "`count(customer_id)` sin `DISTINCT`: cuenta pedidos, no clientes.",
+        description_md:
+          "Escribir `count(customer_id)` sin la palabra clave `DISTINCT`: la consulta cuenta pedidos y no clientes, porque un mismo cliente aparece en muchas filas.",
       },
       {
         category: "missing_filter",
-        description_md: "Olvidar `status = 'delivered'` e incluir cancelados.",
+        description_md:
+          "Olvidar la condición `status = 'delivered'`: entran también los pedidos cancelados y los tres números dejan de describir las entregas.",
       },
       {
         category: "syntax",
         description_md:
-          "`count(DISTINCT customer_id, restaurant_id)`: `count` acepta una sola expresión.",
+          "Escribir `count(DISTINCT customer_id, restaurant_id)`: la función `count` acepta una sola expresión y PostgreSQL devuelve un error.",
       },
     ],
     expert_explanation_md:
-      "13 284 pedidos entregados a 4567 clientes distintos desde los 400 restaurantes. Fíjate en la relación: cada cliente entregado promedió casi 3 pedidos.\n\n`count(DISTINCT ...)` es más costoso que `count(*)` porque debe deduplicar; en tablas grandes se nota.",
+      "El resultado de la consulta da 13 284 pedidos entregados a 4567 clientes distintos desde los 400 restaurantes de la plataforma. Fíjate en la relación entre las cifras: cada cliente con entregas promedió casi tres pedidos.\n\nLa función `count(DISTINCT ...)` es más costosa que `count(*)` porque el motor tiene que deduplicar los valores antes de contarlos; en tablas grandes esa diferencia se nota en el tiempo de ejecución.",
     reward: defaultReward("easy"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -148,9 +154,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["orders"],
     scenario_md:
-      "Cada pedido promete un tiempo de entrega (`promised_minutes`). Operaciones quiere saber si en promedio se cumple, comparándolo con el tiempo real entre `placed_at` y `delivered_at`.",
+      "Cada pedido de **Pídelo** promete un tiempo de entrega, guardado en la columna `promised_minutes`. El departamento de Operaciones quiere saber si en promedio esa promesa se cumple, comparándola con el tiempo real transcurrido entre `placed_at` y `delivered_at`. Te piden esa comparación para decidir si hay que ajustar la promesa que ve el cliente.",
     business_question_md:
-      "Para los pedidos entregados (`status = 'delivered'`), devuelve `entregados` (cantidad), `promesa_promedio` (promedio de `promised_minutes`, 1 decimal) y `real_promedio` (promedio de minutos entre `placed_at` y `delivered_at`, 1 decimal).",
+      "Debes generar un dataset de una sola fila que, tomando únicamente los pedidos cuyo `status` es igual al texto `'delivered'`, devuelva la cantidad de pedidos bajo el encabezado `entregados`, el promedio de `promised_minutes` redondeado a 1 decimal bajo el encabezado `promesa_promedio` y el promedio de minutos transcurridos entre `placed_at` y `delivered_at`, también redondeado a 1 decimal, bajo el encabezado `real_promedio`.",
     learning_objective: "Agregar sobre una duración calculada a partir de dos timestamps.",
     theory_ref,
     expected_columns: [
@@ -171,13 +177,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "`delivered_at - placed_at` es un intervalo. `extract(epoch FROM intervalo)` lo convierte a segundos.",
+          "La resta `delivered_at - placed_at` devuelve un intervalo, es decir, una duración. La expresión `extract(epoch FROM intervalo)` convierte esa duración a segundos.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Divide los segundos por 60 y promedia; luego `round(..., 1)`. Filtra `status = 'delivered'`.",
+          "Divide los segundos por 60 para obtener minutos, promedia el resultado y redondéalo con `round(..., 1)`. Recuerda filtrar con la condición `status = 'delivered'`.",
         ...defaultHintMeta(2),
       },
       {
@@ -190,20 +196,22 @@ export const exercises: ExerciseDef[] = [
     common_mistakes: [
       {
         category: "cell_values",
-        description_md: "Olvidar dividir por 60: el promedio queda en segundos.",
+        description_md:
+          "Olvidar la división por 60: el promedio queda expresado en segundos y la comparación con la promesa, que está en minutos, deja de tener sentido.",
       },
       {
         category: "cell_values",
-        description_md: "Redondear a 2 decimales o no redondear.",
+        description_md:
+          "Redondear a 2 decimales, o no redondear: los valores dejan de coincidir con lo pedido, que es 1 decimal.",
       },
       {
         category: "missing_filter",
         description_md:
-          "No filtrar entregados: `delivered_at` es NULL en los cancelados y `avg` los ignora, pero `count(*)` los incluye.",
+          "No filtrar por pedidos entregados: la columna `delivered_at` está en `NULL` en los pedidos cancelados, así que `avg` los ignora pero `count(*)` los cuenta, y los tres números dejan de referirse al mismo conjunto de filas.",
       },
     ],
     expert_explanation_md:
-      "13 284 entregados; la promesa promedio es 43.4 minutos y el tiempo real 40.5, aunque ~22 % de las entregas superan su promesa individual. El promedio esconde esa cola: en la sección 24 aprenderás a contar «cuántos llegaron tarde» con agregación condicional.\n\nSin el filtro, `count(*)` contaría también cancelados mientras `avg(real)` no: los tres números dejarían de referirse al mismo conjunto.",
+      "El resultado de la consulta da 13 284 pedidos entregados, con una promesa promedio de 43.4 minutos y un tiempo real promedio de 40.5 minutos, aunque alrededor del 22 % de las entregas superan su propia promesa individual. El promedio esconde esa cola de casos tardíos: en la sección 24 vas a aprender a contar cuántos llegaron tarde con agregación condicional.\n\nSin el filtro, la función `count(*)` contaría también los pedidos cancelados mientras que `avg` sobre la duración real no los tendría en cuenta, y los tres números dejarían de describir la misma población.",
     reward: defaultReward("intermediate"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -218,9 +226,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["orders"],
     scenario_md:
-      "Marketing mide la frecuencia de compra: pedidos por cliente activo en un período. Piden el primer semestre de 2025 (enero a junio inclusive).",
+      "El departamento de Marketing mide la frecuencia de compra, que define como la cantidad de pedidos por cliente activo dentro de un período. Piden el primer semestre de 2025, es decir, de enero a junio inclusive, y necesitan tu consulta para comparar ese indicador con el del semestre anterior.",
     business_question_md:
-      "Para los pedidos con `placed_at` entre el 2025-01-01 y el 2025-06-30 inclusive, devuelve `pedidos` (cantidad), `clientes` (clientes distintos) y `pedidos_por_cliente` (pedidos dividido clientes, redondeado a 2 decimales).",
+      "Debes generar un dataset de una sola fila que, tomando los pedidos cuya columna `placed_at` está entre el `'2025-01-01'` y el `'2025-06-30'` inclusive, contando el día 30 completo, devuelva la cantidad de pedidos bajo el encabezado `pedidos`, la cantidad de clientes distintos bajo el encabezado `clientes` y la división de pedidos entre clientes, redondeada a 2 decimales, bajo el encabezado `pedidos_por_cliente`.",
     learning_objective: "Combinar dos agregados en una expresión y evitar la división entera.",
     theory_ref,
     expected_columns: [
@@ -240,13 +248,14 @@ export const exercises: ExerciseDef[] = [
     hints: [
       {
         level: 1,
-        body_md: "Los dos `count` son enteros: dividirlos directamente descarta los decimales.",
+        body_md:
+          "Las dos funciones `count` devuelven números enteros, así que dividirlas directamente descarta los decimales y el resultado queda truncado.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Convierte uno de ellos con `::numeric` antes de dividir. El rango de fechas es semiabierto: `< '2025-07-01'`.",
+          "Convierte uno de los dos conteos con `::numeric` antes de dividir. El rango de fechas conviene escribirlo semiabierto, es decir, con `< '2025-07-01'` como límite superior.",
         ...defaultHintMeta(2),
       },
       {
@@ -260,19 +269,21 @@ export const exercises: ExerciseDef[] = [
       {
         category: "cell_values",
         description_md:
-          "`count(*) / count(DISTINCT customer_id)` sin conversión: devuelve 2 en lugar de 2.89.",
+          "Escribir `count(*) / count(DISTINCT customer_id)` sin conversión de tipo: la división entre enteros devuelve 2 en lugar de 2.89.",
       },
       {
         category: "date_boundary",
-        description_md: "`placed_at <= '2025-06-30'` deja afuera casi todo el 30 de junio.",
+        description_md:
+          "Escribir `placed_at <= '2025-06-30'`: la condición deja afuera casi todo el 30 de junio, porque el literal equivale a las 00:00 de ese día.",
       },
       {
         category: "cell_values",
-        description_md: "Usar `count(customer_id)` como número de clientes.",
+        description_md:
+          "Usar `count(customer_id)` como cantidad de clientes: sin la palabra clave `DISTINCT` eso cuenta pedidos, no personas.",
       },
     ],
     expert_explanation_md:
-      "6111 pedidos de 2115 clientes: 2.89 pedidos por cliente. La división entera habría dado 2, un error silencioso del 30 %.\n\nEl rango semiabierto (`< '2025-07-01'`) incluye todo el 30 de junio con cualquier hora; es la forma robusta que viste en la sección 6.",
+      "El resultado de la consulta da 6111 pedidos de 2115 clientes, es decir, 2.89 pedidos por cliente. La división entera habría devuelto 2, un error silencioso de alrededor del 30 % que ninguna herramienta te avisa.\n\nEl rango semiabierto, con `< '2025-07-01'` como límite superior, incluye todo el 30 de junio con cualquier hora; es la forma robusta que viste en la sección 6.",
     reward: defaultReward("intermediate"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,

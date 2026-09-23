@@ -23,9 +23,9 @@ export const exercises: ExerciseDef[] = [
     dataset: tiendaviva,
     tables_used: ["orders", "customers"],
     scenario_md:
-      "En **TiendaViva**, Finanzas quiere saber cuánto gasta un cliente típico en cada país durante 2025. La cifra se calcula en dos pasos: primero el gasto acumulado de **cada cliente**, después el promedio de esos gastos dentro de su país. Importante: cada país opera en su propia moneda, así que los promedios se comparan dentro del país, no entre países.",
+      "En **TiendaViva**, el departamento de Finanzas quiere saber cuánto gasta un cliente típico en cada país durante 2025. La cifra se calcula en dos pasos: primero el gasto acumulado de **cada cliente** y después el promedio de esos gastos dentro de su país. Ten en cuenta que cada país opera en su propia moneda, así que los promedios se comparan dentro del país y nunca entre países. Te piden ese indicador para fijar las metas comerciales del año.",
     business_question_md:
-      "Considerando solo los pedidos con `status = 'delivered'` y `created_at` desde el 1 de enero de 2025, calcula primero el gasto total (`sum(total_amount)`) de cada cliente y luego, por país del cliente, devuelve `country`, la cantidad de clientes con al menos un pedido entregado como `clientes` y el promedio de ese gasto como `gasto_promedio` (2 decimales). Ordena por `country` ascendente.\n\nLa subconsulta derivada resolvería lo mismo, pero aquí practicamos la forma con `WITH`: el ejercicio pide una CTE.",
+      "Debes generar un dataset que, tomando únicamente los pedidos cuyo `status` es igual al texto `'delivered'` y cuya columna `created_at` es igual o posterior al 1 de enero de 2025, calcule primero el gasto total de cada cliente, con `sum(total_amount)`, y después devuelva, por país del cliente, el `country`, la cantidad de clientes con al menos un pedido entregado bajo el encabezado `clientes` y el promedio de ese gasto bajo el encabezado `gasto_promedio`, redondeado a 2 decimales. Ordena por `country` ascendente.\n\nUna subconsulta derivada resolvería lo mismo, pero en este ejercicio practicamos la forma con `WITH`: la consigna pide una expresión de tabla común.",
     learning_objective:
       "Usar una CTE para nombrar un paso intermedio y agregar dos veces a niveles distintos.",
     theory_ref: l1,
@@ -47,13 +47,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Son dos niveles de agregación distintos: uno por cliente y otro por país. No se pueden hacer en un solo `GROUP BY`; dale nombre al primer paso y agrúpalo de nuevo.",
+          "Son dos niveles de agregación distintos: uno por cliente y otro por país. No se pueden resolver en una sola cláusula `GROUP BY`; hay que darle nombre al primer paso y agruparlo de nuevo.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "En el primer paso agrupa por `c.id` y `c.country` (necesitas el país para el segundo paso) y filtra ahí el estado y la fecha. En el segundo paso, `count(*)` cuenta filas de ese resultado, es decir clientes.",
+          "En el primer paso agrupa por `c.id` y por `c.country`, porque vas a necesitar el país en el segundo paso, y filtra allí el estado y la fecha. En el segundo paso, la función `count(*)` cuenta las filas de ese resultado intermedio, es decir, cuenta clientes.",
         ...defaultHintMeta(2),
       },
       {
@@ -67,12 +67,12 @@ export const exercises: ExerciseDef[] = [
       {
         category: "aggregation_level",
         description_md:
-          "Calcular `avg(o.total_amount)` agrupando solo por país: eso da el ticket promedio por pedido, no el gasto promedio por cliente.",
+          "Calcular `avg(o.total_amount)` agrupando solamente por país: eso da el ticket promedio por pedido y no el gasto promedio por cliente, que es lo que pidió Finanzas.",
       },
       {
         category: "missing_filter",
         description_md:
-          "Olvidar `status = 'delivered'`: entran pedidos cancelados y devueltos, que no representan gasto real.",
+          "Olvidar la condición `status = 'delivered'`: entran pedidos cancelados y devueltos, que no representan gasto real.",
       },
       {
         category: "date_boundary",
@@ -81,11 +81,11 @@ export const exercises: ExerciseDef[] = [
       },
       {
         category: "wrong_order",
-        description_md: "No ordenar por `country`, que es lo que pide el reporte.",
+        description_md: "No ordenar por la columna `country`, que es el orden que pide el reporte.",
       },
     ],
     expert_explanation_md:
-      "Seis filas, una por país. La clave es que hay **dos niveles de agregación**: `sum` por cliente y `avg` sobre esas sumas. La CTE existe justamente para materializar el nivel intermedio con un nombre legible.\n\nLa subconsulta derivada en `FROM` produce el mismo plan; la CTE gana en legibilidad y te deja probar el primer paso por separado mientras la escribes.\n\nSobre el resultado: CO y AR muestran cifras enormes frente a MX o PE porque cada país factura en su moneda local. Comparar `gasto_promedio` entre países sin convertir sería un error de análisis, no de SQL.",
+      "El resultado de la consulta da seis filas, una por país. La clave es que hay **dos niveles de agregación**: una suma por cliente y un promedio sobre esas sumas. La expresión de tabla común existe justamente para materializar el nivel intermedio con un nombre legible.\n\nLa subconsulta derivada escrita en el `FROM` produce el mismo plan de ejecución; la expresión de tabla común gana en legibilidad y te deja probar el primer paso por separado mientras la escribes.\n\nSobre el resultado: Colombia y Argentina muestran cifras enormes frente a México o Perú porque cada país factura en su moneda local. Comparar la columna `gasto_promedio` entre países sin convertir las monedas sería un error de análisis, no de SQL.",
     improvement_feedback: [
       { condition: "uses_select_star", message_key: "improve.uses_select_star" },
     ],
@@ -103,9 +103,9 @@ export const exercises: ExerciseDef[] = [
     dataset: pidelo,
     tables_used: ["orders", "restaurants", "cities"],
     scenario_md:
-      "En **Pídelo**, Operaciones revisa el cumplimiento de la promesa de entrega. Un pedido es **tardío** cuando el tiempo real entre `placed_at` y `delivered_at` supera los `promised_minutes` prometidos. Quieren una tabla por ciudad para priorizar en qué plazas reforzar la flota.",
+      "En **Pídelo**, el departamento de Operaciones está revisando el cumplimiento de la promesa de entrega. Un pedido se considera **tardío** cuando el tiempo real transcurrido entre `placed_at` y `delivered_at` supera los minutos guardados en `promised_minutes`. Quieren una tabla por ciudad para priorizar en qué plazas reforzar la flota de repartidores, y te piden que la armes.",
     business_question_md:
-      "Para los pedidos con `status = 'delivered'`, devuelve por ciudad del restaurante: `city`, la cantidad de entregas como `entregas`, la cantidad de entregas tardías como `tardias` y el porcentaje que representan como `pct_tardias` (2 decimales). Resuélvelo con dos CTE encadenadas: la primera con el detalle por pedido (ciudad, minutos prometidos y minutos reales) y la segunda con el resumen por ciudad. Ordena por `pct_tardias` descendente y, en caso de empate, por `city`.",
+      "Debes generar un dataset que, tomando los pedidos cuyo `status` es igual al texto `'delivered'`, devuelva por ciudad del restaurante el `city`, la cantidad de entregas bajo el encabezado `entregas`, la cantidad de entregas tardías bajo el encabezado `tardias` y el porcentaje que representan bajo el encabezado `pct_tardias`, redondeado a 2 decimales. Debes resolverlo con dos expresiones de tabla común encadenadas: la primera con el detalle por pedido, es decir la ciudad, los minutos prometidos y los minutos reales, y la segunda con el resumen por ciudad. Ordena por `pct_tardias` descendente y, si dos ciudades empatan, debes desempatar usando `city` ascendente.",
     learning_objective:
       "Encadenar dos CTE donde la segunda lee de la primera y el SELECT final reutiliza sus alias.",
     theory_ref: l1,
@@ -128,13 +128,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Primero necesitas, para cada pedido entregado, su ciudad y cuántos minutos tardó de verdad. Recién con ese detalle puedes contar cuántos superaron la promesa.",
+          "Primero necesitas, para cada pedido entregado, su ciudad y cuántos minutos tardó realmente. Recién con ese detalle puedes contar cuántos superaron la promesa.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "La duración real sale de `EXTRACT(EPOCH FROM (delivered_at - placed_at)) / 60`. La ciudad no está en `orders`: llega por `restaurants.city_id` hacia `cities`. En el segundo paso, `count(*) FILTER (WHERE ...)` (o `sum(CASE ...)`) cuenta solo las tardías.",
+          "La duración real sale de la expresión `EXTRACT(EPOCH FROM (delivered_at - placed_at)) / 60`. La ciudad no está en la tabla `orders`: llega a través de `restaurants.city_id` hacia la tabla `cities`. En el segundo paso, la expresión `count(*) FILTER (WHERE ...)`, o bien `sum(CASE ...)`, cuenta solamente las entregas tardías.",
         ...defaultHintMeta(2),
       },
       {
@@ -148,26 +148,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "missing_filter",
         description_md:
-          "No filtrar `status = 'delivered'`: los pedidos sin `delivered_at` producen NULL en la resta y desaparecen del conteo de tardías, pero siguen sumando en `entregas`.",
+          "No filtrar por `status = 'delivered'`: los pedidos sin `delivered_at` producen `NULL` en la resta y desaparecen del conteo de tardías, pero siguen sumando en la columna `entregas`, así que el porcentaje queda mal.",
       },
       {
         category: "join_condition",
         description_md:
-          "Unir la ciudad por el cliente (`customers.city_id`) en vez de por el restaurante: la pregunta es sobre la plaza donde opera la cocina.",
+          "Traer la ciudad desde el cliente, con `customers.city_id`, en lugar de traerla desde el restaurante: la pregunta es sobre la plaza donde opera la cocina.",
       },
       {
         category: "cell_values",
         description_md:
-          "Calcular `100 * tardias / entregas` con enteros: la división entera devuelve 0. Hay que usar `100.0` o un cast a `numeric`.",
+          "Calcular `100 * tardias / entregas` con aritmética entera: la división entera devuelve 0. Hay que escribir `100.0` o convertir uno de los operandos a `numeric`.",
       },
       {
         category: "aggregation_level",
         description_md:
-          "Contar tardías con un `WHERE` en el segundo paso: filtrarías también el denominador y `pct_tardias` daría 100 en todas las ciudades.",
+          "Contar las tardías con una cláusula `WHERE` en el segundo paso: estarías filtrando también el denominador y la columna `pct_tardias` daría 100 en todas las ciudades.",
       },
     ],
     expert_explanation_md:
-      "Ocho ciudades. Montevideo encabeza con 23.46 % y Buenos Aires cierra con 20.45 %: la diferencia entre plazas es de unos tres puntos, así que el problema es sistémico y no de una ciudad puntual.\n\nEl valor de encadenar está en el tercer paso: `pct_tardias` usa `tardias` y `entregas`, dos alias calculados en la CTE anterior. En una sola consulta tendrías que repetir las dos expresiones de agregación completas dentro de la división.\n\n`FILTER` y `sum(CASE ...)` son equivalentes aquí; `FILTER` es estándar SQL desde 2003 y se lee mejor cuando hay varias métricas condicionales.",
+      "El resultado de la consulta da ocho ciudades. Montevideo encabeza la tabla con 23.46 % y Buenos Aires la cierra con 20.45 %: la diferencia entre plazas es de unos tres puntos, así que el problema es sistémico y no de una ciudad puntual.\n\nEl valor de encadenar las expresiones de tabla común está en el tercer paso: la columna `pct_tardias` usa `tardias` y `entregas`, dos alias calculados en la expresión anterior. En una sola consulta tendrías que repetir las dos expresiones de agregación completas dentro de la división.\n\nLa cláusula `FILTER` y la expresión `sum(CASE ...)` son equivalentes en este caso; `FILTER` forma parte del estándar SQL desde 2003 y se lee mejor cuando hay varias métricas condicionales en la misma consulta.",
     improvement_feedback: [
       { condition: "no_table_alias_in_join", message_key: "improve.no_table_alias_in_join" },
     ],
@@ -185,9 +185,9 @@ export const exercises: ExerciseDef[] = [
     dataset: tiendaviva,
     tables_used: ["order_items", "orders", "products", "categories"],
     scenario_md:
-      "Comercial arma el plan de inversión publicitaria de **TiendaViva México** y necesita saber qué categorías facturan por encima del promedio de todas las categorías, y por cuánto. El mismo cálculo de ingresos se necesita dos veces: para listar las categorías y para obtener el promedio contra el cual compararlas.",
+      "El departamento Comercial está armando el plan de inversión publicitaria de **TiendaViva México** y necesita saber qué categorías facturan por encima del promedio de todas las categorías, y por cuánto lo superan. El mismo cálculo de ingresos se necesita dos veces: una para listar las categorías y otra para obtener el promedio contra el cual compararlas. Te piden ese reporte para repartir el presupuesto.",
     business_question_md:
-      "Con los pedidos `delivered` y `currency = 'MXN'`, calcula los ingresos de cada categoría como `sum(quantity * unit_price)` redondeado a 2 decimales (`ingresos`). Devuelve solo las categorías cuyos ingresos superan el promedio de ingresos de todas las categorías, con `category`, `ingresos` y la diferencia contra ese promedio como `diferencia_vs_promedio` (2 decimales). Ordena por `ingresos` descendente.\n\nDefine el cálculo de ingresos una sola vez en una CTE y refiérete a ella tantas veces como necesites.",
+      "Debes generar un dataset que, tomando los pedidos cuyo `status` es igual al texto `'delivered'` y cuyo `currency` es igual al texto `'MXN'`, calcule los ingresos de cada categoría como `sum(quantity * unit_price)` redondeado a 2 decimales bajo el encabezado `ingresos`. Devuelve solamente las categorías cuyos ingresos superan el promedio de ingresos de todas las categorías, con la `category`, los `ingresos` y la diferencia contra ese promedio bajo el encabezado `diferencia_vs_promedio`, redondeada a 2 decimales. Ordena por `ingresos` descendente.\n\nDefine el cálculo de ingresos una sola vez en una expresión de tabla común y refiérete a ella tantas veces como necesites.",
     learning_objective: "Definir una CTE una sola vez y referenciarla dos veces en la consulta.",
     theory_ref: l1,
     expected_columns: [
@@ -208,13 +208,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "El promedio contra el que comparas se calcula **sobre el resultado agregado**, no sobre las filas originales. Nombra ese resultado una vez y úsalo tanto para listar como para comparar.",
+          "El promedio contra el que comparas se calcula **sobre el resultado ya agregado**, no sobre las filas originales. Nombra ese resultado una sola vez y úsalo tanto para listar como para comparar.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "El camino de joins es `order_items` → `orders` (para filtrar estado y moneda) → `products` → `categories`. Una vez definida la CTE, el promedio sale de `(SELECT avg(ingresos) FROM ...)`, que puedes usar tanto en el `WHERE` como en el `SELECT`.",
+          "El camino de cruces es `order_items`, después `orders` para filtrar el estado y la moneda, después `products` y por último `categories`. Una vez definida la expresión de tabla común, el promedio sale de `(SELECT avg(ingresos) FROM ...)`, que puedes usar tanto en el `WHERE` como en el `SELECT`.",
         ...defaultHintMeta(2),
       },
       {
@@ -228,26 +228,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "aggregation_level",
         description_md:
-          "Comparar contra `avg(oi.quantity * oi.unit_price)` de las líneas de pedido: ese es el promedio por línea, no el promedio de ingresos por categoría.",
+          "Comparar contra `avg(oi.quantity * oi.unit_price)` calculado sobre las líneas de pedido: ese es el promedio por línea y no el promedio de ingresos por categoría.",
       },
       {
         category: "missing_filter",
         description_md:
-          "Omitir `currency = 'MXN'`: la suma mezcla seis monedas y el ranking deja de tener sentido.",
+          "Omitir la condición `currency = 'MXN'`: la suma mezcla seis monedas distintas y el ranking deja de tener sentido.",
       },
       {
         category: "cell_values",
         description_md:
-          "Usar `o.total_amount` en lugar de `quantity * unit_price`: el total del pedido incluye envío y descuento, y además se repetiría por cada línea del pedido.",
+          "Usar la columna `o.total_amount` en lugar de `quantity * unit_price`: el total del pedido incluye el envío y el descuento, y además se repetiría en cada línea del mismo pedido.",
       },
       {
         category: "duplicates",
         description_md:
-          "Unir `categories` por `cat.id = p.id` en vez de `p.category_id`: el join deja de tener sentido y los ingresos quedan mal repartidos.",
+          "Unir la tabla `categories` con la condición `cat.id = p.id` en lugar de `p.category_id`: el cruce deja de tener sentido y los ingresos quedan mal repartidos entre categorías.",
       },
     ],
     expert_explanation_md:
-      "Ocho categorías superan el promedio, encabezadas por Celulares (4 221 797.73 MXN, casi 3 millones por encima del promedio). Las cuatro primeras son de Tecnología: la concentración es alta.\n\nLo interesante es la **reutilización**: `ventas_por_categoria` se nombra tres veces (el `FROM`, la subconsulta del `SELECT` y la del `WHERE`) pero se define una sola vez. Con subconsultas derivadas habría que repetir los cuatro joins en cada lugar.\n\nLa alternativa con una segunda CTE y `CROSS JOIN` evita ejecutar dos veces la subconsulta escalar y suele leerse mejor cuando el promedio se usa en muchas columnas. Una tercera vía es `avg(ingresos) OVER ()` como función de ventana; las tres dan el mismo resultado.",
+      "El resultado de la consulta da ocho categorías por encima del promedio, encabezadas por Celulares, con 4 221 797.73 pesos mexicanos, casi tres millones por encima del promedio. Las cuatro primeras son de la rama Tecnología: la concentración es alta.\n\nLo interesante del ejercicio es la **reutilización**: la expresión `ventas_por_categoria` se menciona tres veces, en el `FROM`, en la subconsulta del `SELECT` y en la del `WHERE`, pero se define una sola vez. Con subconsultas derivadas habría que repetir los cuatro cruces en cada uno de esos lugares.\n\nLa alternativa con una segunda expresión de tabla común y un `CROSS JOIN` evita ejecutar dos veces la subconsulta escalar y suele leerse mejor cuando el promedio se usa en muchas columnas. Una tercera vía es calcular `avg(ingresos) OVER ()` como función de ventana; las tres formas dan el mismo resultado.",
     reward: defaultReward("advanced"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -262,9 +262,9 @@ export const exercises: ExerciseDef[] = [
     dataset: tiendaviva,
     tables_used: ["categories"],
     scenario_md:
-      "El equipo de Catálogo de **TiendaViva** quiere exportar el árbol completo de categorías para el menú de navegación: cada categoría con su nivel de profundidad y la ruta legible desde la raíz (por ejemplo `Hogar > Cocina`). La tabla `categories` solo guarda `parent_id`, así que hay que recorrerla nivel por nivel sin asumir cuántos niveles hay.",
+      "El departamento de Catálogo de **TiendaViva** quiere exportar el árbol completo de categorías para el menú de navegación: cada categoría con su nivel de profundidad y la ruta legible desde la raíz, por ejemplo `Hogar > Cocina`. La tabla `categories` solo guarda la columna `parent_id`, así que hay que recorrerla nivel por nivel sin asumir de antemano cuántos niveles tiene. Te piden ese archivo para alimentar el menú del sitio.",
     business_question_md:
-      "Con una CTE recursiva sobre `categories`, devuelve `id`, `name`, `nivel` (1 para las categorías raíz, es decir las que tienen `parent_id` NULL, y uno más por cada nivel de descendencia) y `ruta`, el camino desde la raíz con los nombres separados por ` > ` (espacio, mayor que, espacio). Ordena por `ruta` ascendente.\n\nDeclara los nombres de las columnas junto al nombre de la CTE: `WITH RECURSIVE arbol(id, name, parent_id, nivel, ruta) AS (...)`. Es la forma que usa la documentación de PostgreSQL y, en este entorno, la única que acepta el analizador de consultas para una CTE recursiva.",
+      "Debes generar un dataset, usando una expresión de tabla común recursiva sobre la tabla `categories`, que devuelva el `id`, el `name`, el `nivel`, que vale 1 para las categorías raíz, es decir las que tienen `parent_id` en `NULL`, y uno más por cada nivel de descendencia, y la `ruta`, que es el camino desde la raíz con los nombres separados por el texto ` > `, o sea espacio, signo mayor que y espacio. Ordena por `ruta` ascendente.\n\nDeclara los nombres de las columnas junto al nombre de la expresión, con la forma `WITH RECURSIVE arbol(id, name, parent_id, nivel, ruta) AS (...)`. Es la forma que usa la documentación de PostgreSQL y, en este entorno, la única que acepta el analizador de consultas para una expresión recursiva.",
     learning_objective:
       "Escribir una CTE recursiva con caso base, paso recursivo y condición de terminación clara.",
     theory_ref: l3,
@@ -291,13 +291,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Una CTE recursiva tiene dos ramas unidas por `UNION ALL`: la que arranca (las filas sin padre) y la que avanza un nivel usando lo ya encontrado.",
+          "Una expresión de tabla común recursiva tiene dos ramas unidas por `UNION ALL`: la que arranca, que trae las filas sin padre, y la que avanza un nivel usando lo que ya se encontró.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "En la rama de arranque, `nivel` vale 1 y `ruta` es el propio `name`; con la lista de columnas declarada en el encabezado de la CTE no hace falta repetir los alias. En la rama que avanza, une `categories` con la CTE por `a.id = c.parent_id`, suma 1 al nivel y concatena con `||`. Recuerda escribir `RECURSIVE` justo después de `WITH`.",
+          "En la rama de arranque, la columna `nivel` vale 1 y la columna `ruta` es el propio `name`; con la lista de columnas declarada en el encabezado de la expresión no hace falta repetir los alias. En la rama que avanza, une la tabla `categories` con la expresión por la condición `a.id = c.parent_id`, suma 1 al nivel y concatena los nombres con el operador `||`. Recuerda escribir la palabra clave `RECURSIVE` justo después de `WITH`.",
         ...defaultHintMeta(2),
       },
       {
@@ -311,26 +311,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "syntax",
         description_md:
-          "Olvidar `RECURSIVE`: PostgreSQL responde que la relación `arbol` no existe, porque sin esa palabra la CTE no puede mencionarse a sí misma.",
+          "Olvidar la palabra clave `RECURSIVE`: PostgreSQL responde que la relación `arbol` no existe, porque sin esa palabra la expresión no puede mencionarse a sí misma.",
       },
       {
         category: "join_condition",
         description_md:
-          "Invertir la condición del paso recursivo (`c.id = a.parent_id`): recorrerías hacia arriba desde las raíces y no bajaría ningún nivel.",
+          "Invertir la condición del paso recursivo, escribiendo `c.id = a.parent_id`: recorrerías hacia arriba desde las raíces y no bajaría ningún nivel.",
       },
       {
         category: "null_handling",
         description_md:
-          "Usar `parent_id = NULL` en el caso base: la comparación nunca es verdadera y la CTE arranca vacía, así que el resultado sale sin filas. Hay que escribir `IS NULL`.",
+          "Usar la condición `parent_id = NULL` en el caso base: esa comparación nunca puede dar verdadero, la expresión arranca vacía y el resultado sale sin filas. Hay que escribir `IS NULL`.",
       },
       {
         category: "performance",
         description_md:
-          "Omitir cualquier cota de profundidad: con datos que tengan un ciclo, la recursión no termina y la consulta muere por tiempo agotado.",
+          "Omitir cualquier cota de profundidad: con datos que contengan un ciclo, la recursión no termina nunca y la consulta muere por tiempo agotado.",
       },
     ],
     expert_explanation_md:
-      "30 filas: 6 categorías raíz (nivel 1) y 24 subcategorías (nivel 2). Ordenar por `ruta` agrupa visualmente cada rama, porque la ruta del hijo empieza con el nombre del padre.\n\nLa terminación está garantizada por los datos: cada vuelta busca los hijos de las filas nuevas y, cuando llega a las hojas, no aparece ninguna fila nueva y el motor se detiene. En este catálogo eso ocurre en la tercera vuelta.\n\nComo el árbol tiene solo dos niveles, un `LEFT JOIN` de `categories` consigo misma daría el mismo resultado hoy. La versión recursiva sigue funcionando si mañana agregan un tercer nivel: esa es la razón para escribirla así. La alternativa con `WHERE a.nivel < 5` muestra la cota defensiva que conviene dejar en producción, donde un ciclo en los datos es una posibilidad real.",
+      "El resultado de la consulta da 30 filas: 6 categorías raíz en el nivel 1 y 24 subcategorías en el nivel 2. Ordenar por la columna `ruta` agrupa visualmente cada rama, porque la ruta de cada hijo empieza con el nombre de su padre.\n\nLa terminación está garantizada por la forma de los datos: cada vuelta busca los hijos de las filas nuevas y, cuando llega a las hojas del árbol, no aparece ninguna fila nueva y el motor se detiene. En este catálogo eso ocurre en la tercera vuelta.\n\nComo el árbol tiene solamente dos niveles, un `LEFT JOIN` de la tabla `categories` consigo misma daría el mismo resultado hoy. La versión recursiva sigue funcionando si mañana agregan un tercer nivel, y esa es la razón para escribirla así. La alternativa con la condición `WHERE a.nivel < 5` muestra la cota defensiva que conviene dejar en producción, donde un ciclo en los datos es una posibilidad real.",
     reward: defaultReward("advanced"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -345,9 +345,9 @@ export const exercises: ExerciseDef[] = [
     dataset: pidelo,
     tables_used: ["orders", "promotions", "customers"],
     scenario_md:
-      "En **Pídelo**, el equipo de Riesgo sospecha que algunos clientes usan más veces de las permitidas los códigos con tope. Cada promoción define `max_uses_per_customer` (NULL significa sin tope) y cada pedido entregado con `promotion_id` cuenta como un canje efectivo. Quieren la lista nominal para contactar a esas cuentas.",
+      "En **Pídelo**, el departamento de Riesgo sospecha que algunos clientes usan más veces de las permitidas los códigos promocionales que tienen tope. Cada promoción define su límite en la columna `max_uses_per_customer`, donde un valor `NULL` significa que no tiene tope, y cada pedido entregado con un `promotion_id` cuenta como un canje efectivo. Quieren la lista nominal para contactar a esas cuentas, y te piden que la armes.",
     business_question_md:
-      "Usando al menos dos CTE encadenadas, arma la lista de clientes que superaron el tope de una promoción. Considera solo pedidos con `status = 'delivered'` y `promotion_id` no nulo, e ignora las promociones sin tope. Devuelve `code`, `customer_id`, `full_name`, `usos` (canjes efectivos de ese cliente en esa promoción), `max_uses_per_customer` y `exceso` (usos menos el tope). Ordena por `exceso` descendente, luego `code` y luego `customer_id`.",
+      "Debes generar un dataset, usando al menos dos expresiones de tabla común encadenadas, con la lista de clientes que superaron el tope de una promoción. Considera solamente los pedidos cuyo `status` es igual al texto `'delivered'` y cuya columna `promotion_id` no está en `NULL`, e ignora las promociones que no tienen tope. Devuelve el `code`, el `customer_id`, el `full_name`, la cantidad de canjes efectivos de ese cliente en esa promoción bajo el encabezado `usos`, el `max_uses_per_customer` y la diferencia entre los usos y el tope bajo el encabezado `exceso`. Ordena por `exceso` descendente, después por `code` y después por `customer_id`.",
     learning_objective:
       "Descomponer una investigación de negocio en CTE encadenadas y comparar un agregado contra un límite de otra tabla.",
     theory_ref: l2,
@@ -372,13 +372,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "El conteo de canjes ocurre a nivel de **cliente y promoción** a la vez. Ese resultado intermedio es el que después comparas contra el tope que vive en otra tabla.",
+          "El conteo de canjes ocurre a nivel de **cliente y promoción** al mismo tiempo. Ese resultado intermedio es el que después comparas contra el tope, que vive en otra tabla.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Agrupa por `promotion_id` y `customer_id` para obtener `usos`. Luego une con `promotions` para traer `code` y `max_uses_per_customer`, descarta las promociones sin tope con `IS NOT NULL` y quédate con las filas donde los usos superan el tope. El nombre del cliente llega al final desde `customers`.",
+          "Agrupa por `promotion_id` y por `customer_id` para obtener la columna `usos`. Después une con la tabla `promotions` para traer el `code` y el `max_uses_per_customer`, descarta las promociones sin tope con la condición `IS NOT NULL` y quédate con las filas en las que los usos superan el tope. El nombre del cliente llega al final desde la tabla `customers`.",
         ...defaultHintMeta(2),
       },
       {
@@ -392,26 +392,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "null_handling",
         description_md:
-          "Comparar `usos > max_uses_per_customer` sin descartar los topes NULL: la comparación con NULL nunca es verdadera, así que no rompe el resultado, pero dejar el filtro explícito documenta la regla de negocio.",
+          "Comparar `usos > max_uses_per_customer` sin descartar antes los topes en `NULL`: la comparación con `NULL` nunca da verdadero, así que no rompe el resultado, pero dejar el filtro explícito documenta la regla de negocio.",
       },
       {
         category: "aggregation_level",
         description_md:
-          "Agrupar solo por `customer_id`: sumarías canjes de promociones distintas y compararías ese total contra el tope de una sola.",
+          "Agrupar solamente por `customer_id`: sumarías los canjes de promociones distintas y compararías ese total contra el tope de una sola promoción.",
       },
       {
         category: "missing_filter",
         description_md:
-          "Incluir pedidos `cancelled`: hay 194 pedidos cancelados con promoción, y un canje cancelado no es un uso efectivo.",
+          "Incluir los pedidos cancelados: hay 194 pedidos cancelados con promoción, y un canje cancelado no es un uso efectivo.",
       },
       {
         category: "join_condition",
         description_md:
-          "Unir `promotions` por `p.id = o.id` en vez de `promotion_id`: el resultado queda vacío o, peor, con filas sin relación real.",
+          "Unir la tabla `promotions` con la condición `p.id = o.id` en lugar de usar `promotion_id`: el resultado queda vacío o, peor todavía, con filas que no tienen ninguna relación real.",
       },
     ],
     expert_explanation_md:
-      "21 filas: 15 clientes excedieron BIENVENIDA (tope 1) y 6 excedieron VUELVE; dos de ellos la usaron tres veces. Es exactamente el problema de calidad que el dataset documenta, y aquí queda cuantificado.\n\nLa consulta se lee como el razonamiento de Riesgo: qué cuenta como canje, cuántos canjes hizo cada cliente por promoción, cuáles superan el tope y quiénes son. Cada CTE se puede ejecutar por separado para auditar el paso.\n\nLa versión con subconsulta derivada es igual de correcta y más corta; con tres pasos, la CTE gana en mantenibilidad, sobre todo cuando mañana Riesgo pida agregar el monto descontado (basta con arrastrar una columna más en `canjes`). Un detalle de negocio: los importes de descuento están en la moneda de cada ciudad, así que sumarlos entre países exigiría convertir primero.",
+      "El resultado de la consulta da 21 filas: 15 clientes excedieron el código `BIENVENIDA`, cuyo tope es 1, y 6 excedieron el código `VUELVE`; dos de ellos lo usaron tres veces. Es exactamente el problema de calidad que el dataset documenta, y acá queda cuantificado.\n\nLa consulta se lee como el razonamiento del área de Riesgo: qué cuenta como canje, cuántos canjes hizo cada cliente en cada promoción, cuáles superan el tope y quiénes son esas personas. Cada expresión de tabla común se puede ejecutar por separado para auditar el paso.\n\nLa versión con subconsulta derivada es igual de correcta y más corta; con tres pasos, la expresión de tabla común gana en mantenibilidad, sobre todo cuando mañana Riesgo pida agregar el monto descontado, porque alcanza con arrastrar una columna más en el primer paso. Un detalle de negocio: los importes de descuento están expresados en la moneda de cada ciudad, así que sumarlos entre países exigiría convertirlos primero.",
     improvement_feedback: [
       { condition: "uses_select_star", message_key: "improve.uses_select_star" },
     ],

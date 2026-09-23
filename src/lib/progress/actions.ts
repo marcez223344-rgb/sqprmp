@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getCurrentUser } from "@/lib/auth/session";
+import { listSavedQueries, type SavedQuery } from "@/lib/progress/saved-queries";
 import { createClient } from "@/lib/supabase/server";
 
 const goalsSchema = z.object({
@@ -39,4 +40,21 @@ export async function deleteSavedQueryAction(rawId: unknown) {
   if (error) return { ok: false as const, error: "unknown" as const };
   revalidatePath("/consultas");
   return { ok: true as const };
+}
+
+/**
+ * The learner's own saved queries, for the panel inside the exercise workspace. Identity comes
+ * from the session on the server (never from the client), and the read goes through the same
+ * helper the /consultas page uses.
+ */
+export async function listSavedQueriesAction(): Promise<
+  { ok: true; queries: SavedQuery[] } | { ok: false; error: "unauthorized" | "unknown" }
+> {
+  const user = await getCurrentUser();
+  if (!user) return { ok: false, error: "unauthorized" };
+  try {
+    return { ok: true, queries: await listSavedQueries(user.id) };
+  } catch {
+    return { ok: false, error: "unknown" };
+  }
 }

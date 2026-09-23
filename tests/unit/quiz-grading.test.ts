@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { gradeAnswer, passThreshold, shuffle, type AnswerKey } from "@/lib/quizzes/grading";
+import {
+  gradeAnswer,
+  passThreshold,
+  scorePercent,
+  shuffle,
+  type AnswerKey,
+} from "@/lib/quizzes/grading";
 
 describe("gradeAnswer", () => {
   it("grades single-choice family by exact option key", () => {
@@ -70,6 +76,26 @@ describe("passThreshold", () => {
     expect(passThreshold(7, 10, 80)).toBe(false);
     expect(passThreshold(4, 5, 80)).toBe(true);
     expect(passThreshold(0, 0, 80)).toBe(false);
+  });
+});
+
+describe("scorePercent", () => {
+  it("reports the share of correct answers", () => {
+    expect(scorePercent(6, 6)).toBe(100);
+    expect(scorePercent(5, 6)).toBe(83);
+    expect(scorePercent(4, 6)).toBe(66);
+    expect(scorePercent(0, 6)).toBe(0);
+    expect(scorePercent(0, 0)).toBe(0);
+  });
+
+  /** The percentage sits next to the verdict on the result screen: it must never contradict it. */
+  it("never shows the threshold as reached on a failed attempt", () => {
+    for (let total = 1; total <= 40; total++) {
+      for (let score = 0; score <= total; score++) {
+        const shown = scorePercent(score, total);
+        expect(shown >= 80).toBe(passThreshold(score, total, 80));
+      }
+    }
   });
 });
 

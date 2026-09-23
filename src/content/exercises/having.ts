@@ -23,9 +23,9 @@ export const exercises: ExerciseDef[] = [
     dataset: pidelo,
     tables_used: ["orders"],
     scenario_md:
-      "Operaciones de **Pídelo** quiere abrir una línea de soporte dedicada para los restaurantes que más entregan. El criterio acordado con negocio: 60 entregas o más en la historia del dataset.",
+      "El departamento de Operaciones de **Pídelo** quiere abrir una línea de soporte dedicada para los restaurantes que más entregan. El criterio acordado con el negocio es tener 60 entregas o más en toda la historia de los datos. Te piden esa lista para dar de alta las cuentas en la herramienta de soporte.",
     business_question_md:
-      "Devuelve `restaurant_id` y la cantidad de pedidos con `status = 'delivered'` como `entregados`, solo para los restaurantes que alcanzan **60 o más** entregas. Ordena por `entregados` descendente y, en caso de empate, por `restaurant_id` ascendente.",
+      "Debes generar un dataset que devuelva el `restaurant_id` y la cantidad de pedidos cuyo `status` es igual al texto `'delivered'` bajo el encabezado `entregados`, tomando únicamente los restaurantes que alcanzan **60 o más** entregas. Ordena por `entregados` descendente y, si dos restaurantes empatan, debes desempatar usando `restaurant_id` ascendente.",
     learning_objective:
       "Filtrar grupos con HAVING sobre un conteo, combinándolo con un WHERE que filtra filas.",
     theory_ref: basico,
@@ -49,13 +49,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "El estado del pedido se ve en una sola fila, así que ese filtro va antes de agrupar. El umbral de 60 habla del grupo completo: necesita la cláusula que se ejecuta **después** de la agregación.",
+          "El estado del pedido se ve mirando una sola fila, así que ese filtro va antes de agrupar. El umbral de 60 habla del grupo completo, de modo que necesita la cláusula que se ejecuta **después** de la agregación.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Agrupa por `restaurant_id` y escribe la condición del umbral en `HAVING`, repitiendo la expresión agregada (no el alias `entregados`, que ahí todavía no existe).",
+          "Agrupa por `restaurant_id` y escribe la condición del umbral en la cláusula `HAVING`, repitiendo allí la expresión agregada completa y no el alias `entregados`, que en ese punto todavía no existe.",
         ...defaultHintMeta(2),
       },
       {
@@ -69,26 +69,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "syntax",
         description_md:
-          "Poner `count(*) >= 60` dentro del `WHERE`: PostgreSQL responde «aggregate functions are not allowed in WHERE».",
+          "Poner la condición `count(*) >= 60` dentro de la cláusula `WHERE`: PostgreSQL responde con el error «aggregate functions are not allowed in WHERE».",
       },
       {
         category: "syntax",
         description_md:
-          "Escribir `HAVING entregados >= 60`: `HAVING` no ve los alias del `SELECT`; hay que repetir `count(*)`.",
+          "Escribir `HAVING entregados >= 60`: la cláusula `HAVING` no ve los alias del `SELECT`, así que hay que repetir la expresión `count(*)`.",
       },
       {
         category: "missing_filter",
         description_md:
-          "Olvidar `WHERE status = 'delivered'` y contar también los cancelados: entran restaurantes que no cumplen el criterio real.",
+          "Olvidar la condición `WHERE status = 'delivered'` y contar también los pedidos cancelados: entran restaurantes que no cumplen el criterio real acordado con el negocio.",
       },
       {
         category: "wrong_order",
         description_md:
-          "Ordenar solo por `entregados`: hay cuatro restaurantes con 60 entregas y el orden entre ellos quedaría indefinido.",
+          "Ordenar solo por `entregados`: hay cuatro restaurantes con exactamente 60 entregas y el orden entre ellos quedaría indefinido.",
       },
     ],
     expert_explanation_md:
-      "Doce restaurantes superan el umbral, de 60 a 72 entregas. La consulta forma 400 grupos (uno por restaurante con al menos una entrega) y `HAVING` descarta 388.\n\nEl reparto de trabajo entre las dos cláusulas es la idea central: `WHERE` decide **qué filas se cuentan**, `HAVING` decide **qué grupos se muestran**. Mantener el filtro de estado en `WHERE` también es lo más rápido, porque el motor agrega menos filas.\n\nEl mismo resultado se puede obtener envolviendo la agregación en una subconsulta o CTE y filtrando afuera con `WHERE entregados >= 60`; es útil cuando la expresión agregada es larga y no quieres repetirla. `HAVING` es la forma directa y la que se espera en un reporte de una sola pasada.",
+      "El resultado de la consulta da doce restaurantes por encima del umbral, con entre 60 y 72 entregas. La consulta forma 400 grupos, uno por restaurante con al menos una entrega, y la cláusula `HAVING` descarta 388 de ellos.\n\nEl reparto de trabajo entre las dos cláusulas es la idea central de la sección: la cláusula `WHERE` decide **qué filas se cuentan** y la cláusula `HAVING` decide **qué grupos se muestran**. Mantener el filtro de estado en el `WHERE` también es lo más rápido, porque el motor tiene que agregar menos filas.\n\nEl mismo resultado se puede obtener envolviendo la agregación en una subconsulta o en una expresión de tabla común y filtrando afuera con `WHERE entregados >= 60`; eso es útil cuando la expresión agregada es larga y no quieres repetirla. La cláusula `HAVING` es la forma directa y la que se espera en un reporte de una sola pasada.",
     improvement_feedback: [
       { condition: "uses_select_star", message_key: "improve.uses_select_star" },
       {
@@ -110,9 +110,9 @@ export const exercises: ExerciseDef[] = [
     dataset: tiendaviva,
     tables_used: ["products"],
     scenario_md:
-      "El equipo de catálogo de **TiendaViva** prepara la portada de la app y quiere destacar solo las categorías con oferta suficiente: al menos 60 productos **activos**. Las publicaciones pausadas no cuentan.",
+      "El departamento de Catálogo de **TiendaViva** está preparando la portada de la aplicación y quiere destacar solamente las categorías con oferta suficiente: al menos 60 productos publicados, es decir, con la columna `is_active` en `true`. Las publicaciones pausadas no cuentan. Te piden esa lista para armar la portada.",
     business_question_md:
-      "Devuelve `category_id` y la cantidad de productos con `is_active` verdadero como `productos`, solo para las categorías que llegan a **60 o más**. Ordena por `productos` descendente y, en caso de empate, por `category_id` ascendente.",
+      "Debes generar un dataset que devuelva el `category_id` y la cantidad de productos que tienen la columna `is_active` en `true` bajo el encabezado `productos`, tomando únicamente las categorías que llegan a **60 o más** productos. Ordena por `productos` descendente y, si dos categorías empatan, debes desempatar usando `category_id` ascendente.",
     learning_objective:
       "Decidir qué condición va en WHERE y cuál en HAVING dentro de una misma consulta.",
     theory_ref: decidir,
@@ -136,13 +136,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Hay dos condiciones de naturaleza distinta: «la publicación está activa» se responde mirando una fila; «la categoría tiene 60 productos» exige contar todo el grupo. Cada una va en su cláusula.",
+          "Hay dos condiciones de naturaleza distinta: «la publicación está activa» se responde mirando una sola fila, mientras que «la categoría tiene 60 productos» exige contar todo el grupo. Cada una va en su propia cláusula.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "`is_active` es booleano: puedes usarlo directo en `WHERE` sin comparar contra nada. El umbral de 60 se escribe repitiendo la expresión de conteo en `HAVING`.",
+          "La columna `is_active` es booleana: puedes usarla directamente en la cláusula `WHERE`, sin compararla contra nada, y así filtras las que están en `true`. El umbral de 60 se escribe repitiendo la expresión de conteo dentro de `HAVING`.",
         ...defaultHintMeta(2),
       },
       {
@@ -156,26 +156,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "missing_filter",
         description_md:
-          "Contar todos los productos y no solo los activos: aparecen categorías que no cumplen el criterio de portada.",
+          "Contar todos los productos y no solo los que están en `true`: aparecen categorías que no cumplen el criterio de portada.",
       },
       {
         category: "syntax",
         description_md:
-          "Mover `is_active` a `HAVING`: es una columna que no está agrupada ni agregada, y PostgreSQL rechaza la consulta.",
+          "Mover la condición sobre `is_active` a la cláusula `HAVING`: es una columna que no está agrupada ni agregada, y PostgreSQL rechaza la consulta.",
       },
       {
         category: "aggregation_level",
         description_md:
-          "Agrupar por `seller_id` o por `category_id, seller_id`: el reporte deja de ser una fila por categoría.",
+          "Agrupar por `seller_id`, o por `category_id` junto con `seller_id`: el reporte deja de tener una fila por categoría.",
       },
       {
         category: "wrong_order",
         description_md:
-          "No desempatar por `category_id` cuando dos categorías tienen 68 productos.",
+          "No desempatar por `category_id` cuando dos categorías tienen los mismos 68 productos: el orden entre ellas queda indefinido.",
       },
     ],
     expert_explanation_md:
-      "Diez categorías de las 24 con productos activos superan el umbral; los extremos van de 60 a 68 productos.\n\nLa consulta ilustra la división de tareas: `WHERE is_active` define el universo, `GROUP BY` arma las categorías y `HAVING` aplica la regla de portada. Cambiar el filtro de lugar no es una cuestión de estilo: si contaras también los productos pausados, varias categorías cruzarían el umbral sin tener oferta real.\n\n`count(*)` y `count(id)` dan el mismo número porque `id` es la clave primaria y nunca es NULL. La diferencia aparecería con una columna opcional: `count(rating)` cuenta solo las filas donde `rating` no es NULL.",
+      "El resultado de la consulta da diez categorías, de las 24 que tienen productos activos, por encima del umbral; los extremos van de 60 a 68 productos.\n\nLa consulta ilustra la división de tareas: la condición `WHERE is_active` define el universo de filas, la cláusula `GROUP BY` arma las categorías y la cláusula `HAVING` aplica la regla de portada. Cambiar el filtro de lugar no es una cuestión de estilo: si contaras también los productos pausados, varias categorías cruzarían el umbral sin tener oferta real para mostrar.\n\nLas expresiones `count(*)` y `count(id)` dan el mismo número, porque la columna `id` es la clave primaria y nunca está en `NULL`. La diferencia aparecería con una columna opcional: `count(rating)` cuenta solamente las filas en las que `rating` tiene valor.",
     improvement_feedback: [
       { condition: "uses_select_star", message_key: "improve.uses_select_star" },
     ],
@@ -193,9 +193,9 @@ export const exercises: ExerciseDef[] = [
     dataset: tiendaviva,
     tables_used: ["orders"],
     scenario_md:
-      "El equipo comercial de **TiendaViva** arma una lista de cuentas clave en México. Un cliente entra en la lista si tiene volumen **y** facturación: al menos 8 pedidos entregados y más de 200 000 MXN gastados. Solo se comparan pedidos en pesos mexicanos, para no mezclar monedas.",
+      "El departamento Comercial de **TiendaViva** está armando una lista de cuentas clave en México. Un cliente entra en la lista si tiene volumen **y** facturación: al menos 8 pedidos entregados y más de 200 000 pesos mexicanos gastados. Solo se comparan pedidos expresados en pesos mexicanos, para no mezclar monedas. Te piden esa lista para asignar un ejecutivo de cuenta a cada cliente.",
     business_question_md:
-      "Para los pedidos con `currency = 'MXN'` y `status = 'delivered'`, devuelve `customer_id`, la cantidad de pedidos como `pedidos` y la suma de `total_amount` como `gasto`, solo para los clientes con **8 o más** pedidos y un gasto **mayor a 200000**. Ordena por `gasto` descendente y, en caso de empate, por `customer_id` ascendente.",
+      "Debes generar un dataset que, tomando los pedidos cuyo `currency` es igual al texto `'MXN'` y cuyo `status` es igual al texto `'delivered'`, devuelva el `customer_id`, la cantidad de pedidos bajo el encabezado `pedidos` y la suma de `total_amount` bajo el encabezado `gasto`, tomando únicamente los clientes con **8 o más** pedidos y un gasto **mayor que 200000**. Ordena por `gasto` descendente y, si dos clientes empatan, debes desempatar usando `customer_id` ascendente.",
     learning_objective:
       "Combinar dos condiciones agregadas en un mismo HAVING junto con filtros de fila en WHERE.",
     theory_ref: decidir,
@@ -221,13 +221,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Moneda y estado se leen en cada fila; volumen y facturación solo existen una vez formado el grupo. Las dos condiciones agregadas pueden convivir en la misma cláusula unidas por `AND`.",
+          "La moneda y el estado se leen en cada fila; el volumen y la facturación solo existen una vez formado el grupo. Las dos condiciones agregadas pueden convivir en la misma cláusula, unidas con `AND`.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Agrupa por `customer_id`. En `HAVING` repite las expresiones completas (`count(*)` y `sum(total_amount)`): los alias `pedidos` y `gasto` no están disponibles ahí, aunque sí en el `ORDER BY`.",
+          "Agrupa por `customer_id`. Dentro de la cláusula `HAVING` repite las expresiones completas, `count(*)` y `sum(total_amount)`: los alias `pedidos` y `gasto` no están disponibles ahí, aunque sí lo están en la cláusula `ORDER BY`.",
         ...defaultHintMeta(2),
       },
       {
@@ -241,26 +241,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "syntax",
         description_md:
-          'Usar los alias en `HAVING` (`HAVING pedidos >= 8`): error «column "pedidos" does not exist». En `ORDER BY` sí funcionan.',
+          'Usar los alias dentro de la cláusula `HAVING`, como en `HAVING pedidos >= 8`: PostgreSQL devuelve el error «column "pedidos" does not exist». En la cláusula `ORDER BY` los alias sí funcionan.',
       },
       {
         category: "missing_filter",
         description_md:
-          "Omitir `currency = 'MXN'`: se suman importes de seis monedas distintas y el umbral de 200 000 deja de significar algo.",
+          "Omitir la condición `currency = 'MXN'`: se suman importes de seis monedas distintas y el umbral de 200 000 deja de significar algo.",
       },
       {
         category: "aggregation_level",
         description_md:
-          "Aplicar el umbral de 8 pedidos sobre todos los estados en lugar de solo los entregados: entran clientes con muchos pedidos cancelados.",
+          "Aplicar el umbral de 8 pedidos sobre todos los estados en lugar de hacerlo solo sobre los entregados: entran clientes con muchos pedidos cancelados.",
       },
       {
         category: "wrong_order",
         description_md:
-          "Ordenar por `pedidos` en lugar de `gasto`: la lista comercial se arma por facturación.",
+          "Ordenar por `pedidos` en lugar de por `gasto`: la lista comercial se arma por facturación, no por cantidad de pedidos.",
       },
     ],
     expert_explanation_md:
-      "Quince clientes cumplen las dos condiciones; el primero acumula más de 620 000 MXN en 69 pedidos entregados.\n\nEste ejercicio muestra que `HAVING` admite varias condiciones agregadas con `AND`, igual que `WHERE` con las de fila. También muestra una asimetría útil de recordar: los alias del `SELECT` funcionan en `ORDER BY` y en `GROUP BY`, pero no en `HAVING`, porque esa cláusula se evalúa antes de que la lista del `SELECT` se materialice.\n\nLa alternativa con CTE es igual de válida y a veces preferible: al nombrar los agregados una sola vez, el filtro se lee como el del negocio (`pedidos >= 8 AND gasto > 200000`) y la consulta escala mejor cuando hay cuatro o cinco métricas. El plan de ejecución en PostgreSQL suele ser el mismo.\n\nFiltrar por `currency` en lugar de por el país del cliente es deliberado: sumar importes de monedas distintas produce un número sin significado. Cuando el negocio necesita comparar países, se convierte a una moneda común antes de agregar.",
+      "El resultado de la consulta da quince clientes que cumplen las dos condiciones; el primero acumula más de 620 000 pesos mexicanos en 69 pedidos entregados.\n\nEste ejercicio muestra que la cláusula `HAVING` admite varias condiciones agregadas unidas con `AND`, igual que la cláusula `WHERE` con las condiciones de fila. También muestra una asimetría útil de recordar: los alias del `SELECT` funcionan en `ORDER BY` y en `GROUP BY`, pero no en `HAVING`, porque esa cláusula se evalúa antes de que la lista del `SELECT` se materialice.\n\nLa alternativa con una expresión de tabla común es igual de válida y a veces preferible: al nombrar los agregados una sola vez, el filtro se lee como lo diría el negocio, con `pedidos >= 8 AND gasto > 200000`, y la consulta escala mejor cuando hay cuatro o cinco métricas. El plan de ejecución que arma PostgreSQL suele ser el mismo.\n\nFiltrar por la columna `currency` en lugar de por el país del cliente es una decisión deliberada: sumar importes de monedas distintas produce un número sin significado. Cuando el negocio necesita comparar países, primero se convierte todo a una moneda común y recién después se agrega.",
     improvement_feedback: [
       { condition: "uses_select_star", message_key: "improve.uses_select_star" },
       {
@@ -282,9 +282,9 @@ export const exercises: ExerciseDef[] = [
     dataset: pidelo,
     tables_used: ["orders"],
     scenario_md:
-      "Prevención de fraude de **Pídelo** sospecha que algunas cuentas repiten códigos promocionales pensados para un uso ocasional. Quieren la lista de pares cliente–promoción con uso repetido para revisarlos uno por uno.",
+      "El departamento de Prevención de Fraude de **Pídelo** sospecha que algunas cuentas repiten códigos promocionales pensados para un uso ocasional. Quieren la lista de pares formados por cliente y promoción con uso repetido, para poder revisarlos uno por uno, y te piden que la obtengas de la base.",
     business_question_md:
-      "Para los pedidos con `promotion_id` distinto de NULL, devuelve `promotion_id`, `customer_id` y la cantidad de pedidos de esa combinación como `usos`, solo para los pares que llegan a **3 usos o más**. Ordena por `usos` descendente, luego por `promotion_id` y luego por `customer_id`, ambos ascendentes.",
+      "Debes generar un dataset que, tomando los pedidos cuya columna `promotion_id` no está en `NULL`, devuelva el `promotion_id`, el `customer_id` y la cantidad de pedidos de esa combinación bajo el encabezado `usos`, tomando únicamente los pares que llegan a **3 usos o más**. Ordena por `usos` descendente, después por `promotion_id` ascendente y después por `customer_id` ascendente.",
     learning_objective:
       "Aplicar HAVING sobre grupos definidos por más de una columna y excluir el grupo NULL en WHERE.",
     theory_ref: patrones,
@@ -309,13 +309,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "El grupo que interesa no es la promoción ni el cliente por separado, sino la combinación de ambos: una fila por par. El umbral se aplica a ese par.",
+          "El grupo que interesa no es la promoción ni el cliente por separado, sino la combinación de los dos: una fila por par. El umbral se aplica a ese par.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Agrupa por las dos columnas separadas por coma y filtra los pedidos sin promoción en `WHERE` con `IS NOT NULL`, para que no aparezca un grupo «sin promoción».",
+          "Agrupa por las dos columnas separadas por coma y filtra los pedidos sin promoción en la cláusula `WHERE` con la condición `IS NOT NULL`, para que no aparezca un grupo que junte todos los pedidos sin promoción.",
         ...defaultHintMeta(2),
       },
       {
@@ -329,26 +329,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "aggregation_level",
         description_md:
-          "Agrupar solo por `promotion_id`: obtienes 6 filas de totales por promoción, no los clientes concretos a revisar.",
+          "Agrupar solamente por `promotion_id`: el resultado son 6 filas con totales por promoción y no los clientes concretos que hay que revisar.",
       },
       {
         category: "null_handling",
         description_md:
-          "Omitir `WHERE promotion_id IS NOT NULL`: los pedidos sin promoción forman sus propios grupos y ensucian la lista.",
+          "Omitir la condición `WHERE promotion_id IS NOT NULL`: los pedidos sin promoción forman sus propios grupos y ensucian la lista de revisión.",
       },
       {
         category: "null_handling",
         description_md:
-          "Escribir `promotion_id <> NULL`: la comparación nunca es verdadera y la consulta devuelve cero filas.",
+          "Escribir `promotion_id <> NULL`: esa comparación nunca puede dar verdadero y la consulta devuelve cero filas.",
       },
       {
         category: "wrong_order",
         description_md:
-          "Ordenar solo por `usos`: casi todas las filas empatan en 3 y el resultado deja de ser reproducible.",
+          "Ordenar solamente por `usos`: casi todas las filas empatan en 3 y el resultado deja de ser reproducible entre ejecuciones.",
       },
     ],
     expert_explanation_md:
-      "Salen 47 pares. El caso más llamativo es un cliente con 6 usos de la misma promoción; el resto se concentra en 3 y 4 usos.\n\nDos ideas clave. La primera: cuando agrupas por varias columnas, cada grupo es una **combinación**, y `HAVING` habla de esa combinación, no de cada columna por separado. La segunda: el filtro de NULL pertenece a `WHERE` porque se responde fila por fila; dejarlo para después obligaría a arrastrar miles de pedidos sin promoción hasta la agregación.\n\nEsta lista todavía no prueba abuso: `promotions.max_uses_per_customer` puede ser 3, 5 o NULL según el código. Para separar el abuso real del uso legítimo hay que unir con `promotions` y comparar contra ese tope, algo que harás con `INNER JOIN` en la sección 17. Entregar la lista cruda como «fraude» sería un error de análisis, no de SQL.",
+      "El resultado de la consulta da 47 pares. El caso más llamativo es un cliente con 6 usos de la misma promoción; el resto se concentra en 3 y 4 usos.\n\nHay dos ideas clave. La primera: cuando agrupas por varias columnas, cada grupo es una **combinación**, y la cláusula `HAVING` habla de esa combinación y no de cada columna por separado. La segunda: el filtro de valores `NULL` pertenece a la cláusula `WHERE`, porque se responde fila por fila; dejarlo para después obligaría a arrastrar miles de pedidos sin promoción hasta la agregación.\n\nEsta lista todavía no prueba que haya abuso: la columna `promotions.max_uses_per_customer` puede valer 3, 5 o estar en `NULL` según el código promocional. Para separar el abuso real del uso legítimo hay que unir con la tabla `promotions` y comparar contra ese tope, algo que vas a hacer con `INNER JOIN` en la sección 17. Entregar la lista cruda como si fuera fraude sería un error de análisis, no de SQL.",
     improvement_feedback: [
       { condition: "uses_select_star", message_key: "improve.uses_select_star" },
     ],
@@ -366,9 +366,9 @@ export const exercises: ExerciseDef[] = [
     dataset: tiendaviva,
     tables_used: ["reviews"],
     scenario_md:
-      "Marketing de **TiendaViva** quiere una sección «Los mejor calificados». El primer intento ordenaba por promedio y lo encabezaban productos con una sola reseña de 5 estrellas. Acordaron un mínimo de 5 reseñas y un promedio de 4.4 o más.",
+      "El departamento de Marketing de **TiendaViva** quiere armar una sección llamada «Los mejor calificados». El primer intento ordenaba por promedio y lo encabezaban productos con una sola reseña de 5 estrellas, así que acordaron un mínimo de 5 reseñas y un promedio de 4.4 o más. Te piden la lista que cumple ese criterio para publicarla en la aplicación.",
     business_question_md:
-      "Devuelve `product_id`, la cantidad de reseñas como `resenas` y el promedio de `rating` redondeado a 2 decimales como `promedio`, solo para los productos con **5 o más** reseñas y un promedio (sin redondear) de **4.4 o más**. Ordena por `promedio` descendente, luego por `resenas` descendente y luego por `product_id` ascendente.",
+      "Debes generar un dataset que devuelva el `product_id`, la cantidad de reseñas bajo el encabezado `resenas` y el promedio de `rating` redondeado a 2 decimales bajo el encabezado `promedio`, tomando únicamente los productos con **5 o más** reseñas y un promedio, calculado sin redondear, de **4.4 o más**. Ordena por `promedio` descendente, después por `resenas` descendente y después por `product_id` ascendente.",
     learning_objective:
       "Combinar un umbral de muestra mínima y un umbral de promedio en HAVING, con un orden determinista.",
     theory_ref: patrones,
@@ -394,13 +394,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Son dos umbrales sobre el mismo grupo: uno mide confiabilidad (cuántas reseñas) y otro calidad (qué promedio). Ambos hablan del grupo, así que viven en la misma cláusula.",
+          "Son dos umbrales sobre el mismo grupo: uno mide confiabilidad, que es cuántas reseñas hay, y el otro mide calidad, que es qué promedio alcanzan. Los dos hablan del grupo, así que viven en la misma cláusula.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Agrupa por `product_id`. Filtra con el promedio **sin redondear** y redondea solo en el `SELECT` con `round(..., 2)`; si redondeas antes de comparar, un 4.395 pasaría el umbral.",
+          "Agrupa por `product_id`. Filtra usando el promedio **sin redondear** y redondea solamente en la lista de `SELECT` con `round(..., 2)`; si redondearas antes de comparar, un promedio de 4.395 pasaría el umbral sin merecerlo.",
         ...defaultHintMeta(2),
       },
       {
@@ -414,26 +414,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "missing_filter",
         description_md:
-          "Omitir el mínimo de 5 reseñas: el ranking lo encabezan productos con una única reseña de 5 estrellas.",
+          "Omitir el mínimo de 5 reseñas: el ranking lo encabezan productos con una única reseña de 5 estrellas, que es el problema que el negocio quería resolver.",
       },
       {
         category: "cell_values",
         description_md:
-          "Devolver el promedio sin redondear: las celdas traen muchos decimales y no coinciden con lo pedido.",
+          "Devolver el promedio sin redondear: las celdas traen muchos decimales y no coinciden con lo que pide la consigna.",
       },
       {
         category: "syntax",
         description_md:
-          "Escribir `HAVING promedio >= 4.4` usando el alias: `HAVING` no reconoce los alias del `SELECT`.",
+          "Escribir `HAVING promedio >= 4.4` usando el alias: la cláusula `HAVING` no reconoce los alias definidos en el `SELECT`.",
       },
       {
         category: "wrong_order",
         description_md:
-          "Ordenar solo por `promedio`: hay nueve productos con 4.60 y el orden entre ellos quedaría indefinido sin los criterios de desempate.",
+          "Ordenar solamente por `promedio`: hay nueve productos con 4.60 y el orden entre ellos quedaría indefinido sin los criterios de desempate.",
       },
     ],
     expert_explanation_md:
-      "Treinta y siete productos cumplen ambos umbrales. El primero tiene 5 reseñas y promedio 5.00; el resto baja suavemente hasta 4.40.\n\nTres decisiones merecen atención. Primera: el mínimo de muestra es parte de la definición del indicador, no un detalle técnico; sin él, «mejor calificado» significa «tuvo suerte una vez». Segunda: el umbral se compara contra `avg(rating)` sin redondear y el redondeo se aplica solo a la presentación, para que la regla de negocio no dependa del formato. Tercera: como `round` genera empates visibles (nueve productos en 4.60), el orden necesita criterios adicionales; sin ellos, dos ejecuciones podrían devolver la lista en distinto orden.\n\nEn `reviews` la columna `rating` nunca es NULL, así que `count(*)` y `count(rating)` coinciden. Cuando el puntaje es opcional, `count(rating)` es el mínimo de muestra correcto, porque `avg` también ignora los NULL: usar `count(*)` mediría reseñas escritas, no reseñas puntuadas.\n\nEn la sección 26 verás cómo agregar la posición en el ranking con `rank()` sin repetir la agregación.",
+      "El resultado de la consulta da treinta y siete productos que cumplen los dos umbrales. El primero tiene 5 reseñas y un promedio de 5.00; el resto baja suavemente hasta 4.40.\n\nHay tres decisiones que merecen atención. La primera: el mínimo de muestra es parte de la definición del indicador y no un detalle técnico, porque sin él «mejor calificado» significa «tuvo suerte una vez». La segunda: el umbral se compara contra `avg(rating)` sin redondear y el redondeo se aplica solo a la presentación, para que la regla de negocio no dependa del formato. La tercera: como la función `round` genera empates visibles, con nueve productos en 4.60, el orden necesita criterios adicionales; sin ellos, dos ejecuciones podrían devolver la lista en distinto orden.\n\nEn la tabla `reviews` la columna `rating` nunca está en `NULL`, así que `count(*)` y `count(rating)` coinciden. Cuando el puntaje es opcional, `count(rating)` es el mínimo de muestra correcto, porque la función `avg` también ignora los valores `NULL`: usar `count(*)` mediría reseñas escritas y no reseñas puntuadas.\n\nEn la sección 26 vas a ver cómo agregar la posición en el ranking con la función `rank()` sin repetir la agregación.",
     improvement_feedback: [
       { condition: "uses_select_star", message_key: "improve.uses_select_star" },
       {

@@ -20,9 +20,9 @@ export const exercises: ExerciseDef[] = [
     dataset: tiendaviva,
     tables_used: ["sellers"],
     scenario_md:
-      "El equipo comercial de **TiendaViva** organiza su trabajo por regiones, no por país. México se atiende como **Norteamérica**; Colombia y Perú, como **Región Andina**; el resto de los países (Argentina, Chile y Uruguay), como **Cono Sur**.",
+      "El departamento Comercial de **TiendaViva** organiza su trabajo por regiones y no por país. México se atiende como **Norteamérica**; Colombia y Perú, como **Región Andina**; y el resto de los países, que son Argentina, Chile y Uruguay, como **Cono Sur**. Te piden el listado de vendedores ya clasificado con esas etiquetas para poder repartir las cuentas entre los equipos.",
     business_question_md:
-      "Devuelve, para cada vendedor, su `id`, `store_name`, `country` y una columna `region` con la etiqueta que le corresponde según esa clasificación. El orden no importa.",
+      "Debes generar un dataset que devuelva, para cada vendedor, su `id`, su `store_name`, su `country` y una columna `region` con la etiqueta que le corresponde según esa clasificación. El orden de las filas no importa.",
     learning_objective:
       "Escribir una expresión CASE que traduzca códigos a etiquetas de negocio, con rama ELSE.",
     theory_ref: "case-simple-y-buscada",
@@ -45,13 +45,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "No necesitas una tabla de regiones: la clasificación la define el negocio y la construyes como una columna calculada, con una expresión condicional que devuelve un texto por fila.",
+          "No necesitas una tabla de regiones: la clasificación la define el negocio y la construyes como una columna calculada, con una expresión condicional que devuelve un texto distinto en cada fila.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Trabaja sobre `sellers` y usa la columna `country`. Como todas las condiciones son comparaciones por igualdad, puedes usar la forma simple (`CASE country WHEN ... THEN ...`). Cierra con `END` y ponle el alias `region`.",
+          "Trabaja sobre la tabla `sellers` y usa la columna `country`, cuyos valores son los literales `'MX'`, `'CO'`, `'PE'`, `'AR'`, `'CL'` y `'UY'`. Como todas las condiciones son comparaciones por igualdad, puedes usar la forma simple `CASE country WHEN ... THEN ...`. Cierra la expresión con `END` y ponle el alias `region`.",
         ...defaultHintMeta(2),
       },
       {
@@ -70,21 +70,21 @@ export const exercises: ExerciseDef[] = [
       {
         category: "syntax",
         description_md:
-          "Cerrar la expresión con un paréntesis o con `THEN` en lugar de `END`. Toda expresión `CASE` termina en `END`.",
+          "Cerrar la expresión con un paréntesis o con `THEN` en lugar de `END`: toda expresión `CASE` termina con la palabra clave `END`.",
       },
       {
         category: "cell_values",
         description_md:
-          "Omitir el `ELSE`: los vendedores de AR, CL y UY quedarían en NULL en vez de «Cono Sur».",
+          "Omitir la rama `ELSE`: los vendedores de Argentina, Chile y Uruguay quedan con `NULL` en la columna en lugar de la etiqueta «Cono Sur».",
       },
       {
         category: "missing_filter",
         description_md:
-          "Agregar un `WHERE` para quedarte solo con algunos países: se piden los 180 vendedores, clasificados.",
+          "Agregar una cláusula `WHERE` para quedarte solo con algunos países: la consigna pide los 180 vendedores, todos clasificados.",
       },
     ],
     expert_explanation_md:
-      "180 filas: 55 en «Norteamérica», 40 en «Región Andina» y 85 en «Cono Sur».\n\nLa forma simple (`CASE country WHEN 'MX' ...`) es la más corta cuando todas las condiciones son igualdades. La alternativa con `CASE WHEN country IN ('CO','PE')` agrupa los dos países andinos en una sola rama y suele ser más fácil de mantener: si mañana se suma Ecuador, tocas una sola línea.\n\nEl `ELSE` hace de red de seguridad. Si el marketplace incorpora un país nuevo, esos vendedores aparecerán como «Cono Sur» aunque no lo sean; por eso, en un reporte productivo, muchos equipos prefieren `ELSE 'Sin región asignada'` para que el dato faltante sea visible en lugar de quedar escondido.",
+      "El resultado de la consulta da 180 filas: 55 vendedores quedan en «Norteamérica», 40 en «Región Andina» y 85 en «Cono Sur».\n\nLa forma simple, que se escribe `CASE country WHEN 'MX' ...`, es la más corta cuando todas las condiciones son igualdades. La alternativa con `CASE WHEN country IN ('CO','PE')` agrupa los dos países andinos en una sola rama y suele ser más fácil de mantener: si mañana se suma Ecuador, tocas una sola línea.\n\nLa rama `ELSE` funciona como red de seguridad. Si el marketplace incorpora un país nuevo, esos vendedores van a aparecer como «Cono Sur» aunque no lo sean; por eso, en un reporte productivo, muchos equipos prefieren escribir `ELSE 'Sin región asignada'`, para que el dato faltante quede a la vista en lugar de esconderse dentro de una categoría existente.",
     improvement_feedback: [
       { condition: "uses_select_star", message_key: "improve.uses_select_star" },
     ],
@@ -102,9 +102,9 @@ export const exercises: ExerciseDef[] = [
     dataset: tiendaviva,
     tables_used: ["sellers"],
     scenario_md:
-      "El área de calidad quiere clasificar a los vendedores por su calificación promedio: **Destacado** desde 4.5, **Confiable** desde 4.0 y hasta menos de 4.5, y **A mejorar** por debajo de 4.0. Hay vendedores que todavía no recibieron ninguna reseña y su `rating` es NULL: no pueden mezclarse con los de mala calificación, deben quedar como **Sin calificación**.",
+      "El departamento de Calidad quiere clasificar a los vendedores según su calificación promedio: **Destacado** desde 4.5, **Confiable** desde 4.0 y hasta menos de 4.5, y **A mejorar** por debajo de 4.0. Hay vendedores que todavía no recibieron ninguna reseña y tienen la columna `rating` en `NULL`: no pueden mezclarse con los de mala calificación y deben quedar como **Sin calificación**. Te piden ese listado clasificado para armar el plan de mejora del trimestre.",
     business_question_md:
-      "Devuelve `id`, `store_name`, `rating` y una columna `segmento` con una de estas cuatro etiquetas: `Destacado`, `Confiable`, `A mejorar` o `Sin calificación`. Incluye a todos los vendedores. El orden no importa.",
+      "Debes generar un dataset que devuelva el `id`, el `store_name`, el `rating` y una columna `segmento` con una de estas cuatro etiquetas: `Destacado`, `Confiable`, `A mejorar` o `Sin calificación`. Debes incluir a todos los vendedores y el orden de las filas no importa.",
     learning_objective:
       "Construir tramos con CASE buscada respetando el orden de las ramas y dando a NULL una categoría propia.",
     theory_ref: "case-simple-y-buscada",
@@ -127,13 +127,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Aquí las condiciones no son igualdades sino umbrales, así que necesitas la forma buscada (`WHEN condición THEN etiqueta`). Las ramas se evalúan de arriba hacia abajo y gana la primera que sea verdadera.",
+          "Aquí las condiciones no son igualdades sino umbrales, así que necesitas la forma buscada, que se escribe `WHEN condición THEN etiqueta`. Las ramas se evalúan de arriba hacia abajo y gana la primera que resulta verdadera.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Trabaja sobre `sellers` y la columna `rating`. Cuidado con dos cosas: escribe primero el umbral más exigente (4.5) y recuerda que un NULL no cumple ninguna comparación numérica, así que sin una rama `IS NULL` esos vendedores terminarían en el `ELSE`.",
+          "Trabaja sobre la tabla `sellers` y la columna `rating`. Ten cuidado con dos cosas: escribe primero el umbral más exigente, que es 4.5, y recuerda que un valor `NULL` no cumple ninguna comparación numérica, así que sin una rama con `IS NULL` esos vendedores terminan en el `ELSE`.",
         ...defaultHintMeta(2),
       },
       {
@@ -147,26 +147,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "null_handling",
         description_md:
-          "No darle una rama propia a `rating IS NULL`: los 28 vendedores sin reseñas caen en el `ELSE` y aparecen como «A mejorar».",
+          "No darle una rama propia a la condición `rating IS NULL`: los 28 vendedores sin reseñas caen en el `ELSE` y aparecen etiquetados como «A mejorar», que es una afirmación falsa sobre su desempeño.",
       },
       {
         category: "cell_values",
         description_md:
-          "Poner `WHEN rating >= 4.0` antes que `WHEN rating >= 4.5`: la etiqueta `Destacado` no aparece nunca porque gana la primera coincidencia.",
+          "Escribir `WHEN rating >= 4.0` antes que `WHEN rating >= 4.5`: la etiqueta `Destacado` no aparece nunca, porque gana siempre la primera coincidencia.",
       },
       {
         category: "row_count",
         description_md:
-          "Filtrar con `WHERE rating IS NOT NULL`: se piden los 180 vendedores, incluidos los que no tienen calificación.",
+          "Filtrar con `WHERE rating IS NOT NULL`: la consigna pide los 180 vendedores, incluidos los que todavía no tienen calificación.",
       },
       {
         category: "wrong_columns",
         description_md:
-          "Devolver solo `segmento` y olvidar `rating`: el área de calidad necesita ver el valor que originó la etiqueta.",
+          "Devolver solo la columna `segmento` y olvidar `rating`: Calidad necesita ver el valor que originó cada etiqueta para poder discutirla.",
       },
     ],
     expert_explanation_md:
-      "180 filas: 41 `Destacado`, 29 `Confiable`, 82 `A mejorar` y 28 `Sin calificación`.\n\nEl orden de las ramas es lo que hace correcta la solución. Como el motor se detiene en la primera condición verdadera, alcanza con escribir un solo límite por tramo (`>= 4.5`, después `>= 4.0`) en vez de rangos completos con `AND`.\n\nLa rama de NULL puede ir en cualquier posición antes del `ELSE` —NULL nunca coincide con una comparación numérica—, pero ponerla primera deja la intención a la vista. La solución alternativa resuelve lo mismo al revés: usa `WHEN rating IS NOT NULL THEN 'A mejorar'` y reserva el `ELSE` para los NULL. Ambas son válidas; elige la que explique mejor la regla de negocio a quien lea la consulta.\n\nEvita `COALESCE(rating, 0)` aquí: convertiría «sin datos» en «puntaje cero», que es una afirmación distinta y peligrosa si después alguien promedia esa columna.",
+      "El resultado de la consulta da 180 filas: 41 vendedores quedan como `Destacado`, 29 como `Confiable`, 82 como `A mejorar` y 28 como `Sin calificación`.\n\nEl orden de las ramas es lo que hace correcta la solución. Como el motor se detiene en la primera condición verdadera, alcanza con escribir un solo límite por tramo, primero `>= 4.5` y después `>= 4.0`, en lugar de escribir rangos completos unidos con `AND`.\n\nLa rama que atiende a `NULL` puede ir en cualquier posición antes del `ELSE`, porque `NULL` nunca coincide con una comparación numérica, pero ponerla primera deja la intención a la vista. La solución alternativa resuelve lo mismo al revés: usa `WHEN rating IS NOT NULL THEN 'A mejorar'` y reserva el `ELSE` para los valores `NULL`. Las dos son válidas; elige la que explique mejor la regla de negocio a quien lea la consulta.\n\nEvita usar `COALESCE(rating, 0)` en este caso: convertiría «sin datos» en «puntaje cero», que es una afirmación distinta y peligrosa si después alguien promedia esa columna.",
     improvement_feedback: [
       { condition: "uses_select_star", message_key: "improve.uses_select_star" },
     ],
@@ -184,9 +184,9 @@ export const exercises: ExerciseDef[] = [
     dataset: tiendaviva,
     tables_used: ["orders"],
     scenario_md:
-      "Finanzas analiza la operación uruguaya y necesita clasificar cada pedido en pesos uruguayos (`currency = 'UYU'`) según su importe total. Los tramos acordados son: **Chico** por debajo de 2000, **Mediano** desde 2000 y por debajo de 10000, **Grande** desde 10000 y por debajo de 40000, y **Premium** desde 40000. Los límites inferiores son inclusivos.",
+      "El departamento de Finanzas está analizando la operación uruguaya y necesita clasificar cada pedido expresado en pesos uruguayos, es decir, con `currency` igual al texto `'UYU'`, según su importe total. Los tramos acordados son: **Chico** por debajo de 2000, **Mediano** desde 2000 y por debajo de 10000, **Grande** desde 10000 y por debajo de 40000, y **Premium** desde 40000. Los límites inferiores son inclusivos. Te piden ese listado clasificado para presentarlo en la reunión de cierre.",
     business_question_md:
-      "Devuelve `id`, `total_amount` y una columna `tramo` con la etiqueta correspondiente, solo para los pedidos con `currency = 'UYU'`. El orden no importa.",
+      "Debes generar un dataset que devuelva el `id`, el `total_amount` y una columna `tramo` con la etiqueta correspondiente, tomando únicamente los pedidos cuyo `currency` es igual al texto `'UYU'`. El orden de las filas no importa.",
     learning_objective:
       "Crear tramos numéricos con CASE usando un único límite por rama y una rama ELSE final.",
     theory_ref: "case-segmentos-de-negocio",
@@ -208,13 +208,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Son dos cosas independientes: un filtro que deja solo los pedidos de una moneda y una columna calculada que clasifica el importe en cuatro tramos.",
+          "Son dos cosas independientes: un filtro que deja solamente los pedidos de una moneda y una columna calculada que clasifica el importe en cuatro tramos.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Filtra `orders` por `currency = 'UYU'` y clasifica `total_amount`. Como las ramas se evalúan en orden, no necesitas escribir los dos límites de cada tramo: si la fila llegó a la segunda rama es porque ya no cumplió la primera.",
+          "Filtra la tabla `orders` con la condición `currency = 'UYU'` y clasifica la columna `total_amount`. Como las ramas se evalúan en orden, no necesitas escribir los dos límites de cada tramo: si la fila llegó a la segunda rama es porque ya no cumplió la primera.",
         ...defaultHintMeta(2),
       },
       {
@@ -228,26 +228,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "missing_filter",
         description_md:
-          "Olvidar `WHERE currency = 'UYU'`: mezclarías pesos uruguayos con pesos colombianos y los tramos dejarían de tener sentido.",
+          "Olvidar la condición `WHERE currency = 'UYU'`: se mezclan pesos uruguayos con pesos colombianos y los tramos dejan de tener cualquier sentido.",
       },
       {
         category: "cell_values",
         description_md:
-          "Escribir los umbrales desordenados (por ejemplo, `< 40000` antes que `< 2000`): todos los pedidos chicos saldrían etiquetados como «Grande».",
+          "Escribir los umbrales desordenados, por ejemplo `< 40000` antes que `< 2000`: todos los pedidos chicos salen etiquetados como «Grande».",
       },
       {
         category: "cell_values",
         description_md:
-          "Usar `<=` en los límites: con `<= 2000`, un pedido de exactamente 2000 sería «Chico», pero el acuerdo dice que el límite inferior del tramo Mediano es inclusivo.",
+          "Usar el operador `<=` en los límites: con `<= 2000`, un pedido de exactamente 2000 sería «Chico», pero el acuerdo dice que el límite inferior del tramo Mediano es inclusivo.",
       },
       {
         category: "cell_values",
         description_md:
-          "Omitir el `ELSE` final: los pedidos de 40000 o más quedarían en NULL en lugar de «Premium».",
+          "Omitir la rama `ELSE` final: los pedidos de 40000 o más quedan con `NULL` en lugar de la etiqueta «Premium».",
       },
     ],
     expert_explanation_md:
-      "684 pedidos en UYU: 110 `Chico`, 261 `Mediano`, 264 `Grande` y 49 `Premium`.\n\nEscribir un solo límite por rama funciona porque gana la primera coincidencia: cuando el motor evalúa `total_amount < 10000`, ya sabe que el importe no es menor que 2000. La versión alternativa recorre los umbrales de mayor a menor y produce exactamente el mismo resultado; lo que no debes hacer es mezclar los dos criterios en la misma expresión.\n\nDos cuidados profesionales. Primero, los tramos dependen de la moneda: un importe de 40000 es enorme en UYU y modesto en COP, por eso el filtro no es opcional. Segundo, deja documentado si el límite es inclusivo o exclusivo; «hasta 2000» y «menos de 2000» son reglas distintas y la diferencia aparece justo en los casos de borde.\n\nMás adelante verás cómo contar pedidos por tramo en una sola fila combinando `CASE` con funciones de agregación.",
+      "El resultado de la consulta da 684 pedidos en pesos uruguayos: 110 quedan como `Chico`, 261 como `Mediano`, 264 como `Grande` y 49 como `Premium`.\n\nEscribir un solo límite por rama funciona porque gana la primera coincidencia: cuando el motor evalúa la condición `total_amount < 10000`, ya sabe que el importe no es menor que 2000. La versión alternativa recorre los umbrales de mayor a menor y produce exactamente el mismo resultado; lo que no debes hacer es mezclar los dos criterios dentro de la misma expresión.\n\nHay dos cuidados profesionales. Primero, los tramos dependen de la moneda: un importe de 40000 es enorme en pesos uruguayos y modesto en pesos colombianos, y por eso el filtro no es opcional. Segundo, deja documentado si cada límite es inclusivo o exclusivo, porque «hasta 2000» y «menos de 2000» son reglas distintas y la diferencia aparece justo en los casos de borde.\n\nMás adelante vas a ver cómo contar los pedidos de cada tramo en una sola fila, combinando la expresión `CASE` con funciones de agregación.",
     improvement_feedback: [
       { condition: "uses_select_star", message_key: "improve.uses_select_star" },
     ],
@@ -265,9 +265,9 @@ export const exercises: ExerciseDef[] = [
     dataset: tiendaviva,
     tables_used: ["shipments"],
     scenario_md:
-      "Logística revisa el compromiso de entrega: un envío se considera **A tiempo** si se entregó dentro de los 5 días posteriores al despacho, y **Tarde** si tardó más. Los paquetes que todavía no tienen fecha de entrega (`delivered_at` NULL) no son tardíos: siguen **En tránsito**. El análisis se limita a los envíos despachados desde el 1 de septiembre de 2025.",
+      "El departamento de Logística está revisando el cumplimiento del compromiso de entrega: un envío se considera **A tiempo** si se entregó dentro de los 5 días posteriores al despacho, y **Tarde** si tardó más. Los paquetes que todavía no tienen fecha de entrega, es decir, los que tienen la columna `delivered_at` en `NULL`, no son tardíos: siguen **En tránsito**. El análisis se limita a los envíos despachados desde el 1 de septiembre de 2025. Te piden ese reporte para la reunión mensual con los transportistas.",
     business_question_md:
-      "Devuelve `id`, `carrier`, `destination_city` y una columna `cumplimiento` con los valores `A tiempo`, `Tarde` o `En tránsito`, para los envíos con `shipped_at` a partir del 2025-09-01. El orden no importa.",
+      "Debes generar un dataset que devuelva el `id`, el `carrier`, el `destination_city` y una columna `cumplimiento` con uno de estos tres valores: `A tiempo`, `Tarde` o `En tránsito`, tomando los envíos cuya columna `shipped_at` es igual o posterior al `'2025-09-01'`. El orden de las filas no importa.",
     learning_objective:
       "Combinar una condición temporal y una rama para NULL dentro de una misma expresión CASE.",
     theory_ref: "case-segmentos-de-negocio",
@@ -290,13 +290,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Hay tres situaciones posibles y una de ellas no se decide comparando fechas, sino detectando la ausencia de fecha. Piensa cuál de las tres conviene evaluar primero.",
+          "Hay tres situaciones posibles, y una de ellas no se decide comparando fechas sino detectando la ausencia de fecha. Piensa cuál de las tres conviene evaluar primero.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Trabaja sobre `shipments` con un filtro sobre `shipped_at`. Para el compromiso de 5 días puedes comparar `delivered_at` contra `shipped_at` más un intervalo. La rama de los paquetes sin entregar necesita `IS NULL`: si la dejas para el `ELSE`, esos envíos se contarían como tardíos.",
+          "Trabaja sobre la tabla `shipments` con un filtro sobre la columna `shipped_at`. Para el compromiso de 5 días puedes comparar `delivered_at` contra `shipped_at` más un intervalo. La rama de los paquetes sin entregar necesita la condición `IS NULL`: si la dejas para el `ELSE`, esos envíos se cuentan como tardíos.",
         ...defaultHintMeta(2),
       },
       {
@@ -310,26 +310,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "null_handling",
         description_md:
-          "No tratar `delivered_at IS NULL` en su propia rama: como NULL no cumple ninguna comparación, esos 116 envíos caen en el `ELSE` y se reportan como «Tarde». Es el error más caro del ejercicio: culpa al transportista por paquetes que todavía están en camino.",
+          "No tratar la condición `delivered_at IS NULL` en su propia rama: como `NULL` no cumple ninguna comparación, esos 116 envíos caen en el `ELSE` y se reportan como «Tarde». Es el error más caro del ejercicio, porque culpa al transportista por paquetes que todavía están en camino.",
       },
       {
         category: "date_boundary",
         description_md:
-          "Usar `shipped_at > DATE '2025-09-01'`: dejarías fuera los envíos despachados exactamente a la medianoche del 1 de septiembre. El pedido dice «a partir del», así que el límite es inclusivo.",
+          "Escribir `shipped_at > DATE '2025-09-01'`: quedan fuera los envíos despachados exactamente a la medianoche del 1 de septiembre. La consigna dice «desde», así que el límite es inclusivo.",
       },
       {
         category: "cell_values",
         description_md:
-          "Invertir la comparación de 5 días (`>=` en lugar de `<=`): las etiquetas «A tiempo» y «Tarde» quedan intercambiadas.",
+          "Invertir la comparación de los 5 días, usando `>=` en lugar de `<=`: las etiquetas «A tiempo» y «Tarde» quedan intercambiadas.",
       },
       {
         category: "missing_filter",
         description_md:
-          "Omitir el filtro de fecha: devolverías los 15 201 envíos históricos, muy por encima del límite de filas del entorno.",
+          "Omitir el filtro de fecha: la consulta devuelve los 15 201 envíos históricos, muy por encima del límite de filas del entorno de práctica.",
       },
     ],
     expert_explanation_md:
-      "403 envíos despachados desde el 2025-09-01: 121 `A tiempo`, 166 `Tarde` y 116 `En tránsito`.\n\nEl orden de las ramas es deliberado. Poner `delivered_at IS NULL` primero separa «todavía no sabemos» de «sabemos que tardó», que es la confusión clásica cuando se mide cumplimiento con datos incompletos. Si dejaras esa rama para el final, el reporte diría que el 70 % de los envíos llegó tarde.\n\nLas dos versiones de la comparación son equivalentes: `delivered_at <= shipped_at + INTERVAL '5 days'` suma el intervalo a la fecha de despacho, y `delivered_at - shipped_at <= INTERVAL '5 days'` calcula la duración. La primera suele ser preferible en tablas grandes porque deja la columna sola de un lado de la comparación, lo que permite al motor usar un índice sobre `delivered_at`.\n\nOjo con una tercera variante: `delivered_at::date - shipped_at::date <= 5` cuenta días de calendario, no horas. Un envío despachado a las 23:50 y entregado cinco días después a las 01:00 daría un resultado distinto. Cuando el compromiso se mide en días corridos, trabaja con timestamps completos.",
+      "El resultado de la consulta da 403 envíos despachados desde el 1 de septiembre de 2025: 121 quedan como `A tiempo`, 166 como `Tarde` y 116 como `En tránsito`.\n\nEl orden de las ramas es deliberado. Poner primero la condición `delivered_at IS NULL` separa «todavía no sabemos» de «sabemos que tardó», que es la confusión clásica cuando se mide cumplimiento con datos incompletos. Si dejaras esa rama para el final, el reporte diría que el 70 % de los envíos llegó tarde.\n\nLas dos versiones de la comparación son equivalentes: la expresión `delivered_at <= shipped_at + INTERVAL '5 days'` suma el intervalo a la fecha de despacho, y la expresión `delivered_at - shipped_at <= INTERVAL '5 days'` calcula la duración transcurrida. La primera suele ser preferible en tablas grandes, porque deja la columna sola de un lado de la comparación y eso le permite al motor usar un índice sobre `delivered_at`.\n\nCuidado con una tercera variante: la expresión `delivered_at::date - shipped_at::date <= 5` cuenta días de calendario y no horas. Un envío despachado a las 23:50 y entregado cinco días después a la 01:00 daría un resultado distinto. Cuando el compromiso se mide en días corridos, conviene trabajar con las marcas de tiempo completas.",
     improvement_feedback: [
       {
         condition: "uses_between_for_timestamps",
@@ -350,9 +350,9 @@ export const exercises: ExerciseDef[] = [
     dataset: bolsillo,
     tables_used: ["transactions"],
     scenario_md:
-      "El equipo de riesgo de **Bolsillo** revisa manualmente los movimientos que el motor antifraude marcó (`is_flagged`) y trabaja la cola de lo más nuevo a lo más viejo: una alerta de hace un mes ya no se puede frenar, la de hoy sí. Para clasificar cada caso traduce el estado del movimiento a un nivel de riesgo: `reversed` es **Fraude confirmado**, `failed` es **Bloqueado**, `pending` es **En revisión** y cualquier otro estado es **Alerta sin bloqueo**. Además, la columna `description` viene vacía en la mayoría de los casos y en la planilla debe leerse `sin detalle`.",
+      "El departamento de Riesgo de **Bolsillo** revisa manualmente los movimientos que el motor antifraude dejó marcados, es decir, aquellos que tienen la columna `is_flagged` en `true`, y trabaja la cola de lo más nuevo a lo más viejo: una alerta de hace un mes ya no se puede frenar, la de hoy sí. Para clasificar cada caso traduce el estado del movimiento a un nivel de riesgo: el estado `'reversed'` es **Fraude confirmado**, el estado `'failed'` es **Bloqueado**, el estado `'pending'` es **En revisión** y cualquier otro estado es **Alerta sin bloqueo**. Además, la columna `description` viene sin valor en la mayoría de los casos y en la planilla debe leerse `sin detalle`. Te piden esa planilla para poder repartir la revisión entre los analistas.",
     business_question_md:
-      "Devuelve `id`, `account_id`, `kind`, `amount`, `currency`, `created_at`, una columna `nivel_riesgo` con la etiqueta correspondiente y una columna `detalle` con la descripción del movimiento o el texto `sin detalle` cuando no haya ninguna. Incluye solo los movimientos marcados y ordena de la alerta **más reciente a la más antigua**, desempatando por `id` ascendente.",
+      "Debes generar un dataset que devuelva el `id`, el `account_id`, el `kind`, el `amount`, el `currency`, el `created_at`, una columna `nivel_riesgo` con la etiqueta correspondiente y una columna `detalle` con la descripción del movimiento o el texto `'sin detalle'` cuando la columna `description` está en `NULL`. Debes incluir solamente los movimientos que tienen la columna `is_flagged` en `true`, ordenados de la alerta **más reciente a la más antigua**, y si dos alertas comparten el mismo instante debes desempatar usando `id` ascendente.",
     learning_objective:
       "Combinar una expresión CASE de clasificación con COALESCE para presentar datos ausentes.",
     theory_ref: "case-coalesce-y-nullif",
@@ -382,13 +382,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "El ejercicio pide dos columnas calculadas distintas: una clasifica un código en cuatro etiquetas y la otra solo reemplaza la ausencia de dato por un texto. Para la segunda existe un atajo más corto que una expresión condicional completa.",
+          "El ejercicio pide dos columnas calculadas distintas: una clasifica un código en cuatro etiquetas y la otra solamente reemplaza la ausencia de dato por un texto. Para la segunda existe un atajo más corto que una expresión condicional completa.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Trabaja sobre `transactions`. El filtro es sobre la columna booleana `is_flagged`, que puedes usar directamente en el `WHERE` sin compararla con nada. Para `nivel_riesgo` alcanza la forma simple de `CASE` sobre `status`; para `detalle`, usa `COALESCE` con dos argumentos. El orden lleva dos claves: `created_at` en dirección descendente y después `id`.",
+          "Trabaja sobre la tabla `transactions`. El filtro es sobre la columna booleana `is_flagged`, que debe estar en `true` y que puedes escribir directamente en la cláusula `WHERE` sin compararla con nada. Para la columna `nivel_riesgo` alcanza con la forma simple de `CASE` sobre `status`; para la columna `detalle`, usa la función `COALESCE` con dos argumentos. El orden lleva dos claves: `created_at` en dirección descendente y después `id`.",
         ...defaultHintMeta(2),
       },
       {
@@ -402,26 +402,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "missing_filter",
         description_md:
-          "Olvidar `WHERE is_flagged`: devolverías los 32 243 movimientos de la billetera, no los 193 que el equipo de riesgo debe revisar.",
+          "Olvidar la condición `WHERE is_flagged`: la consulta devuelve los 32 243 movimientos de la billetera y no los 193 que el equipo de Riesgo tiene que revisar.",
       },
       {
         category: "null_handling",
         description_md:
-          "Devolver `description` tal cual: las 152 filas sin descripción llegan como NULL a la planilla en lugar del texto acordado.",
+          "Devolver la columna `description` tal como está: las 152 filas sin descripción llegan a la planilla con `NULL` en lugar del texto acordado.",
       },
       {
         category: "cell_values",
         description_md:
-          "Usar `COALESCE(status, 'Alerta sin bloqueo')` para el nivel de riesgo: `status` nunca es NULL, así que esa expresión no clasifica nada; la traducción de cuatro categorías necesita `CASE`.",
+          "Usar `COALESCE(status, 'Alerta sin bloqueo')` para el nivel de riesgo: la columna `status` nunca está en `NULL`, así que esa expresión no clasifica nada; la traducción de cuatro categorías necesita una expresión `CASE`.",
       },
       {
         category: "wrong_order",
         description_md:
-          "Ordenar de forma ascendente por `created_at`: la cola arranca por las alertas más viejas, justo las que ya no tienen remedio. Y sin `ORDER BY` alguno, PostgreSQL no garantiza ninguna secuencia.",
+          "Ordenar en forma ascendente por `created_at`: la cola arranca por las alertas más viejas, que son justamente las que ya no tienen remedio. Y sin ninguna cláusula `ORDER BY`, PostgreSQL no garantiza ninguna secuencia.",
       },
     ],
     expert_explanation_md:
-      "193 movimientos marcados: 183 `Alerta sin bloqueo`, 5 `En revisión`, 4 `Bloqueado` y 1 `Fraude confirmado`.\n\nEl orden por `created_at DESC` es parte de la respuesta, no un adorno: una cola de antifraude se trabaja por antigüedad de la alerta, porque el margen para revertir un movimiento se cierra con el tiempo. Ordenar por `amount` sería tentador, pero `transactions` mezcla monedas y un ranking de importes nominales pondría arriba a los países con más ceros en los precios.\n\nEl ejercicio muestra la división de tareas entre las tres herramientas. `CASE` clasifica cuando hay varias categorías; `COALESCE` solo responde «si esto es NULL, muestra aquello». `COALESCE(description, 'sin detalle')` es idéntico a `CASE WHEN description IS NULL THEN 'sin detalle' ELSE description END`, como se ve en la solución alternativa, pero se lee de un vistazo.\n\nDos detalles de estilo. `WHERE is_flagged` y `WHERE is_flagged = true` son equivalentes: una columna booleana ya es una condición. Y en la forma simple `CASE status WHEN 'reversed' ...`, el `ELSE` cubre `completed` y cualquier estado que se agregue en el futuro; si prefieres que un estado nuevo salte a la vista, escribe `ELSE 'Estado no clasificado'`.\n\nLa distribución del resultado dice algo del negocio: casi todos los movimientos marcados terminaron completándose. El motor antifraude prioriza no perder casos sospechosos a costa de muchas falsas alarmas, y esta consulta es el primer paso para medir ese costo.",
+      "El resultado de la consulta da 193 movimientos marcados: 183 quedan como `Alerta sin bloqueo`, 5 como `En revisión`, 4 como `Bloqueado` y 1 como `Fraude confirmado`.\n\nEl orden por `created_at DESC` es parte de la respuesta y no un adorno: una cola de antifraude se trabaja por antigüedad de la alerta, porque el margen para revertir un movimiento se cierra con el tiempo. Ordenar por `amount` sería tentador, pero la tabla `transactions` mezcla monedas y un ranking de importes nominales pondría arriba a los países con más ceros en los precios.\n\nEl ejercicio muestra la división de tareas entre las herramientas disponibles. La expresión `CASE` clasifica cuando hay varias categorías; la función `COALESCE` solo responde «si esto está en `NULL`, muestra aquello». La expresión `COALESCE(description, 'sin detalle')` es idéntica a `CASE WHEN description IS NULL THEN 'sin detalle' ELSE description END`, como se ve en la solución alternativa, pero se lee de un vistazo.\n\nDos detalles de estilo. Las formas `WHERE is_flagged` y `WHERE is_flagged = true` son equivalentes, porque una columna booleana ya es una condición en sí misma. Y en la forma simple `CASE status WHEN 'reversed' ...`, la rama `ELSE` cubre el estado `'completed'` y cualquier estado que se agregue en el futuro; si prefieres que un estado nuevo salte a la vista, escribe `ELSE 'Estado no clasificado'`.\n\nLa distribución del resultado dice algo del negocio: casi todos los movimientos marcados terminaron completándose. El motor antifraude prioriza no perder casos sospechosos a costa de generar muchas falsas alarmas, y esta consulta es el primer paso para medir ese costo.",
     improvement_feedback: [
       { condition: "uses_select_star", message_key: "improve.uses_select_star" },
     ],

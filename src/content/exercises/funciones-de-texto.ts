@@ -22,9 +22,9 @@ export const exercises: ExerciseDef[] = [
     dataset: tiendaviva,
     tables_used: ["customers"],
     scenario_md:
-      "El equipo de CRM va a cargar la base de clientes de **TiendaViva** en la herramienta de envíos. Esa herramienta trata `ANA@EJEMPLO.LAT` y `ana@ejemplo.lat` como dos personas distintas, así que pide los correos siempre en minúsculas.",
+      "El departamento de CRM va a cargar la base de clientes de **TiendaViva** en la herramienta de envíos. Esa herramienta trata `ANA@EJEMPLO.LAT` y `ana@ejemplo.lat` como dos personas distintas, así que pide los correos siempre escritos en minúsculas. Te piden empezar por el mercado uruguayo, que es el próximo en migrarse.",
     business_question_md:
-      "Devuelve, para los clientes de Uruguay (`country = 'UY'`), `id`, `full_name` y su correo pasado a minúsculas en una columna llamada `email_normalizado`. El orden no importa.",
+      "Debes generar un dataset que devuelva, para los clientes cuyo `country` es igual al texto `'UY'`, el `id`, el `full_name` y su correo pasado a minúsculas en una columna llamada `email_normalizado`. El orden de las filas no importa.",
     learning_objective: "Aplicar LOWER a una columna de texto y nombrar el resultado con un alias.",
     theory_ref: normalizar,
     expected_columns: [
@@ -45,19 +45,19 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Existe una función de texto que convierte cualquier cadena a minúsculas. No necesitas filtrar ni ordenar nada: son las mismas filas de la tabla, con una columna transformada.",
+          "Existe una función de texto que convierte cualquier cadena a minúsculas. No necesitas ordenar nada: son las mismas filas de los clientes uruguayos, con una sola columna transformada.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Usa `LOWER()` sobre la columna `email` de `customers` y renómbrala con `AS` para que salga con el nombre que pide CRM. Las otras dos columnas se devuelven tal cual.",
+          "Usa la función `LOWER()` sobre la columna `email` de la tabla `customers` y renómbrala con `AS` para que salga con el nombre que pide el departamento de CRM. Las otras dos columnas se devuelven tal como están.",
         ...defaultHintMeta(2),
       },
       {
         level: 3,
         body_md:
-          "```sql\nSELECT id,\n       full_name,\n       ___(___) AS ___\nFROM customers;\n```",
+          "```sql\nSELECT id,\n       full_name,\n       ___(___) AS ___\nFROM customers\nWHERE country = '___';\n```",
         ...defaultHintMeta(3),
       },
     ],
@@ -65,26 +65,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "wrong_columns",
         description_md:
-          "Devolver la columna sin alias: queda como `lower` y CRM espera `email_normalizado`.",
+          "Devolver la columna calculada sin alias: queda con el nombre `lower` y la herramienta de CRM espera `email_normalizado`.",
       },
       {
         category: "wrong_columns",
         description_md:
-          "Usar `UPPER` en lugar de `LOWER`: el pedido es explícito sobre el formato en minúsculas.",
+          "Usar la función `UPPER` en lugar de `LOWER`: el pedido es explícito sobre el formato en minúsculas.",
       },
       {
         category: "missing_filter",
         description_md:
-          "Agregar un `WHERE` para quedarte solo con los correos que hoy están en mayúsculas: se pide la lista completa de clientes.",
+          "Agregar una condición extra para quedarte solo con los correos que hoy están escritos en mayúsculas: se piden todos los clientes uruguayos, ya estén bien o mal escritos.",
       },
       {
         category: "syntax",
         description_md:
-          "Escribir `LOWER email` sin paréntesis. Las funciones siempre reciben sus argumentos entre paréntesis.",
+          "Escribir `LOWER email` sin paréntesis: las funciones siempre reciben sus argumentos entre paréntesis.",
       },
     ],
     expert_explanation_md:
-      "3000 filas, una por cliente. `LOWER` no modifica la tabla: transforma el valor solo en el resultado de la consulta, así que es una operación segura para explorar.\n\nNormalizar al momento de leer es lo habitual cuando no puedes corregir el origen. Si el problema se repite, la solución definitiva es normalizar al escribir (o crear un índice sobre `LOWER(email)`), porque aplicar la función a millones de filas en cada consulta cuesta tiempo.\n\nDetalle útil: `LOWER` respeta los acentos (`LOWER('CAFÉ')` devuelve `café`), pero no los elimina.",
+      "El resultado de la consulta da 123 filas, una por cada cliente uruguayo. La función `LOWER` no modifica la tabla: transforma el valor solo en el resultado de la consulta, así que es una operación segura para explorar datos.\n\nNormalizar en el momento de leer es lo habitual cuando no puedes corregir el origen de los datos. Si el problema se repite, la solución definitiva es normalizar al escribir, o crear un índice sobre `LOWER(email)`, porque aplicar la función a millones de filas en cada consulta cuesta tiempo.\n\nUn detalle útil: la función `LOWER` respeta los acentos, de modo que `LOWER('CAFÉ')` devuelve `café`, pero no los elimina.",
     reward: defaultReward("very_easy"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -99,9 +99,9 @@ export const exercises: ExerciseDef[] = [
     dataset: tiendaviva,
     tables_used: ["customers"],
     scenario_md:
-      "Antes de migrar la base, Datos quiere el listado exacto de los registros a corregir: clientes cuyo correo **no** está guardado en minúsculas. Son los que generan cuentas duplicadas cuando alguien se registra dos veces escribiendo distinto.",
+      "Antes de migrar la base, el departamento de Datos quiere el listado exacto de los registros a corregir: los clientes cuyo correo **no** está guardado en minúsculas. Son los que generan cuentas duplicadas cuando alguien se registra dos veces escribiendo su correo de forma distinta. Te piden esa lista para corregirla antes de la migración.",
     business_question_md:
-      "Devuelve `id`, `full_name`, el correo tal como está guardado (`email`) y su versión en minúsculas en una columna `email_normalizado`, **solo** para los clientes cuyo correo almacenado difiere de su versión en minúsculas. El orden no importa.",
+      "Debes generar un dataset que devuelva el `id`, el `full_name`, el correo tal como está guardado en la columna `email` y su versión en minúsculas en una columna `email_normalizado`, **solamente** para los clientes cuyo correo almacenado difiere de su versión en minúsculas. El orden de las filas no importa.",
     learning_objective:
       "Comparar una columna de texto con su versión normalizada para detectar problemas de calidad.",
     theory_ref: normalizar,
@@ -128,13 +128,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Un texto ya escrito en minúsculas es idéntico a su versión en minúsculas. Los registros con problema son justamente aquellos donde esa igualdad no se cumple.",
+          "Un texto que ya está escrito en minúsculas es idéntico a su propia versión en minúsculas. Los registros con problema son justamente aquellos en los que esa igualdad no se cumple.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "En el `WHERE` compara la columna `email` con el resultado de aplicarle `LOWER()`, usando el operador de desigualdad `<>`. En el `SELECT` devuelve las dos versiones para que Datos pueda revisarlas lado a lado.",
+          "En la cláusula `WHERE` compara la columna `email` con el resultado de aplicarle la función `LOWER()`, usando el operador de desigualdad `<>`. En la lista de `SELECT` devuelve las dos versiones, para que el departamento de Datos pueda revisarlas una al lado de la otra.",
         ...defaultHintMeta(2),
       },
       {
@@ -148,26 +148,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "missing_filter",
         description_md:
-          "Omitir el `WHERE`: devuelves los 3000 clientes en vez de los que hay que corregir.",
+          "Omitir la cláusula `WHERE`: la consulta devuelve los 3000 clientes en lugar de los que hay que corregir.",
       },
       {
         category: "cell_values",
         description_md:
-          "Filtrar con `email = LOWER(email)`: obtienes exactamente el conjunto contrario, los correos que ya están bien.",
+          "Filtrar con la condición `email = LOWER(email)`: obtienes exactamente el conjunto contrario, es decir, los correos que ya están bien guardados.",
       },
       {
         category: "wrong_columns",
         description_md:
-          "Devolver solo el correo normalizado: sin el valor original, Datos no puede identificar qué cambió.",
+          "Devolver solo el correo normalizado: sin el valor original, el departamento de Datos no puede identificar qué cambió en cada registro.",
       },
       {
         category: "null_handling",
         description_md:
-          "Suponer que un correo NULL aparecería en el resultado: `NULL <> LOWER(NULL)` es NULL, no verdadero, así que quedaría fuera del filtro.",
+          "Suponer que un correo en `NULL` aparecería en el resultado: la comparación `NULL <> LOWER(NULL)` da `NULL`, no verdadero, así que esas filas quedan fuera del filtro.",
       },
     ],
     expert_explanation_md:
-      "39 filas. Son correos guardados íntegramente en mayúsculas (`JULIETA.CASTRO109@EJEMPLO.LAT`), un patrón típico de formularios cargados desde una app antigua.\n\nEl truco `columna <> FUNCION(columna)` sirve para cualquier regla de normalización: `city <> TRIM(city)` encuentra espacios sobrantes, `name <> INITCAP(name)` encuentra nombres mal capitalizados. Es la base de los controles de calidad que verás en la sección 32.\n\nUna aclaración importante: esta consulta detecta el formato incorrecto, no los duplicados. Saber **qué clientes comparten** el mismo correo normalizado requiere comparar filas entre sí (agrupar o subconsultas, secciones 15 y 21). Aquí el objetivo es aislar los registros sospechosos.",
+      "El resultado de la consulta da 39 filas. Son correos guardados íntegramente en mayúsculas, como `JULIETA.CASTRO109@EJEMPLO.LAT`, un patrón típico de formularios cargados desde una aplicación antigua.\n\nEl patrón `columna <> FUNCION(columna)` sirve para cualquier regla de normalización: la condición `city <> TRIM(city)` encuentra espacios sobrantes y la condición `name <> INITCAP(name)` encuentra nombres mal capitalizados. Es la base de los controles de calidad que vas a ver en la sección 32.\n\nUna aclaración importante: esta consulta detecta el formato incorrecto, no los duplicados. Saber **qué clientes comparten** el mismo correo normalizado requiere comparar filas entre sí, con agrupación o subconsultas, que son las secciones 15 y 21. Aquí el objetivo es aislar los registros sospechosos.",
     reward: defaultReward("easy"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -182,9 +182,9 @@ export const exercises: ExerciseDef[] = [
     dataset: tiendaviva,
     tables_used: ["customers"],
     scenario_md:
-      "Seguridad quiere saber desde qué proveedores de correo se registran los clientes: si aparece un dominio inesperado, puede indicar cuentas creadas de forma automática.",
+      "El departamento de Seguridad quiere saber desde qué proveedores de correo se registran los clientes: si aparece un dominio inesperado, puede ser una señal de cuentas creadas de forma automática. Te piden ese desglose para la base uruguaya, que es la que están auditando ahora.",
     business_question_md:
-      "Para los clientes de Uruguay (`country = 'UY'`), devuelve `id`, la parte del correo anterior a la `@` en una columna `usuario` y la parte posterior en una columna `dominio`. Trabaja siempre sobre el correo en minúsculas, para que los registros mal guardados no generen dominios duplicados. El orden no importa.",
+      "Debes generar un dataset que, para los clientes cuyo `country` es igual al texto `'UY'`, devuelva el `id`, la parte del correo anterior al carácter `@` en una columna `usuario` y la parte posterior en una columna `dominio`. Debes trabajar siempre sobre el correo pasado a minúsculas, para que los registros mal guardados no generen dominios duplicados. El orden de las filas no importa.",
     learning_objective:
       "Extraer partes de un texto separadas por un carácter usando SPLIT_PART (o POSITION con LEFT y SUBSTRING).",
     theory_ref: extraer,
@@ -210,19 +210,19 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Un correo es un texto partido en dos por un separador conocido. PostgreSQL tiene una función que devuelve directamente el trozo número N de un texto partido por un carácter; también puedes ubicar la `@` y cortar alrededor de esa posición.",
+          "Un correo electrónico es un texto partido en dos por un separador conocido. PostgreSQL tiene una función que devuelve directamente el trozo número N de un texto partido por un carácter; también puedes ubicar la posición del carácter `@` y cortar alrededor de ella.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "`SPLIT_PART(texto, separador, n)` numera los trozos desde 1: el usuario es el trozo 1 y el dominio el 2, usando `'@'` como separador. Aplica primero `LOWER()` al correo para que los 39 registros en mayúsculas no produzcan un dominio distinto.",
+          "La función `SPLIT_PART(texto, separador, n)` numera los trozos desde 1: el usuario es el trozo número 1 y el dominio es el número 2, usando el literal `'@'` como separador. Aplica primero la función `LOWER()` al correo, para que los 39 registros guardados en mayúsculas no produzcan un dominio distinto.",
         ...defaultHintMeta(2),
       },
       {
         level: 3,
         body_md:
-          "```sql\nSELECT id,\n       SPLIT_PART(___(email), '___', ___) AS usuario,\n       SPLIT_PART(___(email), '___', ___) AS dominio\nFROM customers;\n```",
+          "```sql\nSELECT id,\n       SPLIT_PART(___(email), '___', ___) AS usuario,\n       SPLIT_PART(___(email), '___', ___) AS dominio\nFROM customers\nWHERE country = '___';\n```",
         ...defaultHintMeta(3),
       },
     ],
@@ -230,26 +230,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "cell_values",
         description_md:
-          "Olvidar `LOWER`: los correos guardados en mayúsculas producen el dominio `EJEMPLO.LAT`, que parece un proveedor distinto.",
+          "Olvidar la función `LOWER`: los correos guardados en mayúsculas producen el dominio `EJEMPLO.LAT`, que en el reporte parece un proveedor distinto.",
       },
       {
         category: "cell_values",
         description_md:
-          "Incluir la `@` en alguna de las dos partes, por ejemplo cortando con `LEFT(email, POSITION('@' IN email))` sin restar 1.",
+          "Incluir el carácter `@` en alguna de las dos partes, por ejemplo cortando con `LEFT(email, POSITION('@' IN email))` sin restarle 1.",
       },
       {
         category: "cell_values",
         description_md:
-          "Numerar los trozos desde 0: `SPLIT_PART(..., '@', 0)` produce un error; la numeración empieza en 1.",
+          "Numerar los trozos desde 0: la expresión `SPLIT_PART(..., '@', 0)` produce un error, porque la numeración empieza en 1.",
       },
       {
         category: "wrong_columns",
         description_md:
-          "Devolver también `email`: la consigna pide exactamente tres columnas, y la herramienta de Seguridad las carga por posición.",
+          "Devolver también la columna `email`: la consigna pide exactamente tres columnas, y la herramienta de Seguridad las carga por posición.",
       },
     ],
     expert_explanation_md:
-      "3000 filas. El hallazgo es que **todos** los dominios son `ejemplo.lat`: no hay proveedores externos ni variantes sospechosas, y eso es exactamente lo que Seguridad quería confirmar.\n\n`SPLIT_PART` y la pareja `POSITION` + `SUBSTRING` son equivalentes aquí y ninguna es «la correcta»: `SPLIT_PART` se lee mejor y no falla si el separador no existe (devuelve cadena vacía), mientras que `POSITION` te permite decidir qué hacer cuando el separador falta, porque devuelve 0.\n\nCuidado con ese 0: si un texto no tuviera `@`, `LEFT(email, 0 - 1)` no da error, devuelve el texto sin su último carácter. Un valor incorrecto que nadie nota es peor que un error.",
+      "El resultado de la consulta da 123 filas, una por cliente uruguayo. El hallazgo es que **todos** los dominios son `ejemplo.lat`: no hay proveedores externos ni variantes sospechosas, y eso es exactamente lo que Seguridad quería confirmar.\n\nLa función `SPLIT_PART` y la pareja formada por `POSITION` y `SUBSTRING` son equivalentes en este caso, y ninguna es la correcta por sí sola: `SPLIT_PART` se lee mejor y no falla si el separador no existe, porque devuelve una cadena vacía, mientras que `POSITION` te permite decidir qué hacer cuando el separador falta, porque en ese caso devuelve 0.\n\nCuidado con ese 0: si un texto no tuviera el carácter `@`, la expresión `LEFT(email, 0 - 1)` no da error, sino que devuelve el texto sin su último carácter. Un valor incorrecto que nadie nota es peor que un error que detiene la consulta.",
     reward: defaultReward("easy"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -264,9 +264,9 @@ export const exercises: ExerciseDef[] = [
     dataset: tiendaviva,
     tables_used: ["sellers"],
     scenario_md:
-      "Producto va a mostrar el nombre de cada tienda en la portada de la app. Los nombres guardados terminan con un número interno (`Rincón Urbano 6`) que no debe verse. Además, el espacio disponible en el diseño es limitado, así que piden también cuántos caracteres ocupa el nombre limpio.",
+      "El departamento de Producto va a mostrar el nombre de cada tienda en la portada de la aplicación. Los nombres guardados terminan con un número interno, como en `Rincón Urbano 6`, que no debe verse. Además, el espacio disponible en el diseño es limitado, así que también te piden cuántos caracteres ocupa el nombre ya limpio.",
     business_question_md:
-      "Devuelve, para cada vendedor, su `id`, el `store_name` original, el nombre sin el número final ni el espacio que lo precede en una columna `nombre_comercial`, y la cantidad de caracteres de ese nombre limpio en una columna `largo`. El orden no importa.",
+      "Debes generar un dataset que devuelva, para cada vendedor, su `id`, el `store_name` original, el nombre sin el número final ni el espacio que lo precede en una columna `nombre_comercial`, y la cantidad de caracteres de ese nombre limpio en una columna `largo`. El orden de las filas no importa.",
     learning_objective:
       "Limpiar el final de un texto con TRIM sobre un conjunto de caracteres y medir el resultado con LENGTH.",
     theory_ref: normalizar,
@@ -293,13 +293,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "El número siempre está al final, pero no siempre tiene la misma cantidad de dígitos, así que cortar una cantidad fija de caracteres no sirve. Piensa en una limpieza que elimine del extremo derecho cualquier carácter que pertenezca a un conjunto (dígitos y espacio).",
+          "El número siempre está al final, pero no siempre tiene la misma cantidad de dígitos, así que cortar una cantidad fija de caracteres no sirve. Piensa en una limpieza que elimine desde el extremo derecho cualquier carácter que pertenezca a un conjunto, en este caso los dígitos y el espacio.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "`RTRIM(texto, caracteres)` elimina por la derecha todos los caracteres que aparezcan en el segundo argumento, hasta encontrar uno que no esté en la lista. Arma ese conjunto con los diez dígitos y el espacio. Para `largo`, aplica `LENGTH` sobre la misma expresión ya limpia, no sobre `store_name`.",
+          "La función `RTRIM(texto, caracteres)` elimina por la derecha todos los caracteres que aparezcan en el segundo argumento, hasta encontrar uno que no esté en esa lista. Arma ese conjunto con los diez dígitos y el espacio. Para la columna `largo`, aplica `LENGTH` sobre la misma expresión ya limpia, no sobre `store_name`.",
         ...defaultHintMeta(2),
       },
       {
@@ -313,26 +313,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "cell_values",
         description_md:
-          "Usar `LEFT(store_name, LENGTH(store_name) - 2)`: funciona con los ids de un dígito y corta letras cuando el id tiene dos o tres.",
+          "Usar `LEFT(store_name, LENGTH(store_name) - 2)`: funciona con los identificadores de un dígito y corta letras del nombre cuando el identificador tiene dos o tres.",
       },
       {
         category: "cell_values",
         description_md:
-          "Calcular `LENGTH(store_name)`: mide el nombre con el número incluido, no el que se va a mostrar.",
+          "Calcular `LENGTH(store_name)`: mide el nombre con el número incluido, no el nombre que se va a mostrar en la portada.",
       },
       {
         category: "cell_values",
         description_md:
-          "Usar `REPLACE(store_name, '0123456789', '')`: `REPLACE` busca la cadena completa, no cada carácter por separado, así que no elimina nada.",
+          "Usar `REPLACE(store_name, '0123456789', '')`: la función `REPLACE` busca la cadena completa y no cada carácter por separado, así que no elimina nada.",
       },
       {
         category: "wrong_columns",
         description_md:
-          "Omitir `store_name` original: Producto lo necesita para comparar antes de publicar el cambio.",
+          "Omitir la columna `store_name` original: el departamento de Producto la necesita para comparar antes y después de publicar el cambio.",
       },
     ],
     expert_explanation_md:
-      "180 filas, una por vendedor. `RTRIM(store_name, ' 0123456789')` lee el nombre de derecha a izquierda y descarta caracteres mientras pertenezcan al conjunto indicado: primero los dígitos, después el espacio, y se detiene en la primera letra. Por eso funciona igual con `Bazar Urbano 3` y con `Rincón Tropical 124`.\n\nLas tres soluciones dan el mismo resultado en este dataset, pero no son igual de robustas: la variante con `LENGTH(id::text)` depende de que el sufijo sea exactamente el `id`, y la de `REPLACE` fallaría si el número también apareciera en el medio del nombre. `RTRIM` solo asume «al final hay dígitos y espacios».\n\nMira `Rincón Urbano`: `LENGTH` devuelve 13 porque cuenta **caracteres**, y la `ó` es uno solo. `OCTET_LENGTH` devolvería 14, porque en UTF-8 esa letra ocupa dos bytes. Para validar un límite de diseño quieres caracteres; para dimensionar almacenamiento, bytes.",
+      "El resultado de la consulta da 180 filas, una por vendedor. La expresión `RTRIM(store_name, ' 0123456789')` lee el nombre de derecha a izquierda y descarta caracteres mientras pertenezcan al conjunto indicado: primero los dígitos, después el espacio, y se detiene en la primera letra. Por eso funciona igual con `Bazar Urbano 3` y con `Rincón Tropical 124`.\n\nLas tres soluciones dan el mismo resultado en este dataset, pero no son igual de robustas: la variante que usa `LENGTH(id::text)` depende de que el sufijo sea exactamente el identificador, y la que usa `REPLACE` fallaría si el mismo número apareciera también en el medio del nombre. La función `RTRIM` solo asume que al final hay dígitos y espacios.\n\nMira el caso de `Rincón Urbano`: la función `LENGTH` devuelve 13 porque cuenta **caracteres**, y la letra `ó` es uno solo. La función `OCTET_LENGTH` devolvería 14, porque en la codificación UTF-8 esa letra ocupa dos bytes. Para validar un límite de diseño quieres contar caracteres; para dimensionar almacenamiento, bytes.",
     reward: defaultReward("intermediate"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -347,9 +347,9 @@ export const exercises: ExerciseDef[] = [
     dataset: bolsillo,
     tables_used: ["transactions"],
     scenario_md:
-      "En **Bolsillo**, cada movimiento de transferencia guarda en `description` un texto del tipo `Transferencia #1841`, donde el número es la referencia que el usuario ve en el comprobante. Soporte necesita esa referencia en una columna propia para poder buscarla, y quiere ver el tipo de movimiento con una palabra entendible en lugar de `transfer_in` / `transfer_out`.",
+      "En **Bolsillo**, cada movimiento de transferencia guarda en la columna `description` un texto del tipo `Transferencia #1841`, donde el número es la referencia que el usuario ve en el comprobante. El departamento de Soporte necesita esa referencia en una columna propia para poder buscarla, y quiere ver el tipo de movimiento con una palabra entendible en lugar de los códigos `transfer_in` y `transfer_out`. Te piden ese listado para las transferencias de importe alto, que son las que más consultas generan.",
     business_question_md:
-      "Para los movimientos cuyo `kind` es `transfer_in` o `transfer_out` **y cuyo importe supera los 900 000 centavos**, devuelve `id`, `account_id`, la referencia numérica extraída de `description` en una columna `referencia` (como texto, sin el `#`) y una columna `tipo` que valga `Enviada` para `transfer_out` y `Recibida` para `transfer_in`. El orden no importa.",
+      "Debes generar un dataset que, tomando los movimientos cuyo `kind` es `'transfer_in'` o `'transfer_out'` **y cuyo `amount` supera los 900 000 centavos**, devuelva el `id`, el `account_id`, la referencia numérica extraída de `description` en una columna `referencia`, como texto y sin el carácter `#`, y una columna `tipo` que valga `Enviada` para el tipo `'transfer_out'` y `Recibida` para el tipo `'transfer_in'`. El orden de las filas no importa.",
     learning_objective:
       "Combinar extracción por separador y reemplazo de valores para convertir texto técnico en información legible.",
     theory_ref: extraer,
@@ -382,13 +382,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 2,
         body_md:
-          "Para la referencia, parte `description` por `'#'` y quédate con el segundo trozo (o corta desde la posición del `#` más uno). Para el tipo, anida dos `REPLACE`: el resultado del primero es el argumento del segundo. Filtra con `kind IN (...)`.",
+          "Para la referencia, parte la columna `description` por el literal `'#'` y quédate con el segundo trozo, o corta desde la posición del `#` más uno. Para el tipo, anida dos llamadas a `REPLACE`: el resultado de la primera es el argumento de la segunda. Filtra con la condición `kind IN (...)`.",
         ...defaultHintMeta(2),
       },
       {
         level: 3,
         body_md:
-          "```sql\nSELECT id,\n       account_id,\n       SPLIT_PART(description, '___', ___) AS referencia,\n       ___(___(kind, '___', '___'), '___', '___') AS tipo\nFROM transactions\nWHERE kind ___ (___, ___);\n```",
+          "```sql\nSELECT id,\n       account_id,\n       SPLIT_PART(description, '___', ___) AS referencia,\n       ___(___(kind, '___', '___'), '___', '___') AS tipo\nFROM transactions\nWHERE kind ___ (___, ___)\n  AND amount > ___;\n```",
         ...defaultHintMeta(3),
       },
     ],
@@ -396,26 +396,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "missing_filter",
         description_md:
-          "No filtrar por `kind`: los movimientos de tipo `topup`, `fee` o `reversal` también tienen `description`, pero sin `#`, y producen referencias vacías.",
+          "No filtrar por la columna `kind`: los movimientos de tipo `'topup'`, `'fee'` o `'reversal'` también tienen descripción, pero sin el carácter `#`, y producen referencias vacías.",
       },
       {
         category: "cell_values",
         description_md:
-          "Dejar el `#` dentro de `referencia` (por ejemplo con `SUBSTRING(description FROM POSITION('#' IN description))`, sin sumar 1).",
+          "Dejar el carácter `#` dentro de la columna `referencia`, por ejemplo escribiendo `SUBSTRING(description FROM POSITION('#' IN description))` sin sumarle 1.",
       },
       {
         category: "cell_values",
         description_md:
-          "Aplicar los dos `REPLACE` por separado sobre `kind` en vez de anidarlos: el segundo pierde el cambio del primero.",
+          "Aplicar las dos llamadas a `REPLACE` por separado sobre `kind` en lugar de anidarlas: la segunda pierde el cambio que hizo la primera.",
       },
       {
         category: "cell_values",
         description_md:
-          "Reemplazar primero `'transfer_in'`: no afecta a `transfer_out`, pero conviene revisar siempre el orden cuando un texto buscado es prefijo de otro.",
+          "Reemplazar primero el texto `'transfer_in'`: en este caso no afecta al valor `'transfer_out'`, pero conviene revisar siempre el orden cuando un texto buscado es prefijo de otro.",
       },
     ],
     expert_explanation_md:
-      "8646 filas: 4323 transferencias, cada una con su movimiento de salida y su movimiento de entrada, por lo que cada referencia aparece exactamente dos veces.\n\n`SPLIT_PART(description, '#', 2)` devuelve **texto**, no un número: si Soporte necesitara ordenarlo numéricamente habría que convertirlo con `CAST(... AS integer)`. Para buscar un comprobante, el texto alcanza.\n\nEl filtro por `kind` y el filtro `description LIKE 'Transferencia #%'` devuelven las mismas 8646 filas en este dataset, pero no son lo mismo: el primero se apoya en un campo controlado y el segundo en texto libre, que cualquier cambio de redacción rompería. Cuando existe una columna de estado o tipo, filtra por ella.\n\nAnidar `REPLACE` funciona bien para dos valores; con más reglas, `CASE` (sección 12) es mucho más legible y no corre el riesgo de que un reemplazo pise al anterior.",
+      "El resultado de la consulta da 184 filas, que corresponden a 92 transferencias de importe alto: cada una aparece dos veces, una con su movimiento de salida y otra con su movimiento de entrada, así que cada referencia se repite exactamente dos veces.\n\nLa expresión `SPLIT_PART(description, '#', 2)` devuelve **texto** y no un número: si Soporte necesitara ordenarlo numéricamente habría que convertirlo con `CAST(... AS integer)`. Para buscar un comprobante, el texto alcanza.\n\nEl filtro por la columna `kind` y el filtro `description LIKE 'Transferencia #%'` devuelven las mismas 184 filas en este dataset, pero no son lo mismo: el primero se apoya en un campo controlado y el segundo en texto libre, que cualquier cambio de redacción rompería. Cuando existe una columna de estado o de tipo, conviene filtrar por ella.\n\nAnidar llamadas a `REPLACE` funciona bien para dos valores; con más reglas, la expresión `CASE`, que viste en la sección 12, es mucho más legible y no corre el riesgo de que un reemplazo pise al anterior.",
     reward: defaultReward("intermediate"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,

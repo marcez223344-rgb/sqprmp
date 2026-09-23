@@ -240,6 +240,21 @@ export function loadContent(): LoadedContent {
     }
   }
 
+  // D-37: a section's quiz length must leave `minUnseenOnRetry` questions outside any single
+  // attempt, otherwise a retry re-asks what the failed attempt already answered for the learner.
+  for (const s of sections) {
+    const bank = questions.filter((q) => q.section === s.slug && q.is_published).length;
+    if (!bank) continue;
+    const length = s.quiz_questions ?? limits.quiz.questionsPerAttempt;
+    const needed = length + limits.quiz.minUnseenOnRetry;
+    if (bank < needed)
+      issues.push({
+        kind: "section",
+        slug: s.slug,
+        message: `quiz of ${length} questions needs a bank of ${needed}+ published questions (has ${bank})`,
+      });
+  }
+
   // Cycle detection on lesson prerequisites and section requires.
   const detectCycle = (nodes: { id: string; deps: string[] }[], kind: ContentIssue["kind"]) => {
     const state = new Map<string, 0 | 1 | 2>();

@@ -21,9 +21,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["orders"],
     scenario_md:
-      "El panel de Operaciones de **Pídelo** empieza con el número más básico: cuántos pedidos hay en cada estado.",
+      "El departamento de Operaciones de **Pídelo** está armando un panel de seguimiento y quiere empezar por el número más básico de todos: cuántos pedidos hay en cada estado. Te piden ese conteo para saber sobre qué volumen se está trabajando.",
     business_question_md:
-      "Devuelve `status` y la cantidad de pedidos como `pedidos`, una fila por estado, ordenadas de mayor a menor `pedidos`.",
+      "Debes generar un dataset que devuelva el `status` y la cantidad de pedidos bajo el encabezado `pedidos`, con una fila por cada estado, ordenadas de mayor a menor cantidad de pedidos.",
     learning_objective: "Agrupar por una columna y contar por grupo.",
     theory_ref: basico,
     expected_columns: [
@@ -37,12 +37,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "`GROUP BY status` crea un grupo por cada estado; `count(*)` cuenta dentro de cada grupo.",
+          "La cláusula `GROUP BY status` crea un grupo por cada valor distinto de estado, y la función `count(*)` cuenta las filas que hay dentro de cada grupo.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
-        body_md: "El alias del conteo puede usarse en `ORDER BY`. Recuerda `DESC`.",
+        body_md:
+          "El alias que le pongas al conteo puede usarse en la cláusula `ORDER BY`. Recuerda agregar `DESC` para que el orden sea de mayor a menor.",
         ...defaultHintMeta(2),
       },
       {
@@ -55,19 +56,22 @@ export const exercises: ExerciseDef[] = [
     common_mistakes: [
       {
         category: "syntax",
-        description_md: "Olvidar `GROUP BY`: error «must appear in the GROUP BY clause».",
+        description_md:
+          "Olvidar la cláusula `GROUP BY`: PostgreSQL devuelve el error «must appear in the GROUP BY clause», porque no sabe cómo combinar una columna suelta con una agregación.",
       },
       {
         category: "wrong_order",
-        description_md: "Ordenar por `status` o no ordenar.",
+        description_md:
+          "Ordenar por `status`, o no ordenar en absoluto: el reporte deja de mostrar primero los estados más frecuentes, que es lo que pidió el negocio.",
       },
       {
         category: "wrong_columns",
-        description_md: "No poner el alias `pedidos`.",
+        description_md:
+          "No ponerle el alias `pedidos` a la columna del conteo: el encabezado no coincide con el pedido.",
       },
     ],
     expert_explanation_md:
-      "Dos filas: 13 284 entregados y 1153 cancelados (8 % de cancelación). No hay pedidos en curso en la foto del dataset.\n\nEs la consulta de control más útil antes de cualquier análisis: te dice qué estados existen y cuánto pesa cada uno.",
+      "El resultado de la consulta da dos filas: 13 284 pedidos entregados y 1153 pedidos cancelados, es decir, un 8 % de cancelación. En la foto que toma este dataset no hay pedidos en curso.\n\nEsta es la consulta de control más útil antes de cualquier análisis: te dice qué estados existen realmente en los datos y cuánto pesa cada uno.",
     reward: defaultReward("easy"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -82,9 +86,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["orders"],
     scenario_md:
-      "Finanzas negocia comisiones con los procesadores de pago y quiere saber cuánto se usa cada método, solo en pedidos entregados.",
+      "El departamento de Finanzas está negociando comisiones con los procesadores de pago y quiere saber cuánto se usa cada método, tomando solamente los pedidos que llegaron a entregarse. Te piden ese resumen para llegar a la negociación con números propios.",
     business_question_md:
-      "Para los pedidos con `status = 'delivered'`, devuelve `payment_method`, la cantidad de pedidos como `pedidos` y los clientes distintos como `clientes`, ordenado por `pedidos` descendente.",
+      "Debes generar un dataset que, tomando únicamente los pedidos cuyo `status` es igual al texto `'delivered'`, devuelva el `payment_method`, la cantidad de pedidos bajo el encabezado `pedidos` y la cantidad de clientes distintos bajo el encabezado `clientes`, ordenado por `pedidos` descendente.",
     learning_objective: "Combinar WHERE, GROUP BY y count(DISTINCT) por grupo.",
     theory_ref: basico,
     expected_columns: [
@@ -101,13 +105,14 @@ export const exercises: ExerciseDef[] = [
     hints: [
       {
         level: 1,
-        body_md: "El filtro por estado va en `WHERE`, antes de agrupar.",
+        body_md:
+          "El filtro por estado va en la cláusula `WHERE`, porque debe aplicarse antes de armar los grupos.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Dentro de cada grupo, `count(DISTINCT customer_id)` cuenta clientes únicos de ese método.",
+          "Dentro de cada grupo, la expresión `count(DISTINCT customer_id)` cuenta cuántos clientes únicos usaron ese método de pago.",
         ...defaultHintMeta(2),
       },
       {
@@ -120,19 +125,22 @@ export const exercises: ExerciseDef[] = [
     common_mistakes: [
       {
         category: "missing_filter",
-        description_md: "Sin `WHERE`, los cancelados inflan los conteos.",
+        description_md:
+          "No escribir la cláusula `WHERE`: los pedidos cancelados inflan los conteos y la negociación se apoya en números equivocados.",
       },
       {
         category: "cell_values",
-        description_md: "`count(customer_id)` sin `DISTINCT` repite el número de pedidos.",
+        description_md:
+          "Escribir `count(customer_id)` sin la palabra clave `DISTINCT`: la columna `clientes` repite exactamente el número de pedidos.",
       },
       {
         category: "wrong_order",
-        description_md: "Ordenar por `clientes` o ascendente.",
+        description_md:
+          "Ordenar por la columna `clientes`, o en forma ascendente: el reporte deja de mostrar primero el método más usado.",
       },
     ],
     expert_explanation_md:
-      "Tres filas: tarjeta, billetera y efectivo. La suma de `clientes` de las tres filas supera los clientes distintos totales porque una misma persona puede pagar con varios métodos: los `count(DISTINCT)` por grupo no son aditivos.\n\nNo calculamos `avg(total)` por método: mezclaría las monedas de las ocho ciudades.",
+      "El resultado de la consulta da tres filas, una por cada método de pago: tarjeta, billetera y efectivo. La suma de la columna `clientes` de las tres filas supera la cantidad total de clientes distintos, porque una misma persona puede pagar con varios métodos: los valores de `count(DISTINCT ...)` calculados por grupo no se pueden sumar entre sí.\n\nNo calculamos el promedio de `total_amount` por método a propósito: mezclaría las monedas de las ocho ciudades y el número no significaría nada.",
     reward: defaultReward("easy"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -147,9 +155,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["ratings"],
     scenario_md:
-      "Producto quiere ver la distribución de estrellas que reciben los restaurantes, sin contar las calificaciones donde ese puntaje falta.",
+      "El departamento de Producto quiere ver la distribución de estrellas que reciben los restaurantes, sin contar las calificaciones en las que ese puntaje no fue cargado. Te piden esa distribución para decidir si conviene cambiar la escala de calificación.",
     business_question_md:
-      "Devuelve `restaurant_rating` y la cantidad de calificaciones con ese puntaje como `cantidad`, solo para filas donde `restaurant_rating` no es NULL, ordenado por `restaurant_rating` ascendente.",
+      "Debes generar un dataset que devuelva el `restaurant_rating` y la cantidad de calificaciones con ese puntaje bajo el encabezado `cantidad`, tomando únicamente las filas en las que la columna `restaurant_rating` no está en `NULL`, ordenado por `restaurant_rating` ascendente.",
     learning_objective: "Excluir el grupo NULL antes de agrupar y ordenar por la clave del grupo.",
     theory_ref: basico,
     expected_columns: [
@@ -162,13 +170,14 @@ export const exercises: ExerciseDef[] = [
     hints: [
       {
         level: 1,
-        body_md: "Sin filtro, `GROUP BY` crearía un sexto grupo para los NULL.",
+        body_md:
+          "Sin ningún filtro, la cláusula `GROUP BY` crearía un sexto grupo que junta todas las filas con `NULL`.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "`WHERE restaurant_rating IS NOT NULL` antes del `GROUP BY`; ordena por el puntaje.",
+          "Escribe la condición `WHERE restaurant_rating IS NOT NULL` antes del `GROUP BY`, y ordena el resultado por el puntaje.",
         ...defaultHintMeta(2),
       },
       {
@@ -181,19 +190,22 @@ export const exercises: ExerciseDef[] = [
     common_mistakes: [
       {
         category: "null_handling",
-        description_md: "Omitir el filtro: aparece una fila NULL con 777 calificaciones.",
+        description_md:
+          "Omitir el filtro: aparece una fila adicional con `NULL` como puntaje y 777 calificaciones, que no corresponde a ninguna estrella.",
       },
       {
         category: "null_handling",
-        description_md: "`restaurant_rating <> NULL`: nunca es verdadero, devuelve 0 filas.",
+        description_md:
+          "Escribir `restaurant_rating <> NULL`: esa comparación nunca puede dar verdadero y la consulta devuelve 0 filas.",
       },
       {
         category: "wrong_order",
-        description_md: "Ordenar por `cantidad`.",
+        description_md:
+          "Ordenar por la columna `cantidad`: la distribución deja de leerse de 1 a 5 estrellas, que es la forma natural de mirarla.",
       },
     ],
     expert_explanation_md:
-      "Cinco filas, de 1 a 5 estrellas, con una distribución cargada hacia 4 y 5 (típica de plataformas donde calificar es opcional). Las 3 calificaciones de una estrella merecen lectura individual más que estadística.\n\nUsar `count(*)` aquí es correcto porque ya filtraste los NULL; `count(restaurant_rating)` daría lo mismo.",
+      "El resultado de la consulta da cinco filas, de 1 a 5 estrellas, con una distribución cargada hacia el 4 y el 5, que es lo típico de las plataformas donde calificar es opcional. Las 3 calificaciones de una estrella merecen una lectura caso por caso más que un tratamiento estadístico.\n\nUsar `count(*)` aquí es correcto porque ya filtraste los valores `NULL` antes de agrupar; escribir `count(restaurant_rating)` daría exactamente lo mismo.",
     reward: defaultReward("easy"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -207,9 +219,10 @@ export const exercises: ExerciseDef[] = [
     concepts: ["group_by", "aggregate", "date_functions", "where"],
     dataset,
     tables_used: ["orders"],
-    scenario_md: "Dirección sigue la evolución mensual de pedidos y clientes activos durante 2025.",
+    scenario_md:
+      "La dirección de **Pídelo** sigue la evolución mensual de pedidos y de clientes activos durante 2025. Te piden esa serie mensual para presentarla en el comité y decidir el presupuesto del próximo trimestre.",
     business_question_md:
-      "Para los pedidos con `placed_at` desde el 2025-01-01, devuelve el mes como `mes` (fecha del primer día del mes, tipo `date`), la cantidad de pedidos como `pedidos` y los clientes distintos como `clientes`, ordenado por `mes` ascendente.",
+      "Debes generar un dataset que, tomando los pedidos cuya columna `placed_at` es posterior o igual al `'2025-01-01'`, devuelva el mes bajo el encabezado `mes`, expresado como la fecha del primer día del mes y de tipo `date`, la cantidad de pedidos bajo el encabezado `pedidos` y la cantidad de clientes distintos bajo el encabezado `clientes`, ordenado por `mes` ascendente.",
     learning_objective:
       "Agrupar por una expresión de fecha (date_trunc) para construir una serie mensual.",
     theory_ref: reportes,
@@ -231,13 +244,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "`date_trunc('month', placed_at)` lleva cada pedido al primer instante de su mes; `::date` lo deja como fecha.",
+          "La función `date_trunc('month', placed_at)` lleva cada pedido al primer instante de su mes, y la conversión `::date` deja ese valor como una fecha sin hora.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "En PostgreSQL puedes agrupar por el alias: `GROUP BY mes`. Filtra desde el 1 de enero de 2025.",
+          "En PostgreSQL puedes agrupar directamente por el alias, escribiendo `GROUP BY mes`. Recuerda filtrar desde el 1 de enero de 2025.",
         ...defaultHintMeta(2),
       },
       {
@@ -251,19 +264,21 @@ export const exercises: ExerciseDef[] = [
       {
         category: "cell_values",
         description_md:
-          "Devolver `mes` como timestamp (sin `::date`): las celdas no coinciden con el tipo pedido.",
+          "Devolver la columna `mes` como marca de tiempo, sin la conversión `::date`: las celdas no coinciden con el tipo de dato que pide la consigna.",
       },
       {
         category: "aggregation_level",
-        description_md: "`GROUP BY placed_at`: un grupo por instante, miles de filas.",
+        description_md:
+          "Escribir `GROUP BY placed_at`: se arma un grupo por cada instante distinto y el resultado tiene miles de filas en lugar de una por mes.",
       },
       {
         category: "missing_filter",
-        description_md: "Olvidar el filtro y devolver también 2024.",
+        description_md:
+          "Olvidar el filtro de fecha: el resultado incluye también los meses de 2024 y la serie deja de ser la del año pedido.",
       },
     ],
     expert_explanation_md:
-      "Nueve filas, de enero a septiembre de 2025, con crecimiento sostenido hasta agosto y un septiembre parcial (el dataset termina el 15). Un analista señalaría el mes incompleto antes de que alguien lea «caída» en el gráfico.\n\n`date_trunc` sobre `timestamptz` usa la zona horaria de la sesión (UTC aquí); en producción, fija la zona del negocio antes de agrupar por día.",
+      "El resultado de la consulta da nueve filas, de enero a septiembre de 2025, con crecimiento sostenido hasta agosto y un septiembre parcial, porque el dataset termina el día 15. Un analista señalaría ese mes incompleto antes de que alguien interprete una caída al mirar el gráfico.\n\nLa función `date_trunc` aplicada sobre una columna de tipo `timestamptz` usa la zona horaria de la sesión, que aquí es UTC; en producción conviene fijar explícitamente la zona horaria del negocio antes de agrupar por día.",
     reward: defaultReward("intermediate"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -277,9 +292,10 @@ export const exercises: ExerciseDef[] = [
     concepts: ["group_by", "aggregate", "where", "order_by", "limit"],
     dataset,
     tables_used: ["orders"],
-    scenario_md: "Comercial premia a los restaurantes con más pedidos entregados.",
+    scenario_md:
+      "El departamento Comercial quiere premiar a los restaurantes con más pedidos entregados y te pide el ranking para definir a quién invitar al programa de reconocimiento.",
     business_question_md:
-      "Devuelve `restaurant_id` y la cantidad de pedidos entregados (`status = 'delivered'`) como `entregados` para los **10** restaurantes con más entregas, ordenado por `entregados` descendente y, en caso de empate, por `restaurant_id` ascendente.",
+      "Debes generar un dataset que devuelva el `restaurant_id` y la cantidad de pedidos cuyo `status` es igual al texto `'delivered'` bajo el encabezado `entregados`, para los **10** restaurantes con más entregas, ordenado por `entregados` descendente y, si dos restaurantes empatan, debes desempatar usando `restaurant_id` ascendente.",
     learning_objective: "Rankear grupos con ORDER BY + LIMIT y desempate determinista.",
     theory_ref: reportes,
     expected_columns: [
@@ -292,13 +308,14 @@ export const exercises: ExerciseDef[] = [
     hints: [
       {
         level: 1,
-        body_md: "Agrupa por restaurante, cuenta, ordena de mayor a menor y corta con `LIMIT`.",
+        body_md:
+          "La receta tiene cuatro pasos: agrupa por restaurante, cuenta las filas de cada grupo, ordena de mayor a menor y corta el resultado con la cláusula `LIMIT`.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Agrega `restaurant_id` como segundo criterio de orden para que los empates sean reproducibles.",
+          "Agrega `restaurant_id` como segundo criterio de ordenamiento para que los empates se resuelvan siempre de la misma manera.",
         ...defaultHintMeta(2),
       },
       {
@@ -311,19 +328,22 @@ export const exercises: ExerciseDef[] = [
     common_mistakes: [
       {
         category: "wrong_order",
-        description_md: "Sin el desempate por `restaurant_id`, el décimo lugar puede variar.",
+        description_md:
+          "Omitir el desempate por `restaurant_id`: cuando hay empate en el borde del ranking, el décimo lugar puede cambiar de una ejecución a otra.",
       },
       {
         category: "missing_filter",
-        description_md: "Contar también cancelados.",
+        description_md:
+          "Contar también los pedidos cancelados: el ranking deja de medir entregas y premia a quien más pedidos perdió.",
       },
       {
         category: "row_count",
-        description_md: "Olvidar `LIMIT 10`.",
+        description_md:
+          "Olvidar la cláusula `LIMIT 10`: el resultado trae los 400 restaurantes en lugar de los diez primeros.",
       },
     ],
     expert_explanation_md:
-      "Los diez primeros tienen entre 65 y 72 entregas. Con empates en el borde del top 10, el segundo criterio decide quién entra: sin él, dos ejecuciones podrían dar listas distintas y nadie sabría por qué.\n\nEn la sección 26 harás este mismo ranking con `rank()` para que los empates compartan posición.",
+      "El resultado de la consulta muestra que los diez primeros restaurantes tienen entre 65 y 72 entregas. Como hay empates justo en el borde del top 10, el segundo criterio de ordenamiento es el que decide quién entra: sin él, dos ejecuciones podrían devolver listas distintas y nadie sabría explicar por qué.\n\nEn la sección 26 vas a armar este mismo ranking con la función `rank()`, para que los restaurantes empatados compartan posición en lugar de competir por un lugar.",
     reward: defaultReward("intermediate"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -338,9 +358,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["orders"],
     scenario_md:
-      "Marketing sospecha que algunas promociones de un solo uso se están reutilizando. Un primer indicio: si una promoción tiene más usos que clientes distintos, alguien la usó más de una vez.",
+      "El departamento de Marketing sospecha que algunas promociones pensadas para un solo uso se están reutilizando. Un primer indicio es simple: si una promoción tiene más usos que clientes distintos, entonces alguien la usó más de una vez. Te piden ese cruce para confirmar o descartar la sospecha.",
     business_question_md:
-      "Para los pedidos con `promotion_id` no NULL, devuelve `promotion_id`, la cantidad de pedidos como `usos`, los clientes distintos como `clientes` y la diferencia `usos - clientes` como `reusos`, ordenado por `reusos` descendente y luego por `promotion_id`.",
+      "Debes generar un dataset que, tomando los pedidos cuya columna `promotion_id` no está en `NULL`, devuelva el `promotion_id`, la cantidad de pedidos bajo el encabezado `usos`, la cantidad de clientes distintos bajo el encabezado `clientes` y la resta entre ambos valores bajo el encabezado `reusos`, ordenado por `reusos` descendente y, si dos promociones empatan, debes desempatar usando `promotion_id` ascendente.",
     learning_objective:
       "Comparar count(*) con count(DISTINCT) por grupo para detectar repeticiones.",
     theory_ref: reportes,
@@ -357,13 +377,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Dos agregados por grupo y una resta entre ellos; los alias no se pueden usar en la resta, repite las expresiones.",
+          "Necesitas dos agregados por grupo y una resta entre ellos. Los alias no se pueden usar dentro de la misma lista de `SELECT`, así que tienes que repetir las dos expresiones completas en la resta.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Filtra los NULL en `WHERE` para no obtener un grupo «sin promoción». Ordena por la diferencia.",
+          "Filtra los valores `NULL` en la cláusula `WHERE` para no obtener un grupo que junte todos los pedidos sin promoción. Después ordena por la diferencia.",
         ...defaultHintMeta(2),
       },
       {
@@ -377,20 +397,21 @@ export const exercises: ExerciseDef[] = [
       {
         category: "syntax",
         description_md:
-          "`usos - clientes` usando los alias: los alias no existen dentro del mismo `SELECT`.",
+          "Escribir la resta como `usos - clientes` usando los alias: los alias todavía no existen dentro del mismo `SELECT` y PostgreSQL devuelve un error de columna inexistente.",
       },
       {
         category: "null_handling",
         description_md:
-          "Sin el filtro aparece una fila con `promotion_id` NULL y miles de «reusos».",
+          "Omitir el filtro: aparece una fila con `promotion_id` en `NULL` que agrupa todos los pedidos sin promoción y muestra miles de supuestos reusos.",
       },
       {
         category: "wrong_order",
-        description_md: "Ordenar solo por `reusos` sin desempate.",
+        description_md:
+          "Ordenar solo por `reusos` sin agregar un desempate: el orden entre promociones con la misma diferencia no está garantizado.",
       },
     ],
     expert_explanation_md:
-      "Seis promociones. Las de más uso (ENVIOGRATIS, FINDE) no tienen tope por cliente, así que sus reusos son legítimos; las que sí tienen tope (BIENVENIDA = 1 uso) muestran reusos que son abuso real. Distinguirlo exige unir con `promotions` (sección 17) y comparar contra `max_uses_per_customer`.\n\nEl patrón `count(*) - count(DISTINCT x)` es una herramienta de auditoría rápida en cualquier tabla de eventos.",
+      "El resultado de la consulta da seis promociones. Las de mayor uso, `ENVIOGRATIS` y `FINDE`, no tienen tope por cliente, así que sus reusos son legítimos; en cambio, las que sí tienen tope, como `BIENVENIDA` con un solo uso permitido, muestran reusos que son abuso real. Distinguir un caso del otro exige unir con la tabla `promotions`, que vas a ver en la sección 17, y comparar contra la columna `max_uses_per_customer`.\n\nEl patrón `count(*) - count(DISTINCT x)` es una herramienta de auditoría rápida que sirve en cualquier tabla de eventos donde esperes un registro por persona.",
     reward: defaultReward("intermediate"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,

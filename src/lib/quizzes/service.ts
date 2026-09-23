@@ -12,6 +12,7 @@ import {
   type LearnerAnswer,
   type QuestionType,
 } from "./grading";
+import { quizLengthForSection } from "./length";
 import { sampleQuestions } from "./sampling";
 
 /** Feedback for a question the learner has already answered in this attempt (answers are final). */
@@ -181,8 +182,9 @@ async function publishedQuizLesson(lessonSlug: string) {
 /**
  * Starts or resumes the learner's attempt at a section quiz and returns its questions.
  *
- * D-33: the attempt holds a stratified sample of the bank (`limits.quiz.questionsPerAttempt`),
- * frozen server-side, so reloading cannot re-roll it and a retry gets a different sample.
+ * D-33/D-37: the attempt holds a stratified sample of the bank, of the length this section
+ * declares (`quizLengthForSection`), frozen server-side, so reloading cannot re-roll it and a
+ * retry gets a different sample.
  * D-34: questions already answered in this attempt come back with their feedback attached; the
  * unanswered ones carry no answer key.
  */
@@ -191,7 +193,7 @@ export async function getQuiz(profile: Profile, lessonSlug: string): Promise<Qui
   if (!lesson) return null;
   const supabase = await createClient();
   const [{ data: section }, bank, { data: lastAttempt }] = await Promise.all([
-    supabase.from("sections").select("title").eq("id", lesson.sectionId).single(),
+    supabase.from("sections").select("slug, title").eq("id", lesson.sectionId).single(),
     loadBank(lesson.sectionId),
     supabase
       .from("quiz_attempts")
@@ -207,7 +209,8 @@ export async function getQuiz(profile: Profile, lessonSlug: string): Promise<Qui
 
   const byId = new Map(bank.map((q) => [q.id, q]));
   const admin = createAdminClient();
-  let attempt = await startAttempt(lesson.id, profile.id, bank);
+  const sectionSlug = section?.slug ?? "";
+  let attempt = await startAttempt(lesson.id, profile.id, bank, sectionSlug);
   // The stored sample can name a question that has since been unpublished. Rather than leave the
   // learner with an attempt that can never be completed, the open attempt is discarded (no reward
   // has been paid yet) and a fresh sample is drawn.
@@ -216,7 +219,7 @@ export async function getQuiz(profile: Profile, lessonSlug: string): Promise<Qui
       p_user_id: profile.id,
       p_attempt_id: attempt.attemptId,
     });
-    attempt = await startAttempt(lesson.id, profile.id, bank);
+    attempt = await startAttempt(lesson.id, profile.id, bank, sectionSlug);
   }
 
   const questions: QuizQuestion[] = attempt.questionIds
@@ -246,8 +249,10 @@ async function startAttempt(
   lessonId: string,
   userId: string,
   bank: BankQuestion[],
+  sectionSlug: string,
 ): Promise<{ attemptId: string; questionIds: string[] }> {
-  const proposed = sampleQuestions(bank, limits.quiz.questionsPerAttempt).map((q) => q.id);
+  const size = quizLengthForSection(sectionSlug, bank.length);
+  const proposed = sampleQuestions(bank, size).map((q) => q.id);
   const { data, error } = await createAdminClient().rpc("start_quiz_attempt", {
     p_user_id: userId,
     p_lesson_id: lessonId,

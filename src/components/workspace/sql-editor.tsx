@@ -33,6 +33,11 @@ const theme = EditorView.theme({
   },
   ".cm-content": {
     fontFamily: "var(--font-mono)",
+    // JetBrains Mono would otherwise draw `<=` as `≤` and `<>` as one glyph: the learner has to
+    // read back the exact characters they typed. Set here too, not only in globals.css, because
+    // CodeMirror's own theme rules are injected with higher precedence.
+    fontVariantLigatures: "none",
+    fontFeatureSettings: '"liga" 0, "calt" 0',
     padding: "12px 0",
     minHeight: "180px",
     caretColor: "var(--text)",

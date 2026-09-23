@@ -19,9 +19,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["sellers"],
     scenario_md:
-      "Comercial quiere invitar a los vendedores que todavía no recibieron ninguna calificación a un programa de primeras ventas.",
+      "El departamento Comercial quiere invitar a un programa de primeras ventas a los vendedores que todavía no recibieron ninguna calificación. Te piden la lista de esos vendedores para poder contactarlos.",
     business_question_md:
-      "Devuelve `id` y `store_name` de los vendedores cuyo `rating` es NULL. El orden no importa.",
+      "Debes generar un dataset que devuelva el `id` y el `store_name` de los vendedores cuya columna `rating` está en `NULL`, es decir, sin valor cargado. El orden de las filas no importa.",
     learning_objective: "Detectar valores NULL con IS NULL.",
     theory_ref: "null-logica-de-tres-valores",
     expected_columns: [
@@ -33,12 +33,14 @@ export const exercises: ExerciseDef[] = [
     hints: [
       {
         level: 1,
-        body_md: "`rating = NULL` no funciona: ninguna comparación con NULL es verdadera.",
+        body_md:
+          "La condición `rating = NULL` no funciona: ninguna comparación con `NULL` puede dar verdadero, porque `NULL` significa «valor desconocido».",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
-        body_md: "Existe un operador específico para preguntar si un valor es NULL: `IS NULL`.",
+        body_md:
+          "Existe un operador específico para preguntar si un valor está ausente, y se escribe `IS NULL`.",
         ...defaultHintMeta(2),
       },
       {
@@ -50,20 +52,22 @@ export const exercises: ExerciseDef[] = [
     common_mistakes: [
       {
         category: "null_handling",
-        description_md: "`WHERE rating = NULL` devuelve 0 filas sin error.",
+        description_md:
+          "Escribir `WHERE rating = NULL`: la consulta devuelve 0 filas y el motor no informa ningún error, así que el problema pasa desapercibido.",
       },
       {
         category: "null_handling",
         description_md:
-          "`WHERE rating = 0`: los vendedores sin calificación no tienen 0, tienen NULL.",
+          "Escribir `WHERE rating = 0`: los vendedores sin calificación no tienen un cero guardado, tienen `NULL`, que es algo distinto.",
       },
       {
         category: "syntax",
-        description_md: "`WHERE rating IS 'NULL'` compara con un texto y produce error.",
+        description_md:
+          "Escribir `WHERE rating IS 'NULL'`: con comillas simples se compara contra el texto `'NULL'` y PostgreSQL devuelve un error de tipos.",
       },
     ],
     expert_explanation_md:
-      "28 vendedores. `IS NULL` es una prueba, no una comparación: no participa de la lógica de tres valores.\n\nEn datos reales, «sin calificación» suele mezclarse con «calificación 0» por errores de carga; conviene acordar con el negocio qué significa cada caso.",
+      "El resultado de la consulta da 28 vendedores. El operador `IS NULL` es una prueba y no una comparación: por eso no participa de la lógica de tres valores y siempre devuelve verdadero o falso.\n\nEn datos reales, «sin calificación» suele mezclarse con «calificación cero» por errores de carga; conviene acordar con el negocio qué significa cada caso antes de escribir el reporte.",
     reward: defaultReward("very_easy"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -78,9 +82,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["shipments"],
     scenario_md:
-      "Logística reclama a **LatamPost** por los envíos despachados que aún no tienen fecha de entrega (`delivered_at` NULL).",
+      "El departamento de Logística va a reclamarle al transportista **LatamPost** por los envíos que ya fueron despachados pero todavía no tienen fecha de entrega registrada, es decir, los que tienen la columna `delivered_at` en `NULL`. Te piden ese listado para llevarlo al reclamo.",
     business_question_md:
-      "Devuelve `id`, `order_id` y `shipped_at` de los envíos con `carrier` igual a `'LatamPost'` y `delivered_at` NULL, ordenados por `shipped_at` ascendente (los más antiguos primero).",
+      "Debes generar un dataset que devuelva el `id`, el `order_id` y el `shipped_at` de los envíos cuyo `carrier` es igual al texto `'LatamPost'` y cuya columna `delivered_at` está en `NULL`, ordenados por `shipped_at` de forma ascendente, es decir, con los despachos más antiguos primero.",
     learning_objective: "Combinar IS NULL con otra condición y ordenar el resultado.",
     theory_ref: "null-logica-de-tres-valores",
     expected_columns: [
@@ -94,13 +98,14 @@ export const exercises: ExerciseDef[] = [
     hints: [
       {
         level: 1,
-        body_md: "Dos condiciones con `AND`: una igualdad de texto y una prueba de NULL.",
+        body_md:
+          "Necesitas dos condiciones unidas con `AND`: una es una igualdad de texto sobre el transportista y la otra es una prueba de ausencia de valor.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "`delivered_at IS NULL` identifica los no entregados. Ordena con `ORDER BY shipped_at` (ascendente es el valor por defecto).",
+          "La condición `delivered_at IS NULL` identifica los envíos que todavía no fueron entregados. Ordena el resultado con `ORDER BY shipped_at`, ya que el orden ascendente es el valor por omisión.",
         ...defaultHintMeta(2),
       },
       {
@@ -113,19 +118,22 @@ export const exercises: ExerciseDef[] = [
     common_mistakes: [
       {
         category: "null_handling",
-        description_md: "`delivered_at = NULL` o `delivered_at = ''`: 0 filas o error de tipo.",
+        description_md:
+          "Escribir `delivered_at = NULL` o `delivered_at = ''`: la primera forma devuelve 0 filas sin avisar y la segunda produce un error de tipos, porque la columna guarda una marca de tiempo.",
       },
       {
         category: "wrong_order",
-        description_md: "Ordenar descendente: la consigna pide los más antiguos primero.",
+        description_md:
+          "Ordenar en forma descendente: la consigna pide ver primero los despachos más antiguos, que son los que llevan más días sin entrega.",
       },
       {
         category: "row_count",
-        description_md: "Escribir `'Latampost'` con otra capitalización: 0 filas.",
+        description_md:
+          "Escribir el nombre del transportista con otra capitalización, como `'Latampost'`: la comparación de texto distingue mayúsculas y el resultado sale con 0 filas.",
       },
     ],
     expert_explanation_md:
-      "194 envíos. Un `delivered_at` NULL puede significar «en camino» o «perdido»; la antigüedad de `shipped_at` es lo que distingue ambos casos, por eso el orden ascendente.\n\nEste tipo de lista es la base de un reporte de SLA que construirás con funciones de fecha en la sección 11.",
+      "El resultado de la consulta da 194 envíos. Un valor `NULL` en `delivered_at` puede significar «en camino» o «perdido»; lo que distingue un caso del otro es la antigüedad del despacho, y por eso el orden ascendente por `shipped_at` es parte de la respuesta y no un detalle de presentación.\n\nEste tipo de lista es la base de un reporte de nivel de servicio (SLA, por sus siglas en inglés: acuerdo de nivel de servicio) que vas a construir con funciones de fecha en la sección 11.",
     reward: defaultReward("easy"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -140,9 +148,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["sellers"],
     scenario_md:
-      "El panel de vendedores no puede mostrar celdas vacías. Producto pide que los vendedores sin calificación aparezcan con 0.",
+      "El panel de vendedores de la aplicación no puede mostrar celdas vacías. El departamento de Producto pide que los vendedores sin calificación aparezcan con el valor `0` y te encarga la consulta que alimenta ese panel.",
     business_question_md:
-      "Devuelve `id`, `store_name` y la calificación como `rating_o_cero` (el `rating`, o `0` cuando es NULL) de **todos** los vendedores, ordenados por `rating_o_cero` descendente y luego por `id` ascendente.",
+      "Debes generar un dataset que devuelva el `id`, el `store_name` y la calificación en una columna llamada `rating_o_cero`, que muestre el valor de `rating` cuando existe y el número `0` cuando la columna está en `NULL`, para **todos** los vendedores. Ordena por `rating_o_cero` descendente y, si dos vendedores empatan, debes desempatar usando `id` ascendente.",
     learning_objective: "Reemplazar NULL por un valor de negocio con COALESCE.",
     theory_ref: "null-coalesce-y-nullif",
     expected_columns: [
@@ -162,13 +170,14 @@ export const exercises: ExerciseDef[] = [
     hints: [
       {
         level: 1,
-        body_md: "`COALESCE(a, b)` devuelve `a` si no es NULL y `b` en caso contrario.",
+        body_md:
+          "La función `COALESCE(a, b)` devuelve el primer argumento cuando no es `NULL` y el segundo en caso contrario.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "El alias del `SELECT` sí puede usarse en `ORDER BY`. Agrega `id` como segundo criterio para los empates.",
+          "El alias que defines en el `SELECT` sí puede usarse dentro del `ORDER BY`. Agrega `id` como segundo criterio de ordenamiento para resolver los empates.",
         ...defaultHintMeta(2),
       },
       {
@@ -182,20 +191,21 @@ export const exercises: ExerciseDef[] = [
       {
         category: "null_handling",
         description_md:
-          "Ordenar por `rating DESC` en vez de por la columna con `COALESCE`: los NULL quedarían primero.",
+          "Ordenar por `rating DESC` en lugar de por la columna calculada con `COALESCE`: los valores `NULL` quedarían en las primeras filas del panel.",
       },
       {
         category: "wrong_order",
         description_md:
-          "Omitir `id` como segundo criterio: el orden entre vendedores con la misma calificación queda indefinido.",
+          "Omitir `id` como segundo criterio: el orden entre vendedores con la misma calificación queda indefinido y puede cambiar entre ejecuciones.",
       },
       {
         category: "wrong_columns",
-        description_md: "Olvidar el alias `rating_o_cero`.",
+        description_md:
+          "Olvidar el alias `rating_o_cero`: la columna sale con el nombre que le pone PostgreSQL y el panel no la encuentra.",
       },
     ],
     expert_explanation_md:
-      "180 filas; los 28 vendedores sin calificación quedan al final con 0. Sin `COALESCE`, `ORDER BY rating DESC` los habría puesto **primero**, porque PostgreSQL trata NULL como el mayor valor en orden descendente.\n\nEl segundo criterio de orden es una buena práctica siempre que haya empates: hace el resultado reproducible.",
+      "El resultado de la consulta da 180 filas, y los 28 vendedores sin calificación quedan al final con el valor `0`. Sin la función `COALESCE`, la cláusula `ORDER BY rating DESC` los habría puesto **primero**, porque PostgreSQL trata `NULL` como el valor más grande cuando el orden es descendente.\n\nAgregar un segundo criterio de ordenamiento es una buena práctica siempre que pueda haber empates: es lo que hace que el resultado sea reproducible.",
     reward: defaultReward("easy"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -210,9 +220,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["reviews"],
     scenario_md:
-      "Atención al cliente contacta a quienes dejaron 1 o 2 estrellas sin explicar por qué. Para el reporte, las reseñas sin texto deben mostrar `(sin comentario)`.",
+      "El departamento de Atención al Cliente quiere contactar a quienes dejaron 1 o 2 estrellas sin escribir ningún motivo. Para el reporte, las reseñas sin texto deben mostrar la leyenda `(sin comentario)` en lugar de una celda vacía. Te piden ese listado para organizar las llamadas.",
     business_question_md:
-      "Devuelve `id`, `customer_id`, `rating` y el comentario como `comentario` (el texto original, o `(sin comentario)` cuando es NULL) de las reseñas con `rating` menor o igual a 2 **y** `comment` NULL. El orden no importa.",
+      "Debes generar un dataset que devuelva el `id`, el `customer_id`, el `rating` y el comentario en una columna llamada `comentario`, que muestre el texto original cuando existe y el texto `'(sin comentario)'` cuando la columna `comment` está en `NULL`, para las reseñas cuyo `rating` es menor o igual a 2 **y** cuya columna `comment` está en `NULL`. El orden de las filas no importa.",
     learning_objective: "Filtrar por NULL y a la vez presentar un valor legible con COALESCE.",
     theory_ref: "null-coalesce-y-nullif",
     expected_columns: [
@@ -228,13 +238,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Son dos tareas: filtrar (`WHERE`) las reseñas sin comentario y mostrar (`SELECT`) un texto en lugar del NULL.",
+          "Son dos tareas distintas: filtrar en la cláusula `WHERE` las reseñas que no tienen comentario y, en la lista de `SELECT`, mostrar un texto en lugar del valor `NULL`.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "En el filtro usa `comment IS NULL`; en la lista de columnas, `COALESCE(comment, '(sin comentario)')` con alias.",
+          "En el filtro usa la condición `comment IS NULL`; en la lista de columnas usa `COALESCE(comment, '(sin comentario)')` con su alias.",
         ...defaultHintMeta(2),
       },
       {
@@ -248,20 +258,21 @@ export const exercises: ExerciseDef[] = [
       {
         category: "null_handling",
         description_md:
-          "Filtrar con `comment = ''`: los comentarios ausentes son NULL, no cadenas vacías.",
+          "Filtrar con la condición `comment = ''`: los comentarios ausentes están guardados como `NULL` y no como cadena vacía, así que el resultado sale con 0 filas.",
       },
       {
         category: "wrong_columns",
         description_md:
-          "Devolver `comment` sin `COALESCE`: la columna mostraría NULL y no el texto pedido.",
+          "Devolver la columna `comment` sin envolverla en `COALESCE`: el reporte muestra celdas vacías en lugar del texto `'(sin comentario)'` que pidió el negocio.",
       },
       {
         category: "row_count",
-        description_md: "`rating < 2` deja afuera las reseñas de 2 estrellas.",
+        description_md:
+          "Escribir `rating < 2`: la condición deja afuera las reseñas de 2 estrellas, que la consigna pidió incluir.",
       },
     ],
     expert_explanation_md:
-      "225 reseñas. Como el filtro exige `comment IS NULL`, la columna `comentario` vale `(sin comentario)` en todas las filas: `COALESCE` está ahí por el formato del reporte, no por la lógica.\n\nSepara siempre las dos preguntas: qué filas quiero (WHERE) y cómo las muestro (SELECT).",
+      "El resultado de la consulta da 225 reseñas. Como el filtro exige `comment IS NULL`, la columna `comentario` vale `'(sin comentario)'` en todas las filas: la función `COALESCE` está ahí por el formato del reporte y no por la lógica del filtro.\n\nSepara siempre las dos preguntas: qué filas quieres, que se resuelve en la cláusula `WHERE`, y cómo las muestras, que se resuelve en la lista de `SELECT`.",
     reward: defaultReward("intermediate"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,

@@ -6,6 +6,7 @@ Spanish-language (es-419) SQL learning SaaS for LATAM adults 25–35: realistic 
 
 ## Source of truth
 
+- **Owner feedback: `docs/FEEDBACK_LOG.md`** — every item Marcelo has raised and what happened to it. Add his new items the moment they arrive and close them only when they are live; "fixed in the repo" is not fixed.
 - **Waiting on the owner: `docs/OWNER_ACTIONS.md`** — the single list of everything blocked on Marcelo (decisions _and_ tasks). Read it at the start of a working session; surface anything BLOCKING before starting new work. Anything that needs his hands, account, money or signature goes here the moment it is discovered, never only in a phase note or a code comment.
 - Requirements: `docs/PRODUCT_REQUIREMENTS.md` · Architecture: `docs/ARCHITECTURE.md` · Data: `docs/DATABASE_DESIGN.md` · Sandbox: `docs/SQL_SANDBOX.md` · Security/privacy: `docs/SECURITY.md` · Payments: `docs/PAYMENTS.md` · Curriculum: `docs/CURRICULUM.md` · Content rules: `docs/CONTENT_GUIDELINES.md` · Gamification: `docs/GAMIFICATION.md` · Design: `docs/DESIGN_SYSTEM.md` · Tests: `docs/TESTING.md` · Deploy: `docs/DEPLOYMENT.md` · Decisions + pending questions: `docs/DECISIONS.md` · Plan: `docs/ROADMAP.md` · Claude setup: `docs/CLAUDE_CODE_SETUP.md`.
 - Detailed rules live in `.claude/rules/*.md` (path-scoped where possible). Do not duplicate a rule here; link to it.
@@ -28,7 +29,8 @@ Next.js 16 App Router · React 19 · TypeScript strict · Tailwind 4 · shadcn/u
 2. **Authorization, rewards, entitlements, certificates and grading are server-side.** Every mutating server action/route calls `authorize()` first. Browser state is never trusted.
 3. **RLS on every table in the same migration that creates it**, with a pgTAP test. Secret key only in `src/lib/supabase/admin.ts` (`server-only`).
 4. **No secrets in source.** `.env.local` + Vercel env; `.env.example` names only. Never print env values.
-5. **Payments stay in sandbox** and **no production deploy / `db push` to prod** without the owner's explicit approval in the current conversation.
+5. **Payments stay in sandbox** and **no `db push` to prod** without the owner's explicit approval in the current conversation.
+   **Shipping code is not in that list.** Committed work that is not pushed is invisible: the owner tests the live site, so unpushed commits make him re-report fixed bugs. Every working session ends with `git push origin main` once `npm run quality` is green, unless he says otherwise in that conversation. Before starting new work, check `git status -sb` for unpushed commits and push them.
 6. **All user-facing text in `src/messages/es-419.json`**, neutral LATAM Spanish, "tú". No Spain-specific vocabulary, no childish tone.
 7. **Content must pass schemas and `content:verify`** (solutions executed against the dataset snapshot). Never expose solutions, hints, expected results or correct options to the browser before unlock/submission.
 8. **Accessibility is part of done** (WCAG 2.2 AA: keyboard, focus, labels, contrast, no color-only meaning, reduced motion).
@@ -59,7 +61,7 @@ Use the smallest set of resources; one agent per file area at a time. Agents liv
 
 ## Prohibited without explicit owner approval
 
-Production deploys · production payment credentials · `supabase db push`/`db reset` against a linked remote · deleting migrations · disabling RLS · force-push · changing pricing, branding, legal text, free limit · adding third-party analytics · committing secrets · modifying `.claude/settings.json` hooks silently.
+Production payment credentials · `supabase db push`/`db reset` against a linked remote · deleting migrations · disabling RLS · force-push · changing pricing, branding, legal text, free limit · adding third-party analytics · committing secrets · modifying `.claude/settings.json` hooks silently.
 
 ## Communication
 

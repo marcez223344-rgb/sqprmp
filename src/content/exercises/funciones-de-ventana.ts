@@ -21,9 +21,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["transactions"],
     scenario_md:
-      "En **Bolsillo**, Riesgo revisa la cuenta **2364** (una de las más activas). Quiere ver cada pago QR completado junto al promedio de esos pagos y cuánto se desvía cada uno.",
+      "En **Bolsillo**, el departamento de Riesgo está revisando la cuenta número **2364**, que es una de las más activas de la plataforma. Quiere ver cada pago con código QR completado junto al promedio de esos pagos y cuánto se desvía cada uno de ese promedio. Te piden ese detalle para decidir si corresponde abrir una alerta.",
     business_question_md:
-      "Para los movimientos de `account_id = 2364` con `kind = 'qr_payment'` y `status = 'completed'`, devuelve `id`, `amount`, el promedio de `amount` del conjunto como `promedio` (2 decimales) y `amount - promedio` como `diferencia` (2 decimales). El orden no importa.",
+      "Debes generar un dataset que, tomando los movimientos cuya columna `account_id` es igual a `2364`, cuyo `kind` es igual al texto `'qr_payment'` y cuyo `status` es igual al texto `'completed'`, devuelva el `id`, el `amount`, el promedio de `amount` de todo el conjunto bajo el encabezado `promedio` con 2 decimales, y la resta entre el importe de la fila y ese promedio bajo el encabezado `diferencia`, también con 2 decimales. El orden de las filas no importa.",
     learning_objective: "Usar OVER () para poner un agregado al lado de cada fila.",
     theory_ref: over,
     expected_columns: [
@@ -39,13 +39,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Con `GROUP BY` perderías el detalle; una función de ventana calcula el promedio sin colapsar filas.",
+          "Con una cláusula `GROUP BY` perderías el detalle de cada movimiento; una función de ventana calcula el promedio sin colapsar las filas.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "`avg(amount) OVER ()` promedia todas las filas que pasan el `WHERE`. Réstalo a `amount` para la diferencia.",
+          "La expresión `avg(amount) OVER ()` promedia todas las filas que pasaron el filtro de la cláusula `WHERE`. Réstala a `amount` para obtener la diferencia de cada fila.",
         ...defaultHintMeta(2),
       },
       {
@@ -58,20 +58,22 @@ export const exercises: ExerciseDef[] = [
     common_mistakes: [
       {
         category: "aggregation_level",
-        description_md: "Usar `avg(amount)` sin `OVER`: error de columnas sin agrupar.",
+        description_md:
+          "Escribir `avg(amount)` sin la cláusula `OVER`: PostgreSQL devuelve un error porque las columnas de detalle no están agrupadas.",
       },
       {
         category: "missing_filter",
         description_md:
-          "Omitir `status = 'completed'`: el promedio incluye pagos fallidos o pendientes.",
+          "Omitir la condición `status = 'completed'`: el promedio incluye pagos fallidos o pendientes, que nunca movieron dinero.",
       },
       {
         category: "cell_values",
-        description_md: "No redondear.",
+        description_md:
+          "No redondear los dos valores calculados: las celdas salen con todos los decimales y no coinciden con lo pedido.",
       },
     ],
     expert_explanation_md:
-      "52 pagos con un promedio de 85 716.17 ARS. Cada fila conserva su importe y muestra la misma cifra en `promedio`: la ventana se calculó sobre las 52 filas que sobrevivieron al `WHERE`.\n\nEs el mismo resultado que obtendrías con una subconsulta que calcule el promedio y un JOIN, pero en una sola pasada y mucho más legible.",
+      "El resultado de la consulta da 52 pagos, con un promedio de 85 716.17 pesos argentinos. Cada fila conserva su propio importe y muestra siempre la misma cifra en la columna `promedio`: la ventana se calculó sobre las 52 filas que sobrevivieron al filtro.\n\nEs el mismo resultado que obtendrías con una subconsulta que calcule el promedio y un cruce para pegarlo a cada fila, pero resuelto en una sola pasada y mucho más legible.",
     reward: defaultReward("intermediate"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -86,9 +88,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["transactions", "merchants", "accounts"],
     scenario_md:
-      "Comercial quiere saber en qué rubros gastan las cuentas en pesos uruguayos (`accounts.currency = 'UYU'`) y qué porcentaje del gasto representa cada rubro.",
+      "El departamento Comercial quiere saber en qué rubros gastan las cuentas denominadas en pesos uruguayos, que son las que tienen `accounts.currency` igual al texto `'UYU'`, y qué porcentaje del gasto total representa cada rubro. Te piden ese reporte para orientar los acuerdos con comercios del próximo semestre.",
     business_question_md:
-      "Para los movimientos con `kind` en (`'card_payment'`, `'qr_payment'`), `status = 'completed'` y cuenta en `'UYU'`, devuelve `category` del comercio, la suma de `amount` como `total` y el porcentaje de ese total sobre la suma de todos los rubros como `pct` (2 decimales), ordenado por `total` descendente.",
+      "Debes generar un dataset que, tomando los movimientos cuyo `kind` es `'card_payment'` o `'qr_payment'`, cuyo `status` es igual al texto `'completed'` y cuya cuenta tiene `currency` igual al texto `'UYU'`, devuelva la `category` del comercio, la suma de `amount` bajo el encabezado `total` y el porcentaje que ese total representa sobre la suma de todos los rubros bajo el encabezado `pct` con 2 decimales, ordenado por `total` descendente.",
     learning_objective:
       "Combinar GROUP BY con una ventana sobre el agregado para calcular participación.",
     theory_ref: over,
@@ -104,13 +106,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Primero el total por rubro (`GROUP BY`); luego una ventana `OVER ()` sobre ese total para obtener el gran total.",
+          "Primero calcula el total por rubro con una cláusula `GROUP BY`; después aplica una ventana `OVER ()` sobre ese total ya calculado para obtener el gran total de todos los rubros.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "El denominador es `sum(sum(t.amount)) OVER ()`: la suma de los totales de todos los grupos. Une `merchants` y `accounts` para filtrar rubro y moneda.",
+          "El denominador se escribe como `sum(sum(t.amount)) OVER ()`, es decir, la suma de los totales de todos los grupos. Une las tablas `merchants` y `accounts` para poder filtrar por rubro y por moneda.",
         ...defaultHintMeta(2),
       },
       {
@@ -124,20 +126,21 @@ export const exercises: ExerciseDef[] = [
       {
         category: "aggregation_level",
         description_md:
-          "`sum(t.amount) OVER ()` sin el `sum` interno: no es válido junto a `GROUP BY` (la ventana debe operar sobre el agregado).",
+          "Escribir `sum(t.amount) OVER ()` sin la suma interna: esa forma no es válida junto a una cláusula `GROUP BY`, porque la ventana tiene que operar sobre el agregado ya calculado.",
       },
       {
         category: "missing_filter",
         description_md:
-          "Filtrar por `t.currency` es equivalente aquí, pero olvidar el filtro de moneda mezcla siete monedas.",
+          "Filtrar por `t.currency` es equivalente en estos datos, pero olvidar por completo el filtro de moneda mezcla siete monedas distintas en una misma suma.",
       },
       {
         category: "cell_values",
-        description_md: "Calcular `pct` con enteros o sin `round`.",
+        description_md:
+          "Calcular la columna `pct` con aritmética entera, o sin la función `round`: en el primer caso los porcentajes se truncan y en el segundo salen con demasiados decimales.",
       },
     ],
     expert_explanation_md:
-      "Diez rubros; restaurantes y transporte encabezan con ~16 % y ~14 %, y los porcentajes suman 100. El patrón `agregado / sum(agregado) OVER ()` es la forma habitual de calcular «participación sobre el total» en SQL moderno.\n\nEl filtro de moneda va antes de la ventana: así el 100 % es el gasto en UYU, no el de toda la plataforma.",
+      "El resultado de la consulta da diez rubros; restaurantes y transporte encabezan la tabla con alrededor del 16 % y del 14 % respectivamente, y los porcentajes suman 100. El patrón `agregado / sum(agregado) OVER ()` es la forma habitual de calcular la participación sobre el total en SQL moderno.\n\nEl filtro de moneda se aplica antes de la ventana, y eso es deliberado: así el 100 % de referencia es el gasto en pesos uruguayos y no el de toda la plataforma.",
     reward: defaultReward("advanced"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -152,9 +155,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["transactions"],
     scenario_md:
-      "Atención al cliente reconstruye el extracto de la cuenta **2364**: cada movimiento con el saldo resultante después de aplicarlo. Los créditos suman y los débitos restan; solo cuentan los movimientos `completed` o `reversed`.",
+      "El departamento de Atención al Cliente está reconstruyendo el extracto de la cuenta número **2364**: necesita cada movimiento con el saldo resultante después de aplicarlo. Los créditos suman y los débitos restan, y solo deben contarse los movimientos cuyo `status` es `'completed'` o `'reversed'`. Te piden ese extracto para poder explicárselo a la persona titular de la cuenta.",
     business_question_md:
-      "Para `account_id = 2364` y `status` en (`'completed'`, `'reversed'`), devuelve `id`, `created_at`, `direction`, `amount` y el saldo acumulado como `saldo` (suma con signo de los movimientos hasta esa fila inclusive, ordenados por `created_at` y luego `id`). Ordena el resultado por `created_at`, `id`.",
+      "Debes generar un dataset que, tomando los movimientos cuya columna `account_id` es igual a `2364` y cuyo `status` es `'completed'` o `'reversed'`, devuelva el `id`, el `created_at`, el `direction`, el `amount` y el saldo acumulado bajo el encabezado `saldo`, entendido como la suma con signo de todos los movimientos hasta esa fila inclusive, tomados en orden de `created_at` y después de `id`. Ordena el resultado por `created_at` y, si dos movimientos comparten el mismo instante, debes desempatar usando `id` ascendente.",
     learning_objective:
       "Construir un acumulado con ORDER BY en la ventana y un CASE para el signo.",
     theory_ref: marcos,
@@ -178,13 +181,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Un acumulado es `sum(...) OVER (ORDER BY ...)`. Antes, convierte los débitos en negativos con `CASE`.",
+          "Un acumulado se escribe como `sum(...) OVER (ORDER BY ...)`. Antes de sumar, convierte los débitos en valores negativos con una expresión `CASE`.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Incluye `id` como segundo criterio en el `ORDER BY` de la ventana para desempatar timestamps iguales.",
+          "Incluye `id` como segundo criterio dentro del `ORDER BY` de la ventana, para desempatar los movimientos que comparten la misma marca de tiempo.",
         ...defaultHintMeta(2),
       },
       {
@@ -197,21 +200,22 @@ export const exercises: ExerciseDef[] = [
     common_mistakes: [
       {
         category: "cell_values",
-        description_md: "Sumar `amount` sin signo: el «saldo» solo crece.",
+        description_md:
+          "Sumar la columna `amount` sin aplicarle signo: el supuesto saldo solo crece y nunca refleja los débitos.",
       },
       {
         category: "missing_filter",
         description_md:
-          "Incluir movimientos `failed` o `pending`: alteran el saldo sin haber ocurrido.",
+          "Incluir los movimientos con `status` igual a `'failed'` o `'pending'`: alteran el saldo aunque nunca se hayan concretado.",
       },
       {
         category: "wrong_order",
         description_md:
-          "Ordenar la ventana solo por `created_at`: con `RANGE` por defecto, dos movimientos del mismo instante compartirían saldo.",
+          "Ordenar la ventana solo por `created_at`: con el marco `RANGE` que se aplica por omisión, dos movimientos del mismo instante comparten el mismo saldo acumulado.",
       },
     ],
     expert_explanation_md:
-      "183 movimientos; la última fila del extracto coincide con `accounts.balance` de la cuenta, porque el saldo se define exactamente como esta suma con signo. Es una verificación útil: si no coincidiera, habría movimientos mal clasificados.\n\nLos pagos `reversed` restan y luego su `reversal` suma la misma cifra: el extracto muestra ambos, como un resumen bancario real.",
+      "El resultado de la consulta da 183 movimientos, y la última fila del extracto coincide con el valor de `accounts.balance` de esa cuenta, porque el saldo está definido exactamente como esta suma con signo. Esa coincidencia es una verificación útil: si los dos números no coincidieran, habría movimientos mal clasificados en la tabla.\n\nLos pagos con `status` igual a `'reversed'` restan y después su movimiento de reverso suma la misma cifra: el extracto muestra los dos, tal como lo haría un resumen bancario real.",
     reward: defaultReward("advanced"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -226,9 +230,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["kyc_events", "users"],
     scenario_md:
-      "Cumplimiento revisa el proceso de verificación de identidad en Uruguay: quiere ver cada evento KYC junto con el total de intentos que hizo esa persona.",
+      "El departamento de Cumplimiento está revisando el proceso de verificación de identidad, conocido como KYC por la sigla en inglés de «conoce a tu cliente», en Uruguay. Quiere ver cada evento de verificación junto con el total de intentos que hizo esa misma persona, y te pide ese detalle para medir la fricción del proceso.",
     business_question_md:
-      "Para las personas con `country = 'UY'`, devuelve `user_id`, `event_at`, `outcome` y la cantidad total de eventos de esa persona como `intentos`, ordenado por `user_id` y luego `event_at`.",
+      "Debes generar un dataset que, tomando las personas cuyo `country` es igual al texto `'UY'`, devuelva el `user_id`, el `event_at`, el `outcome` y la cantidad total de eventos de esa persona bajo el encabezado `intentos`, ordenado por `user_id` y después por `event_at`, los dos en forma ascendente.",
     learning_objective:
       "Usar PARTITION BY sin ORDER BY para repetir el total del grupo en cada fila.",
     theory_ref: marcos,
@@ -245,13 +249,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "`count(*) OVER (PARTITION BY user_id)` cuenta los eventos de cada persona y lo muestra en cada una de sus filas.",
+          "La expresión `count(*) OVER (PARTITION BY user_id)` cuenta los eventos de cada persona y repite ese total en todas las filas de esa persona.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "No pongas `ORDER BY` dentro de la ventana: convertiría el total en un acumulado 1, 2, 3…",
+          "No escribas un `ORDER BY` dentro de la ventana: eso convertiría el total en un conteo acumulado que iría 1, 2, 3 y así sucesivamente.",
         ...defaultHintMeta(2),
       },
       {
@@ -265,19 +269,21 @@ export const exercises: ExerciseDef[] = [
       {
         category: "cell_values",
         description_md:
-          "`count(*) OVER (PARTITION BY user_id ORDER BY event_at)`: devuelve el acumulado, no el total.",
+          "Escribir `count(*) OVER (PARTITION BY user_id ORDER BY event_at)`: la columna devuelve el conteo acumulado dentro de la partición y no el total de intentos.",
       },
       {
         category: "aggregation_level",
-        description_md: "`GROUP BY user_id`: pierde el detalle de cada evento.",
+        description_md:
+          "Resolverlo con `GROUP BY user_id`: la consulta pierde el detalle de cada evento, que es justamente lo que Cumplimiento quiere ver.",
       },
       {
         category: "wrong_order",
-        description_md: "No ordenar el resultado.",
+        description_md:
+          "No ordenar el resultado: la revisión persona por persona se vuelve imposible de seguir.",
       },
     ],
     expert_explanation_md:
-      "296 eventos. Las personas con `intentos` mayor que su `kyc_level` tuvieron rechazos en el camino: comparar ambas cifras es la base del análisis de fricción del proceso.\n\nLa ventana se evalúa después del `WHERE`, así que el conteo solo incluye eventos de personas uruguayas, exactamente lo que se pide.",
+      "El resultado de la consulta da 296 eventos. Las personas cuya columna `intentos` es mayor que su `kyc_level` tuvieron rechazos en el camino: comparar esas dos cifras es la base del análisis de fricción del proceso de verificación.\n\nLa ventana se evalúa después de la cláusula `WHERE`, así que el conteo incluye únicamente eventos de personas uruguayas, que es exactamente lo que pidió el negocio.",
     reward: defaultReward("intermediate"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -292,9 +298,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["fx_rates"],
     scenario_md:
-      "Tesorería sigue la cotización diaria del peso argentino frente al dólar y quiere suavizar el ruido con una media móvil de 7 días (los 6 días anteriores más el actual).",
+      "El departamento de Tesorería sigue la cotización diaria del peso argentino frente al dólar y quiere suavizar el ruido del día a día con una media móvil de 7 días, formada por los 6 días anteriores más el día actual. Te piden esa serie suavizada para presentarla en el informe semanal.",
     business_question_md:
-      "Para `currency = 'ARS'` y `rate_date` en agosto de 2025 (del 1 al 31), devuelve `rate_date`, `usd_rate` y la media móvil de `usd_rate` sobre las 7 filas que terminan en la actual como `media_7d` (4 decimales), ordenado por `rate_date`. Las primeras filas promedian las que haya disponibles dentro del filtro.",
+      "Debes generar un dataset que, tomando las filas cuyo `currency` es igual al texto `'ARS'` y cuya columna `rate_date` cae en agosto de 2025, del día 1 al 31, devuelva el `rate_date`, el `usd_rate` y la media móvil de `usd_rate` calculada sobre las 7 filas que terminan en la fila actual bajo el encabezado `media_7d` con 4 decimales, ordenado por `rate_date` ascendente. Ten en cuenta que las primeras filas promedian solamente las que haya disponibles dentro del filtro.",
     learning_objective: "Definir un marco de ventana con ROWS BETWEEN para una media móvil.",
     theory_ref: marcos,
     expected_columns: [
@@ -313,13 +319,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "El marco por defecto acumula desde el inicio; para una ventana móvil hay que declarar el marco con `ROWS BETWEEN`.",
+          "El marco que se aplica por omisión acumula desde el inicio de la serie; para obtener una ventana móvil hay que declarar el marco de forma explícita con `ROWS BETWEEN`.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "«7 días incluido el actual» son 6 filas anteriores más la actual. Filtra moneda y mes en `WHERE`.",
+          "«7 días incluyendo el actual» son 6 filas anteriores más la fila actual. Los filtros de moneda y de mes van en la cláusula `WHERE`.",
         ...defaultHintMeta(2),
       },
       {
@@ -332,21 +338,22 @@ export const exercises: ExerciseDef[] = [
     common_mistakes: [
       {
         category: "cell_values",
-        description_md: "`7 PRECEDING`: ventana de 8 días.",
+        description_md:
+          "Escribir `7 PRECEDING`: la ventana pasa a tener 8 días, porque también cuenta la fila actual.",
       },
       {
         category: "cell_values",
         description_md:
-          "Omitir el marco: el resultado es el promedio acumulado desde el 1 de agosto.",
+          "Omitir la declaración del marco: el resultado es el promedio acumulado desde el 1 de agosto, que no es una media móvil.",
       },
       {
         category: "missing_filter",
         description_md:
-          "Olvidar `currency = 'ARS'`: la ventana mezcla seis monedas ordenadas por fecha.",
+          "Olvidar la condición `currency = 'ARS'`: la ventana mezcla seis monedas distintas ordenadas por fecha y el promedio no significa nada.",
       },
     ],
     expert_explanation_md:
-      "31 filas. Las seis primeras promedian menos de 7 valores porque el filtro corta la serie el 1 de agosto; si quisieras una media completa desde el primer día, tendrías que filtrar **después** de calcular la ventana (subconsulta), incluyendo los últimos días de julio.\n\nEsa diferencia entre «filtrar antes» y «filtrar después» de la ventana es una de las decisiones más frecuentes en analítica de series.",
+      "El resultado de la consulta da 31 filas. Las seis primeras promedian menos de 7 valores porque el filtro corta la serie el 1 de agosto; si quisieras una media completa desde el primer día del mes, tendrías que filtrar **después** de calcular la ventana, usando una subconsulta que incluya también los últimos días de julio.\n\nEsa diferencia entre filtrar antes y filtrar después de la ventana es una de las decisiones más frecuentes en el análisis de series temporales.",
     reward: defaultReward("advanced"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,

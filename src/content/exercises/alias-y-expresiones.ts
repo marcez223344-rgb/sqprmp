@@ -20,9 +20,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["sellers"],
     scenario_md:
-      "El equipo comercial de **TiendaViva** exporta la lista de vendedores a una planilla y quiere encabezados en español.",
+      "El departamento Comercial de **TiendaViva** exporta la lista de vendedores a una planilla y necesita que los encabezados de las columnas estén en español. Te piden la consulta con esos nombres ya resueltos, para no tener que renombrar las columnas a mano cada vez.",
     business_question_md:
-      "Muestra `id`, el nombre de la tienda como `tienda` y el país como `pais` para **todos** los vendedores. El orden no importa.",
+      "Debes generar un dataset que devuelva el `id`, el nombre de la tienda bajo el encabezado `tienda` y el país bajo el encabezado `pais`, para **todos** los vendedores de la tabla `sellers`. El orden de las filas no importa.",
     learning_objective: "Renombrar columnas con alias sin cambiar su contenido.",
     theory_ref,
     expected_columns: [
@@ -39,13 +39,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Un alias cambia el nombre de la columna en el resultado: `columna AS nuevo_nombre`.",
+          "Un alias cambia el nombre con el que aparece la columna en el resultado, y se escribe con la forma `columna AS nuevo_nombre`.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Las columnas originales son `store_name` y `country`, en la tabla `sellers`. Solo `id` conserva su nombre.",
+          "Las columnas originales se llaman `store_name` y `country`, y están en la tabla `sellers`. Solo la columna `id` conserva su nombre tal como está.",
         ...defaultHintMeta(2),
       },
       {
@@ -58,21 +58,21 @@ export const exercises: ExerciseDef[] = [
       {
         category: "wrong_columns",
         description_md:
-          "Devolver `store_name` y `country` sin alias: el contenido es correcto, pero los encabezados no son los pedidos.",
+          "Devolver `store_name` y `country` sin alias: el contenido de las celdas es correcto, pero los encabezados no son los que pidió el negocio.",
       },
       {
         category: "syntax",
         description_md:
-          "Escribir el alias entre comillas simples (`AS 'tienda'`): eso es un texto, no un nombre.",
+          "Escribir el alias entre comillas simples, como `AS 'tienda'`: en PostgreSQL las comillas simples delimitan un texto, no un nombre de columna.",
       },
       {
         category: "wrong_columns",
         description_md:
-          "Poner acentos en el alias (`país`): funciona con comillas dobles, pero la consigna pide `pais`.",
+          "Escribir el alias con acento, como `país`: funciona si lo encierras entre comillas dobles, pero la consigna pide exactamente `pais`, sin acento.",
       },
     ],
     expert_explanation_md:
-      "Los 180 vendedores aparecen con encabezados `id`, `tienda`, `pais`. El alias solo afecta al nombre del resultado; los datos son idénticos.\n\nEn reportes reales conviene fijar alias en `snake_case` desde el principio: las herramientas de visualización y las consultas posteriores dependen de esos nombres.",
+      "El resultado de la consulta da los 180 vendedores con los encabezados `id`, `tienda` y `pais`. El alias afecta únicamente al nombre que se muestra en el resultado; los datos que salen son idénticos a los de la tabla.\n\nEn reportes reales conviene fijar los alias en formato `snake_case`, es decir, en minúsculas y con guion bajo entre palabras, desde el principio: las herramientas de visualización y las consultas que se construyan encima dependen de esos nombres.",
     reward: defaultReward("very_easy"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -87,9 +87,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["categories"],
     scenario_md:
-      "El equipo de catálogo quiere imprimir etiquetas con un código legible por categoría, con el formato `CAT-<id>` (por ejemplo, `CAT-7`).",
+      "El departamento de Catálogo quiere imprimir etiquetas con un código legible para cada categoría, con el formato `CAT-<id>`; por ejemplo, la categoría 7 debe salir como `CAT-7`. Te piden la consulta que arma ese código para poder mandar el archivo a la imprenta.",
     business_question_md:
-      "Devuelve, para **todas** las categorías, el código como `codigo` (texto `CAT-` seguido del `id`) y el nombre como `nombre`. El orden no importa.",
+      "Debes generar un dataset que devuelva, para **todas** las categorías, el código bajo el encabezado `codigo`, formado por el texto `'CAT-'` seguido del valor de `id`, y el nombre bajo el encabezado `nombre`. El orden de las filas no importa.",
     learning_objective: "Concatenar texto y números con `||` y nombrar la columna resultante.",
     theory_ref,
     expected_columns: [
@@ -112,13 +112,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "El operador `||` une textos; un número a un lado se convierte a texto automáticamente.",
+          "El operador `||` une dos textos, y si uno de los lados es un número PostgreSQL lo convierte a texto automáticamente.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "El texto fijo va entre comillas simples: `'CAT-'`. Luego `|| id`. No olvides el alias `codigo` y renombrar `name`.",
+          "El texto fijo se escribe entre comillas simples, como `'CAT-'`, y después va `|| id`. No olvides el alias `codigo` ni renombrar la columna `name` como `nombre`.",
         ...defaultHintMeta(2),
       },
       {
@@ -131,19 +131,21 @@ export const exercises: ExerciseDef[] = [
       {
         category: "syntax",
         description_md:
-          "Usar `+` para unir textos: en PostgreSQL produce un error de operador. `+` concatena en SQL Server, no acá.",
+          "Usar el signo `+` para unir textos: en PostgreSQL produce un error de operador. El signo `+` concatena en SQL Server, no en este motor.",
       },
       {
         category: "cell_values",
-        description_md: "Escribir `'CAT-' || ' ' || id` agrega un espacio que la consigna no pide.",
+        description_md:
+          "Escribir `'CAT-' || ' ' || id`: se agrega un espacio en el medio del código que la consigna no pidió.",
       },
       {
         category: "wrong_columns",
-        description_md: "Olvidar renombrar `name` como `nombre`.",
+        description_md:
+          "Olvidar renombrar la columna `name` como `nombre`: el encabezado no coincide con el pedido.",
       },
     ],
     expert_explanation_md:
-      "30 filas, con códigos `CAT-1` a `CAT-30`. PostgreSQL convierte `id` a texto al concatenarlo con `||`; en otros motores necesitarías `CAST(id AS varchar)`.\n\nLa diferencia que importa en la práctica es cómo cada forma trata los NULL. En PostgreSQL, `||` devuelve NULL si alguno de los operandos es NULL: `'A' || NULL` es NULL, no `'A'`. `CONCAT()` ignora los NULL y los trata como texto vacío, así que `CONCAT('A', NULL)` es `'A'`. Aquí da lo mismo porque `categories.id` es clave primaria y nunca es NULL, pero al concatenar columnas opcionales (un segundo apellido, un piso de dirección) la elección decide si obtienes una fila vacía o un texto útil.\n\nSobre portabilidad: `||` es el operador de concatenación del estándar ISO SQL y funciona igual en PostgreSQL, Oracle, SQLite y DB2. SQL Server no lo acepta: usa `+` para unir texto y necesita `CONCAT()` si quieres el comportamiento portable. MySQL, por omisión, interpreta `||` como el OR lógico (solo se comporta como concatenación si el servidor tiene activado el modo `PIPES_AS_CONCAT`), por lo que allí se usa `CONCAT()`. Si tu consulta tiene que correr en varios motores, `CONCAT()` es la apuesta segura.",
+      "El resultado de la consulta da 30 filas, con los códigos que van de `CAT-1` a `CAT-30`. PostgreSQL convierte el valor de `id` a texto al concatenarlo con el operador `||`; en otros motores necesitarías escribir `CAST(id AS varchar)`.\n\nLa diferencia que importa en la práctica es cómo trata cada forma a los valores `NULL`. En PostgreSQL, el operador `||` devuelve `NULL` si alguno de los dos operandos es `NULL`: la expresión `'A' || NULL` da `NULL`, no `'A'`. La función `CONCAT()` ignora los `NULL` y los trata como texto vacío, así que `CONCAT('A', NULL)` da `'A'`. Aquí da lo mismo porque `categories.id` es clave primaria y nunca está en `NULL`, pero al concatenar columnas opcionales, como un segundo apellido o el piso de una dirección, esa elección decide si obtienes una celda vacía o un texto útil.\n\nSobre portabilidad: el operador `||` es el de concatenación del estándar ISO SQL y funciona igual en PostgreSQL, Oracle, SQLite y DB2. SQL Server no lo acepta: usa el signo `+` para unir texto y necesita `CONCAT()` si quieres un comportamiento portable. MySQL, por omisión, interpreta `||` como el operador lógico OR, y solo lo trata como concatenación si el servidor tiene activado el modo `PIPES_AS_CONCAT`, por lo que allí se usa `CONCAT()`. Si tu consulta tiene que correr en varios motores, `CONCAT()` es la apuesta segura.",
     reward: defaultReward("easy"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -158,9 +160,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["orders"],
     scenario_md:
-      "Finanzas sospecha que en los pedidos chicos el envío se come el margen y quiere ver los casos más extremos. En `orders`, una fila es un pedido y todos sus importes están en la moneda de `currency`: `subtotal` es el valor de los productos del pedido antes de descuentos y envío (la suma de precio unitario por cantidad de cada ítem), `discount` es el descuento aplicado al pedido, `shipping_fee` es el costo de envío y `total_amount` es el total cobrado (`subtotal - discount + shipping_fee`).",
+      "El departamento de Finanzas sospecha que en los pedidos chicos el costo de envío se come el margen y quiere ver los casos más extremos. En la tabla `orders`, cada fila es un pedido y todos sus importes están expresados en la moneda que indica la columna `currency`: la columna `subtotal` es el valor de los productos antes de descuentos y envío, es decir, la suma del precio unitario por la cantidad de cada ítem; la columna `discount` es el descuento aplicado al pedido; la columna `shipping_fee` es el costo de envío, y la columna `total_amount` es el total cobrado, que equivale a `subtotal - discount + shipping_fee`. Te piden ese ranking para decidir si conviene fijar un monto mínimo de compra.",
     business_question_md:
-      "Devuelve los **20 pedidos donde el envío representa el mayor porcentaje del total cobrado**. Muestra `id`, `currency`, el neto como `neto` (`subtotal - discount`) y ese porcentaje como `envio_pct` (`shipping_fee` sobre `total_amount`, en porcentaje), redondeado a **1 decimal**. Ordena de mayor a menor `envio_pct` y desempata por `id` ascendente.",
+      "Debes generar un dataset que devuelva los **20 pedidos en los que el envío representa el mayor porcentaje del total cobrado**, con el `id`, el `currency`, el neto bajo el encabezado `neto`, calculado como `subtotal - discount`, y ese porcentaje bajo el encabezado `envio_pct`, calculado como `shipping_fee` sobre `total_amount` expresado en porcentaje y redondeado a **1 decimal**. Ordena de mayor a menor `envio_pct` y, si dos pedidos empatan, debes desempatar usando `id` ascendente.",
     learning_objective: "Combinar expresiones aritméticas, `ROUND` y alias en un reporte ordenado.",
     theory_ref,
     expected_columns: [
@@ -182,13 +184,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Son cuatro columnas: dos directas, una resta y una división multiplicada por 100 y redondeada. La pregunta ordena por esa última columna calculada, así que te conviene darle un alias y reutilizarlo.",
+          "Son cuatro columnas: dos se toman directamente de la tabla, una es una resta y la última es una división multiplicada por 100 y redondeada. Como el resultado se ordena por esa última columna calculada, te conviene darle un alias y reutilizarlo.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "`ROUND(expresion, 1)` deja un decimal. El porcentaje es `shipping_fee / total_amount * 100`. `ORDER BY` se evalúa después del `SELECT`, así que puedes ordenar por el alias `envio_pct` en dirección descendente; agrega `id` como segunda clave y recorta a 20 filas.",
+          "La función `ROUND(expresion, 1)` deja un solo decimal. El porcentaje se calcula como `shipping_fee / total_amount * 100`. La cláusula `ORDER BY` se evalúa después del `SELECT`, así que puedes ordenar por el alias `envio_pct` en dirección descendente; agrega `id` como segunda clave y recorta el resultado a 20 filas.",
         ...defaultHintMeta(2),
       },
       {
@@ -202,26 +204,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "cell_values",
         description_md:
-          "Redondear a 2 decimales o no redondear: los valores no coinciden con lo pedido (1 decimal).",
+          "Redondear a 2 decimales, o directamente no redondear: los valores dejan de coincidir con lo pedido, que es 1 decimal.",
       },
       {
         category: "wrong_order",
         description_md:
-          "Ordenar por `total_amount` descendente: devuelve los pedidos más caros, que son justo aquellos donde el envío pesa poco. Y como `orders` mezcla seis monedas, ese ranking compara importes que no son comparables.",
+          "Ordenar por `total_amount` descendente: el resultado devuelve los pedidos más caros, que son justamente aquellos en los que el envío pesa poco. Y como la tabla `orders` mezcla seis monedas, ese ranking compara importes que no son comparables entre sí.",
       },
       {
         category: "cell_values",
         description_md:
-          "Calcular el porcentaje sobre `subtotal` en lugar de `total_amount`: cambia el denominador y el ranking, porque `subtotal` no incluye el envío.",
+          "Calcular el porcentaje sobre `subtotal` en lugar de sobre `total_amount`: cambia el denominador y cambia el ranking, porque `subtotal` no incluye el costo de envío.",
       },
       {
         category: "wrong_order",
         description_md:
-          "Omitir el desempate por `id`: al redondear a 1 decimal hay pedidos con el mismo `envio_pct` (hay dos con 62.7), y sin segunda clave el orden entre ellos puede cambiar en cada ejecución.",
+          "Omitir el desempate por `id`: al redondear a 1 decimal hay pedidos que quedan con el mismo valor de `envio_pct`, por ejemplo dos pedidos con 62.7, y sin una segunda clave el orden entre ellos puede cambiar en cada ejecución.",
       },
     ],
     expert_explanation_md:
-      "El resultado encabeza con el pedido 7964 (en ARS), donde el envío es el 63.4 % del total cobrado, y la fila 20 todavía está en 56.5 %. Son pedidos de un solo artículo barato con envío pago: el flete no baja con el tamaño del pedido, así que en los tickets chicos se lleva más de la mitad de la venta. Esa es la lectura que Finanzas espera junto con la tabla, y el argumento habitual para fijar un mínimo de compra o cobrar el envío aparte.\n\nLas columnas monetarias son `numeric`, así que la división conserva decimales sin conversiones. `ROUND(x, 1)` produce valores como `63.4`.\n\nOrdenar por un porcentaje, y no por un importe, es lo que hace comparable el ranking: `orders` mezcla seis monedas y un top por `total_amount` solo te diría cuál moneda tiene los números nominales más grandes. `envio_pct` no tiene unidad y se puede comparar entre países; `currency` va en el resultado para que quien lea `neto` sepa en qué moneda está.\n\nPuedes ordenar por el alias `envio_pct` porque `ORDER BY` es la última cláusula lógica: `FROM` → `SELECT` (nacen los alias) → `ORDER BY` → `LIMIT`. Repetir la expresión completa da el mismo resultado y es lo que necesitarías en el `WHERE`, donde el alias todavía no existe.",
+      "El resultado de la consulta encabeza con el pedido 7964, expresado en pesos argentinos, donde el envío representa el 63.4 % del total cobrado, y la fila número 20 todavía está en 56.5 %. Son pedidos de un solo artículo barato con envío pago: el flete no baja con el tamaño del pedido, así que en los tickets chicos se lleva más de la mitad de la venta. Esa es la lectura que Finanzas espera junto con la tabla, y es el argumento habitual para fijar un monto mínimo de compra o para cobrar el envío aparte.\n\nLas columnas monetarias son de tipo `numeric`, así que la división conserva los decimales sin necesidad de conversiones. La función `ROUND(x, 1)` produce valores como `63.4`.\n\nOrdenar por un porcentaje, y no por un importe, es lo que hace comparable el ranking: la tabla `orders` mezcla seis monedas y un ranking por `total_amount` solo te diría cuál de las monedas tiene los números nominales más grandes. La columna `envio_pct` no tiene unidad y se puede comparar entre países; la columna `currency` va en el resultado para que quien lea la columna `neto` sepa en qué moneda está expresada.\n\nPuedes ordenar por el alias `envio_pct` porque `ORDER BY` es la última cláusula en el orden lógico de evaluación: primero `FROM`, después `SELECT`, donde nacen los alias, después `ORDER BY` y por último `LIMIT`. Repetir la expresión completa da el mismo resultado y es lo que necesitarías en la cláusula `WHERE`, donde el alias todavía no existe.",
     reward: defaultReward("easy"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,

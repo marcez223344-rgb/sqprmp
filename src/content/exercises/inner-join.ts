@@ -21,9 +21,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["products", "sellers"],
     scenario_md:
-      "Para la campaña uruguaya, Marketing necesita el catálogo de los vendedores de Uruguay con el nombre de cada tienda junto al producto.",
+      "El departamento de Marketing está preparando la campaña uruguaya y necesita el catálogo de los vendedores de Uruguay con el nombre de cada tienda al lado del producto. Te piden ese cruce porque el nombre de la tienda y el del producto están en tablas distintas.",
     business_question_md:
-      "Devuelve `id` y `name` del producto y `store_name` de su vendedor, solo para vendedores con `country` igual a `'UY'`. El orden no importa.",
+      "Debes generar un dataset que devuelva el `id` y el `name` del producto junto con el `store_name` de su vendedor, tomando únicamente los vendedores cuyo `country` es igual al texto `'UY'`. El orden de las filas no importa.",
     learning_objective:
       "Unir dos tablas por clave foránea y filtrar por una columna de la segunda tabla.",
     theory_ref: basico,
@@ -47,13 +47,14 @@ export const exercises: ExerciseDef[] = [
     hints: [
       {
         level: 1,
-        body_md: "`products.seller_id` apunta a `sellers.id`. Esa es la condición del `ON`.",
+        body_md:
+          "La columna `products.seller_id` apunta a la columna `sellers.id`. Esa igualdad es la condición que va en el `ON`.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Usa alias (`p`, `s`) y califica cada columna. El filtro de país va en `WHERE` sobre la tabla `sellers`.",
+          "Usa alias cortos para las tablas, por ejemplo `p` para productos y `s` para vendedores, y califica cada columna con su alias. El filtro de país va en la cláusula `WHERE` y se aplica sobre la tabla `sellers`.",
         ...defaultHintMeta(2),
       },
       {
@@ -67,20 +68,21 @@ export const exercises: ExerciseDef[] = [
       {
         category: "join_condition",
         description_md:
-          "`ON s.id = p.id`: une productos y vendedores con el mismo número de id; devuelve 180 filas sin sentido.",
+          "Escribir `ON s.id = p.id`: se unen productos y vendedores que casualmente comparten el mismo número de identificador, y el resultado son 180 filas sin ningún sentido de negocio.",
       },
       {
         category: "syntax",
         description_md:
-          "`SELECT id, name` sin alias: `id` y `name` son ambiguos (existen en ambas tablas).",
+          "Escribir `SELECT id, name` sin calificar con el alias de la tabla: las columnas `id` y `name` existen en las dos tablas y PostgreSQL devuelve un error de ambigüedad.",
       },
       {
         category: "missing_filter",
-        description_md: "Olvidar el `WHERE` y devolver los 1500 productos.",
+        description_md:
+          "Olvidar la cláusula `WHERE`: la consulta devuelve los 1500 productos del catálogo en lugar de los uruguayos.",
       },
     ],
     expert_explanation_md:
-      "41 productos. Cada producto tiene exactamente un vendedor, así que el JOIN no multiplica filas: el resultado tiene una fila por producto uruguayo.\n\nEl filtro sobre `s.country` se evalúa después de la unión; el motor suele reordenarlo internamente para filtrar primero, pero el resultado es el mismo.",
+      "El resultado de la consulta da 41 productos. Cada producto tiene exactamente un vendedor, así que el cruce no multiplica filas: el resultado tiene una fila por producto uruguayo.\n\nEl filtro sobre `s.country` se evalúa, en el orden lógico, después de la unión; el motor suele reordenarlo internamente para filtrar primero y leer menos filas, pero el resultado es el mismo.",
     reward: defaultReward("easy"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -95,9 +97,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["order_items", "products"],
     scenario_md:
-      "Un cliente reclama por el pedido **13**. Atención al cliente necesita ver qué productos incluía, con cantidad y precio unitario.",
+      "Un cliente hizo un reclamo por el pedido número **13**. El departamento de Atención al Cliente necesita ver qué productos incluía ese pedido, con la cantidad y el precio unitario de cada uno, y te pide el detalle para poder responderle.",
     business_question_md:
-      "Devuelve `id` del ítem (`order_items.id`), `name` del producto, `quantity` y `unit_price` para los ítems del pedido con `order_id` igual a 13, ordenados por `id` del ítem ascendente.",
+      "Debes generar un dataset que devuelva el `id` del ítem, que es la columna `order_items.id`, el `name` del producto, la `quantity` y el `unit_price`, para los ítems cuyo `order_id` es igual a `13`, ordenados por el `id` del ítem de forma ascendente.",
     learning_objective:
       "Unir una tabla de detalle con su catálogo y calificar columnas con el mismo nombre.",
     theory_ref: basico,
@@ -114,13 +116,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "La tabla base es `order_items`; el nombre del producto vive en `products`. Conéctalas por `product_id`.",
+          "La tabla base de la consulta es `order_items`, porque el resultado tiene una fila por ítem; el nombre del producto vive en la tabla `products`. Conecta las dos por la columna `product_id`.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Ambas tablas tienen `id`: el que pide la consigna es el del ítem (`oi.id`). Filtra por `oi.order_id = 13`.",
+          "Las dos tablas tienen una columna llamada `id`: la que pide la consigna es la del ítem, es decir, `oi.id`. El filtro se escribe como `oi.order_id = 13`.",
         ...defaultHintMeta(2),
       },
       {
@@ -133,19 +135,22 @@ export const exercises: ExerciseDef[] = [
     common_mistakes: [
       {
         category: "wrong_columns",
-        description_md: "Devolver `p.id` (id del producto) en lugar de `oi.id` (id del ítem).",
+        description_md:
+          "Devolver `p.id`, que es el identificador del producto, en lugar de `oi.id`, que es el identificador del ítem del pedido.",
       },
       {
         category: "join_condition",
-        description_md: "`ON p.id = oi.order_id`: une productos con el número de pedido.",
+        description_md:
+          "Escribir `ON p.id = oi.order_id`: se unen los productos con el número de pedido, dos valores que no tienen relación entre sí.",
       },
       {
         category: "wrong_order",
-        description_md: "Omitir `ORDER BY oi.id`.",
+        description_md:
+          "Omitir la cláusula `ORDER BY oi.id`: el detalle sale sin un orden garantizado y la comparación con la factura se vuelve incómoda.",
       },
     ],
     expert_explanation_md:
-      "4 ítems. `unit_price` se guarda en `order_items`, no en `products`: el precio de lista puede cambiar, pero el precio al que se vendió cada ítem debe quedar fijo. Por eso las tablas de detalle copian el precio.\n\nEste JOIN es «muchos a uno» (varios ítems apuntan al mismo producto), así que nunca multiplica filas de `order_items`.",
+      "El resultado de la consulta da 4 ítems. La columna `unit_price` está guardada en `order_items` y no en `products`: el precio de lista puede cambiar con el tiempo, pero el precio al que se vendió cada ítem tiene que quedar fijo para siempre. Por eso las tablas de detalle copian el precio en el momento de la venta.\n\nEste cruce es de tipo «muchos a uno», porque varios ítems pueden apuntar al mismo producto, así que nunca multiplica las filas de `order_items`.",
     reward: defaultReward("easy"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -160,9 +165,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["orders", "payments"],
     scenario_md:
-      "Finanzas evalúa el costo financiero de las 12 cuotas en Argentina. Necesita los pedidos en `ARS` cuyo pago **aprobado** fue en 12 cuotas.",
+      "El departamento de Finanzas está evaluando el costo financiero de las ventas en 12 cuotas en Argentina. Necesita los pedidos expresados en pesos argentinos cuyo pago **aprobado** se hizo en 12 cuotas, y te pide ese listado para calcular el costo real de la promoción.",
     business_question_md:
-      "Devuelve `id` y `total_amount` del pedido y `amount` del pago para los pedidos con `currency` igual a `'ARS'` unidos a sus pagos con `installments` igual a 12 y `status` igual a `'approved'`. El orden no importa.",
+      "Debes generar un dataset que devuelva el `id` y el `total_amount` del pedido junto con el `amount` del pago, para los pedidos cuyo `currency` es igual al texto `'ARS'` unidos a sus pagos cuya columna `installments` es igual a `12` y cuyo `status` es igual al texto `'approved'`. El orden de las filas no importa.",
     learning_objective: "Acotar una relación uno-a-muchos con condiciones sobre la tabla «muchos».",
     theory_ref: varias,
     expected_columns: [
@@ -183,13 +188,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Un pedido puede tener varios pagos (intentos rechazados). Las condiciones sobre `payments` dejan uno solo por pedido.",
+          "Un mismo pedido puede tener varios pagos, porque los intentos rechazados también quedan registrados. Las condiciones sobre la tabla `payments` son las que dejan un solo pago por pedido.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Une `payments.order_id = orders.id` y filtra tres cosas: moneda del pedido, cuotas y estado del pago.",
+          "Une las tablas con la igualdad `payments.order_id = orders.id` y filtra tres cosas: la moneda del pedido, la cantidad de cuotas del pago y el estado del pago.",
         ...defaultHintMeta(2),
       },
       {
@@ -203,19 +208,21 @@ export const exercises: ExerciseDef[] = [
       {
         category: "missing_filter",
         description_md:
-          "Olvidar `status = 'approved'`: entran pagos rechazados y algunos pedidos aparecen dos veces.",
+          "Olvidar la condición `status = 'approved'`: entran los pagos rechazados y algunos pedidos aparecen dos veces en el resultado.",
       },
       {
         category: "join_condition",
-        description_md: "`ON pay.id = o.id`: une por ids que no se relacionan.",
+        description_md:
+          "Escribir `ON pay.id = o.id`: se unen dos identificadores que no se relacionan entre sí.",
       },
       {
         category: "wrong_columns",
-        description_md: "Devolver `pay.id` en lugar de `o.id`.",
+        description_md:
+          "Devolver `pay.id`, que es el identificador del pago, en lugar de `o.id`, que es el identificador del pedido que pidió Finanzas.",
       },
     ],
     expert_explanation_md:
-      "208 pedidos, uno por fila, porque un pedido tiene a lo sumo un pago aprobado. Sin el filtro de estado verías pedidos repetidos por sus intentos rechazados.\n\nPoner las condiciones de `payments` en el `ON` o en el `WHERE` da el mismo resultado con INNER JOIN; con LEFT JOIN (sección 18) la diferencia es enorme.",
+      "El resultado de la consulta da 208 pedidos, uno por fila, porque un pedido tiene como máximo un pago aprobado. Sin el filtro de estado verías pedidos repetidos por cada uno de sus intentos rechazados.\n\nPoner las condiciones sobre `payments` dentro del `ON` o dentro del `WHERE` da exactamente el mismo resultado cuando el cruce es un `INNER JOIN`; con un `LEFT JOIN`, como vas a ver en la sección 18, la diferencia entre los dos lugares es enorme.",
     reward: defaultReward("intermediate"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -230,9 +237,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["reviews", "customers", "products"],
     scenario_md:
-      "El equipo de Perú quiere llamar a los clientes que dejaron una estrella, sabiendo qué producto calificaron.",
+      "El equipo de Perú quiere llamar por teléfono a los clientes que dejaron una estrella, y necesita saber qué producto calificó cada uno para poder encarar la conversación. Te piden ese cruce porque el cliente, el producto y la reseña están en tres tablas distintas.",
     business_question_md:
-      "Devuelve `full_name` del cliente, el nombre del producto como `product_name` y `rating`, para las reseñas con `rating` igual a 1 de clientes con `country` igual a `'PE'`. El orden no importa.",
+      "Debes generar un dataset que devuelva el `full_name` del cliente, el nombre del producto bajo el encabezado `product_name` y el `rating`, para las reseñas cuyo `rating` es igual a `1` hechas por clientes cuyo `country` es igual al texto `'PE'`. El orden de las filas no importa.",
     learning_objective:
       "Encadenar dos JOIN desde una tabla central y renombrar columnas repetidas.",
     theory_ref: varias,
@@ -248,13 +255,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "`reviews` tiene `customer_id` y `product_id`: es la tabla central. Un JOIN hacia cada lado.",
+          "La tabla `reviews` tiene las columnas `customer_id` y `product_id`, así que es la tabla central del cruce: desde ella sale un `JOIN` hacia cada lado.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "El nombre del producto se llama `name`; la consigna lo quiere como `product_name`. Filtra `r.rating = 1` y `c.country = 'PE'`.",
+          "La columna con el nombre del producto se llama `name`, y la consigna la pide bajo el encabezado `product_name`. Filtra con las condiciones `r.rating = 1` y `c.country = 'PE'`.",
         ...defaultHintMeta(2),
       },
       {
@@ -268,20 +275,21 @@ export const exercises: ExerciseDef[] = [
       {
         category: "join_condition",
         description_md:
-          "Intentar unir `customers` con `products` directamente: no comparten clave.",
+          "Intentar unir la tabla `customers` directamente con la tabla `products`: no comparten ninguna clave y el cruce tiene que pasar por `reviews`.",
       },
       {
         category: "wrong_columns",
-        description_md: "Devolver `p.name` sin el alias `product_name`.",
+        description_md:
+          "Devolver `p.name` sin el alias `product_name`: el encabezado no coincide con el que pidió la consigna.",
       },
       {
         category: "missing_filter",
         description_md:
-          "Filtrar el país en `products` o en `reviews`: la columna `country` está en `customers`.",
+          "Buscar el país en la tabla `products` o en la tabla `reviews`: la columna `country` está en la tabla `customers`.",
       },
     ],
     expert_explanation_md:
-      "33 reseñas. Cada reseña tiene un cliente y un producto, así que los dos JOIN son «muchos a uno» y el resultado conserva una fila por reseña.\n\nEmpezar por la tabla central hace la consulta más legible: se ve de inmediato que el nivel del reporte es «una fila por reseña».",
+      "El resultado de la consulta da 33 reseñas. Cada reseña tiene un solo cliente y un solo producto, así que los dos cruces son de tipo «muchos a uno» y el resultado conserva una fila por reseña.\n\nEmpezar la consulta por la tabla central la hace más legible: se ve de inmediato que el nivel de detalle del reporte es «una fila por reseña», que es justamente lo que pidió el equipo de Perú.",
     reward: defaultReward("intermediate"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -296,9 +304,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["products", "categories"],
     scenario_md:
-      "**Bazar Urbano 3** (el vendedor con `id` 3, de Perú) quiere ver cómo se clasifica su catálogo completo, para saber en qué rubros está concentrado: la subcategoría de cada producto y la categoría raíz a la que pertenece. Pide el listado agrupado por rubro, como lo leería en una reunión. En `categories`, `parent_id` apunta a la categoría padre.",
+      "El vendedor **Bazar Urbano 3**, que en la tabla `sellers` tiene el `id` igual a 3 y opera desde Perú, quiere ver cómo se clasifica su catálogo completo para saber en qué rubros está concentrado: necesita la subcategoría de cada producto y la categoría raíz a la que pertenece esa subcategoría. Pide el listado agrupado por rubro, tal como lo leería en una reunión. Ten en cuenta que en la tabla `categories` la columna `parent_id` apunta a la categoría padre.",
     business_question_md:
-      "Para los productos con `seller_id` igual a 3, devuelve `name` del producto, el nombre de su categoría como `subcategoria` y el nombre de la categoría padre como `categoria`. Ordena por `categoria`, después por `subcategoria` y después por el nombre del producto, todo ascendente.",
+      "Debes generar un dataset que, para los productos cuyo `seller_id` es igual a `3`, devuelva el `name` del producto, el nombre de su categoría bajo el encabezado `subcategoria` y el nombre de la categoría padre bajo el encabezado `categoria`. Ordena por `categoria`, después por `subcategoria` y después por el nombre del producto, las tres claves en forma ascendente.",
     learning_objective:
       "Unir la misma tabla dos veces con alias distintos para recorrer una jerarquía.",
     theory_ref: varias,
@@ -314,13 +322,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Necesitas `categories` dos veces: una para la subcategoría del producto y otra para el padre de esa subcategoría.",
+          "Necesitas usar la tabla `categories` dos veces: una vez para la subcategoría del producto y otra vez para la categoría padre de esa subcategoría.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Dale un alias a cada aparición (`sub`, `raiz`). La segunda se une por `raiz.id = sub.parent_id`.",
+          "Dale un alias distinto a cada aparición de la tabla, por ejemplo `sub` y `raiz`. La segunda aparición se une con la condición `raiz.id = sub.parent_id`.",
         ...defaultHintMeta(2),
       },
       {
@@ -334,12 +342,12 @@ export const exercises: ExerciseDef[] = [
       {
         category: "syntax",
         description_md:
-          "Unir `categories` dos veces sin alias: «table name specified more than once».",
+          "Unir la tabla `categories` dos veces sin darle alias: PostgreSQL devuelve el error «table name specified more than once».",
       },
       {
         category: "join_condition",
         description_md:
-          "`raiz.id = p.category_id` en la segunda unión: devuelve la misma subcategoría dos veces.",
+          "Escribir `raiz.id = p.category_id` en la segunda unión: la consulta devuelve la misma subcategoría repetida en las dos columnas, en lugar de subir un nivel en la jerarquía.",
       },
       {
         category: "wrong_order",
@@ -348,7 +356,7 @@ export const exercises: ExerciseDef[] = [
       },
     ],
     expert_explanation_md:
-      "7 productos, cada uno con su subcategoría y su raíz. Ordenados por rubro se lee la respuesta de negocio de una vez: tres productos en Belleza, dos en Hogar, uno en Juguetes y uno en Tecnología. Esa concentración es lo que el vendedor quería ver.\n\nLas claves del `ORDER BY` son columnas de las tablas unidas (`raiz.name`, `sub.name`), no del `SELECT`: puedes ordenar por cualquier columna disponible después del `FROM`, tenga alias o no.\n\n Como todos los productos cuelgan de subcategorías (ninguno de una raíz), el INNER JOIN no pierde filas; si algún producto estuviera en una categoría raíz, `sub.parent_id` sería NULL y ese producto desaparecería. Ahí necesitarías un LEFT JOIN.\n\nRecorrer jerarquías de profundidad fija con self join es habitual; para profundidad variable existen las CTE recursivas (sección 22).",
+      "El resultado de la consulta da 7 productos, cada uno con su subcategoría y su categoría raíz. Ordenados por rubro, la respuesta de negocio se lee de una sola vez: tres productos en Belleza, dos en Hogar, uno en Juguetes y uno en Tecnología. Esa concentración es lo que el vendedor quería ver.\n\nLas claves del `ORDER BY` son columnas de las tablas unidas, como `raiz.name` y `sub.name`, y no columnas del `SELECT`: puedes ordenar por cualquier columna disponible después del `FROM`, tenga alias o no.\n\nComo todos los productos de este vendedor cuelgan de subcategorías y ninguno cuelga directamente de una raíz, el `INNER JOIN` no pierde filas. Si algún producto estuviera clasificado en una categoría raíz, su `sub.parent_id` estaría en `NULL` y ese producto desaparecería del reporte; en ese caso necesitarías un `LEFT JOIN`.\n\nRecorrer jerarquías de profundidad fija con una autounión es una técnica habitual; para jerarquías de profundidad variable existen las expresiones de tabla común recursivas, que vas a ver en la sección 22.",
     reward: defaultReward("intermediate"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,

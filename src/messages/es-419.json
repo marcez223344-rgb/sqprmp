@@ -142,7 +142,7 @@
   "dashboard": {
     "welcome": "Hola, {name}",
     "subtitle": "Nivel {level}. Cada ejercicio correcto suma XP; cada día de práctica alimenta tu racha.",
-    "freeCounter": "Ejercicios gratis usados: {used} de {limit}",
+    "freeCounter": "Cupo gratis del curso pago: {used} de {limit} ejercicios usados.",
     "continue": {
       "title": "Continuar aprendiendo",
       "cta": "Continuar",
@@ -205,7 +205,8 @@
       "title": "Repaso recomendado",
       "body": "Vuelve sobre las preguntas que fallaste o que ya casi olvidas. Cinco minutos alcanzan.",
       "cta": "Repasar ahora"
-    }
+    },
+    "freeCounterSections": "Los ejercicios de {sections} no usan este cupo: son gratis siempre."
   },
   "onboarding": {
     "title": "Configura tu perfil",
@@ -663,7 +664,25 @@
       "countedBadge": "Cupo gratis: {used} de {limit}",
       "countedDetail": "Este ejercicio es del curso pago y usa tu cupo. Los ejercicios de las secciones gratis no cuentan aquí."
     },
-    "referenceMaterial": "Material de referencia"
+    "referenceMaterial": "Material de referencia",
+    "savedQueries": {
+      "open": "Mis consultas guardadas",
+      "intro": "Tus consultas guardadas, de la más reciente a la más antigua. Cargar una reemplaza lo que haya en el editor.",
+      "loading": "Cargando tus consultas…",
+      "empty": "Todavía no guardaste consultas. Usa «Guardar consulta» para tener a mano las que quieras reutilizar.",
+      "load": "Cargar en el editor",
+      "loaded": "«{title}» está en el editor.",
+      "sqlOf": "SQL de {title}",
+      "replaceWarning": "El editor tiene una consulta sin guardar. Si continúas, se reemplaza.",
+      "replaceConfirm": "Reemplazar",
+      "replaceCancel": "Cancelar",
+      "retry": "Reintentar",
+      "manage": "Administrar en Consultas guardadas",
+      "errors": {
+        "unauthorized": "Tu sesión expiró. Vuelve a iniciar sesión para ver tus consultas.",
+        "unknown": "No pudimos cargar tus consultas. Vuelve a intentarlo."
+      }
+    }
   },
   "demo": {
     "title": "Prueba SQL en tu navegador",
@@ -795,7 +814,8 @@
       },
       "goPath": "Ir a la ruta",
       "free": "Plan gratuito: {used} de {limit} ejercicios gratis usados.",
-      "upgrade": "Desbloquear acceso completo"
+      "upgrade": "Desbloquear acceso completo",
+      "freeNote": "Los ejercicios de las secciones gratis no usan este cupo."
     },
     "pending": {
       "title": "Pago pendiente de revisión",
@@ -1268,10 +1288,8 @@
   },
   "quiz": {
     "empty": "No hay preguntas para mostrar.",
-    "score": "{score} de {total} correctas",
-    "passed": "Aprobaste. Superaste el {percent}% requerido.",
-    "failed": "No alcanzaste el {percent}% requerido. Revisa las explicaciones y vuelve a intentarlo.",
-    "reviewDone": "Sesión de repaso terminada. Las respuestas del repaso no suman XP ni cuentan como intento.",
+    "passed": "Aprobaste con {percent} %. El mínimo para aprobar es {threshold} %.",
+    "failed": "Obtuviste {percent} % y el mínimo para aprobar es {threshold} %. Revisa las explicaciones y vuelve a intentarlo.",
     "reward": "+{xp} XP por aprobar el quiz.",
     "sectionCompleted": "Sección completada.",
     "questionN": "Pregunta {n}",
@@ -1328,7 +1346,10 @@
     "reviewHeading": "Revisión",
     "reviewHint": "{count, plural, one {Revisa primero la que falló.} other {Revisa primero las # que fallaron.}}",
     "nextHeading": "Qué sigue",
-    "retryNewSample": "Repetir con otras preguntas"
+    "retryNewSample": "Repetir con otras preguntas",
+    "scoreWithPercent": "{score} de {total} correctas · {percent} %",
+    "reviewDonePercent": "Sesión de repaso terminada: {percent} % de aciertos. Las respuestas del repaso no suman XP ni cuentan como intento.",
+    "tallyPercent": "{correct} correctas de {answered} respondidas · {percent} %"
   },
   "review": {
     "title": "Repaso",
@@ -1375,6 +1396,14 @@
       "verifyAt": "Verificar en",
       "id": "ID",
       "revoked": "CERTIFICADO REVOCADO"
+    },
+    "progressUnits": "{done} de {total} lecciones y ejercicios completados ({percent} %)",
+    "detail": {
+      "lessons": "Teoría {done}/{total}",
+      "exercises": "Ejercicios {done}/{total}",
+      "quizPassed": "Quiz aprobado",
+      "quizPending": "Quiz pendiente",
+      "soon": "Contenido en preparación"
     }
   },
   "verify": {

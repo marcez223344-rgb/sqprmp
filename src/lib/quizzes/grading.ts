@@ -63,6 +63,17 @@ export function passThreshold(score: number, total: number, thresholdPercent: nu
   return total > 0 && score * 100 >= thresholdPercent * total;
 }
 
+/**
+ * The learner's score as a whole percentage, for display next to the pass threshold.
+ *
+ * Rounded down on purpose: with any integer threshold, a rounded-up percentage could read "80 %"
+ * on an attempt that `passThreshold` fails, and the two lines sit next to each other on the
+ * result screen. Flooring can never contradict the verdict.
+ */
+export function scorePercent(score: number, total: number): number {
+  return total > 0 ? Math.floor((score * 100) / total) : 0;
+}
+
 /** Fisher–Yates with a caller-provided RNG (deterministic in tests). */
 export function shuffle<T>(items: T[], random: () => number = Math.random): T[] {
   const out = [...items];

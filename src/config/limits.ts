@@ -31,10 +31,34 @@ export const limits = {
   quiz: {
     /**
      * D-33: a section quiz serves a random sample of its question bank, not the whole bank.
-     * Ten questions read as an exam; six read as a check and leave the bank deep enough that a
-     * retry asks different questions.
+     * D-37 made the sample size per section (`quiz_questions` in src/content/sections.ts), because
+     * how many items are needed depends on how much of the section's evidence the quiz has to
+     * carry — a property of the content. This value is the default for a section that declares
+     * nothing, and the policy below is what a declared value must respect.
      */
     questionsPerAttempt: 6,
+    /**
+     * Lengths a section may declare (D-37). With `rewards.quizPassThresholdPercent` = 80 a learner
+     * may miss floor(L/5) questions, so the bar actually applied is ceil(0.8·L)/L: 5 → 80 %,
+     * 6 → 83 %, 10 → 80 %, 11 → 82 %, 12 → 83 %. The excluded lengths are silently harsher than
+     * the 80 % the learner is told: 7 → 86 %, 8 → 88 %, 9 → 89 %, and at 4 or less a single
+     * mistake fails the attempt. Only lengths whose real bar stays within 80–84 % are allowed.
+     */
+    lengthsAllowed: [5, 6, 10, 11, 12] as const,
+    /**
+     * Published questions of the bank that must stay outside any single attempt. A failed attempt
+     * shows the correct answer of every question it asked (D-34), so a retry drawn from almost the
+     * same pool would measure recall of that feedback instead of mastery. Checked by
+     * `npm run content:validate`, not at runtime.
+     */
+    minUnseenOnRetry: 3,
+    /**
+     * Length for a section that closes a level and feeds a certificate. Ten items at 80 % tolerate
+     * two mistakes, which makes them as forgiving as five for a learner who knows the material and
+     * far harder to pass by luck (see docs/GAMIFICATION.md § Section quizzes). Requires a bank of
+     * 13+ published questions.
+     */
+    gateQuestions: 10,
   },
 
   rewards: {

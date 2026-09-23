@@ -22,9 +22,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["users"],
     scenario_md:
-      "En **Ritmo**, Crecimiento prepara la lámina de apertura del comité mensual: la curva de oyentes registrados desde que abrió el servicio. Quiere ver el alta de cada mes y el total acumulado hasta ese mes.",
+      "En **Ritmo**, el departamento de Crecimiento está preparando la lámina de apertura del comité mensual: la curva de oyentes registrados desde que abrió el servicio. Quiere ver el alta de cada mes y el total acumulado hasta ese mes, y te pide esa serie para armar el gráfico.",
     business_question_md:
-      "A partir de `users`, devuelve una fila por mes de alta: `mes` (primer día del mes de `signup_at`, calculado en UTC, como `date`), `altas` (oyentes registrados en ese mes) y `altas_acumuladas` (total de altas desde el primer mes hasta ese mes inclusive), ordenado por `mes` ascendente.",
+      "Debes generar un dataset, a partir de la tabla `users`, con una fila por mes de alta, que devuelva el `mes`, que es el primer día del mes de la columna `signup_at` calculado en la zona horaria UTC y con tipo `date`, la cantidad de oyentes registrados en ese mes bajo el encabezado `altas` y el total de altas desde el primer mes hasta ese mes inclusive bajo el encabezado `altas_acumuladas`. Ordena por `mes` ascendente.",
     learning_objective:
       "Calcular un total acumulado con sum() OVER (ORDER BY período) sobre una serie ya agregada.",
     theory_ref: acumulados,
@@ -50,13 +50,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Son dos pasos: primero una fila por mes con su cantidad de altas, después el acumulado sobre esa serie. Una CTE separa los dos pasos con claridad.",
+          "Son dos pasos: primero una fila por mes con su cantidad de altas, y después el acumulado calculado sobre esa serie. Una expresión de tabla común separa los dos pasos con claridad.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "El mes sale de `date_trunc('month', signup_at AT TIME ZONE 'UTC')::date`. El acumulado es una función de ventana que suma la columna ya agregada ordenando por mes.",
+          "El mes sale de la expresión `date_trunc('month', signup_at AT TIME ZONE 'UTC')::date`. El acumulado es una función de ventana que suma la columna ya agregada, ordenando por mes.",
         ...defaultHintMeta(2),
       },
       {
@@ -70,26 +70,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "cell_values",
         description_md:
-          "Escribir `sum(altas) OVER ()` sin `ORDER BY`: cada fila muestra 5000, el total, en vez del acumulado.",
+          "Escribir `sum(altas) OVER ()` sin la cláusula `ORDER BY`: cada fila muestra 5000, que es el total, en lugar del acumulado hasta ese mes.",
       },
       {
         category: "aggregation_level",
         description_md:
-          "Intentar `sum(count(*)) OVER (ORDER BY mes)` sin la CTE: el `ORDER BY` de la ventana debe referirse a la misma expresión agrupada, y la consulta se vuelve frágil.",
+          "Intentar `sum(count(*)) OVER (ORDER BY mes)` sin la expresión de tabla común: el `ORDER BY` de la ventana tiene que referirse a la misma expresión agrupada, y la consulta se vuelve frágil.",
       },
       {
         category: "date_boundary",
         description_md:
-          "Agrupar por `signup_at` sin truncar al mes: obtienes una fila por instante de alta, no una por mes.",
+          "Agrupar por la columna `signup_at` sin truncarla al mes: se obtiene una fila por instante de alta y no una por mes.",
       },
       {
         category: "wrong_order",
         description_md:
-          "Ordenar el resultado por `altas` en vez de por `mes`: la curva deja de leerse cronológicamente.",
+          "Ordenar el resultado por `altas` en lugar de por `mes`: la curva deja de leerse de forma cronológica.",
       },
     ],
     expert_explanation_md:
-      "21 filas, de `2024-01-01` a `2025-09-01`. La última fila vale 5000: el acumulado cierra con el total de oyentes de la tabla, una verificación rápida de que la ventana está bien construida.\n\nEl patrón es siempre el mismo: agregar por período en una CTE y acumular afuera. Podrías hacerlo en un solo nivel repitiendo la expresión `date_trunc(...)` dentro del `ORDER BY` de la ventana, pero la CTE se lee mejor y evita duplicar lógica.\n\nEl último mes (septiembre de 2025) tiene menos altas porque el dataset termina el día 15: en un informe real conviene marcar los períodos incompletos para que nadie los lea como una caída.\n\nAlternativa: `sum(altas) OVER (ORDER BY mes ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)` da lo mismo y deja explícito el marco.",
+      "El resultado de la consulta da 21 filas, desde `2024-01-01` hasta `2025-09-01`. La última fila vale 5000: el acumulado cierra con el total de oyentes de la tabla, que es una verificación rápida de que la ventana está bien construida.\n\nEl patrón es siempre el mismo: agregar por período dentro de una expresión de tabla común y acumular afuera. Podrías hacerlo en un solo nivel repitiendo la expresión `date_trunc(...)` dentro del `ORDER BY` de la ventana, pero la expresión de tabla común se lee mejor y evita duplicar lógica.\n\nEl último mes, septiembre de 2025, tiene menos altas porque el dataset termina el día 15: en un informe real conviene marcar los períodos incompletos para que nadie los interprete como una caída.\n\nUna alternativa equivalente es escribir `sum(altas) OVER (ORDER BY mes ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)`, que da lo mismo y deja el marco explícito.",
     reward: defaultReward("intermediate"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -104,9 +104,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["plays"],
     scenario_md:
-      "El equipo de Contenido sigue día a día cuánto se escucha Ritmo y quiere saber, en cualquier momento del mes, cuántas reproducciones lleva acumuladas agosto de 2025.",
+      "El departamento de Contenido sigue día a día cuánto se escucha **Ritmo** y quiere saber, en cualquier momento del mes, cuántas reproducciones lleva acumuladas agosto de 2025. Te piden esa serie diaria para colgarla del tablero interno.",
     business_question_md:
-      "Para las reproducciones de agosto de 2025 (del 1 al 31 inclusive, en UTC), devuelve `dia` (fecha de `played_at` en UTC, como `date`), `reproducciones` (cantidad de ese día) y `acumulado_mes` (total del mes hasta ese día inclusive), ordenado por `dia` ascendente.",
+      "Debes generar un dataset que, tomando las reproducciones de agosto de 2025, del día 1 al 31 inclusive y en la zona horaria UTC, devuelva el `dia`, que es la fecha de `played_at` en UTC con tipo `date`, la cantidad de reproducciones de ese día bajo el encabezado `reproducciones` y el total del mes hasta ese día inclusive bajo el encabezado `acumulado_mes`. Ordena por `dia` ascendente.",
     learning_objective:
       "Construir un acumulado diario dentro de un período acotado y entender que el WHERE delimita lo que la ventana puede ver.",
     theory_ref: acumulados,
@@ -128,13 +128,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Primero la serie diaria con `GROUP BY`; después el acumulado con una ventana ordenada por día.",
+          "Primero arma la serie diaria con una cláusula `GROUP BY`; después calcula el acumulado con una ventana ordenada por día.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Delimita el mes con `played_at >= timestamptz '2025-08-01 00:00:00+00' AND played_at < timestamptz '2025-09-01 00:00:00+00'`: el límite superior abierto evita perder las reproducciones del 31 por la noche.",
+          "Delimita el mes con las condiciones `played_at >= timestamptz '2025-08-01 00:00:00+00'` y `played_at < timestamptz '2025-09-01 00:00:00+00'`: el límite superior abierto evita perder las reproducciones del día 31 por la noche.",
         ...defaultHintMeta(2),
       },
       {
@@ -153,7 +153,7 @@ export const exercises: ExerciseDef[] = [
       {
         category: "cell_values",
         description_md:
-          "Omitir el `ORDER BY` dentro de `OVER`: las 31 filas muestran el total del mes.",
+          "Omitir la cláusula `ORDER BY` dentro del `OVER`: las 31 filas muestran el total del mes en lugar del acumulado.",
       },
       {
         category: "missing_filter",
@@ -163,11 +163,11 @@ export const exercises: ExerciseDef[] = [
       {
         category: "aggregation_level",
         description_md:
-          "Acumular sobre las filas de `plays` sin agregarlas antes por día: el resultado tiene 11 024 filas en vez de 31.",
+          "Acumular sobre las filas de la tabla `plays` sin agregarlas antes por día: el resultado tiene 11 024 filas en lugar de 31.",
       },
     ],
     expert_explanation_md:
-      "31 filas. El acumulado cierra el 31 de agosto en 11 024 reproducciones, que es el total del mes; los días individuales van de 296 a 438.\n\nEl `WHERE` actúa **antes** que la ventana, así que el acumulado arranca en cero el 1 de agosto: es exactamente lo que pide el negocio («cuánto lleva el mes»). Si quisieras el acumulado histórico, tendrías que calcular la ventana sobre toda la serie y filtrar agosto después, en un nivel externo.\n\nEsa decisión —filtrar antes o después de la ventana— es la que separa un acumulado del mes de un acumulado de la historia, y no se nota mirando el SQL por encima: hay que leer dónde está el filtro.",
+      "El resultado de la consulta da 31 filas. El acumulado cierra el 31 de agosto en 11 024 reproducciones, que es el total del mes; los días individuales van de 296 a 438.\n\nLa cláusula `WHERE` actúa **antes** que la ventana, así que el acumulado arranca en cero el 1 de agosto: es exactamente lo que pide el negocio, que quiere saber cuánto lleva el mes. Si quisieras el acumulado histórico, tendrías que calcular la ventana sobre toda la serie y filtrar agosto después, en un nivel externo.\n\nEsa decisión, filtrar antes o después de la ventana, es la que separa un acumulado del mes de un acumulado de toda la historia, y no se nota mirando el SQL por encima: hay que leer dónde está puesto el filtro.",
     reward: defaultReward("intermediate"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -182,9 +182,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["plays"],
     scenario_md:
-      "Producto publica un tablero con la tendencia de escucha. La serie diaria salta mucho entre semana y fin de semana, así que piden suavizarla con una media móvil de 7 días. El tablero muestra desde el 1 de agosto de 2025, pero el primer día ya tiene que traer una media completa de siete días reales.",
+      "El departamento de Producto publica un tablero con la tendencia de escucha. La serie diaria salta mucho entre los días de semana y el fin de semana, así que piden suavizarla con una media móvil de 7 días. El tablero muestra desde el 1 de agosto de 2025, pero ese primer día ya tiene que traer una media completa de siete días reales, y te piden resolver ese detalle.",
     business_question_md:
-      "Devuelve `dia` (fecha de `played_at` en UTC, como `date`), `reproducciones` (cantidad de ese día) y `media_7d` (promedio de las reproducciones de ese día y los seis días anteriores, redondeado a 2 decimales), para los días desde el `2025-08-01` en adelante, ordenado por `dia` ascendente. La media del 1 de agosto debe incluir los últimos días de julio.",
+      "Debes generar un dataset que devuelva el `dia`, que es la fecha de `played_at` en la zona horaria UTC con tipo `date`, la cantidad de reproducciones de ese día bajo el encabezado `reproducciones` y el promedio de las reproducciones de ese día y los seis días anteriores, redondeado a 2 decimales, bajo el encabezado `media_7d`, para los días desde el `'2025-08-01'` en adelante, ordenado por `dia` ascendente. La media del 1 de agosto debe incluir los últimos días de julio.",
     learning_objective:
       "Definir un marco ROWS BETWEEN N PRECEDING AND CURRENT ROW y filtrar el período después de calcular la ventana.",
     theory_ref: moviles,
@@ -204,13 +204,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "El marco por omisión acumula desde el principio de la serie. Para una media móvil tienes que declarar el marco tú.",
+          "El marco que se aplica por omisión acumula desde el principio de la serie. Para obtener una media móvil tienes que declarar el marco de forma explícita.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "«Siete días incluido el actual» son seis filas anteriores más la actual. Y como el `WHERE` se evalúa antes que la ventana, la serie que alimenta el cálculo tiene que empezar en julio; el recorte a agosto va en un nivel posterior.",
+          "«Siete días incluyendo el actual» son seis filas anteriores más la fila actual. Y como la cláusula `WHERE` se evalúa antes que la ventana, la serie que alimenta el cálculo tiene que empezar en julio; el recorte a agosto va en un nivel posterior.",
         ...defaultHintMeta(2),
       },
       {
@@ -223,25 +223,27 @@ export const exercises: ExerciseDef[] = [
     common_mistakes: [
       {
         category: "cell_values",
-        description_md: "`ROWS BETWEEN 7 PRECEDING AND CURRENT ROW`: es una ventana de ocho días.",
+        description_md:
+          "Escribir `ROWS BETWEEN 7 PRECEDING AND CURRENT ROW`: esa es una ventana de ocho días, porque también cuenta la fila actual.",
       },
       {
         category: "cell_values",
         description_md:
-          "Omitir el marco: `avg(...) OVER (ORDER BY dia)` devuelve el promedio acumulado desde el inicio, que se aplana con el tiempo y no es una media móvil.",
+          "Omitir la declaración del marco: la expresión `avg(...) OVER (ORDER BY dia)` devuelve el promedio acumulado desde el inicio, que se aplana con el tiempo y no es una media móvil.",
       },
       {
         category: "date_boundary",
         description_md:
-          "Filtrar agosto en el `WHERE` de la CTE: los primeros seis días promedian menos de siete valores porque la ventana no ve julio.",
+          "Filtrar agosto dentro de la cláusula `WHERE` de la expresión de tabla común: los primeros seis días promedian menos de siete valores, porque la ventana no puede ver julio.",
       },
       {
         category: "wrong_columns",
-        description_md: "Devolver la media sin redondear: se pide `media_7d` con 2 decimales.",
+        description_md:
+          "Devolver la media sin redondear: la consigna pide la columna `media_7d` con 2 decimales.",
       },
     ],
     expert_explanation_md:
-      "46 filas, del 1 de agosto al 15 de septiembre de 2025. El 1 de agosto la media vale 349.00 y ya está calculada sobre siete días completos, porque la CTE arranca el 1 de julio.\n\nLa estructura tiene tres niveles y cada uno hace una sola cosa: `diario` agrega, `con_media` calcula la ventana, la consulta externa recorta el período. Ese orden es obligatorio: `WHERE` corre antes que las ventanas, así que no hay forma de filtrar y suavizar en el mismo nivel.\n\nMira la última fila: el 15 de septiembre registra 182 reproducciones contra ~400 los días previos, porque el dataset termina a mediodía. La media móvil amortigua ese corte pero no lo elimina; en un tablero real, el último día siempre se marca como parcial.\n\nSi quisieras una media centrada, el marco sería `ROWS BETWEEN 3 PRECEDING AND 3 FOLLOWING`: sigue mejor la curva, pero usa días futuros y no sirve para un tablero en vivo.",
+      "El resultado de la consulta da 46 filas, desde el 1 de agosto hasta el 15 de septiembre de 2025. El 1 de agosto la media vale 349.00 y ya está calculada sobre siete días completos, porque la expresión de tabla común arranca el 1 de julio.\n\nLa estructura tiene tres niveles y cada uno hace una sola cosa: la expresión `diario` agrega, la expresión `con_media` calcula la ventana y la consulta externa recorta el período. Ese orden es obligatorio: la cláusula `WHERE` corre antes que las funciones de ventana, así que no hay forma de filtrar y suavizar en el mismo nivel.\n\nMira la última fila: el 15 de septiembre registra 182 reproducciones contra alrededor de 400 los días previos, porque el dataset termina a mediodía. La media móvil amortigua ese corte pero no lo elimina; en un tablero real, el último día siempre se marca como parcial.\n\nSi quisieras una media centrada, el marco sería `ROWS BETWEEN 3 PRECEDING AND 3 FOLLOWING`: sigue mejor la curva, pero usa días futuros y por eso no sirve para un tablero en vivo.",
     reward: defaultReward("advanced"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -256,9 +258,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["plays", "users"],
     scenario_md:
-      "Expansión compara cómo evolucionan los seis mercados de Ritmo durante 2025. Cada país necesita su propia curva acumulada, que arranca de cero, para poder ponerlas una al lado de la otra.",
+      "El departamento de Expansión está comparando cómo evolucionan los seis mercados de **Ritmo** durante 2025. Cada país necesita su propia curva acumulada, que arranque de cero, para poder ponerlas una al lado de la otra en el mismo gráfico. Te piden esa serie por país.",
     business_question_md:
-      "Para las reproducciones desde el `2025-01-01` (en UTC), devuelve `country` (país del oyente), `mes` (primer día del mes de `played_at` en UTC, como `date`), `reproducciones` (cantidad de ese país en ese mes) y `acumulado` (total de ese país desde enero hasta ese mes inclusive), ordenado por `country` y luego `mes` ascendente.",
+      "Debes generar un dataset que, tomando las reproducciones desde el `'2025-01-01'` en la zona horaria UTC, devuelva el `country` del oyente, el `mes`, que es el primer día del mes de `played_at` en UTC con tipo `date`, la cantidad de reproducciones de ese país en ese mes bajo el encabezado `reproducciones` y el total de ese país desde enero hasta ese mes inclusive bajo el encabezado `acumulado`. Ordena por `country` ascendente y después por `mes` ascendente.",
     learning_objective: "Reiniciar un total acumulado por grupo con PARTITION BY + ORDER BY.",
     theory_ref: acumulados,
     expected_columns: [
@@ -277,13 +279,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Cada país necesita su propia curva: eso es una partición. El avance mes a mes sigue siendo el `ORDER BY` de la ventana.",
+          "Cada país necesita su propia curva: eso se expresa con una partición. El avance mes a mes sigue siendo el `ORDER BY` de la ventana.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "El país vive en `users`, así que une `plays` con `users` por `user_id`. Agrupa por país y mes en la CTE y acumula afuera con `PARTITION BY country ORDER BY mes`.",
+          "El país vive en la tabla `users`, así que une `plays` con `users` por la columna `user_id`. Agrupa por país y por mes dentro de la expresión de tabla común y acumula afuera con `PARTITION BY country ORDER BY mes`.",
         ...defaultHintMeta(2),
       },
       {
@@ -297,26 +299,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "cell_values",
         description_md:
-          "Olvidar `PARTITION BY country`: la curva se acumula atravesando países y el primer mes de Brasil arranca donde terminó Argentina.",
+          "Olvidar la cláusula `PARTITION BY country`: la curva se acumula atravesando países, y el primer mes de Brasil arranca donde terminó Argentina.",
       },
       {
         category: "cell_values",
         description_md:
-          "Escribir `PARTITION BY mes`: el acumulado nunca avanza porque cada partición tiene una sola fila por país.",
+          "Escribir `PARTITION BY mes`: el acumulado nunca avanza, porque cada partición tiene una sola fila por país.",
       },
       {
         category: "join_condition",
         description_md:
-          "Unir por una columna equivocada (por ejemplo `u.id = p.id`): el país deja de corresponder al oyente que escuchó.",
+          "Unir por una columna equivocada, por ejemplo `u.id = p.id`: el país deja de corresponder al oyente que realmente escuchó.",
       },
       {
         category: "aggregation_level",
         description_md:
-          "Agrupar solo por mes y luego particionar por país: el país no está en el `GROUP BY` y la consulta ni siquiera compila.",
+          "Agrupar solo por mes y después particionar por país: el país no está en la cláusula `GROUP BY` y la consulta ni siquiera compila.",
       },
     ],
     expert_explanation_md:
-      "54 filas: seis países por nueve meses. México cierra septiembre con 19 944 reproducciones acumuladas y Perú con 5547; ordenadas por país y mes, las seis curvas se leen como seis series independientes.\n\n`PARTITION BY` define **dónde** se reinicia el acumulado y `ORDER BY` define **cómo** avanza. Confundirlos es el error más caro de esta sección: sin partición obtienes una curva sin sentido que mezcla mercados; particionando por el período obtienes la métrica original repetida.\n\nEl `INNER JOIN` con `users` no pierde filas porque toda reproducción tiene oyente, pero conviene saberlo: si la clave pudiera faltar, un `LEFT JOIN` dejaría un grupo con `country` nulo que también acumularía.\n\nPara comparar mercados de tamaños muy distintos, el paso siguiente habitual es dividir el acumulado de cada país por su total (`sum(reproducciones) OVER (PARTITION BY country)`) y graficar porcentajes.",
+      "El resultado de la consulta da 54 filas: seis países por nueve meses. México cierra septiembre con 19 944 reproducciones acumuladas y Perú con 5547; ordenadas por país y mes, las seis curvas se leen como seis series independientes.\n\nLa cláusula `PARTITION BY` define **dónde** se reinicia el acumulado y la cláusula `ORDER BY` define **cómo** avanza. Confundirlas es el error más caro de esta sección: sin partición obtienes una curva sin sentido que mezcla mercados, y particionando por el período obtienes la métrica original repetida.\n\nEl `INNER JOIN` con la tabla `users` no pierde filas, porque toda reproducción tiene un oyente asociado, pero conviene saberlo: si la clave pudiera faltar, un `LEFT JOIN` dejaría un grupo con `country` en `NULL` que también acumularía.\n\nPara comparar mercados de tamaños muy distintos, el paso siguiente habitual es dividir el acumulado de cada país por su total, calculado con `sum(reproducciones) OVER (PARTITION BY country)`, y graficar porcentajes en lugar de valores absolutos.",
     reward: defaultReward("advanced"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -331,9 +333,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["plays", "tracks", "albums", "artists"],
     scenario_md:
-      "Contenido negocia con los sellos y necesita un argumento: cuántos artistas concentran la mayor parte de la escucha. La herramienta clásica es la curva de participación acumulada, ordenando de más a menos escuchado.",
+      "El departamento de Contenido está negociando con los sellos discográficos y necesita un argumento concreto: cuántos artistas concentran la mayor parte de la escucha. La herramienta clásica para eso es la curva de participación acumulada, que se construye ordenando de más a menos escuchado. Te piden esa curva para llevarla a la negociación.",
     business_question_md:
-      "Para las reproducciones desde el `2025-01-01` (en UTC), devuelve `artista` (`artists.name`), `reproducciones` (cantidad del artista) y `pct_acumulado` (porcentaje acumulado sobre el total de todas las reproducciones del período, redondeado a 2 decimales), ordenado por `reproducciones` descendente y, ante empates, por `artista` ascendente. El acumulado debe seguir ese mismo orden.",
+      "Debes generar un dataset que, tomando las reproducciones desde el `'2025-01-01'` en la zona horaria UTC, devuelva el nombre del artista bajo el encabezado `artista`, la cantidad de reproducciones del artista bajo el encabezado `reproducciones` y el porcentaje acumulado sobre el total de todas las reproducciones del período, redondeado a 2 decimales, bajo el encabezado `pct_acumulado`. Ordena por `reproducciones` descendente y, si dos artistas empatan, debes desempatar usando `artista` ascendente. El acumulado debe seguir ese mismo orden.",
     learning_objective:
       "Combinar un acumulado ordenado por la métrica con un total general OVER () para obtener participación acumulada.",
     theory_ref: acumulados,
@@ -353,13 +355,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Necesitas dos ventanas sobre la misma serie: una que acumule en el orden del ranking y otra que dé el total general.",
+          "Necesitas dos ventanas sobre la misma serie: una que acumule siguiendo el orden del ranking y otra que dé el total general del período.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "El artista está a tres joins de `plays`: `tracks` → `albums` → `artists`. El denominador es `sum(reproducciones) OVER ()`, sin `ORDER BY`; el numerador, `sum(reproducciones) OVER (ORDER BY reproducciones DESC, artista)`.",
+          "El artista está a tres cruces de distancia de la tabla `plays`: primero `tracks`, después `albums` y después `artists`. El denominador es `sum(reproducciones) OVER ()`, sin `ORDER BY`; el numerador es `sum(reproducciones) OVER (ORDER BY reproducciones DESC, artista)`.",
         ...defaultHintMeta(2),
       },
       {
@@ -373,26 +375,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "cell_values",
         description_md:
-          "Poner `ORDER BY` en el denominador: entonces el cociente vale 100 % en todas las filas, porque numerador y denominador acumulan igual.",
+          "Poner una cláusula `ORDER BY` en el denominador: el cociente vale 100 % en todas las filas, porque el numerador y el denominador acumulan de la misma manera.",
       },
       {
         category: "wrong_order",
         description_md:
-          "Acumular en orden ascendente: la curva de Pareto se construye de mayor a menor.",
+          "Acumular en orden ascendente: la curva de Pareto se construye de mayor a menor participación.",
       },
       {
         category: "duplicates",
         description_md:
-          "No desempatar con `artista`: dos artistas con la misma cantidad reciben un orden arbitrario y el resultado deja de ser reproducible.",
+          "No desempatar con la columna `artista`: dos artistas con la misma cantidad reciben un orden arbitrario y el resultado deja de ser reproducible.",
       },
       {
         category: "cell_values",
         description_md:
-          "Dividir enteros entre enteros: `sum / sum` con bigint trunca a 0. Multiplicar por `100.0` fuerza aritmética decimal.",
+          "Dividir enteros entre enteros: la expresión `sum / sum` con valores de tipo `bigint` trunca el resultado a 0. Multiplicar por `100.0` fuerza aritmética decimal.",
       },
     ],
     expert_explanation_md:
-      "320 filas. El artista número 25 de la lista cruza el 50 %: una cuarta parte de un 8 % del catálogo explica la mitad de la escucha, la cola larga clásica de un servicio de streaming.\n\nLas dos ventanas comparten la serie pero no el marco. La del numerador tiene `ORDER BY`, así que su marco por omisión va del inicio a la fila actual; la del denominador no lo tiene, así que abarca toda la partición (aquí, todo el resultado). Esa asimetría es justo lo que produce el porcentaje acumulado.\n\n`100.0 *` no es cosmético: sin él, `sum(...) / sum(...)` entre enteros hace división entera y todas las filas salen en 0. Es uno de los errores más difíciles de detectar porque la consulta corre sin quejarse.\n\nCon la columna `pct_acumulado` ya calculada, filtrar `WHERE pct_acumulado <= 50` en un nivel externo te da directamente el grupo de artistas que sostiene la mitad del negocio.",
+      "El resultado de la consulta da 320 filas. El artista número 25 de la lista cruza el 50 %: una cuarta parte de un 8 % del catálogo explica la mitad de la escucha, que es la cola larga clásica de un servicio de streaming.\n\nLas dos ventanas comparten la serie pero no el marco. La del numerador tiene `ORDER BY`, así que su marco por omisión va desde el inicio hasta la fila actual; la del denominador no lo tiene, así que abarca toda la partición, que en este caso es todo el resultado. Esa asimetría es justamente lo que produce el porcentaje acumulado.\n\nEl factor `100.0 *` no es cosmético: sin él, la expresión `sum(...) / sum(...)` entre enteros hace división entera y todas las filas salen en 0. Es uno de los errores más difíciles de detectar, porque la consulta se ejecuta sin quejarse.\n\nCon la columna `pct_acumulado` ya calculada, filtrar `WHERE pct_acumulado <= 50` en un nivel externo te da directamente el grupo de artistas que sostiene la mitad del negocio.",
     reward: defaultReward("advanced"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -407,9 +409,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["plays"],
     scenario_md:
-      "Soporte reconstruye la actividad del oyente **3887** durante agosto de 2025 para responder un reclamo. Quiere ver cada reproducción con dos cifras del día: cuántas hizo ese día y cuántas lleva acumuladas **al cierre** de ese día, de modo que todas las reproducciones de una misma jornada muestren el mismo acumulado.",
+      "El departamento de Soporte está reconstruyendo la actividad del oyente número **3887** durante agosto de 2025 para responder un reclamo. Quiere ver cada reproducción con dos cifras del día: cuántas hizo esa jornada y cuántas lleva acumuladas **al cierre** de esa jornada, de modo que todas las reproducciones de un mismo día muestren el mismo acumulado. Te piden ese detalle para adjuntarlo a la respuesta.",
     business_question_md:
-      "Para las reproducciones de `user_id = 3887` en agosto de 2025 (en UTC), devuelve `id`, `dia` (fecha de `played_at` en UTC, como `date`), `reproducciones_del_dia` (cantidad de esa jornada) y `acumulado_al_cierre` (cantidad total desde el 1 de agosto hasta el final de esa jornada), ordenado por `dia` y luego `id` ascendente.",
+      "Debes generar un dataset que, tomando las reproducciones cuya columna `user_id` es igual a `3887` y que ocurrieron en agosto de 2025 en la zona horaria UTC, devuelva el `id`, el `dia`, que es la fecha de `played_at` en UTC con tipo `date`, la cantidad de reproducciones de esa jornada bajo el encabezado `reproducciones_del_dia` y la cantidad total desde el 1 de agosto hasta el final de esa jornada bajo el encabezado `acumulado_al_cierre`. Ordena por `dia` y después por `id`, los dos en forma ascendente.",
     learning_objective:
       "Aprovechar el marco RANGE por omisión para que las filas con la misma clave de orden compartan el valor acumulado.",
     theory_ref: marcos,
@@ -432,13 +434,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Aquí hay varias filas por día. El modo del marco decide si las filas empatadas comparten el acumulado o si cada una avanza de a una.",
+          "Acá hay varias filas por día. El modo del marco es lo que decide si las filas empatadas comparten el acumulado o si cada una avanza de a una.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "El marco por omisión cuando hay `ORDER BY` es `RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`, y con `RANGE` la fila actual incluye a todas sus empatadas. Para la cifra del día, una ventana con `PARTITION BY dia` y sin `ORDER BY`.",
+          "El marco que se aplica por omisión cuando hay `ORDER BY` es `RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`, y con el modo `RANGE` la fila actual incluye a todas sus filas empatadas. Para la cifra del día necesitas una ventana con `PARTITION BY dia` y sin `ORDER BY`.",
         ...defaultHintMeta(2),
       },
       {
@@ -452,26 +454,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "cell_values",
         description_md:
-          "Usar `ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`: el acumulado avanza fila por fila (1, 2, 3…) y las reproducciones del mismo día dejan de compartir valor.",
+          "Usar `ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`: el acumulado avanza fila por fila, dando 1, 2, 3 y así sucesivamente, y las reproducciones del mismo día dejan de compartir valor.",
       },
       {
         category: "cell_values",
         description_md:
-          "Agregar `id` al `ORDER BY` de la ventana del acumulado: rompe los empates y el resultado vuelve a ser un contador por fila.",
+          "Agregar la columna `id` al `ORDER BY` de la ventana del acumulado: rompe los empates y el resultado vuelve a ser un contador por fila.",
       },
       {
         category: "cell_values",
         description_md:
-          "Poner `ORDER BY dia` también en la ventana de `reproducciones_del_dia`: ahí no se quiere un acumulado sino el total de la partición.",
+          "Poner `ORDER BY dia` también en la ventana de `reproducciones_del_dia`: ahí no se busca un acumulado sino el total de toda la partición.",
       },
       {
         category: "date_boundary",
         description_md:
-          "Cortar el mes con `<= '2025-08-31'`: se pierden las reproducciones posteriores a la medianoche del 31.",
+          "Cortar el mes con la condición `<= '2025-08-31'`: se pierden las reproducciones posteriores a la medianoche del día 31.",
       },
     ],
     expert_explanation_md:
-      "51 filas en 25 jornadas. El 2 de agosto hay cuatro reproducciones y las cuatro muestran `acumulado_al_cierre = 4`: con `RANGE`, «la fila actual» significa «todas las filas cuyo día es igual al mío», así que las empatadas comparten marco.\n\nEs el mismo `count(*) OVER (ORDER BY dia)` que en otros ejercicios devolvía un acumulado limpio; la diferencia es que allí la clave de orden era única. Cuando hay empates, el modo del marco deja de ser un detalle: `ROWS` habría dado 1, 2, 3, 4 y el reclamo se habría respondido con otra cifra.\n\nLas dos ventanas del `SELECT` son distintas a propósito: `PARTITION BY dia` sin `ORDER BY` abarca toda la jornada (marco = partición completa); `ORDER BY dia` sin partición abarca desde el inicio del mes hasta el cierre del día.\n\nRegla que conviene automatizar: antes de escribir un acumulado, pregúntate si la clave de orden es única. Si lo es, `ROWS` y `RANGE` coinciden y `ROWS` es preferible; si no lo es, elige el modo de forma explícita y documéntalo.",
+      "El resultado de la consulta da 51 filas repartidas en 25 jornadas. El 2 de agosto hay cuatro reproducciones y las cuatro muestran `acumulado_al_cierre` igual a 4: con el modo `RANGE`, «la fila actual» significa «todas las filas cuyo día es igual al mío», así que las filas empatadas comparten marco.\n\nEs la misma expresión `count(*) OVER (ORDER BY dia)` que en otros ejercicios devolvía un acumulado limpio; la diferencia es que allí la clave de orden era única. Cuando hay empates, el modo del marco deja de ser un detalle: con `ROWS` el resultado habría sido 1, 2, 3 y 4, y el reclamo se habría respondido con otra cifra.\n\nLas dos ventanas del `SELECT` son distintas a propósito: `PARTITION BY dia` sin `ORDER BY` abarca toda la jornada, porque el marco es la partición completa; `ORDER BY dia` sin partición abarca desde el inicio del mes hasta el cierre del día.\n\nUna regla que conviene automatizar: antes de escribir un acumulado, pregúntate si la clave de orden es única. Si lo es, `ROWS` y `RANGE` coinciden y conviene `ROWS`; si no lo es, elige el modo de forma explícita y documéntalo.",
     reward: defaultReward("advanced"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -493,9 +495,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["plays", "tracks", "albums"],
     scenario_md:
-      "El equipo de Artistas prepara el informe de **Sierra y Ceibo** (`artists.id = 247`), un proyecto emergente que algunos días no suena. Un análisis anterior calculó su media móvil de 7 días con `ROWS BETWEEN 6 PRECEDING` sobre los días con reproducciones y quedó inflada: esas «siete filas» abarcaban semanas. El informe necesita una media diaria honesta, contando los días sin escuchas como cero.",
+      "El departamento de Artistas está preparando el informe de **Sierra y Ceibo**, que en la tabla `artists` tiene el `id` igual a 247, un proyecto emergente que algunos días no suena. Un análisis anterior calculó su media móvil de 7 días con el marco `ROWS BETWEEN 6 PRECEDING` sobre los días que tenían reproducciones y la media quedó inflada: esas «siete filas» abarcaban varias semanas. El informe necesita una media diaria honesta, que cuente como cero los días sin escuchas, y te piden rehacerla.",
     business_question_md:
-      "Devuelve una fila por día entre el `2025-08-01` y el `2025-09-15` inclusive (todos los días, haya habido reproducciones o no): `dia` (`date`), `reproducciones` (reproducciones de canciones del artista 247 ese día, 0 si no hubo) y `media_7d` (promedio de ese día y los seis días calendario anteriores, redondeado a 2 decimales). La media del 1 de agosto debe incluir los últimos días de julio. Ordena por `dia` ascendente.",
+      "Debes generar un dataset con una fila por día entre el `'2025-08-01'` y el `'2025-09-15'` inclusive, incluyendo todos los días haya habido reproducciones o no, que devuelva el `dia` con tipo `date`, la cantidad de reproducciones de canciones del artista 247 ese día bajo el encabezado `reproducciones`, con valor `0` cuando no hubo ninguna, y el promedio de ese día y los seis días calendario anteriores, redondeado a 2 decimales, bajo el encabezado `media_7d`. La media del 1 de agosto debe incluir los últimos días de julio. Ordena por `dia` ascendente.",
     learning_objective:
       "Rellenar los períodos faltantes con un calendario antes de aplicar un marco ROWS, para que la ventana sea temporalmente correcta.",
     theory_ref: moviles,
@@ -515,13 +517,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Si un día no tiene filas, la ventana no puede verlo. Antes de calcular nada, la serie tiene que tener **todos** los días del período.",
+          "Si un día no tiene ninguna fila, la ventana no puede verlo. Antes de calcular nada, la serie tiene que contener **todos** los días del período.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "`generate_series(DATE '2025-07-01', DATE '2025-09-15', INTERVAL '1 day')::date` genera el calendario; únelo con `LEFT JOIN` a las reproducciones diarias del artista y usa `coalesce(..., 0)`. El artista se alcanza por `tracks` → `albums.artist_id`. Empieza el calendario en julio y recorta a agosto al final.",
+          "La expresión `generate_series(DATE '2025-07-01', DATE '2025-09-15', INTERVAL '1 day')::date` genera el calendario; únelo con un `LEFT JOIN` a las reproducciones diarias del artista y usa `coalesce(..., 0)` para los días vacíos. Al artista se llega por la tabla `tracks` y la columna `albums.artist_id`. Empieza el calendario en julio y recorta a agosto al final.",
         ...defaultHintMeta(2),
       },
       {
@@ -535,26 +537,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "null_handling",
         description_md:
-          "Dejar `NULL` en los días sin reproducciones en vez de `coalesce(..., 0)`: `avg` ignora los NULL y la media vuelve a ser el promedio de los días con actividad.",
+          "Dejar el valor `NULL` en los días sin reproducciones en lugar de usar `coalesce(..., 0)`: la función `avg` ignora los `NULL` y la media vuelve a ser el promedio de los días con actividad.",
       },
       {
         category: "join_condition",
         description_md:
-          "Usar `INNER JOIN` con el calendario: los días vacíos desaparecen y el relleno no sirve de nada.",
+          "Usar un `INNER JOIN` con el calendario: los días vacíos desaparecen y el relleno no sirve de nada.",
       },
       {
         category: "date_boundary",
         description_md:
-          "Generar el calendario desde el 1 de agosto: los primeros seis días quedan con una media incompleta.",
+          "Generar el calendario desde el 1 de agosto: los primeros seis días quedan con una media calculada sobre menos de siete valores.",
       },
       {
         category: "cell_values",
         description_md:
-          "Calcular la media sobre la serie sin rellenar: «siete filas» no son «siete días» cuando faltan jornadas.",
+          "Calcular la media sobre la serie sin rellenar: «siete filas» no son «siete días» cuando faltan jornadas en el medio.",
       },
     ],
     expert_explanation_md:
-      "46 filas, una por día calendario. Muchas traen `reproducciones = 0`, y ahí está el punto: esos ceros entran en el promedio y bajan la media, que es la lectura correcta de «cuánto suena por día este artista».\n\nEl orden de los cuatro pasos no es negociable: generar el calendario, agregar los hechos, unir con `LEFT JOIN` + `coalesce`, y recién entonces aplicar la ventana. Si el relleno ocurriera después del cálculo, ya sería tarde.\n\nHay una alternativa más corta que no necesita calendario: `RANGE BETWEEN INTERVAL '6 days' PRECEDING AND CURRENT ROW`, un marco definido por tiempo y no por filas. Devuelve el promedio **de los días con actividad** dentro de esos siete días, que es otra métrica igual de legítima; el editor de esta plataforma todavía no acepta esa sintaxis, pero conviene tenerla presente para tu trabajo diario.\n\nDecide siempre cuál de las dos pide el negocio: «promedio diario del período» (con ceros) o «promedio de los días en que sonó» (sin ceros). La diferencia entre ambas, en un artista intermitente, puede ser de varias veces.",
+      "El resultado de la consulta da 46 filas, una por día calendario. Muchas traen la columna `reproducciones` en `0`, y ahí está el punto del ejercicio: esos ceros entran en el promedio y bajan la media, que es la lectura correcta de «cuánto suena por día este artista».\n\nEl orden de los cuatro pasos no es negociable: generar el calendario, agregar los hechos, unirlos con `LEFT JOIN` y `coalesce`, y recién entonces aplicar la ventana. Si el relleno ocurriera después del cálculo, ya sería tarde.\n\nHay una alternativa más corta que no necesita calendario: el marco `RANGE BETWEEN INTERVAL '6 days' PRECEDING AND CURRENT ROW`, que se define por tiempo y no por cantidad de filas. Devuelve el promedio **de los días con actividad** dentro de esos siete días, que es otra métrica igual de legítima; el editor de esta plataforma todavía no acepta esa sintaxis, pero conviene tenerla presente para tu trabajo diario.\n\nDecide siempre cuál de las dos métricas pide el negocio: el promedio diario del período, que incluye ceros, o el promedio de los días en que sonó, que los excluye. En un artista intermitente, la diferencia entre las dos puede ser de varias veces.",
     reward: defaultReward("advanced"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,

@@ -117,6 +117,32 @@
     letter-spacing: -0.01em;
     text-wrap: balance;
   }
+  /* Tailwind 4 dropped the browser default `cursor: pointer` on buttons. `buttonVariants` restores
+     it for the design-system button; this covers the bare <button>s and native disclosures
+     (schema rows, hints, <summary>) that do not go through that helper. */
+  button:not(:disabled),
+  summary,
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+  button:disabled,
+  [aria-disabled="true"] {
+    cursor: default;
+  }
+  /* JetBrains Mono ships programming ligatures: `<=` was drawn as `≤`, `<>` as a single glyph.
+     Learners must read back exactly the characters they typed, in the editor and in every SQL
+     snippet we show them, so ligatures and contextual alternates are off for all monospaced text. */
+  code,
+  pre,
+  kbd,
+  samp,
+  .font-mono,
+  .cm-editor {
+    font-variant-ligatures: none;
+    font-feature-settings:
+      "liga" 0,
+      "calt" 0;
+  }
   :focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 2px;

@@ -3,6 +3,12 @@ import { createHash } from "node:crypto";
 import { headers } from "next/headers";
 import { limits } from "@/config/limits";
 import { track } from "@/lib/analytics/track";
+import {
+  requirementPercent,
+  summarizeSectionProgress,
+  type SectionProgressSummary,
+} from "@/lib/certificates/progress";
+import { getLearningPath } from "@/lib/curriculum/queries";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile } from "@/types/database";
@@ -11,7 +17,16 @@ export interface RequirementStatus {
   slug: string;
   title: string;
   skills: string[];
-  sections: { slug: string; title: string; number: number; completed: boolean }[];
+  sections: {
+    slug: string;
+    title: string;
+    number: number;
+    completed: boolean;
+    /** Partial progress, for display only; `completed` is still what eligibility is built on. */
+    progress: SectionProgressSummary;
+  }[];
+  /** Share of the requirement's published lessons already completed (display only). */
+  percent: number;
   eligible: boolean;
   certificate: {
     publicId: string;
@@ -29,7 +44,7 @@ interface RequirementRules {
 /** All active requirements with the learner's section-by-section status and issued certificate. */
 export async function getRequirementStatuses(profile: Profile): Promise<RequirementStatus[]> {
   const supabase = await createClient();
-  const [{ data: reqs }, { data: sections }, { data: progress }, { data: certs }] =
+  const [{ data: reqs }, { data: sections }, { data: progress }, { data: certs }, path] =
     await Promise.all([
       supabase
         .from("certificate_requirements")
@@ -42,8 +57,11 @@ export async function getRequirementStatuses(profile: Profile): Promise<Requirem
         .from("certificates")
         .select("public_id, verification_code, issued_at, revoked_at, requirement_id")
         .eq("user_id", profile.id),
+      // The same per-section progress /ruta reads, so the two pages can never disagree.
+      getLearningPath(profile.id),
     ]);
   const done = new Set((progress ?? []).map((p) => p.section_id));
+  const pathBySlug = new Map(path.map((p) => [p.slug, p]));
   const bySlug = new Map((sections ?? []).map((s) => [s.slug, s]));
   const admin = createAdminClient();
   return Promise.all(
@@ -51,7 +69,16 @@ export async function getRequirementStatuses(profile: Profile): Promise<Requirem
       const rules = (r.rules ?? {}) as RequirementRules;
       const secs = (rules.sections ?? []).flatMap((slug) => {
         const s = bySlug.get(slug);
-        return s ? [{ slug, title: s.title, number: s.number, completed: done.has(s.id) }] : [];
+        if (!s) return [];
+        return [
+          {
+            slug,
+            title: s.title,
+            number: s.number,
+            completed: done.has(s.id),
+            progress: summarizeSectionProgress(pathBySlug.get(slug)?.lessons ?? []),
+          },
+        ];
       });
       const cert = (certs ?? []).find((c) => c.requirement_id === r.id) ?? null;
       // Eligibility is decided by the DB rule (also re-checks late section completion).
@@ -70,6 +97,7 @@ export async function getRequirementStatuses(profile: Profile): Promise<Requirem
         title: r.title,
         skills: r.skills,
         sections: secs,
+        percent: requirementPercent(secs.map((x) => x.progress)),
         eligible,
         certificate: cert
           ? {

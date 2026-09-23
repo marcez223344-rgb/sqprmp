@@ -12,7 +12,6 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { limits } from "@/config/limits";
 import { CompleteLessonButton } from "@/components/learn/complete-lesson-button";
 import { Markdown } from "@/components/learn/markdown";
 import { QuizRunner } from "@/components/quiz/quiz-runner";
@@ -46,7 +45,7 @@ export default async function LessonPage({ params }: PageProps<"/leccion/[slug]"
   const profile = await requireOnboardedProfile(`/leccion/${slug}`);
   const detail = await getLessonBySlug(slug);
   if (!detail) notFound();
-  const { lesson, section, siblings, questionCount } = detail;
+  const { lesson, section, siblings } = detail;
   const t = await getTranslations("lesson");
   const KindIcon = KIND_ICON[lesson.kind ?? "theory"] ?? BookOpen;
 
@@ -131,7 +130,8 @@ export default async function LessonPage({ params }: PageProps<"/leccion/[slug]"
         <section className="space-y-4" aria-labelledby="quiz-heading">
           <p id="quiz-heading" className="inline-flex items-center gap-2 text-sm font-semibold">
             <ListChecks aria-hidden="true" className="size-4" />
-            {t("quiz.title", { count: Math.min(limits.quiz.questionsPerAttempt, questionCount) })}
+            {/* D-37: length is per section, so read the attempt that was actually built. */}
+            {t("quiz.title", { count: quiz.questions.length })}
           </p>
           <p className="text-muted text-sm">
             {t("quiz.intro", { percent: quiz.passThresholdPercent })}

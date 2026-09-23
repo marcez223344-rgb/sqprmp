@@ -547,7 +547,12 @@ to obtain an answer.
 
 ### D-35 · Build the opt-in ranking the profile already asks about; weekly by default
 
-Status: Accepted (2026-09-23), pending the owner turning the `leaderboards` flag on (OA-20). The
+Status: **Accepted and live (2026-09-23).** The flag is on. It had been left off while the page,
+the RPCs and the consent sentence were all finished, so `/ranking` 404'd and the nav item was
+hidden while `/perfil` went on asking people to consent to it — the exact fault this decision was
+written to remove, reintroduced by a switch nobody flipped. The owner asked twice where the ranking
+was. Migration `20260923190000` cleared every opt-in recorded under the older, narrower wording, so
+the board only ever publishes consent given against the sentence he approved. The
 consent wording was the other blocker and is settled: he chose the full version the same day
 (OA-21), and it is live in `profile.hints.leaderboardOptIn`. Originally filed as D-41 by a parallel
 agent that left a gap for entries in flight; renumbered to D-35 on 2026-09-23 so the register stays
@@ -645,6 +650,93 @@ so it never needed approval at all, and asking for it was pure friction.
 asked with `AskUserQuestion`, in plain language, with enough context to decide and the options
 spelled out — not filed in a doc and left for him to discover. Filing is the record; it is not the
 asking.
+
+### D-37 · Quiz length is per section, and only lengths the 80 % threshold treats honestly are allowed
+
+**Status:** Accepted (2026-09-23). **Amends D-33**, which stays valid in everything else: the quiz
+is still a stratified sample of a bank that is never reduced, and the sample is still drawn and
+frozen server-side. What changes is that `limits.quiz.questionsPerAttempt` = 6 stops being the
+length of all 39 quizzes and becomes the default for a section that declares nothing.
+
+**Why one number was wrong.** Section 5 (`distinct`, three exercises, one narrow idea) and section
+39 (`proyectos-finales`, seven capstone exercises, the last gate before the professional
+certificate) were being measured with the same instrument. Length has to follow how much of the
+section's evidence the quiz is being asked to carry.
+
+**The threshold constraint, which came first.** At `quizPassThresholdPercent` = 80 a learner may
+miss `floor(L/5)` questions, so the bar actually applied is `ceil(0.8·L)/L`, not 80 %:
+
+| L           | 4     | 5    | 6      | 7      | 8      | 9      | 10   | 11     | 12     |
+| ----------- | ----- | ---- | ------ | ------ | ------ | ------ | ---- | ------ | ------ |
+| mistakes    | 0     | 1    | 1      | 1      | 1      | 1      | 2    | 2      | 2      |
+| bar applied | 100 % | 80 % | 83.3 % | 85.7 % | 87.5 % | 88.9 % | 80 % | 81.8 % | 83.3 % |
+
+Seven, eight and nine are traps: the learner is told 80 % and judged at 86–89 %. Four is worse — one
+mistake fails. `limits.quiz.lengthsAllowed` is therefore `[5, 6, 10, 11, 12]`, the lengths whose
+real bar stays within 80–84 %. The threshold itself does **not** vary per section: a certificate
+that means different things in different sections is not a certificate, and varying the length
+while holding 80 % fixed already gives the tolerance where it is wanted.
+
+**Error rates at those lengths** (binomial, one attempt). A learner who really knows the material
+(85 % per item) fails: 16.5 % at L=5, 22.4 % at L=6, 18.0 % at L=10, 26.4 % at L=12. A learner who
+does not (55 % per item) passes anyway: 25.6 % at L=5, 16.4 % at L=6, 10.0 % at L=10, ~4 % at L=12.
+The finding that decided the tiers: **ten items are simultaneously as forgiving as five and 2.5×
+harder to fluke**, because 80 % of 10 is exactly two mistakes. Six is the least efficient of the
+three — its 83.3 % bar fails competent learners more often than five _and_ more often than ten.
+
+**Tiers** (`quizQuestionsBySection` in `src/content/sections.ts`, one line per section):
+
+- **5, "check"** — the section has five or more authored exercises. The graded queries are the
+  evidence; the quiz probes what a result set cannot show (NULL semantics, precedence, when a
+  construct is the wrong tool). 31 sections.
+- **6, "standard"** — four or fewer exercises, so the quiz carries more of the judgement and has to
+  cover more concepts, and the stricter 83 % bar is the price. 8 sections, including
+  `introduccion-bases-de-datos`, which has no exercises at all: there the quiz is the only
+  assessment in the section.
+- **10, "gate"** (`limits.quiz.gateQuestions`) — the four sections that close a level and feed a
+  certificate (`null`, `joins-multiples-tablas`, `lag-y-lead`, `proyectos-finales`). **Not applied
+  yet**: see the briefs below. They run at 6 until their banks are deep enough, which is exactly the
+  situation D-33 flagged (a certificate reachable by luck) and this decision does not yet fix.
+
+Objectives were not usable as the driver: all 39 sections declare exactly four, and topics are
+almost one per question, so neither discriminates. Exercise count and certificate role do.
+
+**Bank floor.** `limits.quiz.minUnseenOnRetry` = 3: at least three published questions stay outside
+any single attempt. A failed attempt reveals the correct answer of everything it asked (D-34), so a
+retry drawn from nearly the same pool would measure recall of that feedback rather than mastery.
+`npm run content:validate` fails when a declared length breaks this, which is what stops a future
+length from outrunning its bank.
+
+**Where the number lives, and why not in `limits.ts`.** The per-section table is content: it is
+authored next to the objectives it serves, it is validated by the content pipeline against the
+bank, and it changes when questions are written, not when a business rule changes. `limits.quiz`
+keeps the policy (default, allowed lengths, bank floor, gate length). It is deliberately **not** a
+column on `public.sections`: no migration is needed, and sampling already runs in server code that
+can import the content module (`src/lib/quizzes/length.ts`).
+
+**Question briefs for `content-author`** (the only reason the gate tier is not live). Minimum to
+reach a 13-question bank, which is 10 + 3 unseen; 14 is recommended for a fourth unseen question:
+
+| Section                  | Bank now | Needed for L=10 | New questions |
+| ------------------------ | -------- | --------------- | ------------- |
+| `null`                   | 10       | 13 (14)         | +3 (+4)       |
+| `joins-multiples-tablas` | 10       | 13 (14)         | +3 (+4)       |
+| `lag-y-lead`             | 12       | 13 (14)         | +1 (+2)       |
+| `proyectos-finales`      | 12       | 13 (14)         | +1 (+2)       |
+
+Secondary: `distinct`, `alias-y-expresiones` and `operadores-comparacion-logicos` have banks of 8
+and three exercises each. By tier they belong at 6, but 6 + 3 unseen needs 9; +2 questions each
+would let them move from 5 to 6.
+
+**Downstream.** Quiz XP is unchanged per correct answer, so a check-tier pass now pays at most 45 XP
+instead of 50 and the path's maximum quiz XP falls from ~1 900 to ~1 795 — quizzes weigh slightly
+less than exercises than they did, and no reward default was touched. `quiz_attempts.total` now
+holds 5, 6 or an older 8–12, so comparisons across attempts must use the percentage, as D-33
+already required. **Open follow-up:** the lesson header in
+`src/app/(learn)/leccion/[slug]/page.tsx` still computes its count from
+`limits.quiz.questionsPerAttempt` and will announce 6 for the 31 sections that now serve 5; it has
+to read the attempt it already loaded (`quiz.questions.length`). That file was being edited by
+another agent in the same session and was left alone on purpose.
 
 ## Owner-only follow-ups from 2026-09-23
 

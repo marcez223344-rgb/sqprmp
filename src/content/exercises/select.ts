@@ -19,9 +19,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["categories"],
     scenario_md:
-      "El equipo de catálogo de **TiendaViva** quiere revisar cómo están organizadas las categorías de productos (tienen dos niveles: categorías raíz y subcategorías).",
+      "El departamento de Catálogo de **TiendaViva** quiere revisar cómo están organizadas las categorías de productos, que tienen dos niveles: las categorías raíz y las subcategorías que cuelgan de ellas. Te piden ese listado completo para poder revisarlo en una reunión.",
     business_question_md:
-      "Muestra `id`, `name` y `parent_id` de **todas** las categorías. El orden de las filas no importa.",
+      "Debes generar un dataset que devuelva el `id`, el `name` y el `parent_id` de **todas** las categorías de la tabla `categories`. El orden de las filas no importa.",
     learning_objective: "Escribir una consulta SELECT básica con columnas explícitas.",
     theory_ref: "select-columnas",
     expected_columns: [
@@ -34,13 +34,14 @@ export const exercises: ExerciseDef[] = [
     hints: [
       {
         level: 1,
-        body_md: "Es la forma más simple de consulta: elegir columnas de una tabla, sin filtros.",
+        body_md:
+          "Esta es la forma más simple de consulta que existe: elegir algunas columnas de una tabla, sin ningún filtro.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "La tabla es `categories`. Lista las tres columnas después de `SELECT`, separadas por comas, y cierra con `FROM categories`.",
+          "La tabla que debes consultar es `categories`. Escribe las tres columnas después de `SELECT`, separadas por comas, y cierra la consulta con `FROM categories`.",
         ...defaultHintMeta(2),
       },
       { level: 3, body_md: "```sql\nSELECT ___, ___, ___\nFROM ___;\n```", ...defaultHintMeta(3) },
@@ -49,21 +50,21 @@ export const exercises: ExerciseDef[] = [
       {
         category: "wrong_columns",
         description_md:
-          "Escribir `SELECT *`: devuelve las mismas tres columnas aquí, pero la consigna pide nombrarlas; en tablas más anchas devolvería de más.",
+          "Escribir `SELECT *`: en esta tabla devuelve las mismas tres columnas, pero la consigna pide nombrarlas una por una; en tablas más anchas devolvería columnas de más.",
       },
       {
         category: "syntax",
         description_md:
-          "Dejar una coma después de la última columna (`parent_id, FROM`) produce un error de sintaxis.",
+          "Dejar una coma después de la última columna, como en `parent_id, FROM`: PostgreSQL devuelve un error de sintaxis.",
       },
       {
         category: "wrong_columns",
         description_md:
-          "Escribir `parent` en lugar de `parent_id`: el nombre debe coincidir con el esquema.",
+          "Escribir `parent` en lugar de `parent_id`: el nombre de la columna debe coincidir exactamente con el del esquema.",
       },
     ],
     expert_explanation_md:
-      "`SELECT id, name, parent_id FROM categories` devuelve las 30 categorías. Las seis con `parent_id` **NULL** son las raíces (Tecnología, Hogar, …); el resto apunta a su categoría padre.\n\nFíjate en cómo se muestra NULL en el resultado: no es cero ni texto vacío, es «desconocido/no aplica». Lo estudiarás a fondo en la sección 8.",
+      "La sentencia `SELECT id, name, parent_id FROM categories` devuelve las 30 categorías de la tabla. Las seis que tienen `parent_id` en `NULL` son las categorías raíz, como Tecnología u Hogar; el resto apunta con ese valor a su categoría padre.\n\nFíjate en cómo se muestra el valor `NULL` en el resultado: no es un cero ni un texto vacío, significa «desconocido o no aplica». Lo vas a estudiar a fondo en la sección 8.",
     reward: defaultReward("very_easy"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -78,9 +79,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["sellers"],
     scenario_md:
-      "El área comercial prepara una campaña y necesita una lista simple de las tiendas del marketplace con su país y su calificación.",
+      "El departamento Comercial está preparando una campaña y necesita una lista simple de las tiendas del marketplace con su país y su calificación. Te piden esos datos para decidir a qué tiendas invitar.",
     business_question_md:
-      "Muestra `store_name`, `country` y `rating` de todos los vendedores. El orden no importa.",
+      "Debes generar un dataset que devuelva el `store_name`, el `country` y el `rating` de todos los vendedores de la tabla `sellers`. El orden de las filas no importa.",
     learning_objective:
       "Seleccionar columnas de una tabla y reconocer valores NULL en el resultado.",
     theory_ref: "select-columnas",
@@ -95,13 +96,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Misma estructura que el ejercicio anterior: columnas concretas de una sola tabla.",
+          "La estructura es la misma que la del ejercicio anterior: columnas concretas tomadas de una sola tabla.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "La tabla se llama `sellers` (vendedores). Las columnas pedidas son exactamente `store_name`, `country` y `rating`.",
+          "La tabla se llama `sellers`, que en español son los vendedores. Las columnas pedidas son exactamente `store_name`, `country` y `rating`.",
         ...defaultHintMeta(2),
       },
       {
@@ -113,20 +114,22 @@ export const exercises: ExerciseDef[] = [
     common_mistakes: [
       {
         category: "wrong_columns",
-        description_md: "Consultar `customers` (clientes) en lugar de `sellers` (vendedores).",
+        description_md:
+          "Consultar la tabla `customers`, que guarda los clientes, en lugar de la tabla `sellers`, que guarda los vendedores.",
       },
       {
         category: "wrong_columns",
-        description_md: "Pedir `name` en vez de `store_name`; el esquema manda.",
+        description_md:
+          "Pedir la columna `name` en vez de `store_name`: los nombres los define el esquema de la tabla.",
       },
       {
         category: "null_handling",
         description_md:
-          "Sorprenderse por los `rating` en NULL: son vendedores sin reseñas todavía, no un error.",
+          "Sorprenderse al ver valores `NULL` en la columna `rating`: son vendedores que todavía no recibieron ninguna reseña, no un error de los datos.",
       },
     ],
     expert_explanation_md:
-      "Consulta directa sobre `sellers`. Observa que unos 15 % de los vendedores tienen `rating` NULL: todavía no recibieron reseñas. Un reporte serio debería explicar ese NULL (o reemplazarlo con `COALESCE`, que verás más adelante) en lugar de mostrarlo como si fuera un cero.",
+      "La consulta es una lectura directa de la tabla `sellers`. Observa que alrededor del 15 % de los vendedores tiene `rating` en `NULL`, porque todavía no recibieron reseñas. Un reporte serio debería explicar ese `NULL`, o reemplazarlo con la función `COALESCE`, que vas a ver más adelante, en lugar de mostrarlo como si fuera un cero.",
     reward: defaultReward("very_easy"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -141,9 +144,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["sellers"],
     scenario_md:
-      "Operaciones va a pegar tu resultado en una plantilla que espera las columnas en un orden fijo: primero el país, luego el nombre de la tienda y por último si está verificada.",
+      "El departamento de Operaciones va a pegar tu resultado en una plantilla que espera las columnas en un orden fijo: primero el país, después el nombre de la tienda y por último si la tienda está verificada. Te piden el dataset ya en ese orden para no tener que reacomodarlo a mano.",
     business_question_md:
-      "Muestra, **en este orden de columnas**, `country`, `store_name` e `is_verified` de todos los vendedores.",
+      "Debes generar un dataset que devuelva, **en este orden de columnas**, el `country`, el `store_name` y el `is_verified` de todos los vendedores de la tabla `sellers`.",
     learning_objective:
       "Controlar el orden de las columnas del resultado desde la lista de SELECT.",
     theory_ref: "select-columnas",
@@ -158,13 +161,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "El orden de las columnas en el resultado es el orden en que las escribes después de `SELECT`.",
+          "El orden de las columnas en el resultado es exactamente el orden en que las escribes después de `SELECT`.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Escribe primero `country`, después `store_name` y al final `is_verified`, todas de `sellers`.",
+          "Escribe primero `country`, después `store_name` y al final `is_verified`, las tres tomadas de la tabla `sellers`.",
         ...defaultHintMeta(2),
       },
       {
@@ -177,17 +180,21 @@ export const exercises: ExerciseDef[] = [
       {
         category: "wrong_column_order",
         description_md:
-          "Escribir las columnas en el orden de la tabla (`store_name, country, …`) en lugar del orden pedido.",
+          "Escribir las columnas en el orden en que aparecen en la tabla, como `store_name, country, ...`, en lugar del orden que pidió Operaciones.",
       },
       {
         category: "wrong_columns",
         description_md:
-          "Usar `SELECT *`: devuelve columnas extra y en el orden físico de la tabla.",
+          "Escribir `SELECT *`: la consulta devuelve columnas de más y en el orden físico de la tabla, que no es el pedido.",
       },
-      { category: "wrong_columns", description_md: "Olvidar `is_verified`." },
+      {
+        category: "wrong_columns",
+        description_md:
+          "Olvidar la columna `is_verified`, que es la tercera columna que espera la plantilla.",
+      },
     ],
     expert_explanation_md:
-      "La lista de `SELECT` define las columnas **y su orden**. Esto importa cuando otro sistema consume el resultado por posición (plantillas, cargas masivas, hojas de cálculo). Un `SELECT *` te haría depender del orden físico de la tabla, que puede cambiar si alguien agrega columnas.",
+      "La lista que escribes después de `SELECT` define qué columnas devuelve la consulta **y en qué orden**. Eso importa cuando otro sistema consume el resultado por posición: plantillas, cargas masivas o una hoja de cálculo con fórmulas fijas.\n\nUsar `SELECT *` te haría depender del orden físico de la tabla, que puede cambiar el día en que alguien agregue una columna nueva.",
     reward: defaultReward("easy"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -202,9 +209,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["products"],
     scenario_md:
-      "Operaciones hace el inventario del depósito de **TiendaViva** y quiere saber de qué productos hay más unidades guardadas. Le interesan todos, publicados y pausados: cada unidad ocupa lugar y es plata inmovilizada, sin importar si la publicación está activa.",
+      "El departamento de Operaciones está haciendo el inventario del depósito de **TiendaViva** y quiere saber de qué productos hay más unidades guardadas. Le interesan todos los productos, publicados y pausados, porque cada unidad ocupa lugar y es dinero inmovilizado sin importar si la publicación está activa. Te piden ese ranking para planificar el espacio del depósito.",
     business_question_md:
-      "Muestra `id`, `name`, `list_price`, `currency` y `stock` de los **20 productos con más unidades en stock**, del stock más alto al más bajo, **sin filtrar por estado de publicación**. Si dos productos tienen el mismo stock, muestra primero el de `id` menor.",
+      "Debes generar un dataset que devuelva el `id`, el `name`, el `list_price`, el `currency` y el `stock` de los **20 productos con más unidades en stock**, del stock más alto al más bajo y **sin filtrar por estado de publicación**. Si dos productos tienen el mismo stock, debes desempatar usando `id` ascendente.",
     learning_objective: "Combinar SELECT con ORDER BY y LIMIT para obtener un top-N determinista.",
     theory_ref: "select-columnas",
     expected_columns: [
@@ -227,13 +234,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "«Los 20 con más stock» son las 20 primeras filas de un orden descendente por esa columna. El desempate es una segunda clave de orden.",
+          "«Los 20 productos con más stock» son las 20 primeras filas de un orden descendente por esa columna. El desempate se escribe como una segunda clave de ordenamiento.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "En `products`, ordena por `stock` en dirección descendente y agrega `id` como segunda clave; después recorta con `LIMIT 20`. Lista las cinco columnas en el orden pedido.",
+          "En la tabla `products`, ordena por `stock` en dirección descendente y agrega `id` como segunda clave; después recorta el resultado con `LIMIT 20`. Escribe las cinco columnas en el orden que pide la consigna.",
         ...defaultHintMeta(2),
       },
       {
@@ -247,26 +254,31 @@ export const exercises: ExerciseDef[] = [
       {
         category: "wrong_order",
         description_md:
-          "`LIMIT 20` sin `ORDER BY` devuelve 20 productos cualesquiera: sin orden explícito el motor entrega las filas como le convenga.",
+          "Escribir `LIMIT 20` sin una cláusula `ORDER BY`: la consulta devuelve 20 productos cualesquiera, porque sin orden explícito el motor entrega las filas como le resulte más conveniente.",
       },
       {
         category: "wrong_order",
         description_md:
-          "Ordenar por `stock` ascendente: devuelve los productos casi agotados, lo contrario de lo que pidió Operaciones.",
+          "Ordenar por `stock` en forma ascendente: la consulta devuelve los productos casi agotados, que es lo contrario de lo que pidió Operaciones.",
       },
       {
         category: "missing_filter",
         description_md:
-          "Agregar `WHERE is_active`: parece prudente, pero deja fuera 5 de los 20 productos con más stock. Las publicaciones pausadas también ocupan depósito, y por eso la consigna aclara que no se filtra por estado.",
+          "Agregar la condición `WHERE is_active`: parece prudente, pero deja fuera 5 de los 20 productos con más stock. Las publicaciones pausadas también ocupan depósito, y por eso la consigna aclara que no se filtra por estado.",
       },
-      { category: "row_count", description_md: "Olvidar `LIMIT` devuelve los 1500 productos." },
+      {
+        category: "row_count",
+        description_md:
+          "Olvidar la cláusula `LIMIT`: la consulta devuelve los 1500 productos del catálogo.",
+      },
       {
         category: "wrong_columns",
-        description_md: "Incluir `seller_id` o `category_id`, que no fueron pedidos.",
+        description_md:
+          "Incluir las columnas `seller_id` o `category_id`, que la consigna no pidió.",
       },
     ],
     expert_explanation_md:
-      "`ORDER BY stock DESC LIMIT 20` es el patrón de top-N: ordenas todo el conjunto y te quedas con la cabeza de la lista. El stock máximo del catálogo es 250 unidades y cuatro productos llegan a ese tope, así que sin la segunda clave (`id`) el motor podría devolverlos en cualquier orden y la lista cambiaría entre ejecuciones.\n\nObserva que `currency` varía por producto (ARS, MXN, COP, CLP, PEN): por eso el ranking se hace por `stock`, que son unidades y se comparan entre países, y no por `list_price`. Comparar precios de distintas monedas exige convertirlas primero, tema de secciones posteriores.",
+      "La combinación `ORDER BY stock DESC` con `LIMIT 20` es el patrón llamado top-N: ordenas todo el conjunto y te quedas con la cabeza de la lista. El stock máximo del catálogo es de 250 unidades y cuatro productos llegan a ese tope, así que sin la segunda clave de ordenamiento (`id`) el motor podría devolverlos en cualquier orden y la lista cambiaría entre una ejecución y otra.\n\nObserva que la columna `currency` varía por producto, con valores como `'ARS'`, `'MXN'`, `'COP'`, `'CLP'` y `'PEN'`. Por eso el ranking se arma por `stock`, que son unidades y se comparan entre países, y no por `list_price`. Comparar precios de monedas distintas exige convertirlos primero, y ese es tema de secciones posteriores.",
     reward: defaultReward("easy"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -281,9 +293,9 @@ export const exercises: ExerciseDef[] = [
     dataset,
     tables_used: ["sellers"],
     scenario_md:
-      "La dirección quiere reconocer a las tiendas que llevan más tiempo en **TiendaViva** con un programa de fidelidad. Te piden la lista de los vendedores con mayor antigüedad.",
+      "La dirección de **TiendaViva** quiere reconocer con un programa de fidelidad a las tiendas que llevan más tiempo en el marketplace. Te piden la lista de los vendedores con mayor antigüedad para poder invitarlos.",
     business_question_md:
-      "Muestra `store_name`, `country` y `joined_at` de los **15 vendedores más antiguos** (fecha de alta más temprana primero). En caso de empate en la fecha, ordena por `id` ascendente.",
+      "Debes generar un dataset que devuelva el `store_name`, el `country` y el `joined_at` de los **15 vendedores más antiguos**, es decir, los de fecha de alta más temprana primero. Si dos vendedores se dieron de alta el mismo día, debes desempatar usando `id` ascendente.",
     learning_objective:
       "Ordenar por varias columnas con criterio de desempate y limitar el resultado.",
     theory_ref: "select-buenas-practicas",
@@ -305,13 +317,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "«Más antiguos» significa fecha de alta más pequeña: orden ascendente por esa fecha. El desempate es un segundo criterio de orden.",
+          "«Más antiguos» significa fecha de alta más pequeña, así que el orden por esa fecha es ascendente. El desempate se escribe como un segundo criterio de ordenamiento.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "`ORDER BY joined_at, id` ordena primero por fecha y, dentro de la misma fecha, por `id`. Luego `LIMIT 15`. Puedes ordenar por `id` aunque no lo muestres.",
+          "La cláusula `ORDER BY joined_at, id` ordena primero por fecha y, dentro de una misma fecha, por `id`. Después recorta con `LIMIT 15`. Puedes ordenar por `id` aunque no lo muestres entre las columnas del resultado.",
         ...defaultHintMeta(2),
       },
       {
@@ -324,21 +336,22 @@ export const exercises: ExerciseDef[] = [
     common_mistakes: [
       {
         category: "wrong_order",
-        description_md: "Ordenar `DESC`: eso da los más nuevos, no los más antiguos.",
+        description_md:
+          "Ordenar en forma descendente con `DESC`: eso devuelve los vendedores más nuevos, no los más antiguos.",
       },
       {
         category: "wrong_order",
         description_md:
-          "Omitir el desempate por `id`: con fechas repetidas el orden de esas filas no está garantizado.",
+          "Omitir el desempate por `id`: cuando varias tiendas comparten la misma fecha de alta, el orden de esas filas no está garantizado y puede cambiar entre ejecuciones.",
       },
       {
         category: "wrong_columns",
         description_md:
-          "Incluir `id` en el resultado: se usa para ordenar, pero la consigna no lo pide como columna.",
+          "Incluir la columna `id` en el resultado: se usa para ordenar, pero la consigna no la pide como columna de salida.",
       },
     ],
     expert_explanation_md:
-      "1. `ORDER BY joined_at` pone primero las fechas más tempranas (ascendente es el valor por defecto).\n2. `, id` desempata de forma determinista cuando dos tiendas se dieron de alta el mismo día.\n3. `LIMIT 15` corta la lista.\n\nPuedes ordenar por columnas que no aparecen en `SELECT`. Definir siempre un desempate hace que el reporte sea reproducible, algo que agradecerás cuando alguien pregunte «¿por qué cambió la lista?».",
+      "La consulta se apoya en tres decisiones.\n\n1. La cláusula `ORDER BY joined_at` pone primero las fechas más tempranas, porque el orden ascendente es el valor por omisión.\n2. El agregado de `, id` desempata de forma determinista cuando dos tiendas se dieron de alta el mismo día.\n3. La cláusula `LIMIT 15` corta la lista en los quince primeros.\n\nPuedes ordenar por columnas que no aparecen en la lista de `SELECT`. Definir siempre un desempate hace que el reporte sea reproducible, algo que vas a agradecer cuando alguien pregunte por qué cambió la lista de un día para el otro.",
     reward: defaultReward("intermediate"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,

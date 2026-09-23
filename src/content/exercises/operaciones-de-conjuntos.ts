@@ -23,9 +23,9 @@ export const exercises: ExerciseDef[] = [
     dataset: tiendaviva,
     tables_used: ["customers", "sellers"],
     scenario_md:
-      "El equipo comercial de **TiendaViva** viaja a Montevideo y pide una sola lista con toda la gente con la que se puede reunir allá: clientes registrados en Uruguay y tiendas vendedoras registradas en Uruguay. Los datos viven en dos tablas distintas, `customers` y `sellers`, y ninguna guarda a los dos tipos de contacto.",
+      "El departamento Comercial de **TiendaViva** viaja a Montevideo y pide una sola lista con toda la gente con la que se puede reunir allá: los clientes registrados en Uruguay y las tiendas vendedoras registradas en Uruguay. Los datos viven en dos tablas distintas, `customers` y `sellers`, y ninguna de las dos guarda a los dos tipos de contacto. Te piden esa lista unificada para armar la agenda del viaje.",
     business_question_md:
-      "Devuelve una lista con dos columnas: `tipo` (el texto `'cliente'` para las filas que vienen de `customers` y `'vendedor'` para las que vienen de `sellers`) y `nombre` (`full_name` para los clientes, `store_name` para las tiendas). Incluye solo los registros con `country = 'UY'` y **no elimines repetidos**: si dos personas se llaman igual, las dos deben aparecer. Ordena por `tipo` ascendente y, dentro de cada tipo, por `nombre` ascendente.",
+      "Debes generar un dataset con dos columnas: la columna `tipo`, que debe contener el texto `'cliente'` para las filas que vienen de la tabla `customers` y el texto `'vendedor'` para las que vienen de `sellers`, y la columna `nombre`, que toma `full_name` para los clientes y `store_name` para las tiendas. Incluye solamente los registros cuyo `country` es igual al texto `'UY'` y **no elimines los repetidos**: si dos personas se llaman igual, las dos deben aparecer. Ordena por `tipo` ascendente y, dentro de cada tipo, por `nombre` ascendente.",
     learning_objective:
       "Apilar dos consultas con UNION ALL, alineando columnas y etiquetando el origen de cada fila.",
     theory_ref: l1,
@@ -46,13 +46,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Un join agrega columnas; aquí necesitas agregar **filas**: dos consultas independientes, una debajo de la otra. El operador que las apila sin descartar nada es el que conserva todas las filas.",
+          "Un cruce agrega columnas; acá necesitas agregar **filas**, es decir, dos consultas independientes, una debajo de la otra. El operador que las apila sin descartar nada es el que conserva todas las filas.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Cada rama proyecta dos columnas en el mismo orden: primero el texto fijo (entre comillas simples) y después el nombre. Los alias `tipo` y `nombre` los toma la primera rama. El `ORDER BY` se escribe una sola vez, después de la segunda rama.",
+          "Cada rama proyecta dos columnas en el mismo orden: primero el texto fijo, escrito entre comillas simples, y después el nombre. Los alias `tipo` y `nombre` los define la primera rama. La cláusula `ORDER BY` se escribe una sola vez, después de la segunda rama.",
         ...defaultHintMeta(2),
       },
       {
@@ -71,21 +71,21 @@ export const exercises: ExerciseDef[] = [
       {
         category: "wrong_columns",
         description_md:
-          "Proyectar las columnas en distinto orden en cada rama (`full_name, 'cliente'` en una y `'vendedor', store_name` en la otra): la consulta corre igual y mezcla nombres con etiquetas, porque las ramas se alinean por posición y no por nombre.",
+          "Proyectar las columnas en distinto orden en cada rama, por ejemplo `full_name, 'cliente'` en una y `'vendedor', store_name` en la otra: la consulta se ejecuta igual y mezcla nombres con etiquetas, porque las ramas se alinean por posición y no por nombre.",
       },
       {
         category: "missing_filter",
         description_md:
-          "Filtrar `country = 'UY'` en una sola rama: el `WHERE` pertenece a cada consulta, no al resultado combinado.",
+          "Filtrar por `country = 'UY'` en una sola de las ramas: la cláusula `WHERE` pertenece a cada consulta y no al resultado combinado.",
       },
       {
         category: "syntax",
         description_md:
-          "Escribir un `ORDER BY` dentro de la primera rama sin paréntesis: el orden se aplica al resultado final y va al final de todo.",
+          "Escribir una cláusula `ORDER BY` dentro de la primera rama sin paréntesis: el orden se aplica al resultado final y va escrito al final de todo.",
       },
     ],
     expert_explanation_md:
-      "128 filas: 123 clientes y 5 tiendas. `UNION ALL` es la elección correcta porque cada fila representa un contacto real; deduplicar sería perder gente.\n\nLa columna `tipo` no existe en ninguna tabla: es una constante que agregas para saber de dónde viene cada fila. Sin ella, el directorio sería una lista de nombres sueltos.\n\nDetalle de sintaxis: los nombres de las columnas del resultado los define la primera rama, así que los alias de la segunda son decorativos. Escribirlos igual de todas formas ayuda a quien lea la consulta. Por eso también puedes ordenar con `ORDER BY 1, 2`: la posición siempre funciona, incluso cuando la expresión no tiene alias.",
+      "El resultado de la consulta da 128 filas: 123 clientes y 5 tiendas. El operador `UNION ALL` es la elección correcta porque cada fila representa un contacto real; deduplicar sería perder gente de la agenda.\n\nLa columna `tipo` no existe en ninguna de las dos tablas: es una constante que agregas para saber de dónde viene cada fila. Sin ella, el directorio sería una lista de nombres sueltos.\n\nUn detalle de sintaxis: los nombres de las columnas del resultado los define la primera rama, así que los alias de la segunda son decorativos. Escribirlos igual de todas formas ayuda a quien lea la consulta. Por eso también puedes ordenar con `ORDER BY 1, 2`: la posición siempre funciona, incluso cuando la expresión no tiene alias.",
     improvement_feedback: [
       { condition: "uses_select_star", message_key: "improve.uses_select_star" },
     ],
@@ -103,9 +103,9 @@ export const exercises: ExerciseDef[] = [
     dataset: tiendaviva,
     tables_used: ["orders", "customers"],
     scenario_md:
-      "Marketing de **TiendaViva** prepara una campaña para la base uruguaya y necesita la lista de personas a las que escribir: quienes recibieron al menos un pedido comprado en la web o al menos uno comprado a través de un socio de marketplace. Cada persona tiene que aparecer **una sola vez**: es una lista de correos, no un reporte de pedidos.",
+      "El departamento de Marketing de **TiendaViva** está preparando una campaña para la base uruguaya y necesita la lista de personas a las que escribir: quienes recibieron al menos un pedido comprado en la web o al menos uno comprado a través de un socio de marketplace. Cada persona tiene que aparecer **una sola vez**, porque es una lista de correos y no un reporte de pedidos. Te piden esa lista para cargarla en la herramienta de envíos.",
     business_question_md:
-      "Considerando solo pedidos con `status = 'delivered'` de clientes con `country = 'UY'`, devuelve `customer_id` y `full_name` de quienes compraron por el canal `'web'` o por el canal `'marketplace_partner'`, sin repetir a nadie. Resuélvelo combinando dos consultas, una por canal. Ordena por `customer_id` ascendente.",
+      "Debes generar un dataset que, considerando solamente pedidos cuyo `status` es igual al texto `'delivered'` de clientes cuyo `country` es igual al texto `'UY'`, devuelva el `customer_id` y el `full_name` de quienes compraron por el canal `'web'` o por el canal `'marketplace_partner'`, sin repetir a nadie. Debes resolverlo combinando dos consultas, una por canal. Ordena por `customer_id` ascendente.",
     learning_objective:
       "Elegir UNION en lugar de UNION ALL cuando la pregunta exige una lista de entidades sin repeticiones.",
     theory_ref: l1,
@@ -126,13 +126,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Son dos consultas casi iguales que cambian solo en el canal. Al apilarlas, quien compró por los dos canales aparecería dos veces: necesitas el operador que elimina las filas repetidas.",
+          "Son dos consultas casi iguales que cambian solamente en el canal. Al apilarlas, quien compró por los dos canales aparecería dos veces: necesitas el operador que elimina las filas repetidas.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "El nombre del cliente está en `customers`, así que cada rama une `orders` con `customers`. Las dos ramas proyectan exactamente `c.id AS customer_id` y `c.full_name`: como no arrastras el id del pedido, las filas repetidas sí se pueden reconocer y descartar.",
+          "El nombre del cliente está en la tabla `customers`, así que cada rama une `orders` con `customers`. Las dos ramas proyectan exactamente `c.id AS customer_id` y `c.full_name`: como no arrastras el identificador del pedido, las filas repetidas sí se pueden reconocer y descartar.",
         ...defaultHintMeta(2),
       },
       {
@@ -146,26 +146,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "duplicates",
         description_md:
-          "Usar `UNION ALL`: cada cliente aparece una vez por pedido entregado y la lista de correos se vuelve una lista de pedidos.",
+          "Usar `UNION ALL`: cada cliente aparece una vez por cada pedido entregado y la lista de correos se convierte en una lista de pedidos.",
       },
       {
         category: "wrong_columns",
         description_md:
-          "Agregar `o.id` o `o.created_at` al `SELECT`: con esas columnas ya no hay filas idénticas, así que `UNION` no puede deduplicar nada.",
+          "Agregar `o.id` o `o.created_at` a la lista de `SELECT`: con esas columnas ya no hay filas idénticas, así que el operador `UNION` no puede deduplicar nada.",
       },
       {
         category: "missing_filter",
         description_md:
-          "Olvidar `status = 'delivered'` en alguna de las ramas: entran pedidos cancelados y la campaña le escribe a quien nunca recibió nada.",
+          "Olvidar la condición `status = 'delivered'` en alguna de las ramas: entran pedidos cancelados y la campaña le escribe a quien nunca recibió nada.",
       },
       {
         category: "join_condition",
         description_md:
-          "Unir por `c.id = o.id` en vez de `c.id = o.customer_id`: la consulta devuelve filas sin relación real entre cliente y pedido.",
+          "Unir con la condición `c.id = o.id` en vez de `c.id = o.customer_id`: la consulta devuelve filas sin ninguna relación real entre el cliente y el pedido.",
       },
     ],
     expert_explanation_md:
-      "82 filas. Con `UNION ALL` el resultado tendría cientos, una por pedido entregado.\n\nLa alternativa con `channel IN ('web', 'marketplace_partner')` y `DISTINCT` devuelve exactamente lo mismo, lee una sola vez la tabla y en general es más eficiente. Vale la pena saberlo: la operación de conjuntos brilla cuando las ramas son **distintas de verdad** (tablas diferentes, agregaciones diferentes), no cuando cambian solo en el valor de un filtro.\n\nLa razón por la que `UNION` puede deduplicar aquí es que proyectas únicamente el id y el nombre del cliente. Dos filas son duplicadas solo cuando coinciden todas sus columnas; agregar cualquier dato del pedido rompe esa condición.",
+      "El resultado de la consulta da 82 filas. Con `UNION ALL` el resultado tendría cientos de filas, una por cada pedido entregado.\n\nLa alternativa con `channel IN ('web', 'marketplace_partner')` y `DISTINCT` devuelve exactamente lo mismo, lee la tabla una sola vez y en general es más eficiente. Vale la pena tenerlo presente: la operación de conjuntos brilla cuando las ramas son **distintas de verdad**, es decir, cuando usan tablas diferentes o agregaciones diferentes, y no cuando cambian solo en el valor de un filtro.\n\nLa razón por la que el operador `UNION` puede deduplicar acá es que proyectas únicamente el identificador y el nombre del cliente. Dos filas son duplicadas solamente cuando coinciden todas sus columnas, así que agregar cualquier dato del pedido rompe esa condición.",
     improvement_feedback: [
       { condition: "no_table_alias_in_join", message_key: "improve.no_table_alias_in_join" },
     ],
@@ -183,9 +183,9 @@ export const exercises: ExerciseDef[] = [
     dataset: bolsillo,
     tables_used: ["transactions", "accounts", "users"],
     scenario_md:
-      "En **Bolsillo**, la billetera digital, el equipo de Producto quiere entender la adopción cruzada en Perú: qué personas ya usan los **dos** medios de pago, el QR y la tarjeta. Esa gente es la candidata natural para probar la próxima función combinada.",
+      "En **Bolsillo**, la billetera digital, el departamento de Producto quiere entender la adopción cruzada en Perú: qué personas ya usan los **dos** medios de pago, el código QR y la tarjeta. Esa gente es la candidata natural para probar la próxima función combinada, y te piden la lista.",
     business_question_md:
-      "Considerando solo transacciones con `status = 'completed'` de personas con `country = 'PE'`, devuelve `user_id` y `full_name` de quienes tienen al menos una transacción de tipo `'qr_payment'` **y** al menos una de tipo `'card_payment'`. Cada persona debe aparecer una sola vez. Ordena por `user_id` ascendente.\n\nLas transacciones no guardan el usuario: cuelgan de una cuenta (`transactions.account_id` → `accounts.user_id`).",
+      "Debes generar un dataset que, considerando solamente transacciones cuyo `status` es igual al texto `'completed'` de personas cuyo `country` es igual al texto `'PE'`, devuelva el `user_id` y el `full_name` de quienes tienen al menos una transacción cuyo `kind` es igual al texto `'qr_payment'` **y** al menos una cuyo `kind` es igual al texto `'card_payment'`. Cada persona debe aparecer una sola vez. Ordena por `user_id` ascendente.\n\nTen en cuenta que las transacciones no guardan el usuario de forma directa: cuelgan de una cuenta, por el camino que va de `transactions.account_id` a `accounts.user_id`.",
     learning_objective:
       "Resolver una condición de coexistencia («A y B» sobre la misma entidad) con INTERSECT en lugar de un AND imposible.",
     theory_ref: l2,
@@ -206,13 +206,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "`WHERE kind = 'qr_payment' AND kind = 'card_payment'` nunca devuelve filas: ninguna transacción tiene dos tipos. La condición es sobre la **persona**, no sobre la fila, así que arma una lista por cada tipo de pago y quédate con lo que está en las dos.",
+          "La condición `WHERE kind = 'qr_payment' AND kind = 'card_payment'` nunca devuelve filas, porque ninguna transacción tiene dos tipos a la vez. La condición es sobre la **persona** y no sobre la fila, así que arma una lista por cada tipo de pago y quédate con lo que aparece en las dos.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Cada rama va de `transactions` a `accounts` (por `account_id`) y de ahí a `users` (por `user_id`), filtra el país, el estado `'completed'` y **un** tipo de pago, y proyecta `u.id AS user_id` y `u.full_name`. El operador que conserva solo lo que aparece en ambas ramas ya elimina los repetidos: no necesitas `DISTINCT`.",
+          "Cada rama va de la tabla `transactions` a `accounts`, por la columna `account_id`, y de ahí a `users`, por la columna `user_id`; filtra el país, el estado `'completed'` y **un** tipo de pago, y proyecta `u.id AS user_id` y `u.full_name`. El operador que conserva solo lo que aparece en las dos ramas ya elimina los repetidos: no necesitas `DISTINCT`.",
         ...defaultHintMeta(2),
       },
       {
@@ -226,17 +226,17 @@ export const exercises: ExerciseDef[] = [
       {
         category: "missing_filter",
         description_md:
-          "Escribir `t.kind = 'qr_payment' AND t.kind = 'card_payment'` en una sola consulta: el resultado siempre está vacío porque una transacción tiene un solo tipo.",
+          "Escribir `t.kind = 'qr_payment' AND t.kind = 'card_payment'` dentro de una sola consulta: el resultado siempre sale vacío, porque una transacción tiene un solo tipo.",
       },
       {
         category: "wrong_columns",
         description_md:
-          "Incluir `t.amount` o `t.created_at` en las ramas: `INTERSECT` compara **todas** las columnas, así que ninguna fila coincidiría y el resultado saldría vacío.",
+          "Incluir `t.amount` o `t.created_at` en las ramas: el operador `INTERSECT` compara **todas** las columnas, así que ninguna fila coincidiría y el resultado saldría vacío.",
       },
       {
         category: "duplicates",
         description_md:
-          "Reemplazar el `INTERSECT` por un `INNER JOIN` entre las dos listas sin deduplicar: cada combinación de transacciones QR y de tarjeta genera una fila y la misma persona aparece muchas veces.",
+          "Reemplazar el `INTERSECT` por un `INNER JOIN` entre las dos listas sin deduplicar: cada combinación de transacciones con QR y con tarjeta genera una fila, y la misma persona aparece muchas veces.",
       },
       {
         category: "aggregation_level",
@@ -245,7 +245,7 @@ export const exercises: ExerciseDef[] = [
       },
     ],
     expert_explanation_md:
-      "62 personas de las 316 registradas en Perú usan los dos medios de pago.\n\n`INTERSECT` funciona porque las dos ramas proyectan exactamente las mismas dos columnas, ambas provenientes de `users`: la identidad comparada es la persona. Si agregaras cualquier dato de la transacción, no habría coincidencias.\n\nLa alternativa con `GROUP BY ... HAVING count(DISTINCT t.kind) = 2` lee la tabla una sola vez y escala mejor cuando los tipos son muchos («quienes usaron al menos 3 de estos 5 medios» se resuelve cambiando un número). `INTERSECT` gana en claridad cuando son exactamente dos condiciones y la pregunta de negocio se enuncia como intersección.",
+      "El resultado de la consulta da 62 personas, de las 316 registradas en Perú, que usan los dos medios de pago.\n\nEl operador `INTERSECT` funciona porque las dos ramas proyectan exactamente las mismas dos columnas, las dos provenientes de la tabla `users`: la identidad que se compara es la persona. Si agregaras cualquier dato de la transacción, no habría ninguna coincidencia.\n\nLa alternativa con `GROUP BY ... HAVING count(DISTINCT t.kind) = 2` lee la tabla una sola vez y escala mejor cuando los tipos son muchos, porque la pregunta «quiénes usaron al menos 3 de estos 5 medios» se resuelve cambiando un número. El operador `INTERSECT` gana en claridad cuando son exactamente dos condiciones y la pregunta de negocio se enuncia como una intersección.",
     improvement_feedback: [
       { condition: "no_table_alias_in_join", message_key: "improve.no_table_alias_in_join" },
     ],
@@ -263,9 +263,9 @@ export const exercises: ExerciseDef[] = [
     dataset: tiendaviva,
     tables_used: ["orders", "customers"],
     scenario_md:
-      "El equipo de Retención de **TiendaViva** quiere recuperar clientes uruguayos: gente que recibió pedidos durante 2024 y que en lo que va de 2025 no volvió a comprar. Con esa lista arman una campaña de reactivación con un cupón.",
+      "El departamento de Retención de **TiendaViva** quiere recuperar clientes uruguayos: gente que recibió pedidos durante 2024 y que en lo que va de 2025 no volvió a comprar. Con esa lista arman una campaña de reactivación con un cupón, y te piden que la obtengas de la base.",
     business_question_md:
-      "Considerando solo pedidos con `status = 'delivered'` de clientes con `country = 'UY'`, devuelve `customer_id`, `full_name` y `email` de quienes tienen al menos un pedido entregado con `created_at` anterior al 1 de enero de 2025 y **ningún** pedido entregado desde esa fecha en adelante. Resuélvelo restando un conjunto del otro. Ordena por `customer_id` ascendente.",
+      "Debes generar un dataset que, considerando solamente pedidos cuyo `status` es igual al texto `'delivered'` de clientes cuyo `country` es igual al texto `'UY'`, devuelva el `customer_id`, el `full_name` y el `email` de quienes tienen al menos un pedido entregado con `created_at` anterior al `'2025-01-01'` y **ningún** pedido entregado desde esa fecha en adelante. Debes resolverlo restando un conjunto del otro. Ordena por `customer_id` ascendente.",
     learning_objective:
       "Usar EXCEPT para restar conjuntos y entender que el orden de las ramas cambia la pregunta.",
     theory_ref: l2,
@@ -293,7 +293,7 @@ export const exercises: ExerciseDef[] = [
       {
         level: 2,
         body_md:
-          "Las dos ramas son idénticas salvo por el filtro de fecha: `o.created_at < DATE '2025-01-01'` en la primera y `o.created_at >= DATE '2025-01-01'` en la segunda. Ambas proyectan las mismas tres columnas de `customers`, todas del cliente, para que la comparación sea por persona.",
+          "Las dos ramas son idénticas salvo por el filtro de fecha: `o.created_at < DATE '2025-01-01'` en la primera y `o.created_at >= DATE '2025-01-01'` en la segunda. Las dos proyectan las mismas tres columnas de la tabla `customers`, todas del cliente, para que la comparación sea por persona.",
         ...defaultHintMeta(2),
       },
       {
@@ -307,7 +307,7 @@ export const exercises: ExerciseDef[] = [
       {
         category: "wrong_order",
         description_md:
-          "Invertir las ramas: `2025 EXCEPT 2024` devuelve a los clientes nuevos de 2025, que es la pregunta opuesta a la que hizo Retención.",
+          "Invertir las ramas: la resta «2025 menos 2024» devuelve a los clientes nuevos de 2025, que es la pregunta opuesta a la que hizo Retención.",
       },
       {
         category: "date_boundary",
@@ -317,16 +317,16 @@ export const exercises: ExerciseDef[] = [
       {
         category: "wrong_columns",
         description_md:
-          "Incluir `o.created_at` o `o.total_amount` en las ramas: las fechas nunca coinciden entre 2024 y 2025, así que `EXCEPT` no restaría a nadie y devolvería todos los clientes de 2024.",
+          "Incluir `o.created_at` o `o.total_amount` en las ramas: las fechas nunca coinciden entre 2024 y 2025, así que el operador `EXCEPT` no restaría a nadie y devolvería todos los clientes de 2024.",
       },
       {
         category: "missing_filter",
         description_md:
-          "Omitir `status = 'delivered'` en la segunda rama: un pedido cancelado en 2025 contaría como regreso y sacaría de la campaña a alguien que sí se perdió.",
+          "Omitir la condición `status = 'delivered'` en la segunda rama: un pedido cancelado en 2025 contaría como regreso y sacaría de la campaña a alguien que sí se perdió.",
       },
     ],
     expert_explanation_md:
-      "17 clientes uruguayos compraron en 2024 y no volvieron en 2025.\n\nLa clave está en proyectar solo columnas del cliente. `EXCEPT` compara fila completa contra fila completa: si arrastras datos del pedido, cada fila es única y la resta no elimina nada.\n\nEl `NOT EXISTS` equivalente suele ser más rápido en tablas grandes, porque el motor se detiene en cuanto encuentra la primera compra de 2025 y no tiene que materializar la lista entera. También es más flexible: permite devolver columnas del pedido de 2024 (por ejemplo, la fecha de la última compra) que `EXCEPT` no admitiría. La versión con `EXCEPT` gana en legibilidad cuando la pregunta se enuncia como resta de conjuntos.\n\nUna advertencia: `NOT IN (SELECT customer_id FROM ...)` parece equivalente, pero si la subconsulta devuelve algún `NULL`, el resultado es cero filas sin ningún error. `EXCEPT` y `NOT EXISTS` no tienen esa trampa.",
+      "El resultado de la consulta da 17 clientes uruguayos que compraron en 2024 y no volvieron en 2025.\n\nLa clave está en proyectar solamente columnas del cliente. El operador `EXCEPT` compara fila completa contra fila completa: si arrastras datos del pedido, cada fila es única y la resta no elimina nada.\n\nEl `NOT EXISTS` equivalente suele ser más rápido en tablas grandes, porque el motor se detiene en cuanto encuentra la primera compra de 2025 y no tiene que materializar la lista entera. También es más flexible, porque permite devolver columnas del pedido de 2024, como la fecha de la última compra, que el `EXCEPT` no admitiría. La versión con `EXCEPT` gana en legibilidad cuando la pregunta se enuncia como una resta de conjuntos.\n\nUna advertencia: la forma `NOT IN (SELECT customer_id FROM ...)` parece equivalente, pero si la subconsulta devuelve algún `NULL` el resultado es cero filas sin ningún error. Ni `EXCEPT` ni `NOT EXISTS` tienen esa trampa.",
     improvement_feedback: [
       {
         condition: "uses_between_for_timestamps",
@@ -347,9 +347,9 @@ export const exercises: ExerciseDef[] = [
     dataset: bolsillo,
     tables_used: ["transfers", "accounts", "users"],
     scenario_md:
-      "En **Bolsillo**, el equipo de Crecimiento estudia las cuentas en pesos chilenos que funcionan solo como canal de salida: envían transferencias a otras cuentas y nunca reciben ninguna. Son candidatas a una campaña para que también cobren dentro de la billetera en lugar de hacerlo por fuera.",
+      "En **Bolsillo**, el departamento de Crecimiento está estudiando las cuentas en pesos chilenos que funcionan solo como canal de salida: envían transferencias a otras cuentas y nunca reciben ninguna. Son candidatas a una campaña para que también cobren dentro de la billetera en lugar de hacerlo por fuera, y te piden esa lista.",
     business_question_md:
-      "Considerando solo transferencias con `status = 'completed'`, obtén las cuentas con `currency = 'CLP'` que aparecen como emisoras (`transfers.from_account_id`) y **nunca** como receptoras (`transfers.to_account_id`, sin importar la moneda de la cuenta receptora). Devuelve `account_id`, el `full_name` de la persona titular y su `city`. Calcula el conjunto de cuentas en una CTE y recién después trae los datos descriptivos con joins. Ordena por `account_id` ascendente.",
+      "Debes generar un dataset que, considerando solamente transferencias cuyo `status` es igual al texto `'completed'`, obtenga las cuentas cuyo `currency` es igual al texto `'CLP'` que aparecen como emisoras, en la columna `transfers.from_account_id`, y que **nunca** aparecen como receptoras, en la columna `transfers.to_account_id`, sin importar la moneda de la cuenta receptora. Devuelve el `account_id`, el `full_name` de la persona titular y su `city`. Calcula el conjunto de cuentas en una expresión de tabla común y recién después trae los datos descriptivos con cruces. Ordena por `account_id` ascendente.",
     learning_objective:
       "Aplicar el patrón «conjunto primero, detalles después»: resolver la resta por clave y enriquecer el resultado con joins.",
     theory_ref: l2,
@@ -371,13 +371,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "El conjunto que buscas se define con una sola columna: el id de la cuenta. Primero resuélvelo (emisoras menos receptoras) y recién después agrega el nombre y la ciudad, que no participan de la comparación.",
+          "El conjunto que buscas se define con una sola columna: el identificador de la cuenta. Primero resuélvelo, restando las receptoras a las emisoras, y recién después agrega el nombre y la ciudad, que no participan de la comparación.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "Dentro de la CTE, la primera rama une `transfers` con `accounts` para poder filtrar `currency = 'CLP'` y proyecta `from_account_id`; la segunda rama solo necesita `to_account_id` de `transfers` con el mismo filtro de estado, sin filtrar moneda. Fuera de la CTE, unes con `accounts` y `users` para traer `full_name` y `city`.",
+          "Dentro de la expresión de tabla común, la primera rama une `transfers` con `accounts` para poder filtrar `currency = 'CLP'` y proyecta `from_account_id`; la segunda rama solo necesita `to_account_id` de `transfers` con el mismo filtro de estado, sin filtrar la moneda. Fuera de la expresión, unes con `accounts` y `users` para traer el `full_name` y la `city`.",
         ...defaultHintMeta(2),
       },
       {
@@ -391,26 +391,26 @@ export const exercises: ExerciseDef[] = [
       {
         category: "wrong_columns",
         description_md:
-          "Poner `full_name` y `city` dentro de las ramas del `EXCEPT`: la segunda rama tendría que unir las mismas tablas y la comparación dejaría de ser por cuenta.",
+          "Poner las columnas `full_name` y `city` dentro de las ramas del `EXCEPT`: la segunda rama tendría que unir las mismas tablas y la comparación dejaría de hacerse por cuenta.",
       },
       {
         category: "missing_filter",
         description_md:
-          "Filtrar `currency = 'CLP'` también en la rama de las receptoras: una cuenta chilena que recibió dinero de una cuenta en otra moneda seguiría apareciendo como «solo emisora».",
+          "Filtrar por `currency = 'CLP'` también en la rama de las receptoras: una cuenta chilena que recibió dinero desde una cuenta en otra moneda seguiría apareciendo como «solo emisora».",
       },
       {
         category: "row_count",
         description_md:
-          "Ignorar `status = 'completed'`: las transferencias fallidas o pendientes no movieron dinero, así que una cuenta que solo recibió transferencias fallidas debería seguir contando como solo emisora.",
+          "Ignorar la condición `status = 'completed'`: las transferencias fallidas o pendientes no movieron dinero, así que una cuenta que solo recibió transferencias fallidas debería seguir contando como solo emisora.",
       },
       {
         category: "duplicates",
         description_md:
-          "Resolverlo con `NOT EXISTS` pero sin `DISTINCT`: una cuenta con 40 envíos aparecería 40 veces, mientras que `EXCEPT` deduplica por definición.",
+          "Resolverlo con `NOT EXISTS` pero sin `DISTINCT`: una cuenta con 40 envíos aparecería 40 veces, mientras que el operador `EXCEPT` deduplica por definición.",
       },
     ],
     expert_explanation_md:
-      "48 cuentas en pesos chilenos envían y nunca reciben.\n\nEl patrón importante es el orden de las operaciones: primero el conjunto (una sola columna, la clave), después el enriquecimiento. Intentar hacer todo junto obliga a repetir los joins en las dos ramas y hace que la comparación dependa de columnas que no definen identidad.\n\nFíjate en la asimetría de los filtros: la moneda se filtra solo en la rama de las emisoras, porque la pregunta es sobre cuentas chilenas, y recibir dinero de cualquier cuenta —chilena o no— ya las descalifica. Es el tipo de detalle que conviene confirmar con quien pide el reporte.\n\n`NOT EXISTS` da el mismo resultado y suele ser más rápido con volumen alto porque corta en la primera coincidencia; necesita `DISTINCT` porque recorre las transferencias, no las cuentas.",
+      "El resultado de la consulta da 48 cuentas en pesos chilenos que envían dinero y nunca reciben.\n\nEl patrón importante es el orden de las operaciones: primero el conjunto, definido por una sola columna que es la clave, y después el enriquecimiento con datos descriptivos. Intentar hacer todo junto obliga a repetir los cruces en las dos ramas y hace que la comparación dependa de columnas que no definen identidad.\n\nFíjate en la asimetría de los filtros: la moneda se filtra solamente en la rama de las emisoras, porque la pregunta es sobre cuentas chilenas, y recibir dinero de cualquier cuenta, chilena o no, ya las descalifica. Es el tipo de detalle que conviene confirmar con quien pide el reporte.\n\nEl `NOT EXISTS` da el mismo resultado y suele ser más rápido con volumen alto, porque corta en la primera coincidencia; necesita `DISTINCT` porque recorre las transferencias y no las cuentas.",
     improvement_feedback: [
       { condition: "no_table_alias_in_join", message_key: "improve.no_table_alias_in_join" },
     ],
@@ -428,9 +428,9 @@ export const exercises: ExerciseDef[] = [
     dataset: bolsillo,
     tables_used: ["transactions", "accounts", "users", "kyc_events"],
     scenario_md:
-      "El equipo de Riesgo de **Bolsillo** arma la cola de revisión manual de Uruguay. Entra quien tenga alguna transacción marcada por el motor antifraude (`transactions.is_flagged`) **o** algún evento de verificación de identidad rechazado (`kyc_events.outcome = 'rejected'`). Quedan fuera las cuentas ya bloqueadas: ésas no se revisan, se escalan por otro canal.",
+      "El departamento de Riesgo de **Bolsillo** está armando la cola de revisión manual de Uruguay. Entra a la cola quien tenga alguna transacción marcada por el motor antifraude, es decir, con la columna `transactions.is_flagged` en `true`, **o** algún evento de verificación de identidad cuyo `outcome` sea igual al texto `'rejected'`. Quedan fuera las cuentas ya bloqueadas, porque ésas no se revisan sino que se escalan por otro canal. Te piden esa cola para repartirla entre los analistas.",
     business_question_md:
-      "Devuelve `user_id` y `full_name` de las personas con `country = 'UY'` que tienen al menos una transacción con `is_flagged = true` o al menos un evento de KYC con `outcome = 'rejected'`, excluyendo a quienes tienen `is_blocked = true`. Cada persona aparece una sola vez. Combina la unión de las dos fuentes y luego réstale el conjunto de bloqueadas, usando paréntesis para dejar explícito el orden de evaluación. Ordena por `user_id` ascendente.",
+      "Debes generar un dataset que devuelva el `user_id` y el `full_name` de las personas cuyo `country` es igual al texto `'UY'` que tienen al menos una transacción con la columna `is_flagged` en `true`, o al menos un evento de verificación de identidad cuyo `outcome` es igual al texto `'rejected'`, excluyendo a quienes tienen la columna `is_blocked` en `true`. Cada persona debe aparecer una sola vez. Combina la unión de las dos fuentes y después réstale el conjunto de las personas bloqueadas, usando paréntesis para dejar explícito el orden de evaluación. Ordena por `user_id` ascendente.",
     learning_objective:
       "Combinar UNION y EXCEPT en una sola consulta controlando la precedencia con paréntesis.",
     theory_ref: l3,
@@ -451,13 +451,13 @@ export const exercises: ExerciseDef[] = [
       {
         level: 1,
         body_md:
-          "Son tres conjuntos: marcadas por antifraude, rechazadas en KYC y bloqueadas. Los dos primeros se suman sin repetir a nadie; el tercero se resta del resultado de esa suma.",
+          "Son tres conjuntos: las personas con transacciones marcadas por antifraude, las rechazadas en la verificación de identidad y las bloqueadas. Los dos primeros se suman sin repetir a nadie; el tercero se resta del resultado de esa suma.",
         ...defaultHintMeta(1),
       },
       {
         level: 2,
         body_md:
-          "La primera rama va de `transactions` a `accounts` y a `users`; la segunda va de `kyc_events` directo a `users`; la tercera lee solo `users`. Las tres proyectan `u.id AS user_id` y `u.full_name`. Encierra entre paréntesis la suma de las dos primeras antes de restar la tercera.",
+          "La primera rama va de la tabla `transactions` a `accounts` y después a `users`; la segunda va de `kyc_events` directo a `users`; la tercera lee solamente `users`. Las tres proyectan `u.id AS user_id` y `u.full_name`. Encierra entre paréntesis la suma de las dos primeras antes de restar la tercera.",
         ...defaultHintMeta(2),
       },
       {
@@ -476,21 +476,21 @@ export const exercises: ExerciseDef[] = [
       {
         category: "wrong_order",
         description_md:
-          "Restar las bloqueadas solo de una de las dos fuentes (por ejemplo, `A EXCEPT C UNION B`): una persona bloqueada que además tiene KYC rechazado volvería a entrar por la segunda rama.",
+          "Restar las personas bloqueadas solo de una de las dos fuentes, como en «A menos C unido con B»: una persona bloqueada que además tiene la verificación rechazada volvería a entrar por la segunda rama.",
       },
       {
         category: "missing_filter",
         description_md:
-          "Olvidar `country = 'UY'` en alguna rama: la cola se llena con personas de otros países que ese equipo no revisa.",
+          "Olvidar la condición `country = 'UY'` en alguna rama: la cola se llena con personas de otros países que ese equipo no revisa.",
       },
       {
         category: "join_condition",
         description_md:
-          "Unir `kyc_events` con `users` pasando por `accounts`: `kyc_events` ya tiene `user_id`, y ese rodeo duplica filas para quienes tienen más de una cuenta.",
+          "Unir la tabla `kyc_events` con `users` pasando por `accounts`: la tabla `kyc_events` ya tiene la columna `user_id`, y ese rodeo duplica filas para quienes tienen más de una cuenta.",
       },
     ],
     expert_explanation_md:
-      "45 personas entran a la cola de revisión en Uruguay.\n\nLos paréntesis documentan la intención, aunque aquí no cambien nada: `UNION` y `EXCEPT` tienen la misma prioridad y se evalúan de izquierda a derecha, así que la versión sin paréntesis devuelve lo mismo. La historia cambia si alguien agrega un `INTERSECT`, porque ese operador se evalúa **antes**; con paréntesis, la consulta sigue significando lo que significaba.\n\nCada rama llega a `users` por un camino distinto —transacciones a través de cuentas, KYC directo, bloqueo sin joins— y aun así se combinan sin problema: las operaciones de conjuntos solo exigen que coincidan cantidad, tipo y orden de las columnas, no el origen.\n\nEn producción, una cola así se materializa a menudo con `NOT EXISTS` sobre una única consulta base; la versión con conjuntos es preferible cuando cada criterio de entrada lo define un equipo distinto y quieres poder agregar o quitar ramas sin tocar el resto.",
+      "El resultado de la consulta da 45 personas que entran a la cola de revisión en Uruguay.\n\nLos paréntesis documentan la intención, aunque acá no cambien nada: los operadores `UNION` y `EXCEPT` tienen la misma prioridad y se evalúan de izquierda a derecha, así que la versión sin paréntesis devuelve lo mismo. La historia cambia si alguien agrega un `INTERSECT`, porque ese operador se evalúa **antes**; con los paréntesis, la consulta sigue significando lo que significaba.\n\nCada rama llega a la tabla `users` por un camino distinto, una a través de las cuentas, otra directo desde los eventos de verificación y la tercera sin ningún cruce, y aun así se combinan sin problema: las operaciones de conjuntos solo exigen que coincidan la cantidad, el tipo y el orden de las columnas, no su origen.\n\nEn producción, una cola así se materializa a menudo con `NOT EXISTS` sobre una única consulta base; la versión con conjuntos es preferible cuando cada criterio de entrada lo define un equipo distinto y quieres poder agregar o quitar ramas sin tocar el resto.",
     improvement_feedback: [
       { condition: "no_table_alias_in_join", message_key: "improve.no_table_alias_in_join" },
     ],
@@ -517,9 +517,9 @@ export const exercises: ExerciseDef[] = [
     dataset: tiendaviva,
     tables_used: ["payments", "returns", "orders"],
     scenario_md:
-      "Finanzas de **TiendaViva México** arma el flujo de caja mensual de 2025. El dinero entra por los pagos aprobados (`payments` con `status = 'approved'`, fechados en `paid_at`) y sale por las devoluciones (`returns.refund_amount`, fechadas en `requested_at`). Son dos tablas con estructuras distintas y una sola línea de tiempo.",
+      "El departamento de Finanzas de **TiendaViva México** está armando el flujo de caja mensual de 2025. El dinero entra por los pagos aprobados, que son las filas de `payments` cuyo `status` es igual al texto `'approved'`, fechadas en la columna `paid_at`, y sale por las devoluciones, que son los valores de `returns.refund_amount` fechados en la columna `requested_at`. Son dos tablas con estructuras distintas y una sola línea de tiempo, y te piden unificarlas en un solo reporte.",
     business_question_md:
-      "Para los pedidos con `currency = 'MXN'` y movimientos ocurridos desde el 1 de enero de 2025, devuelve una fila por mes con: `mes` (el primer día del mes, como `date`), `cobros` (suma de `payments.amount` aprobados de ese mes), `reembolsos` (suma de `returns.refund_amount` de ese mes) y `neto` (cobros menos reembolsos). Redondea los tres importes a 2 decimales. Apila las dos fuentes con una operación de conjuntos dentro de una CTE, etiquetando cada fila con su tipo, y agrega después. Ordena por `mes` ascendente.",
+      "Debes generar un dataset que, tomando los pedidos cuyo `currency` es igual al texto `'MXN'` y los movimientos ocurridos desde el `'2025-01-01'`, devuelva una fila por mes con el `mes`, que es el primer día del mes con tipo `date`, la suma de `payments.amount` de los pagos cuyo `status` es igual al texto 'approved' de ese mes bajo el encabezado `cobros`, la suma de `returns.refund_amount` de ese mes bajo el encabezado `reembolsos` y la resta entre los dos valores bajo el encabezado `neto`. Redondea los tres importes a 2 decimales. Apila las dos fuentes con una operación de conjuntos dentro de una expresión de tabla común, etiquetando cada fila con su tipo, y agrega después. Ordena por `mes` ascendente.",
     learning_objective:
       "Usar UNION ALL para unificar dos fuentes heterogéneas en un formato común y agregarlas en una sola pasada.",
     theory_ref: l3,
@@ -551,7 +551,7 @@ export const exercises: ExerciseDef[] = [
       {
         level: 2,
         body_md:
-          "Cada rama proyecta tres columnas en el mismo orden: un texto fijo (`'cobro'` o `'reembolso'`), `date_trunc('month', <la fecha>)::date` y el importe. Aquí los duplicados son legítimos, así que apila sin deduplicar. En el `SELECT` final, `sum(monto) FILTER (WHERE tipo = ...)` separa cada métrica; `neto` es la resta de las dos sumas.",
+          "Cada rama proyecta tres columnas en el mismo orden: un texto fijo, que es `'cobro'` o `'reembolso'`, la expresión `date_trunc('month', <la fecha>)::date` y el importe. Acá los duplicados son legítimos, así que apila sin deduplicar. En el `SELECT` final, la expresión `sum(monto) FILTER (WHERE tipo = ...)` separa cada métrica, y la columna `neto` es la resta de las dos sumas.",
         ...defaultHintMeta(2),
       },
       {
@@ -565,31 +565,31 @@ export const exercises: ExerciseDef[] = [
       {
         category: "duplicates",
         description_md:
-          "Apilar con `UNION` en vez de `UNION ALL`: dos cobros del mismo monto en el mismo mes son dos cobros reales, y deduplicarlos borra dinero del reporte.",
+          "Apilar con `UNION` en lugar de `UNION ALL`: dos cobros del mismo monto en el mismo mes son dos cobros reales, y deduplicarlos borra dinero del reporte.",
       },
       {
         category: "date_boundary",
         description_md:
-          "Fechar los reembolsos con `paid_at` del pago original en lugar de `requested_at`: la salida de caja se imputa al mes equivocado.",
+          "Fechar los reembolsos con la columna `paid_at` del pago original en lugar de `requested_at`: la salida de caja se imputa al mes equivocado.",
       },
       {
         category: "aggregation_level",
         description_md:
-          "Calcular los cobros y los reembolsos en dos consultas separadas y unirlas con `UNION ALL` al final: quedan dos filas por mes en vez de una, con columnas vacías.",
+          "Calcular los cobros y los reembolsos en dos consultas separadas y unirlas con `UNION ALL` al final: quedan dos filas por mes en lugar de una, con columnas vacías.",
       },
       {
         category: "missing_filter",
         description_md:
-          "Incluir pagos con `status = 'rejected'` o `'refunded'`: el primero nunca entró y el segundo ya se contabiliza como devolución, así que el flujo queda inflado.",
+          "Incluir pagos cuyo `status` es `'rejected'` o `'refunded'`: el primero nunca ingresó dinero y el segundo ya se contabiliza como devolución, así que el flujo queda inflado.",
       },
       {
         category: "cell_values",
         description_md:
-          "Mezclar monedas: sin `o.currency = 'MXN'` se suman pesos, pesos colombianos y soles en la misma columna, y el total no significa nada.",
+          "Mezclar monedas: sin la condición `o.currency = 'MXN'` se suman pesos mexicanos, pesos colombianos y soles en la misma columna, y el total no significa nada.",
       },
     ],
     expert_explanation_md:
-      "9 filas, de enero a septiembre de 2025. El flujo neto llega a su máximo en mayo (2 219 930.28 MXN) y julio y agosto se sostienen por encima de los dos millones; septiembre queda muy abajo (607 168.11 MXN) porque el dataset corta el 16 de septiembre y el mes está incompleto. Los reembolsos van del 3.7 % (julio) al 14.0 % (enero) de los cobros del mes, salvo en ese septiembre parcial, donde trepan al 19.9 %: las devoluciones se siguen pidiendo sobre pedidos anteriores cuando los cobros del mes ya se cortaron.\n\n`UNION ALL` es el corazón del ejercicio: convierte dos tablas con estructuras distintas en un formato común (`tipo`, `mes`, `monto`) que se puede agregar de una sola vez. Es el patrón estándar para construir un libro mayor o una tabla de hechos a partir de fuentes heterogéneas, y se extiende a una tercera fuente agregando una rama más.\n\nLa etiqueta `tipo` es la que permite separar después las métricas con `FILTER`. La alternativa con `sum(CASE WHEN ... THEN ... ELSE 0 END)` es equivalente y funciona en cualquier motor; `FILTER` es SQL estándar y se lee mejor cuando hay varias métricas condicionales.\n\nUna variante frecuente en producción es guardar el signo en la rama (`-r.refund_amount`) y calcular el neto con un solo `sum(monto)`. Funciona, pero pierdes la posibilidad de mostrar cobros y reembolsos por separado sin volver a la fuente.",
+      "El resultado de la consulta da 9 filas, de enero a septiembre de 2025. El flujo neto llega a su máximo en mayo, con 2 219 930.28 pesos mexicanos, y julio y agosto se sostienen por encima de los dos millones; septiembre queda muy abajo, con 607 168.11, porque el dataset corta el 16 de septiembre y el mes está incompleto. Los reembolsos van del 3.7 % en julio al 14.0 % en enero sobre los cobros del mes, salvo en ese septiembre parcial, donde trepan al 19.9 %: las devoluciones se siguen pidiendo sobre pedidos anteriores cuando los cobros del mes ya se cortaron.\n\nEl operador `UNION ALL` es el corazón del ejercicio: convierte dos tablas con estructuras distintas en un formato común, con las columnas `tipo`, `mes` y `monto`, que se puede agregar de una sola vez. Es el patrón estándar para construir un libro mayor o una tabla de hechos a partir de fuentes heterogéneas, y se extiende a una tercera fuente agregando una rama más.\n\nLa etiqueta `tipo` es la que permite separar después las métricas con la cláusula `FILTER`. La alternativa con `sum(CASE WHEN ... THEN ... ELSE 0 END)` es equivalente y funciona en cualquier motor; `FILTER` es SQL estándar y se lee mejor cuando hay varias métricas condicionales.\n\nUna variante frecuente en producción es guardar el signo dentro de la rama, escribiendo `-r.refund_amount`, y calcular el neto con un solo `sum(monto)`. Funciona, pero pierdes la posibilidad de mostrar los cobros y los reembolsos por separado sin volver a la fuente.",
     improvement_feedback: [
       {
         condition: "missing_alias_on_aggregate",

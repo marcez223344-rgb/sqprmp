@@ -43,6 +43,7 @@ import { MarkdownClient } from "./markdown-client";
 import { FeedbackPanel, HintPanel, SchemaBrowser } from "./panels";
 import { ResultsTable } from "./results-table";
 import { SaveQueryForm } from "./save-query-form";
+import { SavedQueriesPanel } from "./saved-queries-panel";
 import { SubmitStatus, type SubmitStage, type SubmitVerdict } from "./submit-status";
 import { newerLocalDraft, purgeLegacyDrafts, readLocalDraft } from "./draft-storage";
 import { useDraftAutosave } from "./use-draft-autosave";
@@ -525,6 +526,14 @@ export function ExerciseWorkspace({
             </Button>
             <SaveQueryForm exerciseId={exercise.id} datasetSlug={dataset.slug} sql={sqlText} />
           </div>
+          {/* Recovering an earlier query used to mean leaving the exercise for /consultas. */}
+          <SavedQueriesPanel
+            currentSql={sqlText}
+            onLoad={(sql) => {
+              setSqlText(sql);
+              setRunResult(null);
+            }}
+          />
           {/* Autosave keeps the draft; the line says where it is, so nobody has to guess. */}
           <p role="status" className="text-muted min-h-4 text-xs">
             {draftStatus === "saving"

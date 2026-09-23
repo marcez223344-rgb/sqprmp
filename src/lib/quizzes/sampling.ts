@@ -1,10 +1,10 @@
 /**
  * Stratified sampling of a section's question bank (pure, no IO).
  *
- * D-33: a quiz serves `limits.quiz.questionsPerAttempt` questions out of a bank of 8–12. Six
- * questions taken uniformly at random can easily be six easy ones on a single topic, which would
- * make the quiz both easier and less representative than the ten-question version it replaces.
- * The rule below keeps coverage:
+ * D-33/D-37: a quiz serves `size` questions out of a bank of 8–12, where `size` is the length the
+ * section declares (`quizLengthForSection`). Five or six questions taken uniformly at random can
+ * easily be five easy ones on a single topic, which would make the quiz both easier and less
+ * representative than the whole bank. The rule below keeps coverage:
  *
  * 1. Bucket the bank by difficulty, ordered easy → hard (`DIFFICULTY_ORDER`; unknown values last,
  *    alphabetically, so a new difficulty never disappears from the sample silently).

@@ -22,20 +22,29 @@ Level `n` requires `100·n·(n−1)/2` total XP (100, 300, 600, 1000, 1500 …);
 
 ## Section quizzes
 
-- **Length (D-33).** An attempt serves `limits.quiz.questionsPerAttempt` = 6 questions out of the
-  section's bank of 8–12. The bank is not reduced: the sample is drawn per attempt, so a retry asks
-  a different set. Sampling is server-side; the browser never receives the questions that were not
-  drawn.
+- **Length (D-33, amended by D-37).** An attempt serves the number of questions **that section**
+  declares (`quiz_questions` in `src/content/sections.ts`, resolved by
+  `quizLengthForSection()`), out of a bank of 8–12. Today: 5 for the 31 sections whose exercises
+  already carry the evidence, 6 for the 8 sections with four or fewer exercises (and for the four
+  certificate gates until their banks are deep enough for 10),
+  `limits.quiz.questionsPerAttempt` = 6 as the default for a section that declares nothing. The
+  bank is not reduced: the sample is drawn per attempt, so a retry asks a different set, and
+  `limits.quiz.minUnseenOnRetry` = 3 keeps at least three questions out of any attempt (enforced by
+  `content:validate`). Sampling is server-side; the browser never receives the questions that were
+  not drawn.
+- **Which lengths are legal.** `limits.quiz.lengthsAllowed` = 5, 6, 10, 11, 12 — the lengths at
+  which the 80 % threshold is honest. At 7, 8 or 9 the learner is told 80 % and judged at 86–89 %,
+  and at 4 a single mistake fails the attempt (D-37 has the table and the error rates).
 - **Coverage rule.** `sampleQuestions()` buckets the bank by difficulty, picks round-robin easy →
   hard so every difficulty present is represented, and inside a bucket prefers the least-used topic
   (random tie-break), so a topic repeats only after every topic has appeared. The sample is
   delivered easy first.
-- **Passing.** `quizPassThresholdPercent` = 80, so 5 of 6 correct (83 %) passes and 4 of 6 (67 %)
-  does not. Any passing attempt therefore also clears `certificates.minQuizScorePercent` = 80, as it
-  did when 8 of 10 was the minimum pass.
-- **XP.** 5 XP per correct answer + 20 on the first pass, unchanged per correct answer, so the
-  maximum a quiz can pay fell from about 73 XP (a full 8–12-question bank) to 50, and the whole
-  curriculum's quiz XP from roughly 2 800 to 1 900. The level curve is unchanged; quizzes simply
+- **Passing.** `quizPassThresholdPercent` = 80 for every section — the threshold does not vary, only
+  the length does. In practice the learner may miss one question of 5 or 6, and two of 10 or 12.
+  Any passing attempt therefore also clears `certificates.minQuizScorePercent` = 80.
+- **XP.** 5 XP per correct answer + 20 on the first pass, unchanged per correct answer, so a quiz
+  pays at most 45 XP (5 questions), 50 (6) or 70 (10), and the whole curriculum's quiz XP is
+  roughly 1 795 against 2 800 when the full bank was served. The level curve is unchanged; quizzes simply
   weigh less than exercises than they used to. The daily cap (600 XP) is untouched and still
   enforced inside `award_reward`.
 - **Immediate feedback (D-34).** Each question is graded by its own server round-trip:

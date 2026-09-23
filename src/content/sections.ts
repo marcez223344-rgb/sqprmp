@@ -679,9 +679,76 @@ const outlines: Outline[] = [
   },
 ];
 
+/**
+ * Questions served in one quiz attempt, per section (D-37). One number for all 39 sections was
+ * wrong in both directions: too long where the exercises already prove the skill, too short where
+ * the quiz is the gate to a certificate. The tier is decided by how much of the section's evidence
+ * the quiz has to carry, and is capped by the bank (`limits.quiz.minUnseenOnRetry`, validated in
+ * src/content/load.ts).
+ *
+ * - 5 — "check": the section has five or more authored exercises, so the graded queries are the
+ *   evidence of skill; the quiz only probes what a result set cannot show (NULL semantics,
+ *   precedence, when a construct is the wrong tool). Five items at 80 % allow one mistake.
+ * - 6 — "standard": four or fewer exercises, so the quiz carries more of the judgement and covers
+ *   more of the section's concepts; also the interim value for gate sections whose bank is not yet
+ *   deep enough for ten (see docs/DECISIONS.md D-37 for the pending question briefs).
+ * - 10 — "gate" (`limits.quiz.gateQuestions`): sections that close a level and feed a certificate.
+ *   Not assigned yet: each needs a bank of 13+ published questions.
+ *
+ * A section absent from this table falls back to `limits.quiz.questionsPerAttempt`.
+ */
+const quizQuestionsBySection: Record<string, number> = {
+  // N1 · Fundamentos
+  "introduccion-bases-de-datos": 6, // no exercises at all: the quiz is the only assessment
+  "tablas-filas-columnas-tipos": 6, // 2 exercises
+  select: 5,
+  "alias-y-expresiones": 5, // 3 exercises, but the bank (8) only supports 5 today
+  distinct: 5, // 3 exercises, bank-limited
+  where: 6, // 4 exercises
+  "operadores-comparacion-logicos": 5, // 3 exercises, bank-limited
+  null: 6, // certificate gate: 10 once the bank reaches 13
+  // N2 · Transformar datos
+  "funciones-de-texto": 5,
+  "funciones-numericas": 5,
+  "fechas-y-horas": 5,
+  case: 5,
+  "ordenar-y-limitar": 5,
+  // N3 · Agregar y combinar
+  "funciones-de-agregacion": 6, // 4 exercises
+  "group-by": 5,
+  having: 5,
+  "inner-join": 5,
+  "left-right-full-join": 5,
+  "self-join": 5,
+  "joins-multiples-tablas": 6, // certificate gate: 10 once the bank reaches 13
+  // N4 · Consultas avanzadas
+  subconsultas: 5,
+  cte: 5,
+  "operaciones-de-conjuntos": 5,
+  "agregacion-condicional": 5,
+  "funciones-de-ventana": 5,
+  "funciones-de-ranking": 5,
+  "totales-acumulados-promedios-moviles": 5,
+  "lag-y-lead": 6, // certificate gate: 10 once the bank reaches 13
+  // N5 · Analítica aplicada
+  "cohortes-y-retencion": 5,
+  funnels: 5,
+  deduplicacion: 5,
+  "calidad-de-datos": 5,
+  "depuracion-de-consultas": 5,
+  "fundamentos-de-optimizacion": 5,
+  "indices-y-planes-de-ejecucion": 5,
+  // N6 · Profesional
+  "sql-analitico-avanzado": 5,
+  "casos-de-negocio": 5,
+  "desafios-de-entrevista": 5,
+  "proyectos-finales": 6, // certificate gate: 10 once the bank reaches 13
+};
+
 export const sections: SectionDef[] = outlines.map((o, i) => ({
   ...o,
   course: "ruta-sql-analistas",
+  quiz_questions: o.quiz_questions ?? quizQuestionsBySection[o.slug],
   requires:
     o.requires !== undefined ? o.requires : i === 0 ? null : (outlines[i - 1]?.slug ?? null),
 }));

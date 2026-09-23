@@ -16,7 +16,7 @@ import {
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { CATEGORY_STYLES, SectionHeader } from "@/components/ui/section-header";
-import type { LearnerAnswer } from "@/lib/quizzes/grading";
+import { scorePercent, type LearnerAnswer } from "@/lib/quizzes/grading";
 import type { QuestionFeedback, QuizQuestion, QuizResult } from "@/lib/quizzes/service";
 import {
   answerQuestionAction,
@@ -184,7 +184,17 @@ function Attempt({
           );
         })}
       </div>
-      <p className="sr-only">{t("tally", { correct: correctSoFar, answered: answered.length })}</p>
+      {/* The running tally used to be screen-reader-only: the percentage is what the pass
+          threshold is expressed in, so everyone sees where they stand while answering. */}
+      <p role="status" className={cn("text-muted text-xs", answered.length === 0 && "sr-only")}>
+        {answered.length === 0
+          ? t("tally", { correct: correctSoFar, answered: answered.length })
+          : t("tallyPercent", {
+              correct: correctSoFar,
+              answered: answered.length,
+              percent: scorePercent(correctSoFar, answered.length),
+            })}
+      </p>
 
       <section
         aria-labelledby={`q-${current.id}`}
@@ -335,6 +345,7 @@ function QuizResultView({
   const t = useTranslations("quiz");
   const verdictRef = useRef<HTMLElement | null>(null);
   const { score, total, passed } = result;
+  const percent = scorePercent(score, total);
   const byId = new Map(result.graded.map((g) => [g.questionId, g]));
   const wrong = questions.filter((q) => !(byId.get(q.id) ?? feedbacks[q.id])?.correct).length;
   const category = passed ? "feedback-correct" : "pitfall";
@@ -390,7 +401,7 @@ function QuizResultView({
                 ? t("verdictPassed")
                 : t("verdictFailed")
           }
-          title={t("score", { score, total })}
+          title={t("scoreWithPercent", { score, total, percent })}
           as="h2"
           headingProps={{ id: "quiz-resultado-h" }}
           titleClassName="text-3xl font-bold"
@@ -399,9 +410,9 @@ function QuizResultView({
         <p className="text-sm">
           {mode === "quiz"
             ? passed
-              ? t("passed", { percent: passThresholdPercent })
-              : t("failed", { percent: passThresholdPercent })
-            : t("reviewDone")}
+              ? t("passed", { percent, threshold: passThresholdPercent })
+              : t("failed", { percent, threshold: passThresholdPercent })
+            : t("reviewDonePercent", { percent })}
         </p>
         {result.reward?.awarded || result.sectionCompleted ? (
           <ul className="flex flex-wrap gap-2 text-xs font-medium">
