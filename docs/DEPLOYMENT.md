@@ -87,6 +87,22 @@ From then on, `/admin` is visible in the app header for that account only, with:
 
 Scholarships in practice: for a handful of people use `/admin/accesos` (immediate, one learner). For a campaign — "20 becas para egresados de X" — create a `scholarship` promo code in `/admin/promos` with a redemption cap and an expiry, share the code, and deactivate it when the cap is reached. Both paths write to `audit_logs`.
 
+## 5e. Applying the content seed (lessons, questions, exercises)
+
+Lesson and exercise text is served from the database, not from `src/content`, so a prose change
+is invisible in production until the seed is applied. `content:build` regenerates
+`supabase/seed/0002_content.sql` from `src/content`; applying it directly with
+`npx supabase db query --linked --file supabase/seed/0002_content.sql` fails with **HTTP 413
+"request entity too large"** — the seed is a single ~3.8 MB transaction and the query endpoint
+caps the body size.
+
+Use `npm run content:apply` instead. It splits the seed on blank-line statement boundaries (every
+literal is dollar-quoted, so a literal is never cut), runs each chunk in its own transaction, and
+stops on the first error. Every statement is `on conflict (slug) do update`, so the seed is
+idempotent and an interrupted run is fixed by running it again.
+
+Order matters and is preserved: course → sections → lessons → questions → exercises.
+
 ## 5d. Runbook: "No pudimos verificar tu acceso ahora mismo"
 
 Symptom: hints and submissions fail with that message, while lessons and exercise pages render

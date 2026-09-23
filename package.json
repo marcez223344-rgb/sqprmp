@@ -26,7 +26,8 @@
     "content:build": "tsx scripts/content-build.ts",
     "assets:pglite": "tsx scripts/copy-pglite-assets.ts",
     "predev": "npm run assets:pglite && npm run datasets:build",
-    "prebuild": "npm run assets:pglite && npm run datasets:build"
+    "prebuild": "npm run assets:pglite && npm run datasets:build",
+    "content:apply": "node scripts/apply-content-seed.mjs"
   },
   "dependencies": {
     "@codemirror/commands": "^6.11.1",
