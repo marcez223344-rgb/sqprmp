@@ -17,7 +17,7 @@
  *
  * Usage: node scripts/apply-content-seed.mjs [path-to-seed] [--dry-run]
  */
-import { execFileSync } from "node:child_process";
+import { execFileSync, execSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -99,6 +99,20 @@ for (const statement of statements) {
 }
 if (current.length) chunks.push(current);
 
+/**
+ * Runs one chunk through the Supabase CLI.
+ *
+ * On Windows `npx` is a .cmd, and Node 20+ refuses to spawn a .cmd without a shell (EINVAL).
+ * Going through the shell means the path has to be quoted by hand rather than passed as an
+ * argument vector, so the temp path is produced by mkdtemp and never contains a quote.
+ */
+function runSupabaseQuery(file) {
+  const args = ["supabase", "db", "query", "--linked", "--file", file];
+  const options = { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 };
+  if (process.platform !== "win32") return execFileSync("npx", args, options);
+  return execSync(`npx.cmd supabase db query --linked --file "${file}"`, options);
+}
+
 const dir = mkdtempSync(join(tmpdir(), "content-seed-"));
 console.log(`${statements.length} statements → ${chunks.length} chunks`);
 
@@ -111,11 +125,7 @@ try {
       console.log("written, not applied");
       continue;
     }
-    const out = execFileSync(
-      process.platform === "win32" ? "npx.cmd" : "npx",
-      ["supabase", "db", "query", "--linked", "--file", file],
-      { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 },
-    );
+    const out = runSupabaseQuery(file);
     if (out.includes('"_tag":"Error"')) {
       console.log("FAILED");
       console.error(out.slice(0, 2000));
