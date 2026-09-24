@@ -108,7 +108,7 @@ Also closed: an **iterable oracle** in the comparator's expected-value example (
 
 ### What remains before launch
 
-Unchanged from Phase 9 and all of it owner-side: apply the migrations (OA-19), deploy (OA-24), turn on the ranking flag after clearing the old opt-ins (OA-20), create a plain-learner test account (OA-17), install Docker so the pgTAP suites run for the first time (OA-23), and the standing legal/domain/pricing items. The single list is [OWNER_ACTIONS.md](OWNER_ACTIONS.md).
+As of 2026-09-24 the migrations are applied (OA-19), the code is deployed (OA-24), the ranking flag is on with the old opt-ins cleared (OA-20) and a plain-learner account exists (OA-17). What is left is owner-side and listed in [OWNER_ACTIONS.md](OWNER_ACTIONS.md): the Docker install that unblocks the pgTAP suites (OA-23), the Google consent-screen support address (OA-07), permission rules for the assistant (OA-10), an optional skim of the lesson prose (OA-11), and the Argentine consumer-law and invoicing obligations deferred until a sale is imminent (OA-05).
 
 ## Post-MVP backlog
 
