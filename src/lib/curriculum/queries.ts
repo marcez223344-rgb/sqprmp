@@ -37,6 +37,7 @@ export interface PathSection extends Pick<
   | "is_free_theory"
   | "is_published"
   | "certificate_slug"
+  | "requires_section_id"
 > {
   objectives: string[];
   lessons: PathLesson[];
@@ -164,6 +165,7 @@ export const getLearningPath = cache(async (userId?: string): Promise<PathSectio
       is_free_theory: s.is_free_theory,
       is_published: s.is_published,
       certificate_slug: s.certificate_slug,
+      requires_section_id: s.requires_section_id,
       objectives: Array.isArray(s.objectives) ? (s.objectives as string[]) : [],
       lessons: sectionLessons,
       completed_lessons: sectionLessons.filter((l) => l.status === "completed").length,

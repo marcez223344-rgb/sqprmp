@@ -21,6 +21,8 @@ import { buttonVariants } from "@/components/ui/button";
 import { getBadgeVisual } from "@/config/badges";
 import { limits } from "@/config/limits";
 import { requireOnboardedProfile } from "@/lib/auth/session";
+import { publishedLessons } from "@/lib/curriculum/path-summary";
+import { getLearningPath } from "@/lib/curriculum/queries";
 import { getDashboard } from "@/lib/progress/queries";
 import { cn } from "@/lib/utils/cn";
 
@@ -31,10 +33,11 @@ export async function generateMetadata() {
 
 export default async function DashboardPage() {
   const profile = await requireOnboardedProfile("/aprender");
-  const [d, t, format] = await Promise.all([
+  const [d, t, format, path] = await Promise.all([
     getDashboard(profile),
     getTranslations("dashboard"),
     getFormatter(),
+    getLearningPath(profile.id),
   ]);
   const earnedBadges = d.badges.filter((b) => b.earned_at);
   // Built from the parts that actually have a value: a learner with no history used to see a
@@ -44,6 +47,23 @@ export default async function DashboardPage() {
     d.streak.longest > 0 ? t("streak.longest", { days: d.streak.longest }) : null,
   ].filter((part): part is string => Boolean(part));
   const xpToNextLevel = Math.max(d.level.needed - d.level.current, 0);
+  // Same lesson counting as /ruta (published lessons only), so the two pages never disagree.
+  const continueSection = d.continueTarget
+    ? path.find((s) => s.slug === d.continueTarget?.sectionSlug)
+    : undefined;
+  const continueLessons = continueSection ? publishedLessons(continueSection.lessons) : [];
+  const continueDone = continueLessons.filter((l) => l.status === "completed").length;
+  const continuePercent = continueLessons.length
+    ? Math.round((continueDone / continueLessons.length) * 100)
+    : 0;
+  const continueProgressText = continueSection
+    ? t("continue.sectionProgress", {
+        number: continueSection.number,
+        done: continueDone,
+        total: continueLessons.length,
+        percent: continuePercent,
+      })
+    : "";
 
   return (
     <div className="container-page space-y-8 py-10">
@@ -119,6 +139,19 @@ export default async function DashboardPage() {
         {/* The focal card: the only action on this page that matters, with the same treatment the
             continuable section gets on /ruta. */}
         <Card className="ring-primary/45 space-y-3 ring-2 md:col-span-2">
+          {d.hasStarted && continueSection && continueLessons.length > 0 ? (
+            <div className="space-y-1.5">
+              <p className="text-muted text-xs font-semibold tracking-wide uppercase">
+                {continueProgressText}
+              </p>
+              <Meter
+                tone="primary"
+                percent={continuePercent}
+                label={t("continue.sectionProgressLabel", { title: continueSection.title })}
+                valueText={continueProgressText}
+              />
+            </div>
+          ) : null}
           {/* "Continuar" on an account that has done nothing is a lie the learner notices
               (owner feedback 2026-09-24): the first visit invites, later visits resume. */}
           <h2 className="text-xl">{d.hasStarted ? t("continue.title") : t("continue.titleNew")}</h2>

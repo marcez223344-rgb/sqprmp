@@ -151,7 +151,9 @@
       "cta": "Continuar",
       "ctaNew": "Empezar",
       "empty": "Todavía no empezaste ningún ejercicio. Tu ruta te espera.",
-      "start": "Ir a la ruta"
+      "start": "Ir a la ruta",
+      "sectionProgress": "Sección {number} · {done} de {total} lecciones · {percent} %",
+      "sectionProgressLabel": "Progreso en la sección {title}"
     },
     "stats": {
       "exercises": "Ejercicios",
@@ -309,7 +311,21 @@
     "aliasNote": "El alias se puede cambiar hasta dos veces por año desde soporte.",
     "sections": {
       "identity": "Identidad y preferencias",
-      "privacy": "Privacidad y datos"
+      "privacy": "Privacidad y datos",
+      "achievements": "Tus logros"
+    },
+    "certificates": {
+      "title": "Certificados obtenidos",
+      "issuedOn": "Emitido el {date}",
+      "verify": "Verificar",
+      "pdf": "PDF",
+      "opensNewTab": "(se abre en una pestaña nueva)",
+      "none": "Todavía no obtuviste certificados. En la página de certificados ves qué te falta para cada uno.",
+      "all": "Ver todos los certificados y tu avance"
+    },
+    "levelProgress": {
+      "title": "Avance por nivel",
+      "value": "{done} de {total} lecciones · {percent} %"
     },
     "privacyIntro": "Controlas tus datos: puedes pedir una copia o eliminar tu cuenta.",
     "fields": {
@@ -386,6 +402,30 @@
     "current": "Continúa aquí",
     "levelProgress": "{done} de {total} secciones completadas",
     "premiumLesson": "Incluida en el acceso completo",
+    "sectionTime": {
+      "minutes": "~{minutes} min",
+      "hours": "~{hours} h",
+      "hoursMinutes": "~{hours} h {minutes} min"
+    },
+    "requires": "Requiere: sección {number}, {title}",
+    "summary": {
+      "title": "Tu progreso en el curso",
+      "progress": "{done} de {total} lecciones publicadas · {percent} %",
+      "nextCertificate": "Próximo certificado: al completar la sección {number}, {title}",
+      "continue": "Continuar: {title}",
+      "start": "Empezar: {title}",
+      "allDone": "Completaste todas las lecciones publicadas. Las nuevas secciones aparecen aquí cuando se publican.",
+      "review": "Repasar lo aprendido",
+      "facts": {
+        "sections": "Secciones publicadas",
+        "sectionsValue": "{published} de {total}",
+        "lessons": "Lecciones",
+        "exercises": "Ejercicios",
+        "certificates": "Certificados en el curso",
+        "time": "Tiempo estimado",
+        "timeValue": "{hours, plural, one {# hora} other {# horas}}"
+      }
+    },
     "lessonKind": {
       "theory": "Teoría",
       "exercise": "Ejercicio",
@@ -407,6 +447,7 @@
       "diagram": "Diagrama"
     },
     "minutes": "{minutes} min",
+    "position": "Lección {current} de {total}",
     "pagination": "Navegación entre lecciones",
     "backToPath": "Volver a la ruta",
     "markComplete": "Marcar como completada",
@@ -1469,6 +1510,8 @@
     "issuedOn": "Emitido el {date}",
     "downloadPdf": "Descargar PDF",
     "verifyLink": "Ver página de verificación",
+    "addToLinkedIn": "Agregar a mi perfil de LinkedIn",
+    "opensNewTab": "(se abre en una pestaña nueva)",
     "howToEarn": "Para obtenerlo: completa todas las lecciones y ejercicios de cada sección y aprueba cada quiz con al menos {percent} %.",
     "issue": {
       "nameLabel": "Nombre completo para el certificado",

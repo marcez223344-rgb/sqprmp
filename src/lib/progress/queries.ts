@@ -32,6 +32,8 @@ export interface DashboardData {
     slug: string;
     title: string;
     sectionTitle: string;
+    /** Lets the card show that section's progress; null only if the section row is missing. */
+    sectionSlug: string | null;
   } | null;
   mastery: {
     sectionSlug: string;
@@ -156,6 +158,7 @@ export const getDashboard = cache(async (profile: Profile): Promise<DashboardDat
         slug: e.slug,
         title: e.title ?? "",
         sectionTitle: section?.title ?? "",
+        sectionSlug: section?.slug ?? null,
       };
   }
   if (!continueTarget) {
@@ -172,6 +175,7 @@ export const getDashboard = cache(async (profile: Profile): Promise<DashboardDat
         slug: nextExercise.ref_slug,
         title: nextExercise.title ?? "",
         sectionTitle: section?.title ?? "",
+        sectionSlug: section?.slug ?? null,
       };
     }
   }
@@ -185,6 +189,7 @@ export const getDashboard = cache(async (profile: Profile): Promise<DashboardDat
         slug: lesson.slug,
         title: lesson.title ?? "",
         sectionTitle: section?.title ?? "",
+        sectionSlug: section?.slug ?? null,
       };
   }
 

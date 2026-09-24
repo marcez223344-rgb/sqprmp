@@ -6,6 +6,7 @@ import {
   CircleDot,
   CircleX,
   Download,
+  Share2,
   ShieldCheck,
   type LucideIcon,
 } from "lucide-react";
@@ -19,9 +20,12 @@ import {
 import { Meter } from "@/components/progress/stat-tile";
 import { Card } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
+import { brand } from "@/config/brand";
 import { limits } from "@/config/limits";
 import { requireOnboardedProfile } from "@/lib/auth/session";
+import { linkedInAddCertificationUrl } from "@/lib/certificates/linkedin";
 import { getRequirementStatuses } from "@/lib/certificates/service";
+import { absoluteUrl } from "@/lib/seo/urls";
 import { cn } from "@/lib/utils/cn";
 
 export async function generateMetadata() {
@@ -208,6 +212,7 @@ export default async function CertificatesPage() {
                         >
                           <Download aria-hidden="true" />
                           {t("downloadPdf")}
+                          <span className="sr-only"> {t("opensNewTab")}</span>
                         </a>
                         <Link
                           href={`/verificar/${s.certificate.verificationCode}`}
@@ -216,6 +221,26 @@ export default async function CertificatesPage() {
                           <ShieldCheck aria-hidden="true" />
                           {t("verifyLink")}
                         </Link>
+                        {/* Only on the learner's own page: the public verify page is read by
+                            employers, who have no certificate to add. */}
+                        {!s.certificate.revoked ? (
+                          <a
+                            href={linkedInAddCertificationUrl({
+                              name: s.title,
+                              organizationName: brand.organization,
+                              issuedAt: new Date(s.certificate.issuedAt),
+                              certUrl: absoluteUrl(`/verificar/${s.certificate.verificationCode}`),
+                              certId: s.certificate.publicId,
+                            })}
+                            className={cn(buttonVariants({ variant: "ghost" }))}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <Share2 aria-hidden="true" />
+                            {t("addToLinkedIn")}
+                            <span className="sr-only"> {t("opensNewTab")}</span>
+                          </a>
+                        ) : null}
                       </div>
                     </div>
                   ) : s.eligible ? (

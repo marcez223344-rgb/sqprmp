@@ -117,6 +117,12 @@ export default async function LessonPage({ params }: PageProps<"/leccion/[slug]"
           {t(`kind.${lesson.kind ?? "theory"}`)}
           <span aria-hidden="true">·</span>
           {t("minutes", { minutes: lesson.estimated_minutes ?? 0 })}
+          {index >= 0 ? (
+            <>
+              <span aria-hidden="true">·</span>
+              {t("position", { current: index + 1, total: siblings.length })}
+            </>
+          ) : null}
         </p>
         <h1 className="text-3xl">{lesson.title}</h1>
       </header>

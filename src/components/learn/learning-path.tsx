@@ -8,6 +8,7 @@ import {
   ChevronRight,
   CircleDashed,
   CircleDot,
+  Clock,
   Layers,
   ListChecks,
   Network,
@@ -24,6 +25,7 @@ import {
   progressRailClasses,
   type ProgressState,
 } from "@/components/progress/progress-state";
+import { sectionMinutes } from "@/lib/curriculum/path-summary";
 import { LEVEL_ORDER, type PathLesson, type PathSection } from "@/lib/curriculum/queries";
 import { lessonNeedsAccess } from "@/lib/progress/lesson-lock";
 import { cn } from "@/lib/utils/cn";
@@ -97,12 +99,15 @@ export async function LearningPath({
     sections: sections.filter((s) => s.level === level),
   })).filter((g) => g.sections.length);
 
-  // The focal card: the first section the learner can actually continue with.
+  // The focal card: the first section the learner can actually continue with. A published section
+  // with no published lesson yet has nothing to continue, and skipping it keeps this cue on the
+  // same section as the «Continuar» button above the path (`summarizePath`).
   const currentSlug =
     mode === "learner"
       ? (sections.find((s) => {
-          const state = sectionState(s, s.lessons.filter((l) => l.is_published).length);
-          return state === "in_progress" || state === "available";
+          const published = s.lessons.filter((l) => l.is_published).length;
+          const state = sectionState(s, published);
+          return published > 0 && (state === "in_progress" || state === "available");
         })?.slug ?? null)
       : null;
 
@@ -178,6 +183,7 @@ export async function LearningPath({
                             {s.title}
                           </h3>
                           <p className="text-muted max-w-prose text-sm">{s.summary}</p>
+                          <SectionFacts section={s} sections={sections} t={t} />
                         </div>
                       </div>
 
@@ -328,5 +334,47 @@ function LessonRow({
         </Link>
       )}
     </li>
+  );
+}
+
+/**
+ * Time and prerequisite under the section summary. Both come from data that already existed but
+ * was never shown: lesson estimates (summed) and `requires_section_id`. The time is an estimate,
+ * so it is written as one ("~95 min"), never as a promise.
+ */
+function SectionFacts({
+  section,
+  sections,
+  t,
+}: {
+  section: PathSection;
+  sections: PathSection[];
+  t: Awaited<ReturnType<typeof getTranslations<"path">>>;
+}) {
+  const minutes = section.is_published ? sectionMinutes(section) : 0;
+  const required = section.requires_section_id
+    ? sections.find((x) => x.id === section.requires_section_id)
+    : undefined;
+  if (!minutes && !required) return null;
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  const time =
+    hours === 0
+      ? t("sectionTime.minutes", { minutes })
+      : rest === 0
+        ? t("sectionTime.hours", { hours })
+        : t("sectionTime.hoursMinutes", { hours, minutes: rest });
+  return (
+    <p className="text-muted flex flex-wrap items-center gap-x-3 gap-y-1 pt-1 text-xs">
+      {minutes ? (
+        <span className="inline-flex items-center gap-1">
+          <Clock aria-hidden="true" className="size-3.5 shrink-0" />
+          {time}
+        </span>
+      ) : null}
+      {required ? (
+        <span>{t("requires", { number: required.number, title: required.title })}</span>
+      ) : null}
+    </p>
   );
 }

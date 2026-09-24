@@ -83,6 +83,26 @@ Statuses updated as work lands. "In flight" = an agent is on it in the session i
 | 28  | Completada / sin empezar / en curso are hard to tell apart at a glance     | Queued                                                    |
 | 29  | Are there database backups? Wants a weekly local dump                      | In flight — **the most important item in this round**     |
 
+## 2026-09-24 · Round 5 (Codecademy benchmark)
+
+He shared screenshots of Codecademy (path, dashboard, profile, account, lessons, course pages) and
+asked what we could borrow cheaply. Three reviews (ux-designer, frontend-engineer,
+curriculum-designer) produced 22 candidate changes rated by effort, value and risk. He approved the
+nine rated **high or medium value and low risk**, with two conditions: nothing database-related and
+nothing broken. The other 13 and the "do not copy" list stay proposals, not commitments.
+
+| #   | Item                                                                   | Status                                                                                                                                                   |
+| --- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2   | «Continuar» button and «Repasar» link at the top of /ruta              | Shipped, unverified                                                                                                                                      |
+| 3   | One progress bar for the whole course on /ruta                         | Shipped, unverified                                                                                                                                      |
+| 4   | Facts line on /ruta (sections, lessons, exercises, certificates, time) | Shipped, unverified                                                                                                                                      |
+| 5   | Section progress strip on the dashboard's «Continuar» card             | Shipped, unverified                                                                                                                                      |
+| 6   | «Lección N de M» on every lesson                                       | Shipped, unverified                                                                                                                                      |
+| 8   | Estimated time and prerequisite on each section card                   | Shipped, unverified                                                                                                                                      |
+| 9   | «Agregar a mi perfil de LinkedIn» on /certificados                     | Shipped, unverified — learner's own page only, not /verificar (employers read that page)                                                                 |
+| 14  | /perfil shows issued certificates and progress per level               | Shipped, unverified                                                                                                                                      |
+| 21  | «Próximos pasos» closing block per section                             | Waiting on him — 38 drafted texts to review; publishing needs `content:apply`, which writes to the production database, so it also needs his explicit OK |
+
 ## Earlier rounds
 
 Reconstructed from `docs/DECISIONS.md`, `docs/reviews/**` and the commit history; rows are added
