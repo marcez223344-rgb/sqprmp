@@ -804,6 +804,40 @@ promo list — rather than forbidden.
 **Consequence.** Codes created before this change keep whatever they have; the column default only
 affects new rows. Any existing uncapped code has to be capped or deactivated by hand.
 
+### D-40 · «SQL con IA»: teach using and verifying AI, with no AI running in the product
+
+**Status:** Accepted (2026-09-24). Owner: «add an AI section specific for SQL … avoid wasting money
+on it, I would not embed a ChatGPT API key». Architect proposal compared five options; the owner
+approved the recommended one and its four sub-decisions via the question tool.
+
+**The decision.** A new content section, «SQL con IA», teaches prompting the learner's _own_ AI
+account (free ChatGPT, Gemini or Claude) for SQL and — the graded skill — proving its answer right
+or wrong in our sandbox. Nothing calls an AI provider at runtime: no API key in the app, no learner
+data sent anywhere, US$0 marginal cost. Exercises are gradable with what exists (the result-set
+comparator and the existing question types): fix the AI's query, pick the correct one of three AI
+answers, choose the prompt that produces a query, find the invented column. A «Copiar contexto para
+tu IA» button copies the schema and the task (never solutions, hints or expected results) to the
+clipboard, **in this section only**, so normal exercises cannot be short-circuited by pasting them
+into a chatbot. AI is also used offline while authoring (explanations, plausible wrong queries),
+always through `content:verify` and review; a `/create-ai-exercise` skill will support that.
+
+**Owner sub-decisions.** (1) Build now. (2) Position: between section 38 (Desafíos de entrevista)
+and 39 (Proyectos finales), when learners know enough SQL to catch the AI's mistakes. (3) The first
+lesson is free; the free-offer copy on /precios gains that line (D-29 changes accordingly). (4) It
+is **not** required for the «Analista SQL Profesional» certificate; completing it earns its own
+badge.
+
+**Rejected.** A live AI tutor on our server (recurring cost with no ceiling against a US$20
+one-time price — roughly US$50–525/month per 1,000 active learners at list prices to be re-checked —
+plus the risk of leaking solutions and Vercel Hobby's commercial-use limits); an in-browser model
+(0.5–2 GB download, WebGPU missing on many phones, weak Spanish SQL). Marketing says «aprende a usar
+y verificar IA para SQL», never «tutor con IA» or «powered by AI». Revisit a tutor only if
+subscriptions exist and paying users ask for it, with a hard monthly cap and no access to reference
+solutions.
+
+**Open.** The outline waits for the owner's screenshots of Codecademy's «Learn How to Use AI for
+SQL», so useful patterns can be folded in before any lesson is written.
+
 ## Owner-only follow-ups from 2026-09-23
 
 - **`SUPABASE_SECRET_KEY` is invalid in production** (see the runbook note in
