@@ -225,7 +225,7 @@ export async function LearningPath({
                           />
                         </div>
                         <p className="text-muted text-xs">
-                          {t("progress", { done: s.completed_lessons, total })}
+                          {t("progress", { done: s.completed_lessons, total, percent })}
                         </p>
                       </div>
                     ) : null}

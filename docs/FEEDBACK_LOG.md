@@ -103,6 +103,13 @@ nothing broken. The other 13 and the "do not copy" list stay proposals, not comm
 | 14  | /perfil shows issued certificates and progress per level               | Shipped, unverified                                                                                                                                      |
 | 21  | «Próximos pasos» closing block per section                             | Waiting on him — 38 drafted texts to review; publishing needs `content:apply`, which writes to the production database, so it also needs his explicit OK |
 
+Follow-ups he raised after seeing it live:
+
+| #   | Item                                                             | Status                                                                                                    |
+| --- | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| F1  | The whole course shows a %, each section should too              | Shipped, unverified — each section card's line now reads «3 de 8 lecciones · 38 %», same count as its bar |
+| F2  | Questions for him must come through the question tool, not prose | Done — standing rule in the assistant's memory                                                            |
+
 ## Earlier rounds
 
 Reconstructed from `docs/DECISIONS.md`, `docs/reviews/**` and the commit history; rows are added

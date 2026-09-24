@@ -397,7 +397,7 @@
       "in_progress": "En curso",
       "completed": "Completada"
     },
-    "progress": "{done} de {total} lecciones",
+    "progress": "{done} de {total} lecciones · {percent} %",
     "progressAria": "Progreso de la sección {number}: {percent}%",
     "current": "Continúa aquí",
     "levelProgress": "{done} de {total} secciones completadas",
