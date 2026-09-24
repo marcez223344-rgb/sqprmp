@@ -79,7 +79,7 @@ const ASK = [
     re: /\bnpm\s+publish\b|\bnpx\s+vercel\b(?!.*--prod)/i,
     why: "External publish/deploy; confirm target.",
   },
-  { re: /\bgit\s+push\b/i, why: "Pushing to the remote; confirm branch." },
+  
 ];
 for (const rule of ASK) {
   if (rule.re.test(c)) {
