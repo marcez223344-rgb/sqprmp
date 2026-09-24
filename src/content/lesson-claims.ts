@@ -641,4 +641,22 @@ WHERE a.status = 'active'
     sql: "SELECT count(*) FROM merchants",
     about: "comercios de Bolsillo",
   },
+  {
+    lesson: "ia-varias-tablas-y-supuestos",
+    dataset: "ritmo",
+    prose: "Ritmo tiene 5000 oyentes y solo 2010 tienen al menos una playlist",
+    sql: "SELECT (SELECT count(*) FROM users), (SELECT count(DISTINCT user_id) FROM playlists)",
+    about: "oyentes totales y oyentes con al menos una playlist",
+  },
+  {
+    lesson: "ia-verificar-antes-de-entregar",
+    dataset: "pidelo",
+    prose: "hubo 1179 pedidos entregados, y el join con `order_items` los convierte en 2977 filas",
+    sql: `SELECT count(DISTINCT o.id), count(*)
+FROM orders o JOIN order_items oi ON oi.order_id = o.id
+WHERE o.status = 'delivered'
+  AND o.placed_at >= TIMESTAMPTZ '2025-08-01 00:00:00+00'
+  AND o.placed_at < TIMESTAMPTZ '2025-09-01 00:00:00+00'`,
+    about: "pedidos entregados de agosto de 2025 y filas tras unir con order_items",
+  },
 ];

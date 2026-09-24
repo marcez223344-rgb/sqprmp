@@ -7,6 +7,7 @@ import { writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { loadContent } from "../src/content/load";
 import { products } from "../src/config/pricing";
+import { sectionsInUpsertOrder } from "../src/content/build-order";
 
 const loaded = loadContent();
 if (loaded.issues.length) {
@@ -41,8 +42,9 @@ values (${q(c.slug)}, ${q(c.title)}, ${q(c.description)}, ${c.sort_order}, ${b(c
 on conflict (slug) do update set title = excluded.title, description = excluded.description, sort_order = excluded.sort_order, is_published = excluded.is_published;`);
 }
 
-// Sections: insert without requires first (self-reference), then set requires.
-for (const s of loaded.sections) {
+// Sections: insert without requires first (self-reference), then set requires. Highest number
+// first, so an insertion in the middle of the path never collides with `unique (course_id, number)`.
+for (const s of sectionsInUpsertOrder(loaded.sections)) {
   out.push(`insert into public.sections (course_id, slug, number, level, title, summary, objectives, is_free_theory, is_published, certificate_slug)
 values ((select id from public.courses where slug = ${q(s.course)}), ${q(s.slug)}, ${s.number}, ${q(s.level)}, ${q(s.title)}, ${q(s.summary)}, ${j(s.objectives)}, ${b(s.is_free_theory)}, ${b(s.is_published)}, ${q(s.certificate)})
 on conflict (slug) do update set number = excluded.number, level = excluded.level, title = excluded.title, summary = excluded.summary, objectives = excluded.objectives, is_free_theory = excluded.is_free_theory, is_published = excluded.is_published, certificate_slug = excluded.certificate_slug;`);

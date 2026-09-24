@@ -48,7 +48,7 @@ export default async function PricingPage({ searchParams }: PageProps<"/precios"
           <h2 className="text-2xl">{t("free.title")}</h2>
           <p className="font-heading text-3xl font-bold">{t("free.price")}</p>
           <ul className="space-y-2 text-sm">
-            {(["theory", "exercises", "demo", "progress"] as const).map((k) => (
+            {(["theory", "exercises", "aiLesson", "demo", "progress"] as const).map((k) => (
               <li key={k} className="flex gap-2">
                 <Check aria-hidden="true" className="text-success mt-0.5 size-4 shrink-0" />
                 {t(`free.items.${k}`, { free: limits.freeExerciseLimit })}

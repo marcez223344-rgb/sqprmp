@@ -42,7 +42,7 @@ export default async function PathPage() {
       </header>
 
       {/* The next step and the whole-course numbers in one place, above the syllabus: the page used
-          to open straight into 39 section cards with no button to click. */}
+          to open straight into 40 section cards with no button to click. */}
       <Card className="space-y-5">
         <div className="space-y-2">
           <h2 className="text-lg font-semibold">{t("summary.title")}</h2>

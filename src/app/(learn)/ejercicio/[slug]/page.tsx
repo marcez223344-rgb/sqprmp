@@ -10,6 +10,8 @@ import { hasActiveEntitlement } from "@/lib/auth/entitlements";
 import { requireOnboardedProfile } from "@/lib/auth/session";
 import { ensureExerciseStarted, getExerciseWorkspace } from "@/lib/exercises/service";
 import { brand } from "@/config/brand";
+import { isAiContextSection } from "@/config/ai";
+import { aiContextInputFromWorkspace, buildAiContextPrompt } from "@/lib/exercises/ai-context";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { createClient } from "@/lib/supabase/server";
 
@@ -40,6 +42,14 @@ export default async function ExercisePage({ params }: PageProps<"/ejercicio/[sl
   const data = await getExerciseWorkspace(slug, profile);
   if (!data || data.access === "unavailable") notFound();
   const t = await getTranslations("workspace");
+  const tPrompt = await getTranslations("workspace.aiContext.prompt");
+  // D-40: only in the allowlisted sections, and assembled here so the client gets a finished string.
+  const aiContextPrompt =
+    data.access === "ok" && isAiContextSection(data.section.slug)
+      ? buildAiContextPrompt(aiContextInputFromWorkspace(data), (key, values) =>
+          tPrompt(key, values),
+        )
+      : null;
 
   if (data.access === "ok" && !data.progress) {
     // Opening a gated exercise consumes one free slot (D-01); recorded server-side, idempotent.
@@ -111,7 +121,7 @@ export default async function ExercisePage({ params }: PageProps<"/ejercicio/[sl
           freeLimit={data.freeLimit}
         />
       ) : (
-        <ExerciseWorkspace data={data} userId={profile.id} />
+        <ExerciseWorkspace data={data} userId={profile.id} aiContextPrompt={aiContextPrompt} />
       )}
     </div>
   );

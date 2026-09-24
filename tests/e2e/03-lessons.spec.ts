@@ -13,8 +13,7 @@ test.describe("curriculum and lessons", () => {
     test.skip(!hasLocalSupabase, "Requires a local Supabase stack (E2E_SUPABASE=1).");
     await page.goto("/curriculo");
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Currículo");
-    await expect(page.getByText("Sección 39")).toBeVisible();
-    await expect(page.getByText("Próximamente").first()).toBeVisible();
+    await expect(page.getByText("Sección 40")).toBeVisible();
   });
 
   test.describe("as an onboarded learner", () => {

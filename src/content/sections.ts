@@ -660,8 +660,30 @@ const outlines: Outline[] = [
     is_published: true,
     certificate: null,
   },
+  // D-40 (owner, 2026-09-24): inserted before the capstone, which moved from 39 to 40. Slugs are
+  // the identity everywhere (progress, certificate rules), so the renumbering touches no learner
+  // data; the capstone now requires this section through the derived chain below, which is
+  // intended — the owner made it mandatory, including for «Analista SQL Profesional».
   {
     number: 39,
+    slug: "sql-con-ia",
+    level: "expert",
+    title: "SQL con IA: pedir, verificar y corregir",
+    summary:
+      "Usar tu propio asistente de IA (ChatGPT, Gemini, Claude) para escribir SQL, y demostrar con datos si su respuesta es correcta antes de entregarla.",
+    objectives: [
+      "Pedir una consulta con contexto completo: objetivo, tablas, columnas, resultado esperado y dialecto",
+      "Detectar los supuestos que la IA tomó sin decirlo: tipo de join, grano, empates y zona horaria",
+      "Verificar una respuesta con conteos por paso, casos borde y una consulta de control simple",
+      "Corregir sintaxis de otro dialecto y columnas inventadas usando el esquema",
+      "Decidir qué información nunca se comparte con una IA y cómo anonimizarla",
+    ],
+    is_free_theory: false,
+    is_published: true,
+    certificate: null,
+  },
+  {
+    number: 40,
     slug: "proyectos-finales",
     level: "expert",
     title: "Proyectos finales (capstone)",
@@ -742,6 +764,7 @@ const quizQuestionsBySection: Record<string, number> = {
   "sql-analitico-avanzado": 5,
   "casos-de-negocio": 5,
   "desafios-de-entrevista": 5,
+  "sql-con-ia": 5,
   "proyectos-finales": 10, // certificate gate (bank of 14)
 };
 

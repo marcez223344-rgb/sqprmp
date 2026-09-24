@@ -4,7 +4,7 @@
 
 ## 1. Learning path structure
 
-One course ("Ruta SQL para Analistas de Datos") organized in **6 levels** and **39 sections**. Each section = objectives + concise theory (1–3 lessons) + worked examples + common mistakes + 4–7 practical exercises + 8–15 theory questions (of which 5, 6 or 10 are served per quiz attempt — see §3) + 1 section challenge + completion rule.
+One course ("Ruta SQL para Analistas de Datos") organized in **6 levels** and **40 sections**. Each section = objectives + concise theory (1–3 lessons) + worked examples + common mistakes + 4–7 practical exercises + 8–15 theory questions (of which 5, 6 or 10 are served per quiz attempt — see §3) + 1 section challenge + completion rule.
 
 | Level                        | Sections                                                                                                                                                                                           | Certificate                                           |
 | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
@@ -13,7 +13,7 @@ One course ("Ruta SQL para Analistas de Datos") organized in **6 levels** and **
 | **N3 · Agregar y combinar**  | 14 Funciones de agregación · 15 GROUP BY · 16 HAVING · 17 INNER JOIN · 18 LEFT, RIGHT y FULL JOIN · 19 Self joins · 20 Joins de múltiples tablas                                                   | **Certificado: SQL para Análisis de Negocio**         |
 | **N4 · Consultas avanzadas** | 21 Subconsultas · 22 CTE · 23 Operaciones de conjuntos · 24 Agregación condicional · 25 Funciones de ventana · 26 Funciones de ranking · 27 Totales acumulados y promedios móviles · 28 LAG y LEAD | **Certificado: SQL Analítico Avanzado**               |
 | **N5 · Analítica aplicada**  | 29 Cohortes y retención · 30 Funnels · 31 Deduplicación · 32 Investigaciones de calidad de datos · 33 Depuración de consultas · 34 Fundamentos de optimización · 35 Índices y planes de ejecución  | —                                                     |
-| **N6 · Profesional**         | 36 SQL analítico avanzado · 37 Casos de negocio · 38 Desafíos de entrevista técnica · 39 Proyectos finales (capstone)                                                                              | **Certificado: Analista SQL Profesional** (full path) |
+| **N6 · Profesional**         | 36 SQL analítico avanzado · 37 Casos de negocio · 38 Desafíos de entrevista técnica · 39 SQL con IA · 40 Proyectos finales (capstone)                                                              | **Certificado: Analista SQL Profesional** (full path) |
 
 Prerequisites are linear inside a level; levels unlock when the previous level's section challenges are passed (mastery learning). Learners can _preview_ any lesson's theory but not submit gated exercises.
 
@@ -60,7 +60,7 @@ sample is depends on the section. The number is authored in `quizQuestionsBySect
 | ---------------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
 | **5** (check)                      | ≥ 5 authored exercises: the graded queries are the evidence, the quiz probes what a result set cannot show | 28 sections                                                                    |
 | **6** (standard, also the default) | ≤ 4 exercises, so the quiz carries more of the judgement                                                   | 1, 2, 4, 5, 6, 7, 14                                                           |
-| **10** (gate)                      | closes a level and feeds a certificate                                                                     | 8 `null`, 20 `joins-multiples-tablas`, 28 `lag-y-lead`, 39 `proyectos-finales` |
+| **10** (gate)                      | closes a level and feeds a certificate                                                                     | 8 `null`, 20 `joins-multiples-tablas`, 28 `lag-y-lead`, 40 `proyectos-finales` |
 
 Two constraints bind the choice and are enforced in code, not by convention:
 
@@ -97,6 +97,19 @@ question types and seven verified exercises on `pidelo` (very_easy → expert).
 Counts reported by `npm run content:validate` after the section landed: 39 of 39 sections
 published, 347 lessons, 414 theory questions, 209 exercises over 4 datasets. `npm run
 content:verify`: OK, 209 exercises.
+
+**Section 39 «SQL con IA: pedir, verificar y corregir» (D-40, 2026-09-24).** Inserted before the
+capstone, which became section 40; mandatory, and required by `analista-sql-profesional`. Five
+theory lessons (the first free), eight exercises plus a section challenge and a bank of twelve
+questions. It teaches using the learner's own AI assistant for SQL and, above all, verifying its
+answer: every exercise shows an authored "AI answer" with a real defect — another dialect
+(`IFNULL`, `DATE_FORMAT`, `TOP`, `GETDATE()`), an invented column, a `BETWEEN` month border on a
+`timestamptz`, a silent `INNER JOIN` that drops zeros, a fan-out join that inflates revenue
+(279.3M vs 107.0M), ties lost to `row_number()` — and each defect was proven to change the result on
+the snapshot. Nothing calls an AI at runtime; the «Copiar contexto para tu IA» button
+(`src/config/ai.ts`) copies schema and task only, in this section only. Counts after it landed:
+40 of 40 sections published, 362 lessons, 444 theory questions, 218 exercises; `content:verify`
+OK (218), `content:claims` OK (72), `content:figures` OK (201).
 
 **The three plans in the lesson are real captures**, taken with
 `EXPLAIN (ANALYZE, BUFFERS)` against the `pidelo` v1 snapshot with statistics refreshed, and

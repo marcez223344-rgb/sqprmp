@@ -1,7 +1,7 @@
 -- pgTAP tests for assessments + certificates: quiz attempts, section completion, eligibility,
 -- issuance idempotency, revocation, public verification and RLS.
 begin;
-select plan(18);
+select plan(20);
 
 insert into auth.users (id, email) values
   ('81111111-1111-1111-1111-111111111111', 'sofia@ejemplo.lat'),
@@ -9,6 +9,13 @@ insert into auth.users (id, email) values
 
 -- Seed sanity
 select cmp_ok((select count(*) from public.certificate_requirements where is_active), '>=', 4::bigint, 'certificate requirements seeded');
+-- Migration 20260924140000: «SQL con IA» is required, immediately before the capstone.
+select is((select array_position(s, 'proyectos-finales') - array_position(s, 'sql-con-ia')
+           from (select array(select jsonb_array_elements_text(rules -> 'sections')) as s
+                 from public.certificate_requirements where slug = 'analista-sql-profesional') t),
+          1, 'analista-sql-profesional requires sql-con-ia right before proyectos-finales');
+select ok((select 'Uso y verificación de IA para SQL' = any (skills) from public.certificate_requirements where slug = 'analista-sql-profesional'),
+          'analista-sql-profesional lists the AI verification skill');
 
 -- A requirement scoped to a single seeded section (intro has theory + quiz, no exercises).
 insert into public.certificate_requirements (slug, title, skills, rules, sort_order, is_active)

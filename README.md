@@ -4,7 +4,7 @@ Plataforma de aprendizaje de SQL para adultos de habla hispana en América Latin
 
 **Organización:** Data Minds Solutions · **Fundador e instructor:** Marcelo Pisner
 
-> Estado actual (2026-09-23): **curso completo** — las 39 secciones están publicadas, con 347 lecciones, 414 preguntas de teoría y 209 ejercicios verificados sobre 4 datasets (TiendaViva, Bolsillo, Pídelo, Ritmo), además de quizzes con corrección por pregunta, certificados, ranking opcional y panel de administración. Cifras de `npm run content:validate`. El contenido ya está aplicado al proyecto Supabase; **las ocho migraciones del 2026-09-23 y el código de esa sesión todavía no están aplicados ni desplegados**. Ver [docs/ROADMAP.md](docs/ROADMAP.md) y [docs/OWNER_ACTIONS.md](docs/OWNER_ACTIONS.md).
+> Estado actual (2026-09-23): **curso completo** — las 40 secciones están publicadas, con 362 lecciones, 444 preguntas de teoría y 218 ejercicios verificados sobre 4 datasets (TiendaViva, Bolsillo, Pídelo, Ritmo), además de quizzes con corrección por pregunta, certificados, ranking opcional y panel de administración. Cifras de `npm run content:validate`. El contenido ya está aplicado al proyecto Supabase; **las ocho migraciones del 2026-09-23 y el código de esa sesión todavía no están aplicados ni desplegados**. Ver [docs/ROADMAP.md](docs/ROADMAP.md) y [docs/OWNER_ACTIONS.md](docs/OWNER_ACTIONS.md).
 
 ## Documentación
 
@@ -16,7 +16,7 @@ Plataforma de aprendizaje de SQL para adultos de habla hispana en América Latin
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)                 | Stack, zonas de confianza, flujos, estructura del repositorio, costos, riesgos |
 | [docs/SQL_SANDBOX.md](docs/SQL_SANDBOX.md)                   | Comparación y diseño del motor seguro de SQL (PGlite híbrido)                  |
 | [docs/DATABASE_DESIGN.md](docs/DATABASE_DESIGN.md)           | Modelo de datos de Supabase y matriz de políticas RLS                          |
-| [docs/CURRICULUM.md](docs/CURRICULUM.md)                     | Ruta de aprendizaje (39 secciones), volumen inicial, datasets                  |
+| [docs/CURRICULUM.md](docs/CURRICULUM.md)                     | Ruta de aprendizaje (40 secciones), volumen inicial, datasets                  |
 | [docs/CONTENT_GUIDELINES.md](docs/CONTENT_GUIDELINES.md)     | Reglas de redacción, ejercicios, pistas, preguntas, recompensas, datasets      |
 | [docs/SECURITY.md](docs/SECURITY.md)                         | Modelo de seguridad y privacidad                                               |
 | [docs/PAYMENTS.md](docs/PAYMENTS.md)                         | Análisis de pagos para LATAM y recomendación                                   |

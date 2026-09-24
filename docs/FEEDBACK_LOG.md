@@ -105,10 +105,12 @@ nothing broken. The other 13 and the "do not copy" list stay proposals, not comm
 
 Follow-ups he raised after seeing it live:
 
-| #   | Item                                                             | Status                                                                                                    |
-| --- | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| F1  | The whole course shows a %, each section should too              | Shipped, unverified — each section card's line now reads «3 de 8 lecciones · 38 %», same count as its bar |
-| F2  | Questions for him must come through the question tool, not prose | Done — standing rule in the assistant's memory                                                            |
+| #   | Item                                                             | Status                                                                                                                                                                                       |
+| --- | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| F1  | The whole course shows a %, each section should too              | Shipped, unverified — each section card's line now reads «3 de 8 lecciones · 38 %», same count as its bar                                                                                    |
+| F2  | Questions for him must come through the question tool, not prose | Done — standing rule in the assistant's memory                                                                                                                                               |
+| F3  | Add an AI-for-SQL section without paying for an AI API           | Shipped, unverified — section 39 «SQL con IA» (D-40): 5 lessons (1st free), 8 graded exercises + challenge, 12-question bank, «Copiar contexto para tu IA» button; no AI runs in the product |
+| F4  | "Why optional? Make it mandatory"                                | Shipped, unverified — counts toward 100 % and required for «Analista SQL Profesional» (migration `20260924140000`); badge deferred at his choice                                             |
 
 ## Earlier rounds
 

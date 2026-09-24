@@ -3,7 +3,7 @@ begin;
 select plan(12);
 
 -- Seed sanity
-select cmp_ok((select count(*) from public.sections), '=', 39::bigint, '39 sections seeded');
+select cmp_ok((select count(*) from public.sections), '=', 40::bigint, '40 sections seeded');
 select cmp_ok((select count(*) from public.theory_questions), '>=', 30::bigint, 'questions seeded');
 select cmp_ok((select count(*) from public.lessons where kind = 'quiz'), '>=', 3::bigint, 'derived quiz lessons seeded');
 

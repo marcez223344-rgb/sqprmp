@@ -68,6 +68,11 @@ Level `n` requires `100·n·(n−1)/2` total XP (100, 300, 600, 1000, 1500 …);
 
 Data-driven criteria (`badges.criteria`): `exercises_completed`, `exercises_without_hints`, `sections_completed`, `streak`, `level`. Evaluated by `evaluate_badges()` after each reward; returns newly earned slugs for the UI banner. Seeded set: 12 badges (first exercise, 5, 20; 5 without hints; 1 and 3 full sections; streaks 3/7/30; levels 3/5/10).
 
+**Deferred: «Verificador de IA».** A badge for completing section 39 «SQL con IA» (D-40) needs a
+new criteria kind (`section_completed` with a slug; today every criterion is a count), i.e. a schema
+migration. The owner chose to launch the section without it (2026-09-24); add it when he approves
+that migration.
+
 ## Abuse controls
 
 Idempotent keys, daily cap, server-only RPCs, `suspicious_activity` table for anomaly flags (heuristics land with admin tooling in Phase 8), rate limits on submissions and hints.

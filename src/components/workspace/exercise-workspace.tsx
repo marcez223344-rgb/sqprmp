@@ -38,6 +38,7 @@ import { solutionUnlockableNow } from "@/lib/exercises/unlock";
 import { BrowserEngine, type BrowserEngineState } from "@/lib/sandbox/browser-engine";
 import type { SandboxOutcome } from "@/lib/sandbox/types";
 import { cn } from "@/lib/utils/cn";
+import { CopyAiContext } from "./copy-ai-context";
 import { ExternalLessonLink, WorkspaceExitLink } from "./external-lesson-link";
 import { useAppleShortcutKey } from "./use-apple-platform";
 import { MarkdownClient } from "./markdown-client";
@@ -71,10 +72,13 @@ const SqlEditor = dynamic(() => import("./sql-editor").then((m) => m.SqlEditor),
 export function ExerciseWorkspace({
   data,
   userId,
+  aiContextPrompt = null,
 }: {
   data: ExerciseWorkspaceData;
   /** Resolved on the server; here only as part of the draft storage key, never for authorization. */
   userId: string;
+  /** D-40: finished prompt text, present only in the sections allowlisted in `src/config/ai.ts`. */
+  aiContextPrompt?: string | null;
 }) {
   const t = useTranslations("workspace");
   const apple = useAppleShortcutKey();
@@ -316,6 +320,7 @@ export function ExerciseWorkspace({
               })}
             </ul>
           </div>
+          {aiContextPrompt ? <CopyAiContext prompt={aiContextPrompt} /> : null}
         </div>
 
         {/* Reference material: grouped for assistive technology the way the wells group it visually. */}

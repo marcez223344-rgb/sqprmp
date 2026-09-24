@@ -43,7 +43,7 @@
       "subtitle": "Practica con datos de negocio realistas: e-commerce, fintech y delivery. Ejecuta consultas en el navegador, recibe retroalimentación útil y consigue certificados verificables.",
       "ctaPrimary": "Empieza gratis con Google",
       "ctaSecondary": "Probar SQL sin registrarme",
-      "note": "Dos secciones completas gratis, más tus primeros {count} ejercicios del resto del curso. Sin tarjeta."
+      "note": "Dos secciones completas gratis, la primera lección de «SQL con IA» y tus primeros {count} ejercicios del resto del curso. Sin tarjeta."
     },
     "benefits": {
       "title": "Para quien trabaja con datos, en cualquier país",
@@ -85,7 +85,7 @@
     },
     "curriculum": {
       "title": "Un camino de principiante a analista profesional",
-      "subtitle": "6 niveles y 39 secciones: desde SELECT hasta funciones de ventana, cohortes y desafíos de entrevista.",
+      "subtitle": "6 niveles y 40 secciones: desde SELECT hasta funciones de ventana, cohortes y desafíos de entrevista.",
       "cta": "Explorar el currículo completo"
     },
     "pricing": {
@@ -370,7 +370,7 @@
   },
   "curriculum": {
     "title": "Currículo completo",
-    "intro": "Seis niveles, treinta y nueve secciones. Cada sección combina teoría breve, ejercicios sobre datos de negocio realistas y un quiz. Las secciones marcadas como «Próximamente» se publican semana a semana.",
+    "intro": "Seis niveles, cuarenta secciones. Cada sección combina teoría breve, ejercicios sobre datos de negocio realistas y un quiz. Las secciones marcadas como «Próximamente» se publican semana a semana.",
     "cta": "Empieza gratis con Google"
   },
   "path": {
@@ -748,6 +748,24 @@
         "unauthorized": "Tu sesión expiró. Vuelve a iniciar sesión para ver tus consultas.",
         "unknown": "No pudimos cargar tus consultas. Vuelve a intentarlo."
       }
+    },
+    "aiContext": {
+      "button": "Copiar contexto para tu IA",
+      "copied": "Copiado. Pégalo en tu asistente de IA.",
+      "privacyNote": "Nunca pegues datos reales de una empresa en una IA pública. Este texto lleva solo el esquema de las tablas y el pedido.",
+      "fallbackLabel": "Contexto para tu IA",
+      "fallbackHint": "Tu navegador no dejó copiar automáticamente. El texto está seleccionado: cópialo con Ctrl+C (⌘+C en Mac).",
+      "prompt": {
+        "intro": "Trabajo como analista de datos con la base «{dataset}».",
+        "scenario": "Contexto: {scenario}",
+        "engine": "Uso PostgreSQL {version}. Responde solo con SQL válido para PostgreSQL.",
+        "tablesHeading": "Tablas (sin datos reales, solo el esquema):",
+        "primaryKey": "PK",
+        "relations": "Relaciones: {relations}.",
+        "request": "Pedido: {request}",
+        "expectedColumns": "Resultado esperado: columnas {columns}.",
+        "closing": "Usa alias que digan qué es cada tabla y explica cada paso en una línea."
+      }
     }
   },
   "demo": {
@@ -807,13 +825,14 @@
   },
   "pricing": {
     "title": "Precios",
-    "intro": "Empieza gratis: las dos primeras secciones completas, más tus primeros {free} ejercicios del resto del curso. Cuando quieras seguir, un solo pago desbloquea todo el currículo para siempre.",
+    "intro": "Empieza gratis: las dos primeras secciones completas, la primera lección de «SQL con IA» y tus primeros {free} ejercicios del resto del curso. Cuando quieras seguir, un solo pago desbloquea todo el currículo para siempre.",
     "free": {
       "title": "Gratis",
       "price": "US$ 0",
       "items": {
         "theory": "Teoría completa del nivel Fundamentos",
         "exercises": "Las dos primeras secciones completas, más tus primeros {free} ejercicios del resto del curso, con validación y pistas",
+        "aiLesson": "La primera lección de «SQL con IA»: cómo pedirle SQL a una IA y revisar su respuesta",
         "demo": "Sandbox SQL en el navegador sin límite",
         "progress": "XP, rachas e insignias"
       },
@@ -824,7 +843,7 @@
       "priceSoon": "Precio por confirmar",
       "once": "pago único",
       "items": {
-        "all": "Los 6 niveles y las 39 secciones (se publican semana a semana)",
+        "all": "Los 6 niveles y las 40 secciones (se publican semana a semana)",
         "quizzes": "Quizzes con explicaciones y repaso de errores",
         "certificates": "Certificados verificables por nivel",
         "updates": "Nuevos datasets y ejercicios sin costo adicional",
@@ -1637,7 +1656,7 @@
       },
       "progress": {
         "title": "Suma progreso",
-        "body": "XP por cada primer acierto, monedas para pistas, rachas con una protección mensual e insignias por hitos. Las dos primeras secciones y tus primeros {free} ejercicios del resto del curso son gratis; luego, un pago único desbloquea todo."
+        "body": "XP por cada primer acierto, monedas para pistas, rachas con una protección mensual e insignias por hitos. Las dos primeras secciones, la primera lección de «SQL con IA» y tus primeros {free} ejercicios del resto del curso son gratis; luego, un pago único desbloquea todo."
       },
       "certify": {
         "title": "Aprueba el quiz y certifícate",
@@ -1665,7 +1684,7 @@
       },
       "free": {
         "q": "¿Qué incluye el plan gratuito?",
-        "a": "Las dos primeras secciones completas —teoría, ejercicios y quizzes—, la teoría gratuita de las demás secciones, y además tus primeros {free} ejercicios del resto del curso. Sin tarjeta ni límite de tiempo."
+        "a": "Las dos primeras secciones completas —teoría, ejercicios y quizzes—, la teoría gratuita de las demás secciones, la primera lección de «SQL con IA» y además tus primeros {free} ejercicios del resto del curso. Sin tarjeta ni límite de tiempo."
       },
       "price": {
         "q": "¿Cuánto cuesta y es una suscripción?",

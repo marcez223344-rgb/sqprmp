@@ -7,3 +7,4 @@ export { social } from "./social";
 export { features, type FeatureFlag } from "./features";
 export { datasetIdentities, getDatasetIdentity } from "./datasets";
 export type { DatasetIdentity, DatasetAccent, DatasetIconName } from "./datasets";
+export { aiContext, isAiContextSection } from "./ai";

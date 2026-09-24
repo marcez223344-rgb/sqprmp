@@ -10,12 +10,12 @@ import {
 import { questionSchema } from "@/content/schemas/question";
 
 describe("content registry", () => {
-  it("validates with zero issues and the full 39-section path", () => {
+  it("validates with zero issues and the full 40-section path", () => {
     const loaded = loadContent();
     expect(loaded.issues).toEqual([]);
-    expect(loaded.sections).toHaveLength(39);
+    expect(loaded.sections).toHaveLength(40);
     expect(loaded.sections.map((s) => s.number)).toEqual(
-      Array.from({ length: 39 }, (_, i) => i + 1),
+      Array.from({ length: 40 }, (_, i) => i + 1),
     );
     // Every published section has a derived quiz lesson.
     for (const s of loaded.sections.filter((x) => x.is_published)) {

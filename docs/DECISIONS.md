@@ -409,7 +409,9 @@ Ley 24.240 reference.
 
 ### D-29 · The free offer is stated in full
 
-Status: Accepted (owner, 2026-09-23).
+Status: Accepted (owner, 2026-09-23). **Amended by D-40 (2026-09-24):** the free offer also
+includes the first lesson of «SQL con IA» (section 39); the landing, pricing (intro and plan list),
+FAQ and gamification copy name it, wording approved by the owner.
 
 The landing, pricing, FAQ and gamification copy all said "{free} ejercicios gratis". That named
 less than a learner actually gets: `limits.freeExerciseSections` makes `tablas-filas-columnas-tipos`
@@ -835,8 +837,17 @@ y verificar IA para SQL», never «tutor con IA» or «powered by AI». Revisit 
 subscriptions exist and paying users ask for it, with a hard monthly cap and no access to reference
 solutions.
 
-**Open.** The outline waits for the owner's screenshots of Codecademy's «Learn How to Use AI for
-SQL», so useful patterns can be folded in before any lesson is written.
+**Amended 2026-09-24 (owner, question tool), superseding sub-decision (4).** After seeing the
+outline he asked «why optional? can't we make it mandatory?». It is now **mandatory**: section 39
+counts toward the course's 100 % like any other, and `analista-sql-profesional` requires
+`sql-con-ia` (just before `proyectos-finales`) and lists the skill «Uso y verificación de IA para
+SQL» (migration `20260924140000_cert_analista_requires_sql_con_ia.sql`). Safe now because no
+certificate had been issued (checked read-only). The capstone moves to number 40 and requires
+section 39 through the normal chain; sections are upserted highest number first
+(`src/content/build-order.ts`) so the renumbering never violates `unique (course_id, number)`.
+The badge is **deferred** (it needs a new badge-criteria kind, i.e. a schema migration he chose not
+to take yet). Free-offer copy on the home and pricing pages approved as drafted. Outline approved,
+informed by the owner's screenshots of Codecademy's «Learn How to Use AI for SQL».
 
 ## Owner-only follow-ups from 2026-09-23
 

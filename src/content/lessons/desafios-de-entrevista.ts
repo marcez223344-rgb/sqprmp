@@ -234,7 +234,7 @@ Encontrar tu propio error durante la entrevista suma puntos en lugar de restarlo
 
 **Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
 
-**Lo que sigue:** Sección 39 · Proyectos finales (capstone). Vas a hacer un análisis completo de punta a punta para tu portafolio.
+**Lo que sigue:** Sección 39 · SQL con IA: pedir, verificar y corregir. Vas a pedirle consultas a tu asistente de IA y a demostrar con datos si son correctas, con los controles que practicaste aquí.
 
 **Para practicar (opcional):** ¿Cuál es la racha más larga de días seguidos con pagos con tarjeta de cada cuenta de Bolsillo? Usa \`transactions\` con \`kind\` igual a \`'card_payment'\`.
 `,
