@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { track } from "@/lib/analytics/track";
@@ -98,6 +99,18 @@ export async function completeOnboarding(raw: unknown, next?: string): Promise<A
     }
     return { ok: false, error: "unknown" };
   }
+  // The header lives in the (learn) layout, which is *shared* with /onboarding: after the redirect
+  // React reuses that layout segment from the client router cache, so the learner landed on the
+  // dashboard with the pre-onboarding header (no navigation at all) until something else forced a
+  // refresh. Revalidating the whole layout tree is what makes the navigation appear immediately.
+  revalidatePath("/", "layout");
+
+  if (v.leaderboard_opt_in) {
+    // The onboarding RPC does not own this column (it is a preference, not part of the consent
+    // record), and the default is off, so only an explicit opt-in writes anything.
+    await supabase.from("profiles").update({ leaderboard_opt_in: true }).eq("id", user.id);
+  }
+
   await track(
     "onboarding_completed",
     {

@@ -14,7 +14,13 @@ export const lessons: LessonDef[] = [
     is_published: true,
     prerequisites: ["where-filtros-basicos"],
     dataset: "tiendaviva",
-    body_md: `## Por qué importa
+    body_md: `\`\`\`objetivos
+Escribir un \`INNER JOIN\` entre dos tablas y leer su condición \`ON\` como lo que es: la igualdad entre una clave foránea y una clave primaria.
+Anticipar qué filas quedan fuera del resultado, porque un INNER JOIN las descarta en silencio.
+Detectar cuándo la unión multiplicó filas antes de sumar importes sobre ella.
+\`\`\`
+
+## Por qué importa
 
 En una base relacional los datos están repartidos en varias tablas a propósito, para no repetir información. En TiendaViva, la tabla \`products\` guarda el nombre y el precio de cada producto, y la tabla \`sellers\` guarda el nombre de la tienda que lo vende. Si te piden «el catálogo con el nombre de la tienda», ninguna de las dos tablas alcanza por sí sola.
 
@@ -28,27 +34,55 @@ Una columna así se llama **clave foránea** (FK, por *foreign key*, su nombre e
 
 ## La sintaxis
 
-\`\`\`sql
+\`\`\`sql El catálogo con el nombre de la tienda que vende cada producto
 SELECT
   p.id,
   p.name,
   s.store_name
 FROM products AS p
 INNER JOIN sellers AS s
-  ON s.id = p.seller_id;
+  ON s.id = p.seller_id
+ORDER BY p.id
+LIMIT 4;
+\`\`\`
+
+\`\`\`resultado Cada fila combina dos tablas: el nombre viene de products, la tienda de sellers
+id | name | store_name
+1 | Auto Plus 1 | Taller Urbano 47
+2 | Aceite Eco 2 | Tienda Norte 21
+3 | Funda Premium 3 | Casa Andino 136
+4 | Peluche Urbano 4 | Taller Creativo 134
 \`\`\`
 
 - \`FROM products AS p\`: la primera tabla, a la que le damos el alias \`p\`.
 - \`INNER JOIN sellers AS s\`: la segunda tabla, con el alias \`s\`.
 - \`ON s.id = p.seller_id\`: la condición de unión, que empareja la columna \`id\` de \`sellers\` con la columna \`seller_id\` de \`products\`.
 
-Un **alias de tabla** es un nombre corto que reemplaza al nombre completo dentro de la consulta. Además de ahorrarte escritura, resuelve las ambigüedades: las dos tablas tienen una columna llamada \`id\`, así que si escribes \`id\` a secas PostgreSQL no sabe a cuál te refieres y responde «column reference is ambiguous». Escribe siempre \`alias.columna\`.
+Un **alias de tabla** es un nombre corto que reemplaza al nombre completo dentro de la consulta. Además de ahorrarte escritura, resuelve las ambigüedades: las dos tablas tienen una columna llamada \`id\`, así que si escribes \`id\` a secas PostgreSQL no sabe a cuál te refieres.
+
+\`\`\`sql-mal Las dos tablas tienen una columna id: «column reference "id" is ambiguous»
+SELECT id, name, store_name
+FROM products AS p
+INNER JOIN sellers AS s ON s.id = p.seller_id;
+\`\`\`
+
+\`\`\`sql-bien Cada columna dice de qué tabla viene
+SELECT p.id, p.name, s.store_name
+FROM products AS p
+INNER JOIN sellers AS s ON s.id = p.seller_id;
+\`\`\`
 
 \`INNER JOIN\` y \`JOIN\` significan exactamente lo mismo en PostgreSQL. Conviene escribir \`INNER\` mientras aprendes, porque deja explícito qué tipo de unión elegiste.
 
 ## Qué filas salen
 
-Un INNER JOIN devuelve **solo las combinaciones de filas que cumplen la condición del \`ON\`**. Todo lo que no encuentra pareja desaparece del resultado, y desaparece en silencio: no hay error ni advertencia.
+\`\`\`clave
+Un INNER JOIN devuelve **solo** las combinaciones que cumplen la condición del \`ON\`. Lo que no encuentra pareja desaparece en silencio: sin error y sin advertencia.
+\`\`\`
+
+\`\`\`diagrama inner-join
+Tres productos y tres tiendas. Los productos 101 y 102 apuntan a las tiendas 4 y 7, que existen en \`sellers\`, así que forman una fila cada uno en el resultado. El producto 103 apunta a la tienda 99, que no existe, y la tienda 12 no vende ningún producto: ninguno de los dos aparece en el resultado, que queda con dos filas.
+\`\`\`
 
 Dos casos concretos en TiendaViva. Si un producto tuviera un \`seller_id\` que no existe en \`sellers\`, ese producto no aparecería en el catálogo que entregas. Y un vendedor que todavía no publicó ningún producto tampoco aparece, porque no hay ninguna fila de \`products\` con la que emparejarlo. Eso importa para la respuesta de negocio: si te piden «cuántos vendedores tenemos por país», contar sobre un INNER JOIN con \`products\` te va a dar un número más bajo que el real, porque deja afuera a los vendedores sin catálogo.
 
@@ -58,7 +92,7 @@ Cuando necesites conservar esas filas sin pareja, existen los OUTER JOIN, que ve
 
 El \`WHERE\` se aplica después de unir las tablas, y puede usar columnas de cualquiera de las dos:
 
-\`\`\`sql
+\`\`\`sql El filtro usa una columna de sellers, aunque el catálogo salga de products
 SELECT p.id, p.name, s.store_name
 FROM products AS p
 INNER JOIN sellers AS s ON s.id = p.seller_id
@@ -79,7 +113,7 @@ Pedido: «Productos de vendedores uruguayos, con el nombre de la tienda».
 2. Conexión: la columna \`seller_id\` de \`products\` contra la columna \`id\` de \`sellers\`.
 3. Filtro: la columna \`country\` de \`sellers\` igual a \`'UY'\`.
 
-\`\`\`sql
+\`\`\`sql Una tabla para el dato, la otra para el filtro, unidas por la clave
 SELECT p.id, p.name, s.store_name
 FROM products AS p
 INNER JOIN sellers AS s ON s.id = p.seller_id

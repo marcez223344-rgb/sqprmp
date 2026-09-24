@@ -3,11 +3,16 @@ import { getTranslations } from "next-intl/server";
 import { buttonVariants } from "@/components/ui/button";
 import { brand } from "@/config/brand";
 import { limits } from "@/config/limits";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 import { cn } from "@/lib/utils/cn";
 
 export async function generateMetadata() {
   const t = await getTranslations("faq");
-  return { title: t("title") };
+  return buildPageMetadata({
+    path: "/preguntas-frecuentes",
+    title: t("title"),
+    description: t("intro"),
+  });
 }
 
 const ITEMS = [

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ExternalLink } from "lucide-react";
 import { getTranslations } from "next-intl/server";
@@ -6,11 +7,17 @@ import { buttonVariants } from "@/components/ui/button";
 import { brand } from "@/config/brand";
 import { founder } from "@/config/founder";
 import { social } from "@/config/social";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 import { cn } from "@/lib/utils/cn";
 
 export async function generateMetadata() {
   const t = await getTranslations("about");
-  return { title: t("title") };
+  return buildPageMetadata({
+    path: "/nosotros",
+    title: t("title"),
+    description: t("intro", { product: brand.productName }),
+    type: "profile",
+  });
 }
 
 export default async function AboutPage() {
@@ -30,31 +37,47 @@ export default async function AboutPage() {
 
       <Card className="space-y-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-          <div
-            aria-hidden="true"
-            className="bg-primary/10 text-primary flex size-16 shrink-0 items-center justify-center rounded-full text-2xl font-bold"
-          >
-            {founder.name
-              .split(" ")
-              .map((p) => p[0])
-              .join("")
-              .slice(0, 2)}
-          </div>
+          {/* Most visitors arrive from the founder's LinkedIn, so they came for the person: show
+              the same face they clicked on. Falls back to initials if no photo is configured. */}
+          {founder.avatar ? (
+            <Image
+              src={founder.avatar}
+              alt={founder.name}
+              width={400}
+              height={400}
+              priority
+              className="border-border size-20 shrink-0 rounded-full border object-cover sm:size-24"
+            />
+          ) : (
+            <div
+              aria-hidden="true"
+              className="bg-primary/10 text-primary flex size-20 shrink-0 items-center justify-center rounded-full text-2xl font-bold sm:size-24"
+            >
+              {founder.name
+                .split(" ")
+                .map((p) => p[0])
+                .join("")
+                .slice(0, 2)}
+            </div>
+          )}
           <div className="space-y-2">
             <h2 className="text-2xl">{founder.name}</h2>
             <p className="text-muted text-sm">
               {founder.role} · {brand.organization}
             </p>
             <p>{founder.bio}</p>
-            <a
-              href={founder.links.linkedin}
-              target="_blank"
-              rel="noreferrer"
-              className={cn(buttonVariants({ variant: "ghost" }), "w-fit")}
-            >
-              <ExternalLink aria-hidden="true" />
-              {t("linkedin")}
-            </a>
+            {/* Rendered only when a real profile exists; see src/config/founder.ts. */}
+            {founder.links.linkedin ? (
+              <a
+                href={founder.links.linkedin}
+                target="_blank"
+                rel="noreferrer"
+                className={cn(buttonVariants({ variant: "ghost" }), "w-fit")}
+              >
+                <ExternalLink aria-hidden="true" />
+                {t("linkedin")}
+              </a>
+            ) : null}
           </div>
         </div>
       </Card>

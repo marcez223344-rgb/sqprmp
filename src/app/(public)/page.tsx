@@ -7,7 +7,18 @@ import { brand } from "@/config/brand";
 import { founder } from "@/config/founder";
 import { limits } from "@/config/limits";
 import { getLearningPath } from "@/lib/curriculum/queries";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 import { cn } from "@/lib/utils/cn";
+
+export async function generateMetadata() {
+  const t = await getTranslations("landing");
+  return buildPageMetadata({
+    path: "/",
+    title: `${brand.productName} — ${t("metaTitle")}`,
+    description: t("metaDescription"),
+    absoluteTitle: true,
+  });
+}
 
 const benefitIcons = {
   practice: Table2,

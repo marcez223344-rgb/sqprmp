@@ -17,11 +17,13 @@ import { Markdown } from "@/components/learn/markdown";
 import { QuizRunner } from "@/components/quiz/quiz-runner";
 import { Card } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
+import { brand } from "@/config/brand";
 import { canReadLesson } from "@/lib/auth/entitlements";
 import { requireOnboardedProfile } from "@/lib/auth/session";
 import { getLessonBySlug, getPremiumLessonBody } from "@/lib/curriculum/queries";
 import { recordLessonView } from "@/lib/curriculum/progress";
 import { getQuiz } from "@/lib/quizzes/service";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils/cn";
 
@@ -37,7 +39,18 @@ const KIND_ICON: Record<string, LucideIcon> = {
 export async function generateMetadata({ params }: PageProps<"/leccion/[slug]">) {
   const { slug } = await params;
   const detail = await getLessonBySlug(slug);
-  return { title: detail?.lesson.title ?? "Lección" };
+  const title = detail?.lesson.title ?? "Lección";
+  // The route is behind the proxy's auth check, so a crawler sees the sign-in page, not this
+  // card. The tags are still emitted for a learner who shares the link with a signed-in
+  // audience, and so the page is ready if lessons ever get a public preview.
+  return buildPageMetadata({
+    path: `/leccion/${slug}`,
+    title,
+    description: brand.description,
+    socialTitle: detail?.section ? `${title} · ${detail.section.title}` : title,
+    type: "article",
+    noIndex: true,
+  });
 }
 
 export default async function LessonPage({ params }: PageProps<"/leccion/[slug]">) {

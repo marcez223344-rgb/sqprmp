@@ -2,16 +2,18 @@
 
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useFormatter, useTranslations } from "next-intl";
+import { LearnerPicker, type PickedLearner } from "@/components/admin/learner-picker";
 import { ReasonDialog } from "@/components/admin/reason-dialog";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
 import {
-  grantAccessByAliasAction,
+  grantAccessAction,
   reviewManualPurchaseAction,
   revokeEntitlementAction,
 } from "@/lib/admin/actions";
+import { accessEndsAt, type AccessGrantKind } from "@/lib/payments/access-grants";
 
 interface PendingRow {
   id: string;
@@ -41,12 +43,22 @@ export function AccessAdminPanel({
 }) {
   const t = useTranslations("admin.access");
   const td = useTranslations("admin.reasonDialog");
+  const format = useFormatter();
   const router = useRouter();
   const [busy, startTransition] = useTransition();
   const [message, setMessage] = useState<string | null>(null);
-  const [alias, setAlias] = useState("");
+  const [learner, setLearner] = useState<PickedLearner | null>(null);
+  const [kind, setKind] = useState<AccessGrantKind>("payment");
   const [days, setDays] = useState("");
+  const [reference, setReference] = useState("");
   const [reason, setReason] = useState("");
+  // "Days of access" is the input; the end date is its consequence, shown live so the admin never
+  // has to keep two versions of the same fact in agreement (owner feedback item 18).
+  const parsedDays = days.trim() === "" ? null : Number(days);
+  const endsAt =
+    parsedDays !== null && Number.isFinite(parsedDays) && parsedDays > 0
+      ? accessEndsAt(parsedDays)
+      : null;
   // Both dialogs record a justification that lands in audit_logs; the trigger is remembered so
   // focus returns to it when the dialog closes.
   const [reviewTarget, setReviewTarget] = useState<{ id: string; approve: boolean } | null>(null);
@@ -161,44 +173,116 @@ export function AccessAdminPanel({
       </Card>
 
       <Card>
-        <h2 className="mb-3 text-xl">{t("grant.title")}</h2>
+        <h2 className="mb-1 text-xl">{t("grant.title")}</h2>
+        <p className="text-muted mb-4 text-sm">{t("grant.intro")}</p>
         <form
-          className="grid gap-4 sm:grid-cols-3"
+          className="grid gap-4 sm:grid-cols-2"
           onSubmit={(e) => {
             e.preventDefault();
+            if (!learner) return;
             startTransition(async () => {
-              const r = await grantAccessByAliasAction(alias, days, reason);
-              setMessage(r.ok ? t("grant.done") : t(`grant.errors.${r.error}` as never));
+              const r = await grantAccessAction({
+                userId: learner.id,
+                kind,
+                days,
+                reference,
+                reason,
+              });
+              setMessage(
+                r.ok
+                  ? kind === "payment"
+                    ? t("grant.donePayment")
+                    : t("grant.doneComp")
+                  : t(`grant.errors.${r.error}` as never),
+              );
               if (r.ok) {
-                setAlias("");
+                setLearner(null);
                 setDays("");
+                setReference("");
                 setReason("");
               }
               router.refresh();
             });
           }}
         >
-          <Field id="grant-alias" label={t("grant.alias")}>
-            <input
-              id="grant-alias"
-              className="input"
-              value={alias}
-              onChange={(e) => setAlias(e.target.value)}
+          <div className="sm:col-span-2">
+            <LearnerPicker
+              value={learner}
+              onChange={setLearner}
+              label={t("grant.learner")}
               required
             />
-          </Field>
-          <Field id="grant-days" label={t("grant.days")} hint={t("grant.daysHint")}>
+          </div>
+
+          <fieldset className="sm:col-span-2">
+            <legend className="text-muted mb-2 text-sm">{t("grant.kind.legend")}</legend>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {(["payment", "comp"] as const).map((option) => (
+                <label
+                  key={option}
+                  className="border-border hover:bg-surface-2 flex cursor-pointer items-start gap-2 rounded-md border p-3 text-sm"
+                >
+                  <input
+                    type="radio"
+                    name="grant-kind"
+                    className="mt-1 size-4"
+                    value={option}
+                    checked={kind === option}
+                    onChange={() => setKind(option)}
+                  />
+                  <span>
+                    <span className="block font-medium">{t(`grant.kind.${option}`)}</span>
+                    <span className="text-muted block text-xs">
+                      {t(`grant.kind.${option}Hint`)}
+                    </span>
+                  </span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
+          <Field
+            id="grant-days"
+            label={t("grant.days")}
+            hint={
+              endsAt
+                ? t("grant.endsOn", {
+                    date: format.dateTime(endsAt, { dateStyle: "long" }),
+                  })
+                : t("grant.lifetime")
+            }
+          >
             <input
               id="grant-days"
               className="input"
               type="number"
+              inputMode="numeric"
               min={1}
               max={3650}
               value={days}
               onChange={(e) => setDays(e.target.value)}
             />
           </Field>
-          <Field id="grant-reason" label={t("grant.reason")}>
+
+          {kind === "payment" ? (
+            <Field
+              id="grant-reference"
+              label={t("grant.reference")}
+              hint={t("grant.referenceHint")}
+            >
+              <input
+                id="grant-reference"
+                className="input font-mono"
+                maxLength={60}
+                value={reference}
+                onChange={(e) => setReference(e.target.value)}
+              />
+            </Field>
+          ) : (
+            <div aria-hidden="true" />
+          )}
+
+          <Field id="grant-reason" label={t("grant.reason")} hint={t("grant.reasonHint")}>
             <input
               id="grant-reason"
               className="input"
@@ -208,9 +292,10 @@ export function AccessAdminPanel({
               minLength={3}
             />
           </Field>
-          <div className="sm:col-span-3">
-            <Button type="submit" disabled={busy}>
-              {t("grant.submit")}
+
+          <div className="sm:col-span-2">
+            <Button type="submit" disabled={busy || !learner}>
+              {kind === "payment" ? t("grant.submitPayment") : t("grant.submitComp")}
             </Button>
           </div>
         </form>
@@ -222,7 +307,7 @@ export function AccessAdminPanel({
           {entitlements.map((e) => (
             <li key={e.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
               <span>
-                @{e.alias} · {e.source} · {e.startsAt}
+                @{e.alias} · {t(`list.source.${e.source}` as never)} · {e.startsAt}
                 {e.endsAt ? ` → ${e.endsAt}` : ` · ${t("list.lifetime")}`}
                 {e.revoked ? ` · ${t("list.revoked")} (${e.revokedReason ?? ""})` : ""}
               </span>

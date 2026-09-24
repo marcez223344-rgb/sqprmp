@@ -1733,7 +1733,13 @@ $c1709$, null, (select id from public.datasets where slug = $c1710$tiendaviva$c1
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
-values ((select id from public.sections where slug = $c1711$alias-y-expresiones$c1711$), $c1712$alias-y-expresiones-basico$c1712$, $c1713$theory$c1713$, $c1714$Alias y columnas calculadas$c1714$, 0, 9, $c1715$## Por qué importa
+values ((select id from public.sections where slug = $c1711$alias-y-expresiones$c1711$), $c1712$alias-y-expresiones-basico$c1712$, $c1713$theory$c1713$, $c1714$Alias y columnas calculadas$c1714$, 0, 9, $c1715$```objetivos
+Calcular columnas nuevas dentro del `SELECT` con los operadores aritméticos.
+Ponerle a cada columna del resultado el nombre con el que la va a leer el negocio.
+Esquivar las tres trampas clásicas: la división entre enteros, el alias dentro del `WHERE` y el NULL que se propaga al concatenar.
+```
+
+## Por qué importa
 
 Los datos crudos rara vez están en la forma que el negocio necesita. En TiendaViva, la tabla `orders` guarda por separado la columna `subtotal` (la suma de los productos del pedido) y la columna `discount` (el descuento aplicado). Un reporte de ventas no quiere esas dos columnas: quiere el **neto**, que es la resta de una menos la otra. Y una lista para el equipo de logística no debería encabezarse `destination_city`, sino «Ciudad».
 
@@ -1743,84 +1749,141 @@ Las dos cosas se resuelven en el `SELECT`: con **expresiones**, que calculan un 
 
 Dentro del `SELECT` puedes escribir expresiones, no solamente nombres de columna:
 
-```sql
+```sql Los operadores disponibles son +, -, * y /
 SELECT
   id,
   subtotal,
   discount,
   subtotal - discount
 FROM orders
-LIMIT 5;
+ORDER BY id
+LIMIT 4;
 ```
 
-La cuarta columna no existe en la tabla: PostgreSQL la calcula fila por fila, restando en cada pedido su propio descuento a su propio subtotal. Los operadores aritméticos disponibles son `+`, `-`, `*` y `/`.
+```resultado La cuarta columna no existe en la tabla y sale sin nombre
+id | subtotal | discount | ?column?
+1 | 88293.00 | 15009.81 | 73283.19
+2 | 31881.26 | 0.00 | 31881.26
+3 | 406802.00 | 0.00 | 406802.00
+4 | 97657.92 | 0.00 | 97657.92
+```
 
-Presta atención a la división entre enteros: PostgreSQL devuelve un entero y descarta los decimales, así que `7 / 2` da `3` y no `3.5`. Si necesitas decimales, haz que al menos uno de los dos valores lo sea, por ejemplo `7 / 2.0`.
+PostgreSQL calcula esa columna fila por fila, restando en cada pedido su propio descuento a su propio subtotal.
+
+Presta atención a la división entre enteros: cuando los dos valores son enteros, PostgreSQL devuelve un entero y descarta los decimales.
+
+```sql-mal Los dos valores son enteros, así que el resultado es 3
+SELECT 7 / 2;
+```
+
+```sql-bien Basta con que uno de los dos tenga decimales: el resultado es 3.5
+SELECT 7 / 2.0;
+```
 
 ## Alias: nombres para el resultado
 
-La columna calculada del ejemplo anterior aparece con el encabezado `?column?`, porque el motor no tiene ningún nombre que darle. Para ponerle uno usa `AS`:
+El encabezado `?column?` del ejemplo anterior aparece porque el motor no tiene ningún nombre que darle a una columna calculada. Para ponerle uno usa `AS`:
 
-```sql
+```sql El mismo cálculo, ahora con un encabezado que el negocio entiende
 SELECT
   id,
   subtotal - discount AS neto
 FROM orders
-LIMIT 5;
+ORDER BY id
+LIMIT 4;
+```
+
+```resultado
+id | neto
+1 | 73283.19
+2 | 31881.26
+3 | 406802.00
+4 | 97657.92
 ```
 
 Reglas prácticas:
 
-- Usa `snake_case` en minúsculas (`neto`, `envio_pct`), sin espacios ni acentos. Si pones espacios vas a necesitar comillas dobles (`"Total neto"`) y tendrás que arrastrarlas en cada consulta que reutilice ese resultado, así que conviene evitarlo.
-- `AS` es opcional en PostgreSQL, de modo que `subtotal - discount neto` también funciona. Escribirlo igual hace que la consulta se lea mejor, sobre todo cuando alguien la revisa rápido.
-- Un alias **no** se puede usar en el `WHERE` de la misma consulta, porque el filtro se evalúa antes que la lista de columnas y en ese momento el alias todavía no existe. Lo verás en la sección 6.
+- Usa `snake_case` en minúsculas (`neto`, `envio_pct`), sin espacios ni acentos. Si pones espacios vas a necesitar comillas dobles (`"Total neto"`) y tendrás que arrastrarlas en cada consulta que reutilice ese resultado.
+- `AS` es opcional en PostgreSQL, de modo que `subtotal - discount neto` también funciona. Escribirlo igual hace que la consulta se lea mejor.
+- Ponerlo entre comillas simples no define un alias: `AS 'neto'` define un texto.
 
 También puedes ponerle un alias a una tabla (`FROM orders AS o`). Eso se vuelve necesario cuando combinas varias tablas en la misma consulta, en la sección 17.
+
+## Dónde se puede usar un alias
+
+```clave
+Un alias es el nombre que la columna tendrá **en el resultado**, no una variable. Nace en el paso del `SELECT`, casi al final, así que el `WHERE` todavía no lo conoce.
+```
+
+```diagrama orden-de-ejecucion#where,select
+PostgreSQL no resuelve la consulta en el orden en que la escribes. El orden real es: 1 `FROM`, 2 `WHERE`, 3 `GROUP BY`, 4 `HAVING`, 5 las funciones de ventana (`OVER`), 6 `SELECT` —que es donde nacen los alias—, 7 `ORDER BY` y 8 `LIMIT`. El paso 2 ocurre cuatro pasos antes del 6: por eso el `WHERE` no puede nombrar un alias, y el `ORDER BY`, que viene después, sí puede.
+```
+
+```sql-mal El filtro se evalúa antes que la lista de columnas: «column "neto" does not exist»
+SELECT subtotal - discount AS neto
+FROM orders
+WHERE neto > 100000;
+```
+
+```sql-bien Repite la expresión en el WHERE; el ORDER BY sí acepta el alias
+SELECT subtotal - discount AS neto
+FROM orders
+WHERE subtotal - discount > 100000
+ORDER BY neto DESC;
+```
 
 ## Texto: concatenar y dar formato
 
 El operador `||` une dos textos en uno solo. Si una de las partes es un número, PostgreSQL lo convierte a texto automáticamente en la mayoría de los casos:
 
-```sql
+```sql El formato que espera el catálogo impreso
 SELECT
   'CAT-' || id AS codigo,
   name
-FROM categories;
+FROM categories
+ORDER BY id
+LIMIT 4;
 ```
 
-Así, la categoría con `id` 7 sale como `CAT-7`, que es el formato que espera el catálogo impreso. Otras funciones útiles son `upper()` y `lower()`, que pasan un texto a mayúsculas o a minúsculas, y `length()`, que devuelve su cantidad de caracteres. Las verás en detalle en la sección 9.
+```resultado
+codigo | name
+CAT-1 | Tecnología
+CAT-2 | Celulares
+CAT-3 | Audio
+CAT-4 | Computación
+```
 
-Dos cosas sobre `||` que te van a servir fuera de este curso. La primera: si alguno de los operandos es NULL, todo el resultado es NULL (`'CAT-' || NULL` no es `'CAT-'`, es NULL). La función `CONCAT()` hace lo mismo pero trata los NULL como texto vacío. La segunda: `||` es el operador de concatenación del estándar ISO SQL y funciona igual en PostgreSQL, Oracle, SQLite y DB2, pero SQL Server usa `+` y MySQL interpreta `||` como el OR lógico. Si tu consulta tiene que correr en varios motores, escribe `CONCAT()`.
+Otras funciones útiles son `upper()` y `lower()`, que pasan un texto a mayúsculas o a minúsculas, y `length()`, que devuelve su cantidad de caracteres. Las verás en detalle en la sección 9.
+
+Dos cosas sobre `||` que te van a servir fuera de este curso. La primera: si alguno de los operandos es NULL, todo el resultado es NULL (`'CAT-' || NULL` no es `'CAT-'`, es NULL), mientras que `CONCAT()` trata los NULL como texto vacío. La segunda: `||` es el operador de concatenación del estándar ISO SQL y funciona igual en PostgreSQL, Oracle, SQLite y DB2, pero SQL Server usa `+` y MySQL interpreta `||` como el OR lógico. Si tu consulta tiene que correr en varios motores, escribe `CONCAT()`.
 
 ## Redondeo y precedencia
 
-```sql
-SELECT
-  id,
-  ROUND(shipping_fee / total_amount * 100, 1) AS envio_pct
-FROM orders
-LIMIT 5;
-```
-
-`ROUND(valor, decimales)` redondea el valor a la cantidad de decimales que le indiques, así que este cálculo devuelve qué porcentaje del total del pedido se fue en envío, con un decimal.
-
-La precedencia de los operadores es la misma de la aritmética que ya conoces: primero se resuelven `*` y `/`, después `+` y `-`. Cuando tengas dudas, **usa paréntesis**: escribir `(subtotal - discount) * 1.21` deja explícito que el impuesto se aplica sobre el neto y no solo sobre el descuento.
+`ROUND(valor, decimales)` redondea el valor a la cantidad de decimales que le indiques. La precedencia de los operadores es la misma de la aritmética que ya conoces: primero se resuelven `*` y `/`, después `+` y `-`. Cuando tengas dudas, **usa paréntesis**: escribir `(subtotal - discount) * 1.21` deja explícito que el impuesto se aplica sobre el neto y no solo sobre el descuento.
 
 ## Ejemplo resuelto
 
-Pedido: «Quiero ver los 20 pedidos más grandes con el neto (subtotal menos descuento) y qué porcentaje del total es el envío».
+Pedido: «Quiero ver los pedidos más grandes con el neto (subtotal menos descuento) y qué porcentaje del total es el envío».
 
-```sql
+```sql El ORDER BY ordena por total_amount aunque esa columna no esté en el SELECT
 SELECT
   id,
   subtotal - discount AS neto,
   ROUND(shipping_fee / total_amount * 100, 1) AS envio_pct
 FROM orders
 ORDER BY total_amount DESC
-LIMIT 20;
+LIMIT 4;
 ```
 
-Fíjate en un detalle: el `ORDER BY` ordena por `total_amount` aunque esa columna no esté en la lista del `SELECT`. Eso es válido porque el ordenamiento se resuelve sobre las filas de la tabla, no sobre las columnas que elegiste mostrar.
+```resultado El envío pesa menos del 1 % en los pedidos grandes
+id | neto | envio_pct
+10661 | 18872300.00 | 0.1
+10122 | 15942637.62 | 0.2
+7908 | 13898508.00 | 0.2
+1257 | 13506233.94 | 0.3
+```
+
+Ordenar por una columna que no está en la lista del `SELECT` es válido porque el ordenamiento se resuelve sobre las filas de la tabla, no sobre las columnas que elegiste mostrar.
 
 ## Errores comunes
 
@@ -2257,7 +2320,13 @@ $c1751$, null, (select id from public.datasets where slug = $c1752$tiendaviva$c1
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
-values ((select id from public.sections where slug = $c1753$inner-join$c1753$), $c1754$inner-join-basico$c1754$, $c1755$theory$c1755$, $c1756$INNER JOIN: combinar dos tablas$c1756$, 0, 11, $c1757$## Por qué importa
+values ((select id from public.sections where slug = $c1753$inner-join$c1753$), $c1754$inner-join-basico$c1754$, $c1755$theory$c1755$, $c1756$INNER JOIN: combinar dos tablas$c1756$, 0, 11, $c1757$```objetivos
+Escribir un `INNER JOIN` entre dos tablas y leer su condición `ON` como lo que es: la igualdad entre una clave foránea y una clave primaria.
+Anticipar qué filas quedan fuera del resultado, porque un INNER JOIN las descarta en silencio.
+Detectar cuándo la unión multiplicó filas antes de sumar importes sobre ella.
+```
+
+## Por qué importa
 
 En una base relacional los datos están repartidos en varias tablas a propósito, para no repetir información. En TiendaViva, la tabla `products` guarda el nombre y el precio de cada producto, y la tabla `sellers` guarda el nombre de la tienda que lo vende. Si te piden «el catálogo con el nombre de la tienda», ninguna de las dos tablas alcanza por sí sola.
 
@@ -2271,27 +2340,55 @@ Una columna así se llama **clave foránea** (FK, por *foreign key*, su nombre e
 
 ## La sintaxis
 
-```sql
+```sql El catálogo con el nombre de la tienda que vende cada producto
 SELECT
   p.id,
   p.name,
   s.store_name
 FROM products AS p
 INNER JOIN sellers AS s
-  ON s.id = p.seller_id;
+  ON s.id = p.seller_id
+ORDER BY p.id
+LIMIT 4;
+```
+
+```resultado Cada fila combina dos tablas: el nombre viene de products, la tienda de sellers
+id | name | store_name
+1 | Auto Plus 1 | Taller Urbano 47
+2 | Aceite Eco 2 | Tienda Norte 21
+3 | Funda Premium 3 | Casa Andino 136
+4 | Peluche Urbano 4 | Taller Creativo 134
 ```
 
 - `FROM products AS p`: la primera tabla, a la que le damos el alias `p`.
 - `INNER JOIN sellers AS s`: la segunda tabla, con el alias `s`.
 - `ON s.id = p.seller_id`: la condición de unión, que empareja la columna `id` de `sellers` con la columna `seller_id` de `products`.
 
-Un **alias de tabla** es un nombre corto que reemplaza al nombre completo dentro de la consulta. Además de ahorrarte escritura, resuelve las ambigüedades: las dos tablas tienen una columna llamada `id`, así que si escribes `id` a secas PostgreSQL no sabe a cuál te refieres y responde «column reference is ambiguous». Escribe siempre `alias.columna`.
+Un **alias de tabla** es un nombre corto que reemplaza al nombre completo dentro de la consulta. Además de ahorrarte escritura, resuelve las ambigüedades: las dos tablas tienen una columna llamada `id`, así que si escribes `id` a secas PostgreSQL no sabe a cuál te refieres.
+
+```sql-mal Las dos tablas tienen una columna id: «column reference "id" is ambiguous»
+SELECT id, name, store_name
+FROM products AS p
+INNER JOIN sellers AS s ON s.id = p.seller_id;
+```
+
+```sql-bien Cada columna dice de qué tabla viene
+SELECT p.id, p.name, s.store_name
+FROM products AS p
+INNER JOIN sellers AS s ON s.id = p.seller_id;
+```
 
 `INNER JOIN` y `JOIN` significan exactamente lo mismo en PostgreSQL. Conviene escribir `INNER` mientras aprendes, porque deja explícito qué tipo de unión elegiste.
 
 ## Qué filas salen
 
-Un INNER JOIN devuelve **solo las combinaciones de filas que cumplen la condición del `ON`**. Todo lo que no encuentra pareja desaparece del resultado, y desaparece en silencio: no hay error ni advertencia.
+```clave
+Un INNER JOIN devuelve **solo** las combinaciones que cumplen la condición del `ON`. Lo que no encuentra pareja desaparece en silencio: sin error y sin advertencia.
+```
+
+```diagrama inner-join
+Tres productos y tres tiendas. Los productos 101 y 102 apuntan a las tiendas 4 y 7, que existen en `sellers`, así que forman una fila cada uno en el resultado. El producto 103 apunta a la tienda 99, que no existe, y la tienda 12 no vende ningún producto: ninguno de los dos aparece en el resultado, que queda con dos filas.
+```
 
 Dos casos concretos en TiendaViva. Si un producto tuviera un `seller_id` que no existe en `sellers`, ese producto no aparecería en el catálogo que entregas. Y un vendedor que todavía no publicó ningún producto tampoco aparece, porque no hay ninguna fila de `products` con la que emparejarlo. Eso importa para la respuesta de negocio: si te piden «cuántos vendedores tenemos por país», contar sobre un INNER JOIN con `products` te va a dar un número más bajo que el real, porque deja afuera a los vendedores sin catálogo.
 
@@ -2301,7 +2398,7 @@ Cuando necesites conservar esas filas sin pareja, existen los OUTER JOIN, que ve
 
 El `WHERE` se aplica después de unir las tablas, y puede usar columnas de cualquiera de las dos:
 
-```sql
+```sql El filtro usa una columna de sellers, aunque el catálogo salga de products
 SELECT p.id, p.name, s.store_name
 FROM products AS p
 INNER JOIN sellers AS s ON s.id = p.seller_id
@@ -2322,7 +2419,7 @@ Pedido: «Productos de vendedores uruguayos, con el nombre de la tienda».
 2. Conexión: la columna `seller_id` de `products` contra la columna `id` de `sellers`.
 3. Filtro: la columna `country` de `sellers` igual a `'UY'`.
 
-```sql
+```sql Una tabla para el dato, la otra para el filtro, unidas por la clave
 SELECT p.id, p.name, s.store_name
 FROM products AS p
 INNER JOIN sellers AS s ON s.id = p.seller_id
@@ -2744,7 +2841,13 @@ $c1793$, null, (select id from public.datasets where slug = $c1794$bolsillo$c179
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
 insert into public.lessons (section_id, slug, kind, title, sort_order, estimated_minutes, body_md, ref_slug, dataset_id, is_free, is_published)
-values ((select id from public.sections where slug = $c1795$funciones-de-ventana$c1795$), $c1796$ventana-over-partition$c1796$, $c1797$theory$c1797$, $c1798$OVER: agregar sin colapsar filas$c1798$, 0, 11, $c1799$## Por qué importa
+values ((select id from public.sections where slug = $c1795$funciones-de-ventana$c1795$), $c1796$ventana-over-partition$c1796$, $c1797$theory$c1797$, $c1798$OVER: agregar sin colapsar filas$c1798$, 0, 11, $c1799$```objetivos
+Agregar una columna calculada sobre un grupo de filas sin perder el detalle de cada fila.
+Definir la ventana con `PARTITION BY` y entender qué cambia cuando escribes `OVER ()` vacío.
+Ubicar las funciones de ventana en el orden de evaluación, que es lo que explica por qué no puedes filtrarlas en el `WHERE`.
+```
+
+## Por qué importa
 
 `GROUP BY` responde «cuánto por grupo», pero para lograrlo descarta el detalle: deja una sola fila por grupo y las filas originales desaparecen del resultado. Muchas preguntas de negocio necesitan **las dos cosas a la vez**: cada movimiento **y** el promedio de los movimientos de su tipo; cada categoría **y** cuánto representa dentro del total; cada pago **y** el saldo acumulado hasta ese momento.
 
@@ -2752,16 +2855,35 @@ Para eso existen las **funciones de ventana**: calculan un valor agregado mirand
 
 Trabajas con **Bolsillo**, una billetera digital. Sus tablas principales son `transactions` (un movimiento de dinero por fila), `accounts` (las cuentas), `merchants` (los comercios donde se paga) y `fx_rates` (las cotizaciones de cada moneda, una por día).
 
+```clave
+`GROUP BY` **reemplaza** las filas por un resumen; una función de ventana **agrega una columna** y deja las filas donde estaban.
+```
+
+```diagrama agrupar-vs-ventana
+Con las mismas cuatro filas de entrada, `GROUP BY kind` devuelve dos filas —una por tipo de movimiento— y el detalle de cada movimiento se pierde. `avg(amount) OVER (PARTITION BY kind)` devuelve las cuatro filas originales y les suma una columna con el promedio del tipo al que pertenece cada una: el mismo cálculo, sin descartar nada.
+```
+
 ## La sintaxis
 
-```sql
+```sql El promedio del tipo, al lado de cada movimiento
 SELECT
   id,
   kind,
   amount,
   round(avg(amount) OVER (PARTITION BY kind), 2) AS promedio_del_tipo
 FROM transactions
-WHERE account_id = 2364;
+WHERE account_id = 2364
+ORDER BY kind, id
+LIMIT 5;
+```
+
+```resultado Las cinco filas conservan su importe y repiten el promedio de su tipo
+id | kind | amount | promedio_del_tipo
+16905 | fee | 2011.50 | 1722.60
+16922 | fee | 1876.50 | 1722.60
+16931 | fee | 1647.00 | 1722.60
+16961 | fee | 2052.00 | 1722.60
+16991 | fee | 931.50 | 1722.60
 ```
 
 La palabra `OVER` es la que convierte a `avg` en función de ventana. Sin ella, `avg(amount)` resumiría todas las filas en un único promedio y el detalle se perdería; con ella, `avg` se calcula para cada fila sobre el conjunto de filas que `OVER` describe entre paréntesis.
@@ -2778,7 +2900,7 @@ round(100 * amount / sum(amount) OVER (), 2) AS pct_del_total
 
 Las funciones de ventana se evalúan **después** de `GROUP BY`, así que pueden operar sobre agregados:
 
-```sql
+```sql La participación de cada rubro sobre el total general
 SELECT
   m.category,
   sum(t.amount) AS total,
@@ -2786,7 +2908,17 @@ SELECT
 FROM transactions AS t
 INNER JOIN merchants AS m ON m.id = t.merchant_id
 WHERE t.status = 'completed'
-GROUP BY m.category;
+GROUP BY m.category
+ORDER BY total DESC
+LIMIT 4;
+```
+
+```resultado Los cuatro rubros con más gasto; el pct se calcula sobre el total general, no sobre estas cuatro filas
+category | total | pct
+transporte | 85730379.78 | 12.08
+restaurante | 82458171.94 | 11.62
+servicios | 77998616.41 | 10.99
+entretenimiento | 72693151.55 | 10.24
 ```
 
 En esa consulta, `m.category` es la columna `category` de la tabla `merchants`, el rubro del comercio (supermercado, transporte, entretenimiento), y `t.merchant_id` es la columna `merchant_id` de la tabla `transactions`, que apunta a `merchants.id` e indica en qué comercio se hizo el movimiento.
@@ -2795,7 +2927,9 @@ En esa consulta, `m.category` es la columna `category` de la tabla `merchants`, 
 
 ## Orden de evaluación
 
-`FROM` → `WHERE` → `GROUP BY` → `HAVING` → **ventanas** → `SELECT` (alias) → `ORDER BY` → `LIMIT`.
+```diagrama orden-de-ejecucion#where,over
+Las funciones de ventana se evalúan en el paso 5, después del `FROM`, el `WHERE`, el `GROUP BY` y el `HAVING`, y antes del `SELECT`, el `ORDER BY` y el `LIMIT`.
+```
 
 De ese orden salen dos consecuencias prácticas. La primera: una ventana solo **ve las filas que sobrevivieron al `WHERE`**, así que si necesitas la participación sobre el total general no puedes filtrar antes de calcularla. La segunda: **no puedes usar el resultado de una ventana dentro del `WHERE`** de la misma consulta, porque cuando el `WHERE` se evalúa la ventana todavía no se calculó. Para filtrar por ese resultado hay que envolver la consulta en una subconsulta o en una CTE (por *Common Table Expression*, expresión de tabla común: una consulta con nombre que se escribe con `WITH` y se usa después como si fuera una tabla; secciones 21–22).
 
@@ -2803,7 +2937,7 @@ De ese orden salen dos consecuencias prácticas. La primera: una ventana solo **
 
 Pedido: «Cada pago con QR de la cuenta 2364, junto con el promedio de los pagos con QR de esa cuenta y la diferencia».
 
-```sql
+```sql El WHERE ya dejó solo los pagos con QR, así que OVER () promedia exactamente ese conjunto
 SELECT
   id,
   created_at,
@@ -2850,6 +2984,10 @@ sum(...) OVER (PARTITION BY account_id ORDER BY created_at, id)
 ```
 
 ## Marcos de ventana
+
+```diagrama marco-de-ventana
+Las filas de la partición, en el orden que fija el `ORDER BY` de la ventana. El marco por omisión abarca desde la primera fila hasta la fila actual, marcada con el recuadro: para esa fila el cálculo usa las cinco barras llenas y todavía no ve las tres punteadas que vienen después. Una fila más abajo, el marco crece en una barra, y por eso el resultado es un acumulado.
+```
 
 El **marco** es la porción de la partición que entra en el cálculo de cada fila. Cuando escribes un `ORDER BY` dentro del `OVER` y no indicas nada más, PostgreSQL usa el marco `RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`, es decir, «desde el comienzo de la partición hasta la fila actual»: por eso el resultado es un acumulado. Puedes escribir otro marco, por ejemplo uno que mire solo las últimas siete filas para calcular una **media móvil de 7 días**:
 

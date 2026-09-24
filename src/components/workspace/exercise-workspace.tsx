@@ -38,7 +38,8 @@ import { solutionUnlockableNow } from "@/lib/exercises/unlock";
 import { BrowserEngine, type BrowserEngineState } from "@/lib/sandbox/browser-engine";
 import type { SandboxOutcome } from "@/lib/sandbox/types";
 import { cn } from "@/lib/utils/cn";
-import { ExternalLessonLink } from "./external-lesson-link";
+import { ExternalLessonLink, WorkspaceExitLink } from "./external-lesson-link";
+import { useAppleShortcutKey } from "./use-apple-platform";
 import { MarkdownClient } from "./markdown-client";
 import { FeedbackPanel, HintPanel, SchemaBrowser } from "./panels";
 import { ResultsTable } from "./results-table";
@@ -76,6 +77,7 @@ export function ExerciseWorkspace({
   userId: string;
 }) {
   const t = useTranslations("workspace");
+  const apple = useAppleShortcutKey();
   const { exercise, dataset, schema, progress } = data;
   const initialSql = progress?.draft_sql ?? "";
   const [sqlText, setSqlText] = useState(initialSql);
@@ -487,7 +489,7 @@ export function ExerciseWorkspace({
             ariaLabel={t("editorAria")}
             placeholderText={t("editorPlaceholder")}
           />
-          <p className="text-muted text-xs">{t("shortcuts")}</p>
+          <p className="text-muted text-xs">{apple ? t("shortcuts.cmd") : t("shortcuts.ctrl")}</p>
           <div className="flex flex-wrap items-center gap-2">
             <Button variant="secondary" onClick={run} disabled={running || !sqlText.trim()}>
               {running ? (
@@ -633,19 +635,14 @@ export function ExerciseWorkspace({
                     : ""}
                 </span>
               ) : null}
-              {/* Both leave the exercise, so both open a new tab: the editor may still hold
-                  a query the learner wants to keep working on. */}
+              {/* Both finish the exercise, so both stay in the same tab: the draft is autosaved
+                  and a tab per solved exercise is not a workspace (owner feedback 2026-09-24). */}
               {data.nextLessonSlug ? (
-                <ExternalLessonLink
-                  href={`/leccion/${data.nextLessonSlug}` as Route}
-                  newTabHint={t("opensInNewTab")}
-                >
+                <WorkspaceExitLink href={`/leccion/${data.nextLessonSlug}` as Route}>
                   {t("next")}
-                </ExternalLessonLink>
+                </WorkspaceExitLink>
               ) : (
-                <ExternalLessonLink href="/ruta" newTabHint={t("opensInNewTab")}>
-                  {t("backToPath")}
-                </ExternalLessonLink>
+                <WorkspaceExitLink href="/ruta">{t("backToPath")}</WorkspaceExitLink>
               )}
             </footer>
           ) : null}

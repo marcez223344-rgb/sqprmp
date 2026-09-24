@@ -6,12 +6,18 @@ import {
   signInAs,
   type TestUser,
 } from "./helpers/auth";
+import { message, messagePattern } from "./helpers/messages";
 
 async function onboard(page: Page, name: string) {
   await page.goto("/onboarding");
   await page.getByLabel("Nombre para mostrar").fill(name);
   await page.getByLabel("Alias").fill(`u_${Date.now().toString(36).slice(-7)}`);
-  await expect(page.getByText("Disponible")).toBeVisible();
+  // The availability check is debounced (450 ms) and then round-trips to the server; on a
+  // loaded machine that exceeds the 5 s default and the helper fails before the journey
+  // under test starts. 02-onboarding.spec.ts is where this check is the subject.
+  await expect(page.getByText(message("onboarding.aliasStatus.available"))).toBeVisible({
+    timeout: 20_000,
+  });
   await page.getByRole("button", { name: "Siguiente" }).click();
   await page.getByLabel("Fecha de nacimiento").fill("1991-05-05");
   await page.getByRole("button", { name: "Siguiente" }).click();
@@ -56,8 +62,11 @@ test.describe("exercise workspace (journeys 3–8)", () => {
     await expect(page.getByRole("heading", { level: 1 })).toContainText(
       "Explorar la tabla de clientes",
     );
-    // explorar-clientes is in an always-free section: it shows the free badge, not the counter.
-    await expect(page.getByText("Ejercicio gratis")).toBeVisible();
+    // explorar-clientes is in an always-free section: it shows the free-section badge and its
+    // explanation, not the allowance counter (the two regimes are mutually exclusive in the header).
+    await expect(page.getByText(message("workspace.regime.freeBadge"))).toBeVisible();
+    await expect(page.getByText(message("workspace.regime.freeDetail"))).toBeVisible();
+    await expect(page.getByText(messagePattern("workspace.regime.countedBadge"))).toHaveCount(0);
 
     // The expected-column checklist ticks as the local run produces the columns.
     await expect(page.getByRole("code").filter({ hasText: "full_name" }).first()).toBeVisible();
@@ -65,8 +74,8 @@ test.describe("exercise workspace (journeys 3–8)", () => {
     // Wrong columns → blocking feedback naming the missing columns.
     await typeSql(page, "select id from customers order by id limit 10");
     await page.getByRole("button", { name: "Enviar respuesta" }).click();
-    const feedback = page.getByRole("region", { name: "Retroalimentación" });
-    await expect(feedback.getByText("Todavía no", { exact: false }).first()).toBeVisible({
+    const feedback = page.getByRole("region", { name: message("workspace.feedback.title") });
+    await expect(feedback.getByText(message("workspace.feedback.incorrect"))).toBeVisible({
       timeout: 60_000,
     });
     await expect(page.getByText(/Faltan columnas.*full_name/)).toBeVisible();
@@ -92,10 +101,16 @@ test.describe("exercise workspace (journeys 3–8)", () => {
     // Correct submission (order matters here).
     await typeSql(page, "SELECT id, full_name, country FROM customers ORDER BY id LIMIT 10");
     await page.getByRole("button", { name: "Enviar respuesta" }).click();
-    await expect(page.getByText("¡Correcto!")).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByText("Ejercicio completado")).toBeVisible();
+    // The same sentence is announced three times (the status line, the verdict and the feedback
+    // panel), so scope it to the panel instead of matching it page-wide.
+    await expect(feedback.getByText(message("workspace.feedback.correct"))).toBeVisible({
+      timeout: 60_000,
+    });
+    await expect(page.getByText(message("workspace.completedBanner"))).toBeVisible();
     // Solution was revealed → 25% of 10 XP = 3 XP, 0 coins (docs/CONTENT_GUIDELINES.md §6).
-    await expect(page.getByText("+3 XP · +0 monedas")).toBeVisible();
+    await expect(
+      page.getByText(message("workspace.rewardEarned", { xp: 3, coins: 0 })),
+    ).toBeVisible();
 
     // Progress is reflected on the path and the dashboard.
     await page.goto("/ruta");
@@ -124,8 +139,11 @@ test.describe("exercise workspace (journeys 3–8)", () => {
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     }
     await page.goto("/ejercicio/productos-agotados-activos");
-    await expect(page.getByText("Alcanzaste el límite gratuito")).toBeVisible();
-    await expect(page.getByRole("link", { name: "Ver precios" })).toBeVisible();
+    // The paywall is a labelled region with its own heading; assert the heading, not a sentence.
+    await expect(
+      page.getByRole("heading", { level: 2, name: messagePattern("workspace.locked.title") }),
+    ).toBeVisible();
+    await expect(page.getByRole("link", { name: message("workspace.locked.cta") })).toBeVisible();
     // Previously started exercises remain accessible.
     await page.goto("/ejercicio/clientes-de-uruguay");
     await expect(page.getByRole("button", { name: "Enviar respuesta" })).toBeVisible();

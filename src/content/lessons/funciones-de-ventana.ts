@@ -14,7 +14,13 @@ export const lessons: LessonDef[] = [
     is_published: true,
     prerequisites: ["group-by-reportes"],
     dataset: "bolsillo",
-    body_md: `## Por qué importa
+    body_md: `\`\`\`objetivos
+Agregar una columna calculada sobre un grupo de filas sin perder el detalle de cada fila.
+Definir la ventana con \`PARTITION BY\` y entender qué cambia cuando escribes \`OVER ()\` vacío.
+Ubicar las funciones de ventana en el orden de evaluación, que es lo que explica por qué no puedes filtrarlas en el \`WHERE\`.
+\`\`\`
+
+## Por qué importa
 
 \`GROUP BY\` responde «cuánto por grupo», pero para lograrlo descarta el detalle: deja una sola fila por grupo y las filas originales desaparecen del resultado. Muchas preguntas de negocio necesitan **las dos cosas a la vez**: cada movimiento **y** el promedio de los movimientos de su tipo; cada categoría **y** cuánto representa dentro del total; cada pago **y** el saldo acumulado hasta ese momento.
 
@@ -22,16 +28,35 @@ Para eso existen las **funciones de ventana**: calculan un valor agregado mirand
 
 Trabajas con **Bolsillo**, una billetera digital. Sus tablas principales son \`transactions\` (un movimiento de dinero por fila), \`accounts\` (las cuentas), \`merchants\` (los comercios donde se paga) y \`fx_rates\` (las cotizaciones de cada moneda, una por día).
 
+\`\`\`clave
+\`GROUP BY\` **reemplaza** las filas por un resumen; una función de ventana **agrega una columna** y deja las filas donde estaban.
+\`\`\`
+
+\`\`\`diagrama agrupar-vs-ventana
+Con las mismas cuatro filas de entrada, \`GROUP BY kind\` devuelve dos filas —una por tipo de movimiento— y el detalle de cada movimiento se pierde. \`avg(amount) OVER (PARTITION BY kind)\` devuelve las cuatro filas originales y les suma una columna con el promedio del tipo al que pertenece cada una: el mismo cálculo, sin descartar nada.
+\`\`\`
+
 ## La sintaxis
 
-\`\`\`sql
+\`\`\`sql El promedio del tipo, al lado de cada movimiento
 SELECT
   id,
   kind,
   amount,
   round(avg(amount) OVER (PARTITION BY kind), 2) AS promedio_del_tipo
 FROM transactions
-WHERE account_id = 2364;
+WHERE account_id = 2364
+ORDER BY kind, id
+LIMIT 5;
+\`\`\`
+
+\`\`\`resultado Las cinco filas conservan su importe y repiten el promedio de su tipo
+id | kind | amount | promedio_del_tipo
+16905 | fee | 2011.50 | 1722.60
+16922 | fee | 1876.50 | 1722.60
+16931 | fee | 1647.00 | 1722.60
+16961 | fee | 2052.00 | 1722.60
+16991 | fee | 931.50 | 1722.60
 \`\`\`
 
 La palabra \`OVER\` es la que convierte a \`avg\` en función de ventana. Sin ella, \`avg(amount)\` resumiría todas las filas en un único promedio y el detalle se perdería; con ella, \`avg\` se calcula para cada fila sobre el conjunto de filas que \`OVER\` describe entre paréntesis.
@@ -48,7 +73,7 @@ round(100 * amount / sum(amount) OVER (), 2) AS pct_del_total
 
 Las funciones de ventana se evalúan **después** de \`GROUP BY\`, así que pueden operar sobre agregados:
 
-\`\`\`sql
+\`\`\`sql La participación de cada rubro sobre el total general
 SELECT
   m.category,
   sum(t.amount) AS total,
@@ -56,7 +81,17 @@ SELECT
 FROM transactions AS t
 INNER JOIN merchants AS m ON m.id = t.merchant_id
 WHERE t.status = 'completed'
-GROUP BY m.category;
+GROUP BY m.category
+ORDER BY total DESC
+LIMIT 4;
+\`\`\`
+
+\`\`\`resultado Los cuatro rubros con más gasto; el pct se calcula sobre el total general, no sobre estas cuatro filas
+category | total | pct
+transporte | 85730379.78 | 12.08
+restaurante | 82458171.94 | 11.62
+servicios | 77998616.41 | 10.99
+entretenimiento | 72693151.55 | 10.24
 \`\`\`
 
 En esa consulta, \`m.category\` es la columna \`category\` de la tabla \`merchants\`, el rubro del comercio (supermercado, transporte, entretenimiento), y \`t.merchant_id\` es la columna \`merchant_id\` de la tabla \`transactions\`, que apunta a \`merchants.id\` e indica en qué comercio se hizo el movimiento.
@@ -65,7 +100,9 @@ En esa consulta, \`m.category\` es la columna \`category\` de la tabla \`merchan
 
 ## Orden de evaluación
 
-\`FROM\` → \`WHERE\` → \`GROUP BY\` → \`HAVING\` → **ventanas** → \`SELECT\` (alias) → \`ORDER BY\` → \`LIMIT\`.
+\`\`\`diagrama orden-de-ejecucion#where,over
+Las funciones de ventana se evalúan en el paso 5, después del \`FROM\`, el \`WHERE\`, el \`GROUP BY\` y el \`HAVING\`, y antes del \`SELECT\`, el \`ORDER BY\` y el \`LIMIT\`.
+\`\`\`
 
 De ese orden salen dos consecuencias prácticas. La primera: una ventana solo **ve las filas que sobrevivieron al \`WHERE\`**, así que si necesitas la participación sobre el total general no puedes filtrar antes de calcularla. La segunda: **no puedes usar el resultado de una ventana dentro del \`WHERE\`** de la misma consulta, porque cuando el \`WHERE\` se evalúa la ventana todavía no se calculó. Para filtrar por ese resultado hay que envolver la consulta en una subconsulta o en una CTE (por *Common Table Expression*, expresión de tabla común: una consulta con nombre que se escribe con \`WITH\` y se usa después como si fuera una tabla; secciones 21–22).
 
@@ -73,7 +110,7 @@ De ese orden salen dos consecuencias prácticas. La primera: una ventana solo **
 
 Pedido: «Cada pago con QR de la cuenta 2364, junto con el promedio de los pagos con QR de esa cuenta y la diferencia».
 
-\`\`\`sql
+\`\`\`sql El WHERE ya dejó solo los pagos con QR, así que OVER () promedia exactamente ese conjunto
 SELECT
   id,
   created_at,
@@ -129,6 +166,10 @@ sum(...) OVER (PARTITION BY account_id ORDER BY created_at, id)
 \`\`\`
 
 ## Marcos de ventana
+
+\`\`\`diagrama marco-de-ventana
+Las filas de la partición, en el orden que fija el \`ORDER BY\` de la ventana. El marco por omisión abarca desde la primera fila hasta la fila actual, marcada con el recuadro: para esa fila el cálculo usa las cinco barras llenas y todavía no ve las tres punteadas que vienen después. Una fila más abajo, el marco crece en una barra, y por eso el resultado es un acumulado.
+\`\`\`
 
 El **marco** es la porción de la partición que entra en el cálculo de cada fila. Cuando escribes un \`ORDER BY\` dentro del \`OVER\` y no indicas nada más, PostgreSQL usa el marco \`RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW\`, es decir, «desde el comienzo de la partición hasta la fila actual»: por eso el resultado es un acumulado. Puedes escribir otro marco, por ejemplo uno que mire solo las últimas siete filas para calcular una **media móvil de 7 días**:
 

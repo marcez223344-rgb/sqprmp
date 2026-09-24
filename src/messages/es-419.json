@@ -145,7 +145,10 @@
     "freeCounter": "Cupo gratis del curso pago: {used} de {limit} ejercicios usados.",
     "continue": {
       "title": "Continuar aprendiendo",
+      "titleNew": "Empezar",
+      "introNew": "Tu primer ejercicio te espera. No necesitas instalar nada.",
       "cta": "Continuar",
+      "ctaNew": "Empezar",
       "empty": "Todavía no empezaste ningún ejercicio. Tu ruta te espera.",
       "start": "Ir a la ruta"
     },
@@ -154,22 +157,22 @@
       "levelProgress": "Progreso hacia el siguiente nivel"
     },
     "streak": {
-      "title": "Racha",
+      "title": "Racha de días",
       "activeToday": "Ya practicaste hoy.",
       "atRisk": "Practica hoy para mantener tu racha.",
       "protected": "Ayer no practicaste; la protección de racha la mantiene si practicas hoy.",
       "start": "Completa un ejercicio para empezar una racha.",
-      "longest": "Mejor racha: {days}",
+      "longest": "Mejor racha: {days, plural, =1 {1 día} other {# días}}",
       "protectionCount": "{count, plural, =0 {Sin protección de racha este mes} =1 {1 protección de racha disponible} other {# protecciones de racha disponibles}}",
       "protectionHow": "La protección mantiene tu racha cuando te salta un día: se aplica sola y tienes {max, plural, =1 {una} other {#}} por mes."
     },
     "goals": {
       "title": "Metas",
       "daily": "XP de hoy",
-      "weekly": "Minutos esta semana",
+      "weekly": "Minutos en ejercicios y quizzes",
       "edit": "Ajustar metas",
       "dailyLabel": "Meta diaria de XP",
-      "weeklyLabel": "Meta semanal de minutos",
+      "weeklyLabel": "Meta semanal de minutos de práctica",
       "save": "Guardar",
       "cancel": "Cancelar",
       "saved": "Metas guardadas",
@@ -188,6 +191,7 @@
     },
     "links": {
       "label": "Más de tu progreso",
+      "path": "Ruta del curso",
       "history": "Historial de intentos",
       "savedQueries": "Consultas guardadas",
       "badges": "Insignias"
@@ -196,7 +200,7 @@
       "level": "Nivel",
       "xp": "XP total",
       "coins": "Monedas",
-      "streakDays": "Racha",
+      "streakDays": "Días de racha",
       "toNextLevel": "{xp} XP para el nivel {level}",
       "xpToday": "Hoy sumaste {xp} XP",
       "streakNext": "Practica hoy para llegar a {days} días"
@@ -230,7 +234,7 @@
       "weeklyGoal": "Meta semanal de práctica"
     },
     "hints": {
-      "displayName": "Así te saludaremos dentro de la plataforma.",
+      "displayName": "Puede ser tu nombre real o un apodo. Se muestra dentro de la plataforma y puedes cambiarlo después desde tu perfil.",
       "alias": "Entre {min} y {max} caracteres: letras minúsculas, números y guion bajo. Es único y puede aparecer en el ranking si lo autorizas.",
       "avatar": "Ilustraciones abstractas, sin fotos.",
       "birthDate": "Debes tener al menos {age} años. Solo usamos tu año de nacimiento para estadísticas agregadas.",
@@ -292,6 +296,11 @@
       "consent_required": "Necesitamos tu aceptación para continuar.",
       "invalid_date": "Ingresa una fecha válida.",
       "min_age": "Debes ser mayor de 18 años para usar la plataforma."
+    },
+    "nameSuggestion": {
+      "body": "Tu cuenta de Google dice «{name}». Si quieres usarlo, agrégalo tú.",
+      "use": "Usar ese nombre",
+      "dismiss": "No, gracias"
     }
   },
   "profile": {
@@ -464,7 +473,10 @@
     "editorTitle": "Tu consulta",
     "editorAria": "Editor de SQL",
     "editorPlaceholder": "Escribe tu consulta SQL aquí…",
-    "shortcuts": "Ctrl/⌘ + Enter ejecuta · Ctrl/⌘ + Shift + Enter envía · Esc sale del editor",
+    "shortcuts": {
+      "ctrl": "Ctrl + Enter ejecuta · Ctrl + Shift + Enter envía · Esc sale del editor",
+      "cmd": "Command + Enter ejecuta · Command + Shift + Enter envía · Esc sale del editor"
+    },
     "run": "Ejecutar",
     "submit": "Enviar respuesta",
     "saveDraft": "Guardar borrador",
@@ -650,7 +662,9 @@
     "submitProgress": {
       "label": "Progreso del envío",
       "validating": "Validando la consulta…",
-      "executing": "Ejecutando en el servidor y comparando resultados…"
+      "executing": "Ejecutando en el servidor y comparando resultados…",
+      "running": "Paso {step} de {total}: {phase}",
+      "step": "Paso {step} de {total}"
     },
     "verdict": {
       "correct": "¡Correcto! Tu consulta devuelve exactamente lo esperado.",
@@ -690,7 +704,10 @@
     "editorTitle": "Consulta de ejemplo (edítala)",
     "editorAria": "Editor de SQL de demostración",
     "run": "Ejecutar",
-    "shortcut": "Ctrl/⌘ + Enter",
+    "shortcut": {
+      "ctrl": "Ctrl + Enter",
+      "cmd": "Command + Enter"
+    },
     "caption": "Resultado de la consulta de demostración",
     "idle": "Motor local en espera",
     "loading": "Cargando datos ({table})…",
@@ -859,6 +876,20 @@
         "chargeback": "contracargo",
         "cancelled": "cancelado"
       }
+    },
+    "notice": {
+      "title": "Tu acceso completo ya está activo",
+      "lifetime": "Tienes acceso a todo el curso, sin vencimiento.",
+      "until": "Tienes acceso a todo el curso hasta el {date}.",
+      "source": {
+        "purchase": "Registramos tu pago.",
+        "subscription": "Corresponde a tu suscripción.",
+        "promo": "Se activó con tu código.",
+        "admin": "Lo activó el equipo."
+      },
+      "goPath": "Ir a la ruta",
+      "seeDetails": "Ver los detalles de tu acceso",
+      "dismiss": "Entendido"
     }
   },
   "admin": {
@@ -901,18 +932,33 @@
         "reject": "Rechazar"
       },
       "grant": {
-        "title": "Otorgar acceso por alias",
-        "alias": "Alias",
+        "title": "Dar acceso a una persona",
+        "intro": "Elige la persona y di qué pasó: si te transfirió el dinero, queda registrado como pago y suma a los ingresos; si es una beca o una cortesía, queda registrado como acceso otorgado.",
+        "learner": "Persona",
+        "kind": {
+          "legend": "¿Hubo dinero de por medio?",
+          "payment": "Pago recibido",
+          "paymentHint": "Te transfirió el dinero fuera de la app. Se registra la compra aprobada con importe, moneda y referencia.",
+          "comp": "Beca o cortesía",
+          "compHint": "Nadie pagó. Queda como acceso otorgado y no cuenta como ingreso."
+        },
         "days": "Días de acceso",
-        "daysHint": "Vacío = de por vida",
+        "lifetime": "Vacío = acceso de por vida, sin vencimiento.",
+        "endsOn": "El acceso vencería el {date}.",
+        "reference": "Referencia de la transferencia",
+        "referenceHint": "Opcional: número de comprobante o de operación, para conciliar después.",
         "reason": "Motivo",
-        "submit": "Otorgar",
-        "done": "Acceso otorgado.",
+        "reasonHint": "Queda en el registro de auditoría junto a tu usuario.",
+        "submitPayment": "Registrar pago y dar acceso",
+        "submitComp": "Otorgar acceso",
+        "donePayment": "Pago registrado y acceso activo.",
+        "doneComp": "Acceso otorgado.",
         "errors": {
-          "user_not_found": "No existe un usuario con ese alias.",
-          "validation": "Datos inválidos.",
+          "user_not_found": "No encontramos a esa persona.",
+          "validation": "Revisa los datos del formulario.",
           "unauthorized": "No autorizado.",
-          "unknown": "No pudimos otorgar el acceso."
+          "rate_limited": "Demasiadas acciones seguidas. Espera un momento.",
+          "unknown": "No pudimos completar la acción."
         }
       },
       "list": {
@@ -921,7 +967,13 @@
         "revoked": "revocado",
         "revoke": "Revocar",
         "revokePrompt": "Motivo de la revocación",
-        "revokedDone": "Acceso revocado."
+        "revokedDone": "Acceso revocado.",
+        "source": {
+          "purchase": "pago",
+          "subscription": "suscripción",
+          "promo": "código",
+          "admin": "otorgado"
+        }
       }
     },
     "metrics": {
@@ -1141,12 +1193,12 @@
           "discount": "Descuento (%)"
         },
         "accessDays": "Días de acceso",
-        "accessDaysHint": "Cuántos días de acceso otorga la beca.",
+        "accessDaysHint": "Cuántos días de acceso otorga la beca a quien la canjea.",
         "discountPercent": "Porcentaje de descuento",
         "maxRedemptions": "Canjes máximos",
         "maxHint": "Vacío = sin límite",
-        "expiresAt": "Vence el",
-        "expiresHint": "Vacío = no vence",
+        "expiresAt": "El código deja de canjearse el",
+        "expiresHint": "Vacío = se puede canjear siempre. Es distinto de los días de acceso que otorga.",
         "note": "Nota interna",
         "submit": "Crear",
         "done": "Código creado.",
@@ -1155,7 +1207,12 @@
           "validation": "Revisa los datos: el código debe tener 4–40 caracteres y el tipo su valor.",
           "duplicate": "Ya existe un código con ese nombre.",
           "unknown": "No pudimos crear el código."
-        }
+        },
+        "customCode": "Escribir un código propio",
+        "customCodeHint": "Útil para una campaña con nombre. Evita las letras O e I y los números 0 y 1: se confunden al dictarlo.",
+        "generatedHint": "Generamos un código sin caracteres ambiguos (sin O, 0, I ni 1) y te lo mostramos al crearlo.",
+        "regenerate": "Generar otro código",
+        "accessEndsOn": "Quien lo canjee hoy tendría acceso hasta el {date}."
       }
     },
     "flags": {
@@ -1182,7 +1239,7 @@
     },
     "audit": {
       "title": "Registro de auditoría",
-      "intro": "Acciones privilegiadas y eventos del sistema (últimos 200). Filtra por prefijo de acción o por id de objetivo.",
+      "intro": "Acciones privilegiadas y eventos del sistema (últimos 200). Muestra el alias de quien actuó y el de la persona afectada. Filtra por prefijo de acción o por id de objetivo.",
       "filterAction": "Acción (prefijo)",
       "filterTarget": "Objetivo (ID o tabla)",
       "apply": "Filtrar",
@@ -1193,7 +1250,14 @@
         "actor": "Actor",
         "action": "Acción",
         "target": "Objetivo",
-        "detail": "Detalle"
+        "detail": "Detalle",
+        "subject": "Persona"
+      },
+      "roles": {
+        "learner": "persona",
+        "admin": "administración",
+        "service": "sistema",
+        "system": "sistema"
       }
     },
     "users": {
@@ -1279,11 +1343,25 @@
         "page": "Página {page} de {pages}",
         "prev": "Anterior",
         "next": "Siguiente"
-      }
+      },
+      "exportCsv": "Exportar CSV"
     },
     "reasonDialog": {
       "cancel": "Cancelar",
       "required": "El motivo es obligatorio (mínimo {min} caracteres)."
+    },
+    "learnerPicker": {
+      "placeholder": "Busca por alias o nombre",
+      "hint": "Escribe al menos {min} caracteres.",
+      "count": "{count, plural, =0 {Sin coincidencias} =1 {1 coincidencia} other {# coincidencias}}",
+      "change": "Cambiar",
+      "access": {
+        "free": "sin acceso",
+        "paid": "pagó",
+        "promo": "código",
+        "granted": "otorgado",
+        "admin": "administración"
+      }
     }
   },
   "quiz": {

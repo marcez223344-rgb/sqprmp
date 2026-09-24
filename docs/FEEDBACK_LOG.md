@@ -47,6 +47,42 @@ waiting on _the product_.
 | 21  | Certificates page shows 0 of 8 although exercises are done                           | Done                | It counted only fully completed sections. Partial progress per section added; eligibility still decided by the RPC.                                                        |
 | 22  | Check that earlier feedback was actually acted on                                    | Done                | This file. Rounds 1 and 2 are reconstructed below from the decision and review records.                                                                                    |
 
+## 2026-09-24 · Round 4 (29 items, fresh-account test run)
+
+Statuses updated as work lands. "In flight" = an agent is on it in the session it was raised.
+
+| #   | Item                                                                       | Status                                                    |
+| --- | -------------------------------------------------------------------------- | --------------------------------------------------------- |
+| 1   | Export the admin users table to CSV                                        | Queued                                                    |
+| 2   | Landing says "América Latina"; Spanish speakers in Spain are customers too | Owner decision — positioning                              |
+| 3   | The Data Minds Solutions website is not linked anywhere                    | Owner input — needs the URL                               |
+| 4   | `/curriculo` took 75 seconds to load                                       | In flight — measuring, not guessing                       |
+| 5   | Can Docker and WSL be closed now?                                          | Answered — yes, see below                                 |
+| 6   | Auth screen says "Sign in to pgkbmhuehmotjctzjwxx.supabase.co"             | Answered — needs a paid custom domain                     |
+| 7   | Onboarding pre-fills the real name from Google                             | In flight                                                 |
+| 8   | Spain looks missing from the country list                                  | In flight — it is last, not absent; making it findable    |
+| 9   | The ranking opt-in never appears during onboarding                         | In flight                                                 |
+| 10  | "Continuar aprendiendo" on a brand-new account should say "Empezar"        | In flight                                                 |
+| 11  | No way to reach "Ruta" from the first screen                               | In flight — same root cause as 12 and 14                  |
+| 12  | A fresh account sees no top navigation at all                              | In flight — bug                                           |
+| 13  | Long theory lessons are a wall of text (**third time asked**)              | In flight — full readability pass                         |
+| 14  | Navigation appeared only after the first exercise                          | In flight — same as 12                                    |
+| 15  | The submit progress bar does not move                                      | In flight                                                 |
+| 16  | The admin user list is too short                                           | Queued                                                    |
+| 17  | Add the alias to the audit page                                            | Queued                                                    |
+| 18  | "Días de acceso" and "Vence el" duplicate each other                       | Queued                                                    |
+| 19  | Scholarship/discount codes should be auto-generated                        | Queued                                                    |
+| 20  | "Ctrl/⌘" renders an unclear glyph                                          | In flight                                                 |
+| 21  | Approving a manual payment needs an alias picker, not free typing          | Queued                                                    |
+| 22  | Metrics say "otorgado" not "pagado" after a manual payment                 | Queued                                                    |
+| 23  | No email or in-app message when access is granted                          | Queued                                                    |
+| 24  | Granted access still shows padlocks, yet the exercise opens                | Queued — **bug**                                          |
+| 25  | "Siguiente" opens a new browser tab every time                             | In flight — my error, being split from the reference link |
+| 26  | "Racha" does not say it counts days                                        | In flight                                                 |
+| 27  | "Minutos esta semana" undercounts real practice time                       | Queued                                                    |
+| 28  | Completada / sin empezar / en curso are hard to tell apart at a glance     | Queued                                                    |
+| 29  | Are there database backups? Wants a weekly local dump                      | In flight — **the most important item in this round**     |
+
 ## Earlier rounds
 
 Reconstructed from `docs/DECISIONS.md`, `docs/reviews/**` and the commit history; rows are added

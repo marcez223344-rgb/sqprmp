@@ -139,6 +139,10 @@ export const limits = {
     verification: { capacity: 60, refillPerSecond: 1 },
     webhook: { capacity: 600, refillPerSecond: 10 },
     promo: { capacity: 5, refillPerSecond: 5 / 600 },
+    /** Admin search-as-you-type: generous, because one keystroke is one call, but not unbounded. */
+    adminSearch: { capacity: 60, refillPerSecond: 1 },
+    /** Admin CSV export: a full table scan per call, so a few per minute is plenty. */
+    adminExport: { capacity: 5, refillPerSecond: 5 / 60 },
   },
 
   alias: {
@@ -155,6 +159,31 @@ export const limits = {
 
   certificates: {
     minQuizScorePercent: 80,
+  },
+
+  promoCodes: {
+    /**
+     * Length of an auto-generated code. Eight characters of the unambiguous alphabet in
+     * `src/lib/payments/promo-code.ts` (no O/0, no I/1) are ~10^12 combinations: impossible to
+     * guess by trying, short enough to read out loud on a call or retype from a screenshot.
+     */
+    generatedLength: 8,
+    /** Characters per hyphen-separated group (DMSA-XXXX-XXXX reads back without losing place). */
+    groupSize: 4,
+  },
+
+  admin: {
+    /** Rows per page in the user directory. */
+    directoryPageSize: 50,
+    /**
+     * Ceiling for the CSV export of the directory. Matches the cap inside
+     * `admin_user_directory`; beyond it the export would silently truncate, so the UI says so.
+     */
+    exportMaxRows: 5000,
+    /** Suggestions returned by the learner picker (alias + display name search). */
+    learnerPickerResults: 8,
+    /** Shortest search term the learner picker acts on; one or two letters match everyone. */
+    learnerPickerMinChars: 2,
   },
 } as const;
 

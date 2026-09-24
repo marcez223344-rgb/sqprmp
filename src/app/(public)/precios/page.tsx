@@ -7,11 +7,16 @@ import { buttonVariants } from "@/components/ui/button";
 import { limits } from "@/config/limits";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { getAccessStatus, getCatalog } from "@/lib/payments/service";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 import { cn } from "@/lib/utils/cn";
 
 export async function generateMetadata() {
   const t = await getTranslations("pricing");
-  return { title: t("title") };
+  return buildPageMetadata({
+    path: "/precios",
+    title: t("title"),
+    description: t("intro", { free: limits.freeExerciseLimit }),
+  });
 }
 
 export default async function PricingPage({ searchParams }: PageProps<"/precios">) {

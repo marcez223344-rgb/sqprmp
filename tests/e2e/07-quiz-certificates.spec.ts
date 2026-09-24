@@ -8,12 +8,18 @@ import {
   signInAs,
   type TestUser,
 } from "./helpers/auth";
+import { message, messagePattern } from "./helpers/messages";
 
 async function onboard(page: Page, name: string) {
   await page.goto("/onboarding");
   await page.getByLabel("Nombre para mostrar").fill(name);
   await page.getByLabel("Alias").fill(`q_${Date.now().toString(36).slice(-7)}`);
-  await expect(page.getByText("Disponible")).toBeVisible();
+  // The availability check is debounced (450 ms) and then round-trips to the server; on a
+  // loaded machine that exceeds the 5 s default and the helper fails before the journey
+  // under test starts. 02-onboarding.spec.ts is where this check is the subject.
+  await expect(page.getByText(message("onboarding.aliasStatus.available"))).toBeVisible({
+    timeout: 20_000,
+  });
   await page.getByRole("button", { name: "Siguiente" }).click();
   await page.getByLabel("Fecha de nacimiento").fill("1990-09-09");
   await page.getByRole("button", { name: "Siguiente" }).click();
@@ -31,11 +37,13 @@ const plainPrefix = (md: string | null) => (md ?? "").replace(/[`*]/g, "").slice
 const REQUIREMENT = "e2e-intro";
 
 /**
- * Answers the currently shown question correctly using the answer key read with the
- * service role (the browser never receives it). Returns when the question is answered.
+ * Answers the currently shown question using the answer key read with the service role (the
+ * browser never receives it). Returns the question id, which is what the runner uses to identify
+ * the verdict block once the server has graded it.
  */
 async function answerCurrent(page: Page, service: SupabaseClient, correct: boolean) {
   const section = page.locator("section[data-question-id]");
+  await expect(section).toBeVisible();
   const id = await section.getAttribute("data-question-id");
   if (!id) throw new Error("question id missing");
   const [{ data: q }, { data: opts }] = await Promise.all([
@@ -50,7 +58,7 @@ async function answerCurrent(page: Page, service: SupabaseClient, correct: boole
       await section
         .getByRole("textbox")
         .fill(correct ? (accepted[0] ?? "") : "respuesta-incorrecta");
-      return;
+      return id;
     }
     case "matching": {
       const pairs = (q.pairs as { left: string; right: string }[] | null) ?? [];
@@ -61,7 +69,7 @@ async function answerCurrent(page: Page, service: SupabaseClient, correct: boole
           .nth(i)
           .selectOption(correct ? p.right : wrong);
       }
-      return;
+      return id;
     }
     case "multiple": {
       const targets = correct ? pick(true) : [pick(false)[0] ?? options[0]];
@@ -69,37 +77,50 @@ async function answerCurrent(page: Page, service: SupabaseClient, correct: boole
         if (!o) continue;
         await section.getByRole("checkbox", { name: plainPrefix(o.body_md) }).check();
       }
-      return;
+      return id;
     }
     default: {
       const o = correct ? pick(true)[0] : pick(false)[0];
       if (!o) throw new Error(`no ${correct ? "correct" : "incorrect"} option for ${id}`);
       await section.getByRole("radio", { name: plainPrefix(o.body_md) }).check();
+      return id;
     }
   }
 }
 
 /**
- * D-34: one question at a time, each graded by the server before the next one is shown, so the
- * loop answers, checks, reads the feedback and moves on.
+ * D-34: one question at a time, each graded by the server before the next one is shown, and one
+ * single button whose label cycles check -> next question -> see result (D-37 made the number of
+ * cycles per section, so the loop can never assume a length).
+ *
+ * The advance button has to be located again on every iteration *by its current label*: it is the
+ * same element throughout, so a locator captured once stops matching as soon as the label changes.
+ * The loop also waits for this question's verdict block (`#verdict-<id>`) rather than for a
+ * `role="status"` — the running tally is a status too, and it is already on screen from question 2
+ * onwards, so waiting on it let the loop decide "is this the last question?" before the server had
+ * answered. On the last question that raced into a 30 s wait for a "Siguiente pregunta" button that
+ * was never going to appear, which is exactly how this test was failing in CI.
  */
 async function runQuiz(page: Page, service: SupabaseClient, correct: boolean) {
   await page.goto(`/leccion/${QUIZ_SLUG}`);
-  const check = page.getByRole("button", { name: "Comprobar respuesta" });
-  await expect(check).toBeVisible();
+  const button = (key: "check" | "nextQuestion" | "seeResult") =>
+    page.getByRole("button", { name: message(`quiz.${key}`) });
+  await expect(button("check")).toBeVisible();
   for (;;) {
-    await answerCurrent(page, service, correct);
-    await check.click();
-    // Feedback for this question arrives from the server and takes focus.
-    await expect(page.getByRole("status").first()).toBeVisible();
-    const finish = page.getByRole("button", { name: "Ver resultado" });
+    const id = await answerCurrent(page, service, correct);
+    await button("check").click();
+    // The verdict is server-rendered feedback for this exact question: once it is on screen the
+    // answer has been recorded and the button has settled into its next state.
+    await expect(page.locator(`#verdict-${id}`)).toBeVisible();
+    const finish = button("seeResult");
     if (await finish.isVisible()) {
       await finish.click();
       break;
     }
-    await page.getByRole("button", { name: "Siguiente pregunta" }).click();
+    await button("nextQuestion").click();
   }
-  await expect(page.getByRole("status").first()).toBeVisible();
+  // The result panel is the focused status region.
+  await expect(page.locator("#quiz-resultado")).toBeVisible();
 }
 
 /** Journeys 11–12: quiz → section completion → certificate → public verification. */
@@ -140,8 +161,9 @@ test.describe("quizzes and certificates", () => {
   test("failing a quiz shows explanations and feeds the review page", async ({ context, page }) => {
     await signInAs(context, learner);
     await runQuiz(page, service, false);
-    await expect(page.getByText(/No alcanzaste el 80%/)).toBeVisible();
-    await expect(page.getByText("Respuesta correcta").first()).toBeVisible();
+    // Verdict copy carries the score and the threshold, both computed at runtime.
+    await expect(page.getByText(messagePattern("quiz.failed"))).toBeVisible();
+    await expect(page.getByText(message("quiz.correctAnswer")).first()).toBeVisible();
     await page.goto("/repaso");
     await expect(page.getByText(/preguntas para repasar/)).toBeVisible();
   });
@@ -152,8 +174,8 @@ test.describe("quizzes and certificates", () => {
   }) => {
     await signInAs(context, learner);
     await runQuiz(page, service, true);
-    await expect(page.getByText(/Aprobaste/)).toBeVisible();
-    await expect(page.getByText("Completaste la sección entera")).toBeVisible();
+    await expect(page.getByText(messagePattern("quiz.passed"))).toBeVisible();
+    await expect(page.getByText(message("quiz.sectionCompleted"))).toBeVisible();
 
     await page.goto("/certificados");
     const card = page.locator("li", { hasText: "Introducción (E2E)" });

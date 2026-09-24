@@ -749,6 +749,35 @@ already required. **Open follow-up:** the lesson header in
 to read the attempt it already loaded (`quiz.questions.length`). That file was being edited by
 another agent in the same session and was left alone on purpose.
 
+### D-38 · An admin grant records whether money changed hands
+
+**Status:** Accepted (2026-09-24). Implements owner feedback item 22; extends **D-32** (launch with
+bank transfer only), which is exactly why this matters now.
+
+**The problem.** `/admin/accesos` had one "otorgar acceso" form. It wrote an entitlement with
+`source = 'admin'` whatever the reason, and the directory and `admin_metrics` report that class as
+**otorgado**. So the first real sale of the product — a bank transfer the owner confirmed by hand —
+was filed next to the free accounts and never reached the revenue figure. The owner noticed within
+a day of using it.
+
+**The decision.** Granting access asks which of two things happened, because they are two facts and
+no amount of naming will merge them:
+
+- **beca / cortesía** (`kind = 'comp'`): entitlement `source = 'admin'`. Not revenue, ever.
+- **pago recibido** (`kind = 'payment'`): an approved `purchases` row carries the amount, the
+  currency and the bank reference, and the entitlement is sourced from it. This is revenue, and it
+  is indistinguishable in the books from a purchase that arrived through a provider webhook.
+
+**Why not infer it.** The alternative was to guess from the presence of a pending purchase, or from
+the free-text reason. Both are guesses about money, and a wrong guess is invisible: it produces a
+number that looks right. Asking costs the admin one radio button.
+
+**Consequence accepted.** A payment recorded this way is only as accurate as what the admin types;
+the amount defaults to the active manual price and the reference is optional. That is the nature of
+an out-of-band transfer (D-32) and it is why both branches are audit-logged with the actor, the
+learner and the reason, and why `admin_grant_access` reuses the learner's pending purchase when
+there is one, so the reference the learner actually used on the transfer survives into the books.
+
 ## Owner-only follow-ups from 2026-09-23
 
 - **`SUPABASE_SECRET_KEY` is invalid in production** (see the runbook note in

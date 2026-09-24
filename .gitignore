@@ -56,3 +56,6 @@ scratch-out.txt
 tests/**/_scratch.test.ts
 # Local Supabase stack credentials dumped by `supabase status -o env` during E2E runs.
 .supabase-status.env
+
+# Local database backups (learner personal data): never in the repository
+DataMindsBackups/

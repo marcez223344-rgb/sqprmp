@@ -74,7 +74,7 @@ const ASK = [
     re: /\bsupabase\s+link\b/i,
     why: "Linking to a remote Supabase project; confirm which environment.",
   },
-  { re: /\bsupabase\b.*\bdb\s+reset\b/i, why: "Local DB reset drops local data; confirm." },
+
   {
     re: /\bnpm\s+publish\b|\bnpx\s+vercel\b(?!.*--prod)/i,
     why: "External publish/deploy; confirm target.",

@@ -4,10 +4,11 @@ import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 
 export async function generateMetadata() {
   const t = await getTranslations("verify");
-  return { title: t("title") };
+  return buildPageMetadata({ path: "/verificar", title: t("title"), description: t("subtitle") });
 }
 
 const CODE = /^[a-z0-9]{20}$/;

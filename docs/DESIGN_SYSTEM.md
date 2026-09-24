@@ -81,6 +81,38 @@ The category vocabulary is **closed**: call sites choose a category, never their
 
 `feedback-*` are the only pair allowed a 45 % border **and** a tint: a verdict is the one place in the product that may raise its voice. `src/components/ui/answer-state.ts` extends the same vocabulary to the four states of a graded answer row (`pending`, `selected`, `answered-correct`, `answered-incorrect`) plus the dashed reveal of the correct option and the review rails.
 
+### 5b. Lesson block vocabulary (2026-09-24)
+
+A theory lesson is Markdown, so its extra blocks are **fenced blocks with an info string** — no HTML
+in content (`skipHtml` stays on), no new dependency, and the renderer owns every pixel.
+`src/components/learn/markdown.tsx` is the only place that maps a fence to a component;
+`src/components/learn/lesson-blocks.tsx` holds the components, and every one of them is a
+`SectionHeader` / `Callout` composition in the closed category vocabulary of §5. **No block invents
+a colour.** Labels come from `src/content/lesson-block-labels.ts` (overridable via the `labels` prop
+of `Markdown`, so they can move to `next-intl` without touching a content file).
+
+| Fence                        | Block           | Category (§5)         | What it is for                                                                                 |
+| ---------------------------- | --------------- | --------------------- | ---------------------------------------------------------------------------------------------- |
+| ` ```objetivos `             | `Objectives`    | `why` + `Check`       | Lesson opener, one outcome per line: «Al terminar vas a poder». Max 3–4 items.                 |
+| ` ```clave `                 | `KeyIdea`       | `concept` + `Key`     | The **one** sentence of the lesson, at `text-lg font-medium` with a 4 px rail. One per lesson. |
+| ` ```sql Caption `           | `CodeFigure`    | —                     | Coloured query, 2 px `primary` left rail, caption as a `<figcaption>`.                         |
+| ` ```sql-mal Caption `       | `CodeFigure`    | `pitfall`             | The discouraged version. Dashed `warning-ink` rail + the words «Así no».                       |
+| ` ```sql-bien Caption `      | `CodeFigure`    | `verify`              | The recommended version. Solid `success-ink` rail + the words «Así sí».                        |
+| ` ```resultado Caption `     | `ResultTable`   | `schema`              | Pipe-separated rows (first row = header). What the query returns, as a table.                  |
+| ` ```diagrama nombre[#arg] ` | `DiagramFigure` | `schema` + `Workflow` | A figure from `LESSON_DIAGRAMS`; the fence body is its text alternative.                       |
+
+Rules for authors: **one `clave` per lesson** (a second one cancels the first), a `resultado` only
+with figures actually produced by the query on the committed dataset snapshot, and a `sql-mal` never
+without the matching `sql-bien` immediately after it.
+
+**Syntax colouring** (`src/components/learn/sql-highlight.tsx`) is a hand-written ~90-line tokenizer,
+not a dependency. Inks measured 2026-09-24 on `--color-surface-2` (light / dark): keyword
+`--color-primary` 5.63 / 5.47 (also `font-semibold`), call `--color-info` 4.78 / 6.97, string
+`--color-success-ink` 5.38 / 6.93, number `--color-accent-ink` 4.72 / 7.77, comment
+`--color-muted` 5.27 / 6.72 — every one ≥ 4.5:1 in both themes. Colour here
+carries **no** information that the text does not already carry, which is why it does not violate
+"no meaning by colour alone".
+
 **`StatTile` / `Meter`** (`src/components/progress/stat-tile.tsx`) are the only sanctioned KPI tile and meter. Tile = the same `size-8` icon container as `SectionHeader`, a sentence-case label, a `text-3xl font-bold` number, an optional meter and an optional caption. Two rules: **hue comes from the family the number belongs to** (level → `--color-achievement`, the same token as the «nivel» badge family; XP and exercises → `--color-primary`; streak → `--color-accent-ink`, the only genuinely time-sensitive number; mastery → `--color-success-ink`; a number with nothing to progress toward is `neutral`), and **a meter appears only where a real threshold exists** — total XP and coins have none, and a full bar for them would promise a goal the product does not have. A meter is never shown without its text equivalent: `role="progressbar"` with `aria-valuenow/min/max`, `aria-valuetext` in words («59 XP para el nivel 3»), plus the visible caption. Meter fills measure ≥ 4.7:1 against the `surface-2` track in both themes. No glyph is ever added to an already-labelled number — the motivating information is the distance to the threshold, not decoration.
 
 Button (primary/secondary/ghost/danger, sizes sm/md/lg, loading state), Input/Textarea/Select/Combobox, Checkbox/Radio/Switch, Dialog/Sheet/Drawer, Tabs, Tooltip, Toast, Badge/Chip, Progress (bar + ring), Skeleton, Table (data results with sticky header, column types, copy cell, virtualized when > 200 rows), Card, Callout (teoría/consejo/error), Stepper (onboarding), Avatar (curated set), DifficultyIndicator, XpCounter, StreakFlame (respects reduced motion), CertificateCard, SqlEditor (CodeMirror wrapper), SchemaBrowser, HintPanel, FeedbackPanel, Paywall.
@@ -88,6 +120,41 @@ Button (primary/secondary/ghost/danger, sizes sm/md/lg, loading state), Input/Te
 ## 6. Iconography and illustration
 
 Lucide icons (1.5 px stroke, 20/24 px). No emoji in product chrome: icons inherit color and size and can be hidden from screen readers.
+
+**Why the answer to "add emoji and clip art" is diagrams, not emoji** (2026-09-24, owner feedback
+raised three times). Emoji and clip art are _decoration attached to text_: a 📊 in front of a
+paragraph adds a coloured shape but the reader still has to read the same paragraph. The lesson
+pages were heavy because they were **only text** — every explanation, including the ones whose
+subject is inherently spatial (which rows survive a join, how far back a window frame reaches, the
+order in which clauses are evaluated), was a sentence. The fix is to stop writing and start drawing:
+§5b's `diagrama`, `resultado`, `clave` and wrong/right blocks replace prose with objects. Three
+further practical reasons emoji lose: they render as a different picture on every platform (so the
+brand never controls what the learner sees), a screen reader announces the full CLDR name of each
+one in the middle of a sentence, and they cannot be tinted to the semantic tokens. The vocabulary
+below is the "images" answer; a lesson that uses it does not look like an emoji-free lesson, it
+looks like an illustrated one.
+
+### 6b. Lesson diagrams (`src/components/learn/diagrams.tsx`)
+
+A closed registry, keyed by name and referenced from content with ` ```diagrama nombre `. Three
+rules hold for every entry:
+
+1. **The visual is `aria-hidden`; the authored fence body is the accessible content**, rendered as a
+   visible `<figcaption>`. Everyone gets the explanation, nothing is announced twice.
+2. **No meaning by colour alone.** Distinctions are carried by border style (dashed = the row drops
+   out), fill, position and ordinals as well as hue.
+3. **No text inside an SVG.** Anything with words is composed in HTML so it reflows to 360 px, stays
+   selectable and keeps its contrast at any zoom. SVG is used only where the meaning is geometric.
+
+| Name                 | Form | Says                                                                                                      |
+| -------------------- | ---- | --------------------------------------------------------------------------------------------------------- |
+| `orden-de-ejecucion` | HTML | The eight evaluation steps as numbered chips; `#where,select` rings the ones the lesson is arguing about. |
+| `inner-join`         | HTML | Three mini result tables: two inputs, the rows without a partner dashed out, and the two-row output.      |
+| `agrupar-vs-ventana` | HTML | The same four input rows, collapsed to two by `GROUP BY` and kept at four with a new column by `OVER`.    |
+| `marco-de-ventana`   | SVG  | Eight ordered rows, a bracket over the ones inside the default frame and a marker on the current row.     |
+
+The visual language is §1's: grids, rows and result tables in the semantic tokens. No mascots, no
+clip art, no gradients, no glow.
 
 **Lesson kinds** (same icon in the path list and on the lesson page): teoría `BookOpen`, ejercicio `SquareTerminal`, quiz `ListChecks`, desafío `Trophy`. **Levels**: fundamentos `Sprout`, agregar y combinar `Layers`, consultas avanzadas `Network`, analítica profesional `BarChart3`. **Datasets**: TiendaViva `Store`, Bolsillo `Wallet`, Pídelo `Bike`, Ritmo `Music4`, desconocido `Database` (neutral fallback).
 
@@ -141,6 +208,15 @@ Semantic landmarks, skip link, visible 2 px focus ring (`--color-primary` + offs
 **Exercise workspace — three ranks** (2026-09-23): the seven panels are ranked, not peers. Rank 1 (`bg-surface` + `shadow-sm` + `h2`) is the task (plus `ring-1 ring-inset ring-primary/20`), the editor, the result and the verdict panel; rank 2 is nested inside rank 1 (`Columnas esperadas` in a `surface-2` well); rank 3 (`bg-surface-2`, no shadow, eyebrow-only header) is the reference material — `Teoría relevante`, `Definiciones de tablas`, `Pistas` — grouped in an `<aside aria-label="Material de referencia">`, with `Solución` as a dashed collapsed disclosure. Work surfaces sit _above_ the page, reference material sits _in_ a well. The verdict panel takes the `feedback-correct` / `feedback-incorrect` / `pitfall` surface after a submission and keeps a `CircleDashed` empty state before it, so the panel never changes shape; the reward line is a `<footer>` with a top rule, not a third tinted box.
 
 **Lesson prose**: every `##` gets a `border-t` top rule (that rhythm, not decoration, is what a 2 000-word column was missing). The nine recurring pedagogy headings (`Por qué importa`, `El concepto`, `La sintaxis`, `Ejemplo resuelto`, `Ejemplo ejecutable`, `Errores comunes`, `Errores frecuentes`, `Verificar…`, `Resumen` / `En resumen` — ~250 of ~700 headings) additionally get their category icon, matched case- and accent-insensitively in `src/components/learn/markdown.tsx` with **no content edits**; the ~450 one-off headings stay unadorned. The icon is `aria-hidden` and outside the heading, so the accessible name is exactly the authored title.
+
+**Lesson body** (2026-09-24): the measure is on the prose, not on the column — `.prose-dm` is
+`max-w-none` and only `p`, `ul`, `ol` and `blockquote` keep `max-w-prose`, so code, result tables,
+callouts and diagrams use the full 48 rem of the lesson column. A diagram squeezed into a reading
+measure reads as an afterthought; at column width it reads as part of the explanation. Every
+` ```sql ` fence in all 347 lessons is now a `CodeFigure`: syntax-coloured, with a 2 px `primary`
+left rail and an optional caption. The rest of the block vocabulary (§5b) is opt-in per lesson, and
+the pattern is proven on `alias-y-expresiones-basico`, `inner-join-basico`, `ventana-over-partition`
+and `ventana-order-by-y-marcos`.
 
 **Badges (`/logros`)**: header with `{earned} de {total}` and a `role="progressbar"`; then one `<section>` per family led by `SectionHeader as="h2"` (icon = the family's tier-III icon) with a per-family counter and bar; inside, a `<ul>` ordered tier I → III (never earned-first: the next target must stay next to the last one earned). Card: `size-11` circular icon container, `h3` title + Roman numeral, description, and a state line — earned `CircleCheck` + «Obtenida el {fecha}» on a solid bordered `surface` card with shadow; locked the **real** icon at `strokeWidth 1.25` in neutral ink with a 16 px `Lock` overlay, a dashed border and «Aún no obtenida». Earned vs locked differs in icon, border style and words — never in opacity.
 

@@ -172,3 +172,17 @@ export async function startHostedCheckoutAction(formData: FormData) {
   // External hosted checkout URL.
   redirect(result.redirectUrl as Route);
 }
+
+/**
+ * Dismisses the "your access is active" notice. Acknowledging is the learner's own record, so it
+ * goes through a definer RPC scoped to `auth.uid()`; nothing about access itself is writable here.
+ */
+export async function acknowledgeAccessNoticeAction(): Promise<Result> {
+  const user = await getCurrentUser();
+  if (!user) return { ok: false, error: "unauthorized" };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("acknowledge_entitlements");
+  if (error) return { ok: false, error: "unknown" };
+  revalidatePath("/acceso");
+  return { ok: true };
+}

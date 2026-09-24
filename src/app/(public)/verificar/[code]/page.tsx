@@ -6,13 +6,25 @@ import { buttonVariants } from "@/components/ui/button";
 import { brand } from "@/config/brand";
 import { founder } from "@/config/founder";
 import { verificationRateLimited, verifyCertificate } from "@/lib/certificates/service";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 import { cn } from "@/lib/utils/cn";
 
 const CODE = /^[a-z0-9]{20}$/;
 
-export async function generateMetadata() {
+export async function generateMetadata({ params }: PageProps<"/verificar/[code]">) {
+  const { code } = await params;
   const t = await getTranslations("verify");
-  return { title: t("title"), robots: { index: false } };
+  // Not indexable (it names a person), but it still needs a card: a learner posting their
+  // certificate on LinkedIn is the cheapest marketing this product has.
+  return buildPageMetadata({
+    path: `/verificar/${CODE.test(code) ? code : ""}`,
+    title: t("title"),
+    description: t("subtitle"),
+    type: "article",
+    noIndex: true,
+    // The certificate card lives in this segment (opengraph-image.tsx); Next merges it.
+    imagePath: null,
+  });
 }
 
 export default async function VerifyCodePage({ params }: PageProps<"/verificar/[code]">) {

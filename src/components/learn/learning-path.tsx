@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { LEVEL_ORDER, type PathLesson, type PathSection } from "@/lib/curriculum/queries";
+import { lessonNeedsAccess } from "@/lib/progress/lesson-lock";
 import { cn } from "@/lib/utils/cn";
 
 type SectionState = "completed" | "in_progress" | "available" | "soon";
@@ -83,12 +84,21 @@ function sectionState(s: PathSection, publishedLessons: number): SectionState {
  * Shared by the public /curriculo page (no progress, no links into lessons for anon) and the
  * authenticated /ruta page. Status is always icon + text (never color alone).
  */
+/**
+ * `hasAccess` is the same answer the server gate gives (`has_active_entitlement`), passed in by the
+ * page. It exists because the padlock used to be drawn from `lesson.is_free` alone: a learner who
+ * had just been granted access still saw padlocks on every premium lesson, while the lessons
+ * opened normally — the badge said one thing and the gate did another (owner feedback item 24).
+ * The gate stays where it is; only the display was lying.
+ */
 export async function LearningPath({
   sections,
   mode,
+  hasAccess = false,
 }: {
   sections: PathSection[];
   mode: "public" | "learner";
+  hasAccess?: boolean;
 }) {
   const t = await getTranslations("path");
   const byLevel = LEVEL_ORDER.map((level) => ({
@@ -233,7 +243,13 @@ export async function LearningPath({
                     {s.is_published && s.lessons.length ? (
                       <ul className="divide-border border-border mt-4 divide-y overflow-hidden rounded-md border">
                         {s.lessons.map((l) => (
-                          <LessonRow key={l.id} lesson={l} mode={mode} t={t} />
+                          <LessonRow
+                            key={l.id}
+                            lesson={l}
+                            mode={mode}
+                            hasAccess={hasAccess}
+                            t={t}
+                          />
                         ))}
                       </ul>
                     ) : null}
@@ -251,14 +267,17 @@ export async function LearningPath({
 function LessonRow({
   lesson,
   mode,
+  hasAccess,
   t,
 }: {
   lesson: PathLesson;
   mode: "public" | "learner";
+  hasAccess: boolean;
   t: Awaited<ReturnType<typeof getTranslations<"path">>>;
 }) {
   const Icon = LESSON_ICON[lesson.kind] ?? BookOpen;
   const locked = mode === "public" || !lesson.is_published;
+  const needsAccess = lessonNeedsAccess({ isFree: lesson.is_free, mode, hasAccess });
   const done = mode === "learner" && lesson.status === "completed";
   const started = mode === "learner" && lesson.status === "in_progress";
 
@@ -282,7 +301,7 @@ function LessonRow({
         <span className={cn("truncate", done ? "font-semibold" : "font-medium")}>
           {lesson.title}
         </span>
-        {!lesson.is_free ? (
+        {needsAccess ? (
           <>
             <Lock aria-hidden="true" className="text-muted size-3.5 shrink-0" />
             <span className="sr-only">{t("premiumLesson")}</span>

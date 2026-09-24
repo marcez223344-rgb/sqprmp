@@ -78,10 +78,31 @@ export const products: ProductConfig[] = [
 export const enabledPaymentProviders: PaymentProviderId[] = ["manual"];
 
 /** Manual transfer instructions are owner-provided; placeholders until Phase 6. */
+/**
+ * `countries` is **descriptive, not enforced**: nothing filters the list by it (verified
+ * 2026-09-24 — `readyTransferChannels` is the only consumer and it filters on placeholder
+ * details alone). Every ready channel is shown to every visitor, which is correct for a public
+ * pricing page where anonymous visitors have no profile country to filter on. It is kept as
+ * documentation of who each channel realistically serves, and drives the `audience` line the
+ * learner reads.
+ */
 export const manualTransferChannels = [
   { id: "bank_ars", label: "Transferencia bancaria (ARS)", currency: "ARS", countries: ["AR"] },
   { id: "mercadopago_ars", label: "Mercado Pago (ARS)", currency: "ARS", countries: ["AR"] },
-  { id: "wallbit_usd", label: "Wallbit (USD)", currency: "USD", countries: [] },
+  // Wallbit only registers users in the countries it operates in (AR, CO, MX, PE, EC, UY as of
+  // 2026-09); the instruction below is a Wallbit TAG, so the payer needs a Wallbit account. It was
+  // previously listed with `countries: []`, which read as "available worldwide" and offered a
+  // buyer in Spain a method they cannot open an account for.
+  {
+    id: "wallbit_usd",
+    label: "Wallbit (USD)",
+    currency: "USD",
+    countries: ["AR", "CO", "MX", "PE", "EC", "UY"],
+  },
+  // The only channel a buyer outside Latin America can actually complete. Owner-supplied
+  // 2026-09-24; his PayPal profile is public ("anyone can see and send money to your PayPal
+  // username"), which is what makes a PayPal.me link work without an integration.
+  { id: "paypal_usd", label: "PayPal (USD)", currency: "USD", countries: [] },
 ] as const;
 
 /**
@@ -107,6 +128,10 @@ export const manualTransferInstructions: Record<
   wallbit_usd: {
     holder: "Marcelo Hernan Pisner",
     lines: ["Wallbit", "TAG: $marcelo-pisner"],
+  },
+  paypal_usd: {
+    holder: "Marcelo Pisner",
+    lines: ["PayPal", "paypal.me/marcelopisner", "Usuario: @marcelopisner"],
   },
 };
 

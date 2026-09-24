@@ -6,6 +6,7 @@ import {
   signInAs,
   type TestUser,
 } from "./helpers/auth";
+import { message, messagePattern } from "./helpers/messages";
 
 test.describe("curriculum and lessons", () => {
   test("public curriculum lists all sections", async ({ page }) => {
@@ -26,7 +27,12 @@ test.describe("curriculum and lessons", () => {
       await page.goto("/onboarding");
       await page.getByLabel("Nombre para mostrar").fill("Eva Prueba");
       await page.getByLabel("Alias").fill(`eva_${Date.now().toString(36).slice(-6)}`);
-      await expect(page.getByText("Disponible")).toBeVisible();
+      // The availability check is debounced (450 ms) and then round-trips to the server; on a
+      // loaded machine that exceeds the 5 s default and the helper fails before the journey
+      // under test starts. 02-onboarding.spec.ts is where this check is the subject.
+      await expect(page.getByText(message("onboarding.aliasStatus.available"))).toBeVisible({
+        timeout: 20_000,
+      });
       await page.getByRole("button", { name: "Siguiente" }).click();
       await page.getByLabel("Fecha de nacimiento").fill("1992-02-02");
       await page.getByRole("button", { name: "Siguiente" }).click();
@@ -54,9 +60,26 @@ test.describe("curriculum and lessons", () => {
 
     test("quiz lessons show the question count and unpublished lessons 404", async ({ page }) => {
       await page.goto("/leccion/select-quiz");
-      await expect(page.getByText(/preguntas/).first()).toBeVisible();
-      // D-33: the attempt serves a sample of the bank, so the counter is the attempt size.
-      await expect(page.getByText("Pregunta 1 de 6")).toBeVisible();
+      // D-33/D-37: the attempt is a server-drawn sample and its length is per section (5, 6 or 10
+      // for the certificate gates), so the page is the source of truth for the number. Read the
+      // count the header announces, then require the runner to agree with it — a hardcoded 6 broke
+      // the moment a content decision changed one section's length.
+      const quiz = page.getByRole("region", { name: messagePattern("lesson.quiz.title") });
+      const header = quiz.getByText(messagePattern("lesson.quiz.title"));
+      await expect(header).toBeVisible();
+      const announced = messagePattern("lesson.quiz.title", { count: "([0-9]+)" }).exec(
+        await header.innerText(),
+      );
+      const total = Number(announced?.[1]);
+      expect(total).toBeGreaterThan(0);
+      const progress = page.getByRole("progressbar", { name: message("quiz.progressLabel") });
+      await expect(progress).toHaveAttribute("aria-valuemax", String(total));
+      await expect(progress).toHaveAttribute("aria-valuenow", "1");
+      // "Pregunta 1 de N" renders twice (the visible counter and the question's own heading), which
+      // is what made the old page-wide text locator a strict-mode violation; assert the heading.
+      await expect(
+        quiz.getByRole("heading", { name: message("quiz.progress", { current: 1, total }) }),
+      ).toHaveCount(1);
       // The route streams its shell before notFound() runs, so the HTTP status stays 200;
       // what matters to the learner is that the not-found page is rendered.
       await page.goto("/leccion/no-existe");

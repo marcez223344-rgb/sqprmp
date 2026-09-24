@@ -28,6 +28,17 @@ Progress rules; reward calculations and caps; free-exercise limit; entitlement l
 - No test may hit real Google, Mercado Pago or production Supabase; use local Supabase and provider sandboxes/mocks.
 - Every bug fix adds a regression test.
 - Flaky E2E tests are quarantined with an issue, not retried forever.
+- **Never hardcode a Spanish sentence that lives in `src/messages/es-419.json`.** Assert through a
+  role, a label or a stable attribute; when the visible text is genuinely the clearest assertion,
+  read it with `message()` / `messagePattern()` from `tests/e2e/helpers/messages.ts`, which also
+  turns a _deleted_ key into a loud failure instead of a locator that can never match. The
+  2026-09-23/24 copy rewrite broke five E2E tests at once for exactly this reason, and it hid a
+  real bug (four dashboard keys that existed in the code and not in the catalogue) for a day.
+  `tests/unit/message-keys.test.ts` is the cheap guard for that second failure; next-intl only logs
+  MISSING_MESSAGE and renders the key path, so nothing else fails the build.
+- A number that content or configuration owns (quiz length per section, the free-exercise limit)
+  is read from the page under test, never written into the assertion: D-37 invalidated
+  `"Pregunta 1 de 6"` overnight.
 - Coverage thresholds (Vitest): 85 % lines on `src/lib/**`.
 
 ## 5. Quality gate (`npm run quality`)

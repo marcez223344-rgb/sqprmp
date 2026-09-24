@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { limits } from "@/config/limits";
 
 /**
  * Shapes and URL-parameter parsing for the admin user directory and the audience statistics.
@@ -34,8 +35,12 @@ export const ENTITLEMENT_FILTERS = ["free", "paid", "promo", "granted"] as const
 export const AGE_BRACKETS = ["18_24", "25_34", "35_44", "45_plus", "unknown"] as const;
 export const COMPLETION_BUCKETS = ["0", "1_2", "3_5", "6_10", "11_plus"] as const;
 
-/** Rows per page. Server-side paginated, so this is the only thing the browser ever receives. */
-export const DIRECTORY_PAGE_SIZE = 25;
+/**
+ * Rows per page. Server-side paginated, so this is the only thing the browser ever receives.
+ * Raised from 25 to `limits.admin.directoryPageSize` because a page that ends after 25 people
+ * reads as "that is everyone" (owner feedback item 16).
+ */
+export const DIRECTORY_PAGE_SIZE = limits.admin.directoryPageSize;
 
 /**
  * Below this many learners, a percentage or a median says more about who happened to sign up

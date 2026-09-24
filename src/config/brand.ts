@@ -11,13 +11,21 @@ export const brand = {
     "Plataforma de aprendizaje de SQL para profesionales de América Latina: ejercicios con datos de negocio realistas, retroalimentación inmediata y certificados verificables.",
   locale: "es-419",
   defaultTimezone: "America/Argentina/Buenos_Aires",
+  /**
+   * `light` and `dark` pointed at `/brand/logo-light.svg` and `/brand/logo-dark.svg`, neither of
+   * which has ever existed in `public/brand/`. Nothing rendered them — `Logo` draws the wordmark
+   * as text plus a CSS mark (P-2), which is why the 404s were never noticed — so they were removed
+   * rather than left as a trap for the next component that trusts this config. `mark` is real and
+   * is what the Open Graph share card uses.
+   */
   logo: {
-    light: "/brand/logo-light.svg",
-    dark: "/brand/logo-dark.svg",
     mark: "/brand/mark.svg",
   },
   // Requires the datamindssolutions.com domain and a mailbox; see docs/DEPLOYMENT.md §2.
   supportEmail: "admin@datamindssolutions.com",
+  // The founder's consultancy, and the answer to "who is teaching me and why should I trust them".
+  // Supplied by the owner 2026-09-24 and verified live. Linked from /nosotros and the footer.
+  website: "https://www.datamindssolutions.com/",
   // D-09: the service is offered by the founder as an individual taxpayer (monotributo);
   // "Data Minds Solutions" is the trade name, not a company.
   legalName: "Marcelo Pisner — Data Minds Solutions",

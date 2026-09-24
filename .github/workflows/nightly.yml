@@ -17,12 +17,23 @@ jobs:
       - run: npm ci
       - run: npm audit --audit-level=moderate
 
-  # Keeps the Supabase Free dev project from pausing (7 idle days). Requires the
-  # SUPABASE_DEV_URL and SUPABASE_DEV_PUBLISHABLE_KEY repository secrets (names only here).
   keepalive:
+    # Supabase pauses a Free project after 7 idle days and a paused project takes the site down,
+    # so something has to touch Postgres at least weekly. Requesting the real public pages does
+    # that through the production app: it warms the Vercel function, exercises the database, and
+    # needs no credentials at all. The previous version was gated on a repository variable that
+    # was never set, so it had never run once.
     runs-on: ubuntu-latest
-    if: ${{ vars.SUPABASE_KEEPALIVE == 'true' }}
+    env:
+      SITE_URL: ${{ vars.PRODUCTION_URL || 'https://dataminds-sql-academy.vercel.app' }}
     steps:
-      - run: |
-          curl -fsS "${{ secrets.SUPABASE_DEV_URL }}/rest/v1/feature_flags?select=key&limit=1" \
-            -H "apikey: ${{ secrets.SUPABASE_DEV_PUBLISHABLE_KEY }}" > /dev/null
+      - name: Warm the site and its database
+        run: |
+          set -euo pipefail
+          failed=0
+          for path in / /curriculo; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 90 "${SITE_URL}${path}" || echo 000)
+            echo "${path} -> ${code}"
+            [ "$code" = "200" ] || failed=1
+          done
+          exit $failed

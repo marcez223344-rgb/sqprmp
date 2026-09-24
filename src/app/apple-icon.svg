@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Data Minds SQL Academy">
-  <rect width="64" height="64" rx="14" fill="#2b4fe0"/>
-  <ellipse cx="32" cy="20" rx="17" ry="6.5" fill="#ffffff"/>
-  <path d="M15 20v10c0 3.6 7.6 6.5 17 6.5s17-2.9 17-6.5V20" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round"/>
-  <path d="M15 33v10c0 3.6 7.6 6.5 17 6.5s17-2.9 17-6.5V33" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round"/>
-  <path d="M24 44.5 30 50l-6 5.5" fill="none" stroke="#f2652e" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M34.5 55.5h9" fill="none" stroke="#f2652e" stroke-width="4.5" stroke-linecap="round"/>
-</svg>

@@ -10,7 +10,10 @@ export default defineConfig({
   // Every sandbox test boots a PGlite instance (WASM in the page, worker_threads on the server).
   // On a 2-core CI runner that also hosts the Supabase stack, parallel workers exhausted memory
   // and the engine failed to start ("No pudimos iniciar el motor"); one worker keeps CI honest.
-  workers: process.env.CI ? 1 : undefined,
+  // A development machine runs the same Supabase stack in Docker next to the tests, and the
+  // default worker count starves the app there too: pages then exceed the navigation timeout and
+  // the failures read like product bugs. One worker everywhere, so local and CI agree.
+  workers: 1,
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
   use: {
     baseURL: `http://localhost:${port}`,

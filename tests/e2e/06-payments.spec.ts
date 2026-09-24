@@ -8,12 +8,19 @@ import {
   signInAs,
   type TestUser,
 } from "./helpers/auth";
+import { message, messagePattern } from "./helpers/messages";
 
 async function onboard(page: Page, name: string) {
+  const alias = `p_${Date.now().toString(36).slice(-7)}`;
   await page.goto("/onboarding");
   await page.getByLabel("Nombre para mostrar").fill(name);
-  await page.getByLabel("Alias").fill(`p_${Date.now().toString(36).slice(-7)}`);
-  await expect(page.getByText("Disponible")).toBeVisible();
+  await page.getByLabel("Alias").fill(alias);
+  // The availability check is debounced (450 ms) and then round-trips to the server; on a
+  // loaded machine that exceeds the 5 s default and the helper fails before the journey
+  // under test starts. 02-onboarding.spec.ts is where this check is the subject.
+  await expect(page.getByText(message("onboarding.aliasStatus.available"))).toBeVisible({
+    timeout: 20_000,
+  });
   await page.getByRole("button", { name: "Siguiente" }).click();
   await page.getByLabel("Fecha de nacimiento").fill("1990-09-09");
   await page.getByRole("button", { name: "Siguiente" }).click();
@@ -21,6 +28,7 @@ async function onboard(page: Page, name: string) {
   await page.getByLabel(/Política de privacidad/).check();
   await page.getByRole("button", { name: "Terminar y empezar" }).click();
   await expect(page).toHaveURL(/\/aprender/);
+  return alias;
 }
 
 /** Journeys 9–10: manual transfer → admin approval → premium access; plus webhook security. */
@@ -30,6 +38,7 @@ test.describe("payments and entitlements", () => {
 
   let learner: TestUser;
   let admin: TestUser;
+  let learnerAlias = "";
 
   test.beforeAll(async ({ browser }) => {
     learner = await createTestUser("learner");
@@ -41,7 +50,8 @@ test.describe("payments and entitlements", () => {
       const context = await browser.newContext();
       await signInAs(context, u);
       const page = await context.newPage();
-      await onboard(page, u === admin ? "Admin Prueba" : "Learner Prueba");
+      const alias = await onboard(page, u === admin ? "Admin Prueba" : "Learner Prueba");
+      if (u === learner) learnerAlias = alias;
       await context.close();
     }
     await service.from("profiles").update({ role: "admin" }).eq("id", admin.id);
@@ -65,7 +75,9 @@ test.describe("payments and entitlements", () => {
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     }
     await page.goto("/ejercicio/paises-con-clientes");
-    await expect(page.getByText("Alcanzaste el límite gratuito")).toBeVisible();
+    await expect(
+      page.getByRole("heading", { level: 2, name: messagePattern("workspace.locked.title") }),
+    ).toBeVisible();
 
     await page.goto("/precios");
     await page.getByRole("button", { name: "Wallbit (USD)" }).click();
@@ -85,9 +97,19 @@ test.describe("payments and entitlements", () => {
     const adminPage = await adminContext.newPage();
     await adminPage.goto("/admin/accesos");
     await expect(adminPage.getByRole("heading", { level: 1 })).toContainText("Accesos");
-    adminPage.once("dialog", (d) => d.accept("comprobante ok"));
-    await adminPage.getByRole("button", { name: "Aprobar" }).first().click();
-    await expect(adminPage.getByText("Pago aprobado")).toBeVisible();
+    // The justification is asked for in an accessible <dialog>, not in window.prompt, so a
+    // `page.on("dialog")` handler never fires and the approval never ran. Approve the row that
+    // belongs to *this* learner: earlier runs leave their own pending transfers behind, and
+    // `.first()` silently approved someone else's.
+    const approve = message("admin.access.pending.approve");
+    const row = adminPage.getByRole("row", { name: new RegExp(learnerAlias) });
+    await row.getByRole("button", { name: approve }).click();
+    const reason = adminPage.getByRole("dialog", { name: approve });
+    await reason
+      .getByRole("textbox", { name: message("admin.access.notePrompt") })
+      .fill("comprobante ok");
+    await reason.getByRole("button", { name: approve }).click();
+    await expect(adminPage.getByText(message("admin.access.approved"))).toBeVisible();
     await adminContext.close();
 
     await signInAs(context, learner);

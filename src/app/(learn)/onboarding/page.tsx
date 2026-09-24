@@ -32,10 +32,12 @@ export default async function OnboardingPage({ searchParams }: PageProps<"/onboa
         <h1 className="text-3xl">{t("title")}</h1>
         <p className="text-muted">{t("intro")}</p>
       </header>
+      {/* The Google name arrives as a *suggestion*, never as a value: pre-filling it published the
+          learner's legal name as their public display name without them choosing it. */}
       <OnboardingForm
         avatars={avatars ?? []}
         next={next}
-        defaults={{ display_name: profile.display_name ?? "" }}
+        suggestedName={profile.display_name ?? ""}
       />
     </div>
   );

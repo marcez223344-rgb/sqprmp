@@ -536,6 +536,7 @@ export type Database = {
           ends_at: string | null;
           revoked_at: string | null;
           revoked_reason: string | null;
+          acknowledged_at: string | null;
           created_by: string | null;
           created_at: string;
         };
@@ -549,6 +550,7 @@ export type Database = {
           ends_at?: string | null;
           revoked_at?: string | null;
           revoked_reason?: string | null;
+          acknowledged_at?: string | null;
           created_by?: string | null;
           created_at?: string;
         };
@@ -562,6 +564,7 @@ export type Database = {
           ends_at?: string | null;
           revoked_at?: string | null;
           revoked_reason?: string | null;
+          acknowledged_at?: string | null;
           created_by?: string | null;
           created_at?: string;
         };
@@ -2400,6 +2403,41 @@ export type Database = {
           deleted_at: string | null;
         }[];
       };
+      admin_grant_access: {
+        Args: {
+          p_user_id: string;
+          p_kind: string;
+          p_access_days: number | null;
+          p_actor: string;
+          p_reason: string;
+          p_price_id?: string | null;
+          p_amount_minor?: number | null;
+          p_currency?: string | null;
+          p_reference?: string | null;
+        };
+        Returns: string;
+      };
+      admin_search_learners: {
+        Args: { p_query: string; p_limit?: number };
+        Returns: {
+          id: string;
+          alias: string | null;
+          display_name: string | null;
+          entitlement: string;
+          is_deleted: boolean;
+        }[];
+      };
+      admin_audit: {
+        Args: {
+          p_actor: string;
+          p_action: string;
+          p_target_table: string | null;
+          p_target_id: string | null;
+          p_diff: Json;
+        };
+        Returns: undefined;
+      };
+      acknowledge_entitlements: { Args: Record<string, never>; Returns: number };
       admin_metrics: { Args: { p_free_limit: number }; Returns: Json };
       create_promo_code: {
         Args: {

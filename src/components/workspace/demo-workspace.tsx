@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { BrowserEngine, type BrowserEngineState } from "@/lib/sandbox/browser-engine";
 import type { SandboxOutcome } from "@/lib/sandbox/types";
 import { ResultsTable } from "./results-table";
+import { useAppleShortcutKey } from "./use-apple-platform";
 
 const SqlEditor = dynamic(() => import("./sql-editor").then((m) => m.SqlEditor), {
   ssr: false,
@@ -26,6 +27,7 @@ ORDER BY orders DESC;`;
 /** Public, unauthenticated demo of the browser engine on the TiendaViva dataset (no grading). */
 export function DemoWorkspace({ schema }: { schema: Record<string, string[]> }) {
   const t = useTranslations("demo");
+  const apple = useAppleShortcutKey();
   const [sqlText, setSqlText] = useState(SAMPLE);
   const [result, setResult] = useState<SandboxOutcome | null>(null);
   const [state, setState] = useState<BrowserEngineState>("idle");
@@ -88,7 +90,7 @@ export function DemoWorkspace({ schema }: { schema: Record<string, string[]> }) 
           )}
           {t("run")}
         </Button>
-        <span className="text-muted text-xs">{t("shortcut")}</span>
+        <span className="text-muted text-xs">{apple ? t("shortcut.cmd") : t("shortcut.ctrl")}</span>
       </div>
       <ResultsTable outcome={result} sql={sqlText} caption={t("caption")} />
     </div>

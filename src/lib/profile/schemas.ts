@@ -55,6 +55,9 @@ export const aboutStepSchema = z.object({
 export const consentStepSchema = z.object({
   accept_terms: z.literal(true, { error: "consent_required" }),
   accept_privacy: z.literal(true, { error: "consent_required" }),
+  // Publishing alias, avatar, level, XP and weekly practice to other learners is never a default
+  // (D-35): an absent value means "no".
+  leaderboard_opt_in: z.boolean().default(false),
 });
 
 export const onboardingSchema = identityStepSchema

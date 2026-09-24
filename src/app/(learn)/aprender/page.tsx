@@ -119,9 +119,14 @@ export default async function DashboardPage() {
         {/* The focal card: the only action on this page that matters, with the same treatment the
             continuable section gets on /ruta. */}
         <Card className="ring-primary/45 space-y-3 ring-2 md:col-span-2">
-          <h2 className="text-xl">{t("continue.title")}</h2>
+          {/* "Continuar" on an account that has done nothing is a lie the learner notices
+              (owner feedback 2026-09-24): the first visit invites, later visits resume. */}
+          <h2 className="text-xl">{d.hasStarted ? t("continue.title") : t("continue.titleNew")}</h2>
           {d.continueTarget ? (
             <>
+              {!d.hasStarted ? (
+                <p className="text-muted text-sm">{t("continue.introNew")}</p>
+              ) : null}
               <p className="text-muted">
                 {d.continueTarget.sectionTitle} · {d.continueTarget.title}
               </p>
@@ -133,7 +138,7 @@ export default async function DashboardPage() {
                 }
                 className={cn(buttonVariants(), "w-fit")}
               >
-                {t("continue.cta")}
+                {d.hasStarted ? t("continue.cta") : t("continue.ctaNew")}
                 <ArrowRight aria-hidden="true" />
               </Link>
             </>
@@ -266,6 +271,9 @@ export default async function DashboardPage() {
       </Card>
 
       <nav aria-label={t("links.label")} className="flex flex-wrap gap-4 text-sm">
+        <Link href="/ruta" className="text-primary underline underline-offset-4">
+          {t("links.path")}
+        </Link>
         <Link href="/historial" className="text-primary underline underline-offset-4">
           {t("links.history")}
         </Link>

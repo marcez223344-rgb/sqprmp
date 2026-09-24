@@ -4,11 +4,16 @@ import { getTranslations } from "next-intl/server";
 import { Card } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { limits } from "@/config/limits";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 import { cn } from "@/lib/utils/cn";
 
 export async function generateMetadata() {
   const t = await getTranslations("howItWorks");
-  return { title: t("title") };
+  return buildPageMetadata({
+    path: "/como-funciona",
+    title: t("title"),
+    description: t("intro"),
+  });
 }
 
 /** Product walkthrough; numbers come from src/config/limits so the page never drifts from behavior. */

@@ -8,6 +8,7 @@ import {
   DIRECTORY_PAGE_SIZE,
   ENTITLEMENT_FILTERS,
   directoryHref,
+  directoryQuery,
   parseDirectoryParams,
 } from "@/lib/admin/directory";
 import { findUsersAdmin, getUserDetailAdmin, listUsersAdmin } from "@/lib/admin/queries";
@@ -51,10 +52,18 @@ export default async function AdminUsersPage({ searchParams }: PageProps<"/admin
       <header className="space-y-1">
         <h1 className="text-3xl">{t("title")}</h1>
         <p className="text-muted">{t("intro")}</p>
-        <p className="text-sm">
+        <p className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
           <Link href="/admin/metricas" className="text-primary underline underline-offset-4">
             {t("statsLink")}
           </Link>
+          {/* Exports the current filter, server-side and audit-logged. */}
+          <a
+            href={`/admin/usuarios/exportar${directoryQuery(params) ? `?${directoryQuery(params)}` : ""}`}
+            className="text-primary underline underline-offset-4"
+            download
+          >
+            {t("exportCsv")}
+          </a>
         </p>
       </header>
 

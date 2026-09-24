@@ -32,7 +32,8 @@
     "content:apply": "npm run content:apply:content && npm run content:apply:expected",
     "content:apply:content": "node scripts/apply-content-seed.mjs supabase/seed/0002_content.sql",
     "content:apply:expected": "node scripts/apply-content-seed.mjs supabase/seed/0003_expected_results.sql",
-    "content:apply:dry": "node scripts/apply-content-seed.mjs supabase/seed/0002_content.sql --dry-run && node scripts/apply-content-seed.mjs supabase/seed/0003_expected_results.sql --dry-run"
+    "content:apply:dry": "node scripts/apply-content-seed.mjs supabase/seed/0002_content.sql --dry-run && node scripts/apply-content-seed.mjs supabase/seed/0003_expected_results.sql --dry-run",
+    "db:backup": "node scripts/db-backup.mjs"
   },
   "dependencies": {
     "@codemirror/commands": "^6.11.1",

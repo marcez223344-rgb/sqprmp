@@ -2,6 +2,7 @@ import "server-only";
 import { features } from "@/config/features";
 import { limits } from "@/config/limits";
 import { createAdminClient } from "@/lib/supabase/admin";
+import type { Json } from "@/types/database";
 import {
   DIRECTORY_PAGE_SIZE,
   escapeLikeTerm,
@@ -133,8 +134,28 @@ export async function getPromoCodesAdmin() {
   return data ?? [];
 }
 
-export async function getAuditLogsAdmin(filter: { action?: string; target?: string } = {}) {
-  let q = createAdminClient()
+export interface AuditLogRow {
+  id: number;
+  actor_id: string | null;
+  actor_role: string;
+  actor_alias: string | null;
+  action: string;
+  target_table: string | null;
+  target_id: string | null;
+  /** Alias of the learner the entry is about, when the row or its diff names one. */
+  subject_alias: string | null;
+  diff: Json | null;
+  created_at: string;
+}
+
+/** Uuid-shaped strings in the diff that could be a profile id worth resolving to an alias. */
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export async function getAuditLogsAdmin(
+  filter: { action?: string; target?: string } = {},
+): Promise<AuditLogRow[]> {
+  const admin = createAdminClient();
+  let q = admin
     .from("audit_logs")
     .select("id, actor_id, actor_role, action, target_table, target_id, diff, created_at")
     .order("created_at", { ascending: false })
@@ -145,7 +166,103 @@ export async function getAuditLogsAdmin(filter: { action?: string; target?: stri
   // /^[A-Za-z0-9:_-]{0,80}$/, so it cannot break out of the `or` expression.
   if (filter.target) q = q.or(`target_id.eq.${filter.target},target_table.eq.${filter.target}`);
   const { data } = await q;
-  return data ?? [];
+  const rows = data ?? [];
+
+  // "Who did what to whom" is unreadable as two uuids (owner feedback item 17). Both sides are
+  // resolved to aliases in one extra query: the actor, and the learner named by `diff.user_id`
+  // (every grant, revocation and reconciliation records it) or by a profiles-table target.
+  const ids = new Set<string>();
+  for (const r of rows) {
+    if (r.actor_id) ids.add(r.actor_id);
+    const subject = (r.diff as { user_id?: unknown } | null)?.user_id;
+    if (typeof subject === "string" && UUID_RE.test(subject)) ids.add(subject);
+    if (r.target_table === "profiles" && r.target_id && UUID_RE.test(r.target_id))
+      ids.add(r.target_id);
+  }
+  const aliases = new Map<string, string | null>();
+  if (ids.size > 0) {
+    const { data: profiles } = await admin
+      .from("profiles")
+      .select("id, alias")
+      .in("id", [...ids]);
+    for (const p of profiles ?? []) aliases.set(p.id, p.alias);
+  }
+  return rows.map((r) => {
+    const subject = (r.diff as { user_id?: unknown } | null)?.user_id;
+    const subjectId =
+      typeof subject === "string" && UUID_RE.test(subject)
+        ? subject
+        : r.target_table === "profiles" && r.target_id && UUID_RE.test(r.target_id)
+          ? r.target_id
+          : null;
+    return {
+      ...r,
+      actor_alias: r.actor_id ? (aliases.get(r.actor_id) ?? null) : null,
+      subject_alias: subjectId ? (aliases.get(subjectId) ?? null) : null,
+    };
+  });
+}
+
+/**
+ * Search-as-you-type for the admin forms (owner feedback item 21): alias and display name only.
+ * Emails are deliberately absent — the admin picks a learner, they do not need to see a mailbox.
+ */
+export async function searchLearnersAdmin(query: string) {
+  const { data } = await createAdminClient().rpc("admin_search_learners", {
+    p_query: escapeLikeTerm(query),
+    p_limit: limits.admin.learnerPickerResults,
+  });
+  return (data ?? []).map((r) => ({
+    id: r.id,
+    alias: r.alias,
+    displayName: r.display_name,
+    entitlement: r.entitlement as EntitlementStatus,
+  }));
+}
+
+/** Token bucket for the export route; the admin client never leaves `src/lib/**`. */
+export async function exportRateLimited(adminId: string): Promise<boolean> {
+  const { data, error } = await createAdminClient().rpc("consume_rate_limit", {
+    p_key: `admin-export:${adminId}`,
+    p_capacity: limits.rateLimits.adminExport.capacity,
+    p_refill_per_second: limits.rateLimits.adminExport.refillPerSecond,
+  });
+  return Boolean(error) || data === false;
+}
+
+/** An export is a privileged read of everybody at once, so it is audited like any grant. */
+export async function logUsersExport(
+  adminId: string,
+  detail: { rows: number; total: number; truncated: boolean; params: DirectoryParams },
+): Promise<void> {
+  await createAdminClient().rpc("admin_audit", {
+    p_actor: adminId,
+    p_action: "users.exported",
+    p_target_table: "profiles",
+    p_target_id: null,
+    p_diff: {
+      rows: detail.rows,
+      total: detail.total,
+      truncated: detail.truncated,
+      filters: {
+        search: detail.params.search || null,
+        country: detail.params.country || null,
+        entitlement: detail.params.entitlement || null,
+        include_deleted: detail.params.includeDeleted,
+      },
+    },
+  });
+}
+
+/**
+ * Every row of the current filter, for the CSV export. Reads through the same function as the
+ * on-screen listing, so the export can never contain a column the directory does not show.
+ */
+export async function exportUsersAdmin(
+  params: DirectoryParams,
+): Promise<{ rows: AdminUserRow[]; total: number; truncated: boolean }> {
+  const { rows, total } = await listUsersAdmin({ ...params, page: 1 }, limits.admin.exportMaxRows);
+  return { rows, total, truncated: total > rows.length };
 }
 
 /**
@@ -155,6 +272,7 @@ export async function getAuditLogsAdmin(filter: { action?: string; target?: stri
  */
 export async function listUsersAdmin(
   params: DirectoryParams,
+  pageSize: number = DIRECTORY_PAGE_SIZE,
 ): Promise<{ rows: AdminUserRow[]; total: number }> {
   const { data, error } = await createAdminClient().rpc("admin_user_directory", {
     p_search: params.search ? escapeLikeTerm(params.search) : null,
@@ -163,8 +281,8 @@ export async function listUsersAdmin(
     p_include_deleted: params.includeDeleted,
     p_sort: params.sort,
     p_desc: params.desc,
-    p_limit: DIRECTORY_PAGE_SIZE,
-    p_offset: (params.page - 1) * DIRECTORY_PAGE_SIZE,
+    p_limit: pageSize,
+    p_offset: (params.page - 1) * pageSize,
   });
   if (error || !data) return { rows: [], total: 0 };
   return {

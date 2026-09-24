@@ -9,6 +9,8 @@ import { LockedWorkspace } from "@/components/workspace/locked-workspace";
 import { hasActiveEntitlement } from "@/lib/auth/entitlements";
 import { requireOnboardedProfile } from "@/lib/auth/session";
 import { ensureExerciseStarted, getExerciseWorkspace } from "@/lib/exercises/service";
+import { brand } from "@/config/brand";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 import { createClient } from "@/lib/supabase/server";
 
 export async function generateMetadata({ params }: PageProps<"/ejercicio/[slug]">) {
@@ -18,10 +20,17 @@ export async function generateMetadata({ params }: PageProps<"/ejercicio/[slug]"
   const supabase = await createClient();
   const { data } = await supabase
     .from("exercises_public")
-    .select("title")
+    .select("title, learning_objective")
     .eq("slug", slug)
     .maybeSingle();
-  return { title: data?.title ?? "Ejercicio" };
+  // Auth-gated like /leccion: the card is for learners sharing the link, not for crawlers.
+  return buildPageMetadata({
+    path: `/ejercicio/${slug}`,
+    title: data?.title ?? "Ejercicio",
+    description: data?.learning_objective ?? brand.description,
+    type: "article",
+    noIndex: true,
+  });
 }
 
 export default async function ExercisePage({ params }: PageProps<"/ejercicio/[slug]">) {

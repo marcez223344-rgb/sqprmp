@@ -32,21 +32,23 @@ interface AvatarOption {
 interface Props {
   avatars: AvatarOption[];
   next: string;
-  defaults: { display_name: string };
+  /** Name from the Google profile. Offered, never pre-filled: see `NameSuggestion`. */
+  suggestedName: string;
 }
 
 type Step = 0 | 1 | 2;
 const stepFields: Record<Step, (keyof OnboardingValues)[]> = {
   0: ["display_name", "alias", "avatar_id"],
   1: ["country", "birth_date", "gender", "sql_level", "main_goal", "weekly_goal_minutes"],
-  2: ["accept_terms", "accept_privacy"],
+  2: ["accept_terms", "accept_privacy", "leaderboard_opt_in"],
 };
 
 type AliasState = "idle" | "checking" | "available" | "taken" | "invalid" | "unknown";
 
-export function OnboardingForm({ avatars, next, defaults }: Props) {
+export function OnboardingForm({ avatars, next, suggestedName }: Props) {
   const t = useTranslations("onboarding");
   const tc = useTranslations("common");
+  const tp = useTranslations("profile");
   const [step, setStep] = useState<Step>(0);
   const [pending, startTransition] = useTransition();
   const [serverError, setServerError] = useState<string | null>(null);
@@ -54,12 +56,13 @@ export function OnboardingForm({ avatars, next, defaults }: Props) {
   // A failed availability check must not trap the learner: the server re-validates on submit.
   const [aliasCheckFailed, setAliasCheckFailed] = useState(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const [suggestionDismissed, setSuggestionDismissed] = useState(false);
 
   const form = useForm<OnboardingInput, unknown, OnboardingValues>({
     resolver: zodResolver(onboardingSchema),
     mode: "onTouched",
     defaultValues: {
-      display_name: defaults.display_name,
+      display_name: "",
       alias: "",
       avatar_id: avatars[0]?.id ?? "",
       country: "AR",
@@ -70,10 +73,12 @@ export function OnboardingForm({ avatars, next, defaults }: Props) {
       weekly_goal_minutes: 120,
       accept_terms: undefined,
       accept_privacy: undefined,
+      leaderboard_opt_in: false,
     },
   });
 
   const alias = useWatch({ control: form.control, name: "alias" });
+  const displayName = useWatch({ control: form.control, name: "display_name" });
 
   const aliasValid = Boolean(alias) && aliasSchema.safeParse(alias).success;
   const aliasState: AliasState = !alias
@@ -185,10 +190,32 @@ export function OnboardingForm({ avatars, next, defaults }: Props) {
               id="display_name"
               className="input"
               maxLength={limits.profile.displayNameMaxLength}
-              autoComplete="name"
+              autoComplete="off"
               {...form.register("display_name")}
             />
           </Field>
+
+          {/* Offered, not applied: the Google name is the learner's legal name, and this field is
+              public. Accepting it has to be a decision, not a default nobody noticed. */}
+          {suggestedName && !suggestionDismissed && !displayName ? (
+            <div className="border-border bg-surface flex flex-wrap items-center gap-3 rounded-md border p-3 text-sm">
+              <p className="text-muted">{t("nameSuggestion.body", { name: suggestedName })}</p>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  form.setValue("display_name", suggestedName, { shouldValidate: true });
+                  setSuggestionDismissed(true);
+                  document.getElementById("display_name")?.focus();
+                }}
+              >
+                {t("nameSuggestion.use")}
+              </Button>
+              <Button type="button" variant="ghost" onClick={() => setSuggestionDismissed(true)}>
+                {t("nameSuggestion.dismiss")}
+              </Button>
+            </div>
+          ) : null}
 
           <Field
             id="alias"
@@ -435,6 +462,20 @@ export function OnboardingForm({ avatars, next, defaults }: Props) {
               {t("errors.consent_required")}
             </p>
           ) : null}
+
+          {/* Optional and always unticked (D-35). Same sentence as /perfil: one consent, one
+              wording. Without it here, nobody discovered the ranking existed. */}
+          <label className="flex items-start gap-3">
+            <input
+              type="checkbox"
+              className="mt-1 size-4"
+              {...form.register("leaderboard_opt_in")}
+            />
+            <span className="text-sm">
+              <span className="block font-medium">{tp("fields.leaderboardOptIn")}</span>
+              <span className="text-muted">{tp("hints.leaderboardOptIn")}</span>
+            </span>
+          </label>
         </fieldset>
       ) : null}
 

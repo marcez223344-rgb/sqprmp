@@ -68,6 +68,9 @@ export default async function AdminAuditPage({ searchParams }: PageProps<"/admin
                     {t("cols.actor")}
                   </th>
                   <th scope="col" className="py-2 pr-3 font-medium">
+                    {t("cols.subject")}
+                  </th>
+                  <th scope="col" className="py-2 pr-3 font-medium">
                     {t("cols.action")}
                   </th>
                   <th scope="col" className="py-2 pr-3 font-medium">
@@ -87,13 +90,18 @@ export default async function AdminAuditPage({ searchParams }: PageProps<"/admin
                         timeStyle: "short",
                       })}
                     </td>
+                    {/* Aliases first: "who did what to whom" was two uuids before (item 17). */}
                     <td className="py-2 pr-3">
-                      {l.actor_role}
-                      {l.actor_id ? (
-                        <span className="text-muted block font-mono text-xs">
-                          {l.actor_id.slice(0, 8)}
-                        </span>
-                      ) : null}
+                      {l.actor_alias ? `@${l.actor_alias}` : t(`roles.${l.actor_role}` as never)}
+                      <span className="text-muted block text-xs">
+                        {l.actor_alias ? t(`roles.${l.actor_role}` as never) : null}
+                        {l.actor_id ? (
+                          <span className="font-mono"> {l.actor_id.slice(0, 8)}</span>
+                        ) : null}
+                      </span>
+                    </td>
+                    <td className="py-2 pr-3">
+                      {l.subject_alias ? `@${l.subject_alias}` : <span aria-hidden="true">—</span>}
                     </td>
                     <td className="py-2 pr-3 font-mono">{l.action}</td>
                     <td className="py-2 pr-3 font-mono text-xs">

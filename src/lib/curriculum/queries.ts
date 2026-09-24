@@ -1,6 +1,8 @@
 import "server-only";
 import { cache } from "react";
+import { revalidateTag, unstable_cache } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createAnonClient } from "@/lib/supabase/anon";
 import {
   lessonStatusForExercise,
   mergeLessonStatus,
@@ -43,23 +45,64 @@ export interface PathSection extends Pick<
 
 export const LEVEL_ORDER = ["beginner", "intermediate", "advanced", "expert"] as const;
 
+export const CURRICULUM_CACHE_TAG = "curriculum";
+
+/**
+ * Columns the learning path actually renders. `lessons_public` also exposes `body_md_free`, the
+ * full markdown of every free lesson: selecting `*` pulled ~180 KB from Postgres on every render
+ * of `/`, `/curriculo` and `/ruta` and threw all of it away.
+ */
+const PATH_LESSON_COLUMNS =
+  "id, section_id, slug, kind, title, sort_order, estimated_minutes, ref_slug, is_free, is_published";
+
+/**
+ * The catalogue (sections + published lessons) is the same bytes for every visitor, so it is
+ * fetched once per `revalidate` window instead of once per request. It must not read cookies,
+ * hence the anonymous client; both tables are readable by `anon` under RLS and `lessons_public`
+ * already filters to published rows for every role.
+ *
+ * Staleness window: a deploy clears the cache, and publishing changes made in the admin UI take
+ * effect within the window or immediately via `revalidateCurriculum()`.
+ */
+const getCatalogue = unstable_cache(
+  async () => {
+    const supabase = createAnonClient();
+    const [{ data: sections }, { data: lessons }] = await Promise.all([
+      supabase.from("sections").select("*").order("number"),
+      supabase.from("lessons_public").select(PATH_LESSON_COLUMNS).order("sort_order"),
+    ]);
+    return { sections: sections ?? [], lessons: lessons ?? [] };
+  },
+  ["curriculum-catalogue"],
+  { revalidate: 300, tags: [CURRICULUM_CACHE_TAG] },
+);
+
+/**
+ * Drops the cached catalogue after content is published or unpublished. Server Actions should
+ * prefer `updateTag` for read-your-own-writes; this is the route-handler / script equivalent.
+ */
+export function revalidateCurriculum() {
+  revalidateTag(CURRICULUM_CACHE_TAG, { expire: 0 });
+}
+
 /** Full path with per-lesson progress for the current user (or none for anonymous). */
 export const getLearningPath = cache(async (userId?: string): Promise<PathSection[]> => {
-  const supabase = await createClient();
-  const [{ data: sections }, { data: lessons }, progress, exerciseProgress, { data: exercises }] =
+  // Anonymous visitors need no cookie-bound client at all, so the public catalogue pages do not
+  // pay for a session read on top of the one proxy.ts already did.
+  const supabase = userId ? await createClient() : null;
+  const [{ sections, lessons }, progress, exerciseProgress, { data: exercises }] =
     await Promise.all([
-      supabase.from("sections").select("*").order("number"),
-      supabase.from("lessons_public").select("*").order("sort_order"),
-      userId
+      getCatalogue(),
+      userId && supabase
         ? supabase.from("lesson_progress").select("lesson_id, status").eq("user_id", userId)
         : Promise.resolve({ data: [] as { lesson_id: string; status: string }[] }),
       // An exercise lesson's real state lives in exercise_progress; lesson_progress is a
       // denormalisation kept in sync by an RPC. Reading both means a missed sync (or a row written
       // before the sync existed) can never make a solved exercise look untouched.
-      userId
+      userId && supabase
         ? supabase.from("exercise_progress").select("exercise_id, status").eq("user_id", userId)
         : Promise.resolve({ data: [] as { exercise_id: string; status: string }[] }),
-      userId
+      userId && supabase
         ? supabase.from("exercises_public").select("id, slug, lesson_id")
         : Promise.resolve({
             data: [] as { id: string | null; slug: string | null; lesson_id: string | null }[],
@@ -93,8 +136,8 @@ export const getLearningPath = cache(async (userId?: string): Promise<PathSectio
     return mergeLessonStatus(stored, derived);
   };
 
-  return (sections ?? []).map((s) => {
-    const sectionLessons: PathLesson[] = (lessons ?? [])
+  return sections.map((s) => {
+    const sectionLessons: PathLesson[] = lessons
       .filter((l) => l.section_id === s.id && l.id && l.slug)
       .map((l) => ({
         id: l.id as string,

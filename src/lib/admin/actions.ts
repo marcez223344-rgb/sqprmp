@@ -2,15 +2,34 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { limits } from "@/config/limits";
 import { track } from "@/lib/analytics/track";
+import { searchLearnersAdmin } from "@/lib/admin/queries";
 import { getCurrentProfile } from "@/lib/auth/session";
+import { ACCESS_GRANT_KINDS, MAX_ACCESS_DAYS } from "@/lib/payments/access-grants";
+import {
+  generatePromoCode,
+  normalizePromoCode,
+  PROMO_CODE_PATTERN,
+} from "@/lib/payments/promo-code";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 type Result = { ok: true } | { ok: false; error: string };
+type ResultWith<T> = { ok: true; data: T } | { ok: false; error: string };
 
 async function requireAdminProfile() {
   const profile = await getCurrentProfile();
   return profile && profile.role === "admin" && !profile.deleted_at ? profile : null;
+}
+
+/** Token bucket shared with the learner-facing actions; admin calls are user-triggered too. */
+async function limited(key: string, rule: { capacity: number; refillPerSecond: number }) {
+  const { data, error } = await createAdminClient().rpc("consume_rate_limit", {
+    p_key: key,
+    p_capacity: rule.capacity,
+    p_refill_per_second: rule.refillPerSecond,
+  });
+  return Boolean(error) || data === false;
 }
 
 export async function reviewManualPurchaseAction(
@@ -51,47 +70,118 @@ export async function reviewManualPurchaseAction(
       );
   }
   revalidatePath("/admin/accesos");
+  revalidatePath("/acceso");
+  revalidatePath("/ruta");
   return { ok: true };
 }
 
-export async function grantAccessByAliasAction(
-  rawAlias: unknown,
-  rawDays: unknown,
-  rawReason: unknown,
-): Promise<Result> {
+/**
+ * Gives a learner access, saying which of the two things happened (owner feedback item 22):
+ *
+ *   kind = "comp"    beca / cortesía — nobody paid. Entitlement source `admin` ("otorgado").
+ *   kind = "payment" the learner transferred the money outside the app. An approved purchase is
+ *                    recorded with the amount, the currency and the bank reference, and the
+ *                    entitlement is sourced from it ("pagado"), so revenue figures are truthful.
+ *
+ * The learner is chosen by id from the picker; the alias field is gone (item 21). Both branches
+ * are audit-logged inside `admin_grant_access`.
+ */
+export async function grantAccessAction(raw: unknown): Promise<Result> {
   const admin = await requireAdminProfile();
   if (!admin) return { ok: false, error: "unauthorized" };
   const parsed = z
     .object({
-      alias: z.string().trim().toLowerCase().min(3).max(20),
-      days: z.coerce.number().int().min(1).max(3650).nullable(),
+      userId: z.uuid(),
+      kind: z.enum(ACCESS_GRANT_KINDS),
+      days: z.preprocess(
+        (v) => (v === "" || v === null || v === undefined ? null : v),
+        z.coerce.number().int().min(1).max(MAX_ACCESS_DAYS).nullable(),
+      ),
+      reference: z.preprocess(
+        (v) => (typeof v === "string" ? v.trim() : v),
+        z
+          .string()
+          .max(60)
+          .regex(/^[A-Za-z0-9 ._/-]*$/)
+          .optional(),
+      ),
       reason: z.string().trim().min(3).max(500),
     })
-    .safeParse({
-      alias: rawAlias,
-      days: rawDays === "" || rawDays === null || rawDays === undefined ? null : rawDays,
-      reason: rawReason,
-    });
+    .safeParse(raw);
   if (!parsed.success) return { ok: false, error: "validation" };
+  if (await limited(`admin-grant:${admin.id}`, limits.rateLimits.checkout))
+    return { ok: false, error: "rate_limited" };
+
   const client = createAdminClient();
-  const { data: target } = await client
-    .from("profiles")
-    .select("id")
-    .eq("alias", parsed.data.alias)
-    .is("deleted_at", null)
-    .maybeSingle();
-  if (!target) return { ok: false, error: "user_not_found" };
-  const { error } = await client.rpc("grant_entitlement", {
-    p_user_id: target.id,
-    p_source: "admin",
-    p_source_id: null,
+  const { error } = await client.rpc("admin_grant_access", {
+    p_user_id: parsed.data.userId,
+    p_kind: parsed.data.kind,
     p_access_days: parsed.data.days,
-    p_created_by: admin.id,
+    p_actor: admin.id,
     p_reason: parsed.data.reason,
+    p_price_id: null,
+    p_amount_minor: null,
+    p_currency: null,
+    p_reference: parsed.data.reference || null,
   });
-  if (error) return { ok: false, error: "unknown" };
+  if (error) return { ok: false, error: error.code === "P0002" ? "user_not_found" : "unknown" };
+
+  // The funnel event is emitted with the figures actually written, never with placeholders: an
+  // invented amount would show up as revenue in the analytics and nowhere in the books.
+  if (parsed.data.kind === "payment") {
+    const { data: purchase } = await client
+      .from("purchases")
+      .select("amount_minor, currency, prices(products(slug))")
+      .eq("user_id", parsed.data.userId)
+      .eq("status", "approved")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (purchase)
+      await track(
+        "purchase_completed",
+        {
+          product_slug:
+            (purchase.prices as { products: { slug: string } | null } | null)?.products?.slug ??
+            null,
+          provider: "manual",
+          currency: purchase.currency,
+          amount_minor: purchase.amount_minor,
+        },
+        { userId: parsed.data.userId },
+      );
+  }
   revalidatePath("/admin/accesos");
+  revalidatePath("/admin/usuarios");
+  // The learner's own pages read the entitlement on the server, but their cached RSC payloads
+  // would otherwise keep the pre-grant answer until the client router cache expires.
+  revalidatePath("/acceso");
+  revalidatePath("/ruta");
+  revalidatePath("/aprender");
   return { ok: true };
+}
+
+/** Learner picker for the admin forms. Admin-only, rate limited, never returns an email. */
+export async function searchLearnersAction(
+  rawQuery: unknown,
+): Promise<
+  ResultWith<
+    { id: string; alias: string | null; displayName: string | null; entitlement: string }[]
+  >
+> {
+  const admin = await requireAdminProfile();
+  if (!admin) return { ok: false, error: "unauthorized" };
+  const parsed = z
+    .string()
+    .trim()
+    .min(limits.admin.learnerPickerMinChars)
+    .max(60)
+    .regex(/^[\p{L}\p{N} ._-]*$/u)
+    .safeParse(rawQuery);
+  if (!parsed.success) return { ok: true, data: [] };
+  if (await limited(`admin-search:${admin.id}`, limits.rateLimits.adminSearch))
+    return { ok: false, error: "rate_limited" };
+  return { ok: true, data: await searchLearnersAdmin(parsed.data) };
 }
 
 export async function revokeEntitlementAction(rawId: unknown, rawReason: unknown): Promise<Result> {
@@ -210,16 +300,16 @@ const optionalInt = (max: number) =>
     z.coerce.number().int().min(1).max(max).nullable(),
   );
 
-export async function createPromoCodeAction(raw: unknown): Promise<Result> {
+export async function createPromoCodeAction(raw: unknown): Promise<ResultWith<{ code: string }>> {
   const admin = await requireAdminProfile();
   if (!admin) return { ok: false, error: "unauthorized" };
   const parsed = z
     .object({
-      code: z
-        .string()
-        .trim()
-        .toUpperCase()
-        .regex(/^[A-Z0-9-]{4,40}$/),
+      // Empty means "generate one": the admin should not have to invent an unambiguous string.
+      code: z.preprocess(
+        (v) => normalizePromoCode(typeof v === "string" ? v : ""),
+        z.string().regex(PROMO_CODE_PATTERN).or(z.literal("")),
+      ),
       kind: z.enum(["scholarship", "discount"]),
       accessDays: optionalInt(3650),
       discountPercent: optionalInt(100),
@@ -234,8 +324,9 @@ export async function createPromoCodeAction(raw: unknown): Promise<Result> {
     .safeParse(raw);
   if (!parsed.success) return { ok: false, error: "validation" };
   const v = parsed.data;
+  const code = v.code || generatePromoCode(v.kind === "scholarship" ? "BECA" : "DMSA");
   const { error } = await createAdminClient().rpc("create_promo_code", {
-    p_code: v.code,
+    p_code: code,
     p_kind: v.kind,
     p_access_days: v.kind === "scholarship" ? v.accessDays : null,
     p_discount_percent: v.kind === "discount" ? v.discountPercent : null,
@@ -246,7 +337,7 @@ export async function createPromoCodeAction(raw: unknown): Promise<Result> {
   });
   if (error) return { ok: false, error: error.code === "23505" ? "duplicate" : "unknown" };
   revalidatePath("/admin/promos");
-  return { ok: true };
+  return { ok: true, data: { code } };
 }
 
 export async function setPromoCodeActiveAction(

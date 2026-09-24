@@ -83,7 +83,8 @@ export function PricingActions({ signedIn, entitled, pending, prices }: Props) {
           <Landmark aria-hidden="true" className="size-4" />
           {t("payByTransfer")}
         </p>
-        <div className="grid gap-2 sm:grid-cols-3">
+        {/* Four channels since PayPal was added (2026-09-24); three columns left one orphaned. */}
+        <div className="grid gap-2 sm:grid-cols-2">
           {readyTransferChannels.map((c) => {
             const price = manualByCurrency(c.currency);
             if (!price) return null;

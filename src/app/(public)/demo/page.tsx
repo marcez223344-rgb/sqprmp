@@ -3,11 +3,12 @@ import { getTranslations } from "next-intl/server";
 import { DemoWorkspace } from "@/components/workspace/demo-workspace";
 import { buttonVariants } from "@/components/ui/button";
 import { tiendaviva } from "@/content/datasets/tiendaviva";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 import { cn } from "@/lib/utils/cn";
 
 export async function generateMetadata() {
   const t = await getTranslations("demo");
-  return { title: t("title") };
+  return buildPageMetadata({ path: "/demo", title: t("title"), description: t("intro") });
 }
 
 /** Public sandbox: the schema comes from the content spec, so no database is needed. */

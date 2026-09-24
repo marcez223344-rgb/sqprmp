@@ -3,11 +3,12 @@ import { getTranslations } from "next-intl/server";
 import { LearningPath } from "@/components/learn/learning-path";
 import { buttonVariants } from "@/components/ui/button";
 import { getLearningPath } from "@/lib/curriculum/queries";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 import { cn } from "@/lib/utils/cn";
 
 export async function generateMetadata() {
   const t = await getTranslations("curriculum");
-  return { title: t("title") };
+  return buildPageMetadata({ path: "/curriculo", title: t("title"), description: t("intro") });
 }
 
 export default async function CurriculumPage() {

@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 import { AppHeader } from "@/components/layout/app-header";
+import { AccessGrantedNotice } from "@/components/payments/access-granted-notice";
 import { getCurrentProfile, requireUser } from "@/lib/auth/session";
 
 /**
@@ -19,6 +20,8 @@ export default async function LearnLayout({ children }: LayoutProps<"/">) {
         onboarded={Boolean(profile?.onboarding_completed_at)}
       />
       <main id="contenido" className="flex-1">
+        {/* One-time confirmation that access is live; renders nothing when there is none. */}
+        <AccessGrantedNotice />
         {children}
       </main>
     </>

@@ -1,6 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { limits } from "@/config/limits";
+import { hasStartedLearning } from "@/lib/progress/start-state";
 import { activityDateFor, levelProgress, streakStatus } from "@/lib/rewards/rules";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile } from "@/types/database";
@@ -17,6 +18,8 @@ export interface DashboardData {
   /** Titles of the sections whose exercises never consume the free allowance (limits.ts). */
   freeSectionTitles: string[];
   exercisesCompleted: number;
+  /** False only on a first-ever visit: nothing opened, nothing solved. */
+  hasStarted: boolean;
   badges: {
     slug: string;
     title: string;
@@ -100,6 +103,16 @@ export const getDashboard = cache(async (profile: Profile): Promise<DashboardDat
   const earned = new Map((userBadges.data ?? []).map((b) => [b.badge_id, b.earned_at]));
   const xpTotal = totals.data?.xp_total ?? 0;
   const todayRow = (activity.data ?? []).find((a) => a.activity_date === today);
+  // What `minutes_active` actually measures, so the label can say it honestly (owner feedback
+  // item 27: "clearly practised more than 33 minutes"). `touch_daily_activity` is called from
+  // exactly two places — submitting an exercise (`src/lib/exercises/service.ts`) and the quiz
+  // actions — and each call adds min(5, minutes since the previous call). Reading a lesson,
+  // running a query in the browser engine or thinking in the editor is invisible to the server and
+  // adds nothing, and the 5-minute cap means a long gap between two submissions counts as five
+  // minutes, not as the gap. So this is "minutes around graded activity", always an undercount of
+  // time spent learning. The dashboard label names the two activities rather than claiming
+  // "minutes practised"; widening the measurement means calling `touchActivity` from the lesson
+  // view and the draft autosave too, which is a change in files this module does not own.
   const weekMinutes = (activity.data ?? []).reduce((a, r) => a + r.minutes_active, 0);
   const weekXp = (activity.data ?? []).reduce((a, r) => a + r.xp_earned, 0);
   const goalRow = goals.data ?? {
@@ -203,6 +216,11 @@ export const getDashboard = cache(async (profile: Profile): Promise<DashboardDat
       return s ? [s.title] : [];
     }),
     exercisesCompleted: completedExerciseSlugs.size,
+    hasStarted: hasStartedLearning({
+      exerciseProgressCount: (progress.data ?? []).length,
+      lessonProgressCount: (lessonProgress.data ?? []).length,
+      exercisesCompleted: completedExerciseSlugs.size,
+    }),
     badges: (badges.data ?? []).map((b) => ({
       slug: b.slug,
       title: b.title,

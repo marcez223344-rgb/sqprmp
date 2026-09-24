@@ -27,12 +27,13 @@ npx supabase db reset      # apply migrations + seed locally (local only; blocke
 npx supabase db push       # apply migrations to the linked remote project (requires explicit approval)
 npm run quality            # full gate (includes db:validate on PGlite)
 npm run db:validate        # apply migrations to in-memory PostgreSQL (PGlite), assert RLS (no Docker needed)
+npm run db:backup          # dump the linked production database to your hard drive (section 7)
 npx vercel --prod          # BLOCKED by hook unless owner approval recorded in the session
 ```
 
 ## 4. CI/CD (GitHub Actions)
 
-`ci.yml`: quality gate job (format, lint, typecheck, unit, db:validate, content, datasets, build, audit) + `db-tests` job (Supabase CLI + pgTAP) + `e2e` job (Playwright Chromium). `nightly.yml`: `npm audit --audit-level=moderate` + optional Supabase keep-alive (enable with repository variable `SUPABASE_KEEPALIVE=true` and secrets `SUPABASE_DEV_URL`, `SUPABASE_DEV_PUBLISHABLE_KEY`). Dependabot: weekly npm (grouped minor/patch), monthly actions. Dataset snapshots (`public/datasets/**`) are git-ignored and regenerated deterministically by the `prebuild` hook (`assets:pglite` + `datasets:build`, ~2 s), so Vercel builds always ship the exact snapshot recorded in `src/datasets/manifest.json`. Deployments are performed by Vercel's Git integration (preview on PR, production on merge to `main`), never by the assistant.
+`ci.yml`: quality gate job (format, lint, typecheck, unit, db:validate, content, datasets, build, audit) + `db-tests` job (Supabase CLI + pgTAP) + `e2e` job (Playwright Chromium). `nightly.yml`: `npm audit --audit-level=moderate` + a Supabase keep-alive that requests `/` and `/curriculo` on the production site. Supabase pauses a Free project after seven idle days and a paused project takes the site down, so something has to touch Postgres at least weekly; going through the public site does that and needs no credentials. Override the target with the repository variable `PRODUCTION_URL` if the domain changes. Until 2026-09-24 this job was gated on a repository variable `SUPABASE_KEEPALIVE` that had never been set — the repository has no Actions variables and no Actions secrets at all — so the keep-alive had never run once. Removing the gate is why it now needs no configuration. This job is deliberately independent of the weekly database backup; the reasoning is in 7.5b. Dependabot: weekly npm (grouped minor/patch), monthly actions. Dataset snapshots (`public/datasets/**`) are git-ignored and regenerated deterministically by the `prebuild` hook (`assets:pglite` + `datasets:build`, ~2 s), so Vercel builds always ship the exact snapshot recorded in `src/datasets/manifest.json`. Deployments are performed by Vercel's Git integration (preview on PR, production on merge to `main`), never by the assistant.
 
 ## 5. Release checklist
 
@@ -155,4 +156,139 @@ If the key was ever pasted into a chat, a log or a commit, rotate it in the dash
 
 ## 6. Rollback
 
-App: promote previous Vercel deployment. DB: migrations are forward-only; destructive changes require an expand/contract plan and a backup (Supabase Pro daily backups).
+App: re-deploy the previous build from the Vercel dashboard. DB: migrations are forward-only; destructive changes require an expand/contract plan and a fresh `npm run db:backup` taken immediately before the migration (section 7). While the project is on the Supabase Free plan there is no platform-side backup to fall back on.
+
+## 7. Backups and restore
+
+### 7.1 What Supabase actually keeps for us today
+
+Supabase's own documentation (<https://supabase.com/docs/guides/platform/backups>, checked 2026-09-24) is unambiguous: "We automatically back up all Pro, Team, and Enterprise Plan projects on a daily basis", and "We recommend that free tier plan projects regularly export their data using the Supabase CLI `db dump` command and maintain off-site backups."
+
+Project `sqprmp` (`pgkbmhuehmotjctzjwxx`, region `us-west-2`) is on the Free plan. That means:
+
+- **No daily backups.** The Database → Backups page has nothing to restore from.
+- **No point-in-time recovery.** PITR is a paid add-on on Pro and above.
+- **Deleting the project deletes everything, irreversibly**, including anything Supabase held internally.
+
+So until 2026-09-24 the only copy of learner accounts, progress, rewards, purchases and certificates was the live database itself. The code was safe in GitHub; the data was not. `npm run db:backup` is the fix.
+
+The nightly keep-alive (section 4) is not part of this. It stops the project pausing, which is an availability problem; it does nothing whatsoever for data loss. See 7.5b.
+
+### 7.2 What is replaceable and what is not
+
+| Data                                                                                                                                                                                                                                  | Rows (2026-09-24) | If it is lost                                                                                                        |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Course content: `sections`, `lessons`, `exercises`, `exercise_hints`, `exercise_solutions`, `theory_questions`, `question_options`, `datasets`, `avatars`, `badges`                                                                   | ~4 400            | **Replaceable.** It is generated from `src/content/**` in git: `npm run content:build` then `npm run content:apply`. |
+| Learner data: `auth.users`, `profiles`, `lesson_progress`, `exercise_progress`, `attempts`, `quiz_attempts`, `reward_ledger`, `user_totals`, `streaks`, `purchases`, `entitlements`, `certificates`, `analytics_events`, `audit_logs` | ~250              | **Irreplaceable.** Nothing in git can reconstruct it. This is the reason the backup exists.                          |
+
+The irreplaceable part is small today and will grow with every signup. The backup covers both, because a restore that only had half of it would leave progress rows pointing at lessons that no longer exist.
+
+### 7.3 Taking a backup
+
+```
+npm run db:backup
+```
+
+It dumps the **linked** project (read-only; it never writes to production) into `%USERPROFILE%\DataMindsBackups\<YYYY-MM-DD_HHMM>\`:
+
+| File            | What it is                                                                                                  | Why it is needed                                                                                                                                                                      |
+| --------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `roles.sql`     | cluster roles (`--role-only`)                                                                               | a restored database needs `anon`, `authenticated`, `service_role` and the app's custom roles to exist before the grants in `schema.sql` apply. pg_dump never includes role passwords. |
+| `schema.sql`    | the `public` schema: 51 tables, 5 views, 58 functions, 18 triggers, 31 indexes, 342 grants, 70 RLS policies | this is what makes the data safe to expose. A data-only backup would restore the rows with no RLS at all.                                                                             |
+| `data.sql`      | every row as `COPY` statements, including `auth.users` (the accounts) and storage metadata                  | the accounts are in the `auth` schema, not `public`; a `public`-only dump would restore progress belonging to users who no longer exist.                                              |
+| `manifest.json` | sizes, SHA-256 per file, the git commit that was live                                                       | tells you which code the data belongs to.                                                                                                                                             |
+| `LEEME.txt`     | plain-Spanish summary                                                                                       | so the folder is readable in two years without this document.                                                                                                                         |
+
+The script fails loudly rather than writing a folder that looks fine and is not: each file must exceed a minimum size and contain a marker (`CREATE POLICY` in the schema, `COPY "auth"."users"` in the data). A run that prints `FAILED` or `SUSPECT` is not a restore point.
+
+Retention is the newest 8 runs (`SQLACADEMY_BACKUP_KEEP`); the destination is `SQLACADEMY_BACKUP_DIR`. Keep it off OneDrive — the files contain learner emails and payment records, and the script warns if the path looks cloud-synced.
+
+Deliberately **not** included: Supabase project settings (auth providers, redirect URLs, SMTP), Vercel environment variables, and Storage file contents. Storage is unused today (zero buckets, zero objects); the other two are section 7.6.
+
+### 7.4 Restoring — tested procedure
+
+This was executed on 2026-09-24 against the local Docker stack with the dump of that morning. Result: **77 of 77 tables and all 4 613 rows restored with an exact count match**, including all four `auth.users` accounts. Two caveats found by running it, both recorded below.
+
+1. Create the target. Either a new Supabase project, or the local stack (`npx supabase start`).
+2. Put the schema in place. Preferred: `npx supabase link --project-ref <new-ref>` then `npx supabase db push`, which applies `supabase/migrations/**` — this is the authoritative DDL and, unlike the dump, it also creates the `on_auth_user_created` trigger that lives on `auth.users` (see caveat A).
+   If the repository is gone, use the dump instead: `psql "<conn>" -f roles.sql` then `psql "<conn>" -v ON_ERROR_STOP=1 -f schema.sql`, and re-create that one trigger by hand.
+3. Empty the tables the migrations pre-fill, or the `COPY` will hit a duplicate key and abort the restore: `alias_blocklist`, `badges`, `certificate_requirements`. The dump supplies all three.
+4. Load the data in one transaction, with foreign-key and trigger enforcement suspended so table order cannot matter:
+
+   ```
+   psql "<connection string>" -v ON_ERROR_STOP=1 --single-transaction \
+     -c "set session_replication_role = replica;" -f data.sql
+   ```
+
+   `--single-transaction` matters: without it, one failing `COPY` leaves psql parsing the remaining data rows as SQL and you get hundreds of meaningless syntax errors on top of a half-loaded database.
+
+5. Verify before trusting it: compare `select count(*)` per table against the `COPY` blocks in `data.sql`, and check that `auth.users` and `profiles` have the same number of rows.
+6. Point the app at the restored project: update `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` and `SUPABASE_SECRET_KEY` in Vercel and `.env.local`, re-add the Google OAuth redirect URLs, and redeploy.
+
+**Caveat A — the auth trigger.** `supabase db dump` only dumps the `public` schema DDL, on purpose: Supabase owns `auth` and `storage`. Our `on_auth_user_created` trigger on `auth.users` (which creates the `profiles` row on signup) therefore is **not** in `schema.sql`. Restoring from migrations (step 2, preferred path) creates it. Restoring from `schema.sql` alone does not, and the symptom is subtle: existing users work, new signups get no profile.
+
+**Caveat B — platform version skew.** Restoring the production dump into the local stack failed on `storage.buckets` because production runs a newer storage schema with a `lifecycle_configuration` column the local image does not have. Restore into a Supabase project at the same version or newer. Storage is empty today, so skipping those `COPY` blocks costs nothing.
+
+### 7.5 Running it weekly on Windows
+
+GitHub Actions could run this on a schedule, but the artifact would live on GitHub — learner personal data in a place we do not control, and not on the hard drive that was asked for. Use Task Scheduler instead.
+
+`scripts/db-backup.cmd` is the wrapper: it moves to the repository, runs the backup and appends everything to `%USERPROFILE%\DataMindsBackups\backup.log`.
+
+Owner steps (needs your Windows password, so it cannot be created for you):
+
+1. Open **Task Scheduler** → **Create Task** (not "Create Basic Task").
+2. General: name `Backup Data Minds SQL Academy`. Select **Run whether user is logged on or not** and **Run with highest privileges**. It will ask for your Windows password when you save.
+3. Triggers → New: **Weekly**, Sunday, 20:00, and tick **Run task as soon as possible after a scheduled start is missed** so a machine that was off still gets its backup.
+4. Actions → New: Action **Start a program**.
+   - Program/script: `cmd.exe`
+   - Add arguments: `/c "C:\Users\marce\OneDrive\Documents\Claude\Projects\sqlpracticemp\scripts\db-backup.cmd"`
+   - Start in: `C:\Users\marce\OneDrive\Documents\Claude\Projects\sqlpracticemp`
+5. Conditions: untick **Start the task only if the computer is on AC power** if you want it to run on battery.
+6. Save, then right-click the task → **Run** once, and confirm a new dated folder appeared and `backup.log` ends with `exit code 0`.
+
+Restore the backup once a year into the local stack using 7.4. A backup nobody has restored is a guess.
+
+**How often?** Choose the interval from how much learner data you are willing to lose, not from anything else. Weekly means that in the worst case six days of signups, progress, reward ledger entries, purchases and certificates are gone for good. At today's volume (four accounts) that is an easy trade; once signups arrive daily, move the trigger to **Daily** — the dump takes about a minute and each run is ~3.5 MB, so cost is not the constraint.
+
+### 7.5b Why the backup and the keep-alive are two separate jobs
+
+A weekly backup would also touch the database often enough to stop Supabase pausing the project at seven idle days, so it is tempting to run one six-day job and call it both. Do not merge them. They are separate on purpose:
+
+- **They protect against different things.** The keep-alive protects visitors from a cold start (and the site from going down when a paused project has to be restored). It does nothing for data loss. The backup protects against data loss. It does nothing for cold starts. Neither is a substitute for the other.
+- **A six-day cadence is chosen by Supabase's idle timer, not by what you can afford to lose.** That is the wrong input for a recovery point, and it drags the backup interval to whatever the platform's pause policy happens to be.
+- **Merged, they fail together, and in the worst direction.** If the one job breaks, you lose the backups _and_ the project starts sleeping — the two symptoms mask each other, and you find out when you need the backup. Kept apart, the keep-alive runs nightly in GitHub Actions and the backup runs weekly on the laptop: different machine, different scheduler, independent failures.
+
+If you ever want a belt-and-braces check, compare the newest folder date in `DataMindsBackups` against today, and look at the Nightly workflow's last green run in GitHub Actions. Two glances, two independent answers.
+
+### 7.6 The other half: the environment
+
+A database dump alone cannot bring the product back. These are not in the backup and must not be:
+
+- `.env.local` and the Vercel environment variables (`SUPABASE_SECRET_KEY`, `SANDBOX_SIGNING_SECRET`, `CERTIFICATE_SIGNING_SECRET`, `CRON_SECRET`, the Hotmart credentials, the Google OAuth client secret). `CERTIFICATE_SIGNING_SECRET` deserves special care: lose it and every certificate already issued stops verifying.
+- The Supabase project settings that live in the dashboard: Google as an auth provider, the redirect URLs, the SMTP sender.
+
+Keep one copy of these in a **password manager** (1Password, Bitwarden, KeePass — an encrypted vault, not a file). Do **not** put them in the repository, in the `DataMindsBackups` folder, in a note, in a chat message, or in a plain-text file on the desktop: the backup folder is the one place an attacker who already has your laptop will look, and it would hand them the database along with the keys to it.
+
+If a secret is ever exposed, rotate it in the provider dashboard and update Vercel and `.env.local` — see section 5e.
+
+## 8. Page performance notes
+
+Measured on 2026-09-24 against production, warm (three runs each, from Buenos Aires):
+
+| Page         | TTFB        | Total     | Transferred                          |
+| ------------ | ----------- | --------- | ------------------------------------ |
+| `/`          | 0.39–0.66 s | 0.7–1.6 s | 32 KB (brotli)                       |
+| `/curriculo` | 0.38–0.43 s | 0.7–2.3 s | 63 KB (brotli, 1.13 MB uncompressed) |
+| `/precios`   | 0.38–0.45 s | 0.8–0.9 s | 30 KB (brotli)                       |
+
+Steady state is healthy, so a one-off 75-second load was not the normal path. Three structural facts make a cold request much more expensive than a warm one, and they are worth knowing:
+
+1. **Nothing is cached at the CDN.** Every response carries `Cache-Control: private, no-cache, no-store, max-age=0, must-revalidate` and `X-Vercel-Cache: MISS`; `/curriculo` is re-rendered from the database for every visitor. That is a consequence of `src/proxy.ts` refreshing the Supabase session and setting a per-request CSP nonce on every matched path. Serving public pages from the CDN would require giving them a static CSP (the cached HTML's nonce would no longer match the fresh response header, and every script would be blocked). That is a security-visible change and has not been made — it is the main remaining lever if landing-page latency matters.
+2. **The functions and the database are on opposite coasts.** Vercel serves from `iad1` (Virginia), the Supabase project lives in `us-west-2` (Oregon), so every query pays a cross-country round trip. Moving either is a migration, not a setting.
+3. **The keep-alive had never run** (section 4). A Supabase Free project pauses after seven idle days; the first request afterwards pays a restore. Fixed 2026-09-24.
+
+Fixed on 2026-09-24 in `src/lib/curriculum/queries.ts`:
+
+- The catalogue query selected `*` from `lessons_public`, which includes `body_md_free`, the full markdown of every free lesson. `/`, `/curriculo` and `/ruta` each pulled ~183 KB from Postgres and rendered none of it. Selecting the ten columns the path actually uses brings that to ~109 KB.
+- Sections and lessons are now read once per five minutes through `unstable_cache` with an anonymous, cookie-free client, instead of once per request. Publishing changes appear within five minutes, immediately after a deploy, or on demand via `revalidateCurriculum()`.
