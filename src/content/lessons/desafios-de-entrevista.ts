@@ -227,6 +227,16 @@ Encontrar tu propio error durante la entrevista suma puntos en lugar de restarlo
 1. Los errores caros producen resultados plausibles: nulos, joins que filtran de más y husos horarios.
 2. Verifica el grano y el orden de magnitud antes de entregar.
 3. Detectar y corregir tu propio error en voz alta juega a tu favor.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes resolver bajo tiempo problemas típicos de entrevista, como los primeros N por grupo, rachas y duplicados, y explicar en voz alta tu razonamiento.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 39 · Proyectos finales (capstone). Vas a hacer un análisis completo de punta a punta para tu portafolio.
+
+**Para practicar (opcional):** ¿Cuál es la racha más larga de días seguidos con pagos con tarjeta de cada cuenta de Bolsillo? Usa \`transactions\` con \`kind\` igual a \`'card_payment'\`.
 `,
   },
 ];

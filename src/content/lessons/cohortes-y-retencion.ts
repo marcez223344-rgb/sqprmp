@@ -282,6 +282,16 @@ Dos advertencias. La primera: \`ended_on IS NULL\` significa «la suscripción s
 1. La retención a N días usa ventanas relativas al \`signup_at\` de cada persona, con el límite superior abierto.
 2. Declara qué definición estás usando y excluye a quienes todavía no completaron la ventana.
 3. Churn = bajas del período dividido por la base activa al inicio del período, y no es el complemento de la retención por cohorte.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes definir cohortes, es decir, grupos de usuarios según su mes de alta, y medir cuántos siguen activos y cuántos abandonan.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 30 · Análisis de funnels. Vas a medir, con un embudo de conversión (_funnel_), cuántos usuarios completan cada paso.
+
+**Para practicar (opcional):** ¿Qué parte de cada cohorte mensual de clientes de Pídelo pidió algo el mes siguiente? Toma la cohorte de \`signup_at\` en \`customers\` y la actividad de \`placed_at\` en \`orders\`.
 `,
   },
 ];

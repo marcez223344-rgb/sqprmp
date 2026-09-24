@@ -158,6 +158,16 @@ WHERE created_at >= '2025-03-01'
 \`\`\`
 
 El límite superior es el día **16** a las 00:00 y está excluido, así que entran todos los pedidos del día 15 a cualquier hora.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes filtrar filas por igualdad, rango y patrón, combinar condiciones con AND, OR y NOT y filtrar fechas sin perder registros en los bordes.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 7 · Operadores de comparación y lógicos. Vas a ver en qué orden se evalúan AND y OR, y a usar IN y BETWEEN.
+
+**Para practicar (opcional):** ¿Qué transferencias de Bolsillo fallaron en agosto de 2025? En \`transfers\`, filtra \`status\` igual a \`'failed'\` y \`created_at\` en ese mes.
 `,
   },
 ];

@@ -81,6 +81,16 @@ Restar dos marcas de tiempo, \`delivered_at\` menos \`placed_at\`, devuelve un v
 - Pedir en el mismo \`SELECT\` una columna sin agregar y una función de agregación (\`SELECT customer_id, count(*) FROM orders\`). PostgreSQL responde «must appear in the GROUP BY clause», porque no sabe qué \`customer_id\` mostrar al lado de un conteo que resume miles de filas. La solución es \`GROUP BY\`, en la sección 15.
 - Usar \`count(columna)\` creyendo que cuenta filas, cuando en realidad deja afuera todas las filas donde esa columna es NULL.
 - Entregar un promedio con catorce decimales por no haber usado \`round\` al presentar.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes resumir filas con COUNT, SUM, AVG, MIN y MAX, distinguir \`COUNT(*)\` de \`COUNT(columna)\` y detectar cuándo un promedio engaña.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 15 · GROUP BY: resumir por categoría. Vas a calcular esas métricas por grupo, por ejemplo por país o por mes.
+
+**Para practicar (opcional):** ¿Cuántas reseñas tiene TiendaViva, cuántas traen comentario y cuál es la calificación promedio? En \`reviews\`, compara \`COUNT(*)\` con \`COUNT(comment)\` y calcula \`AVG(rating)\`.
 `,
   },
 ];

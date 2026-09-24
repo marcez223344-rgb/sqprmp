@@ -225,6 +225,16 @@ ORDER BY k.user_id, k.event_at;
 \`\`\`
 
 Como el \`OVER\` no lleva \`ORDER BY\`, la ventana es la partición completa y cada fila recibe el total de intentos de esa persona. Si le agregaras un \`ORDER BY\`, cada fila mostraría en cambio cuántos intentos llevaba hasta ese momento.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes usar OVER con PARTITION BY y ORDER BY para calcular promedios por grupo y participaciones sobre el total sin perder el detalle de cada fila.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 26 · Funciones de ranking. Vas a asignar a cada fila un puesto dentro de su grupo.
+
+**Para practicar (opcional):** ¿Cuánto se aleja el precio de cada plato de Pídelo del promedio de su restaurante? En \`menu_items\`, compara \`price\` con \`AVG(price) OVER (PARTITION BY restaurant_id)\`.
 `,
   },
 ];

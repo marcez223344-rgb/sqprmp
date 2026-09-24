@@ -250,6 +250,16 @@ Resultado, definiciones, limitaciones y **una** conclusión en una frase. Si la 
 1. Cierra los totales y verifica que ningún join haya duplicado filas antes de agregar.
 2. Mira los extremos, pon un umbral mínimo de volumen y decláralo de antemano.
 3. Entrega el número con sus definiciones, sus limitaciones y una conclusión escrita.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes traducir un pedido ambiguo a preguntas de datos precisas, dejar escritos tus supuestos y entregar resultados con su contexto y sus limitaciones.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 38 · Desafíos de entrevista técnica. Vas a resolver problemas clásicos de entrevista con tiempo limitado.
+
+**Para practicar (opcional):** El departamento de Operaciones de Pídelo pregunta: «¿Cuántas entregas llegan tarde?». Define «tarde» con \`delivered_at\`, \`placed_at\` y \`promised_minutes\`, decide qué hacer con los cancelados y entrega la cifra.
 `,
   },
 ];

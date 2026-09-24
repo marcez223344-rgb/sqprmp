@@ -335,6 +335,16 @@ Lo que ese pedido no es: «ponle un índice a \`orders\`». Y hay una pregunta p
 1. \`Nested Loop\`, \`Hash Join\` y \`Merge Join\` son las tres formas de unir; el \`Nested Loop\` con muchas repeticiones es el patrón de las consultas que se degradan.
 2. En un índice compuesto van primero las columnas de igualdad y al final la de rango, y el índice también puede ahorrar el \`Sort\`.
 3. Un índice cuesta en cada escritura, así que el pedido se hace con la consulta, la selectividad medida y el índice propuesto.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes leer un plan de ejecución básico, explicar cuándo un índice ayuda y proponer una mejora de consulta o de índice con evidencia.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 36 · SQL analítico avanzado. Empieza el nivel Profesional: vas a combinar ventanas, CTE, arrays y JSON en análisis completos.
+
+**Para practicar (opcional):** ¿Serviría un índice sobre \`status\` en la tabla \`transactions\` de Bolsillo? Mide la selectividad, es decir, qué proporción de filas tiene cada estado, y decide.
 `,
   },
 ];

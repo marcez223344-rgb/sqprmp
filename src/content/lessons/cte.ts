@@ -312,6 +312,16 @@ La condición \`dia < DATE '2025-09-30'\` es lo único que evita que la consulta
 ## Resumen
 
 \`WITH RECURSIVE\` se compone de un caso base, un \`UNION ALL\` y un paso recursivo que se refiere a sí mismo. Termina cuando una vuelta deja de agregar filas nuevas. Agrega siempre un límite de profundidad o un registro del camino recorrido: los datos con ciclos aparecen más seguido de lo que uno esperaría.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes dividir una consulta compleja en CTE (por _common table expression_) con nombres claros y recorrer jerarquías con una CTE recursiva.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 23 · Operaciones de conjuntos. Vas a apilar o comparar resultados completos de consultas distintas.
+
+**Para practicar (opcional):** ¿Qué comercios de Bolsillo tuvieron más movimientos que el promedio de su rubro? Cuenta \`transactions\` por \`merchant_id\` en una CTE y promedia por \`category\` de \`merchants\` en otra.
 `,
   },
 ];

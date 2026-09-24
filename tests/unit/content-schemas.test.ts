@@ -41,6 +41,51 @@ describe("lessonSchema", () => {
     });
     expect(r.success).toBe(false);
   });
+
+  const theory = (body_md: string) =>
+    lessonSchema.safeParse({
+      slug: "x-y",
+      section: "select",
+      kind: "theory",
+      title: "Lección",
+      sort_order: 0,
+      estimated_minutes: 5,
+      is_free: true,
+      is_published: false,
+      prerequisites: [],
+      body_md,
+    });
+  const words = (n: number) => Array.from({ length: n }, () => "palabra").join(" ");
+
+  it("counts «Próximos pasos» against its own cap, not the lesson's", () => {
+    expect(
+      theory(`${words(880)}
+
+## Próximos pasos
+
+${words(90)}`).success,
+    ).toBe(true);
+  });
+
+  it("still caps the «Próximos pasos» block itself", () => {
+    expect(
+      theory(`${words(100)}
+
+## Próximos pasos
+
+${words(150)}`).success,
+    ).toBe(false);
+  });
+
+  it("does not let the block hide an over-long lesson", () => {
+    expect(
+      theory(`${words(950)}
+
+## Próximos pasos
+
+${words(20)}`).success,
+    ).toBe(false);
+  });
 });
 
 describe("questionSchema", () => {

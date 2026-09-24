@@ -23,6 +23,7 @@ describe("lesson heading categories", () => {
     expect(headingCategory("Verificar el resultado")).toBe("verify");
     expect(headingCategory("Resumen")).toBe("summary");
     expect(headingCategory("En resumen")).toBe("summary");
+    expect(headingCategory("Próximos pasos")).toBe("goal");
   });
 
   it("tolerates case, accents and a trailing colon, so a small drift still matches", () => {

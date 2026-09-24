@@ -24,6 +24,9 @@ const PROSE_SECTION: Record<string, SectionCategory> = {
   "verificar el resultado": "verify",
   resumen: "summary",
   "en resumen": "summary",
+  // Closes the last theory lesson of each section: what was learnt and what comes next is
+  // progress, so it takes the achievement hue of «Al terminar vas a poder» (DESIGN_SYSTEM §5a).
+  "proximos pasos": "goal",
 };
 
 /** Case- and accent-insensitive, tolerant of a trailing colon, so a small drift still matches. */

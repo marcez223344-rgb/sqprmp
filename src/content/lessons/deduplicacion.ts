@@ -272,6 +272,16 @@ Antes de eliminar, pregúntate qué otras filas dependen de las que se van. Si b
 1. \`ROW_NUMBER\` con \`PARTITION BY\` (identidad) y \`ORDER BY\` (regla) sirve en cualquier motor.
 2. \`DISTINCT ON\` es la versión breve de PostgreSQL y exige que el \`ORDER BY\` empiece por sus expresiones.
 3. Desempate único y \`NULLS LAST\` cuando corresponda; revisa las dependencias antes de borrar.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes detectar duplicados exactos y aproximados, elegir con una regla explícita qué registro conservar y aplicarla con ROW_NUMBER o DISTINCT ON.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 32 · Investigaciones de calidad de datos. Vas a auditar datasets completos: valores imposibles y totales que no cuadran.
+
+**Para practicar (opcional):** ¿Cuál es el último evento de cada pedido de Pídelo? Deja una fila por \`order_id\` de \`order_events\` con DISTINCT ON y compárala con el \`status\` de \`orders\`.
 `,
   },
 ];

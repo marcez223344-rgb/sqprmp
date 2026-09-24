@@ -274,6 +274,16 @@ Un uso frecuente en analítica es reasignar cada fila a su categoría **raíz**,
 1. \`array_agg(... ORDER BY ...)\` construye listas reproducibles, y \`array_to_string\`, \`cardinality\` y el \`GROUP BY\` sobre el array hacen el resto.
 2. \`jsonb_build_object\` arma documentos y ordena las claves; \`->>\` extrae un valor como texto.
 3. Las listas y los documentos son para la capa de presentación, no para reemplazar el modelo de datos.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes combinar CTE, ventanas y agregación condicional en un análisis completo, usar arrays y JSON y escribir consultas largas fáciles de mantener.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 37 · Casos de negocio. Vas a resolver pedidos ambiguos tal como llegan en la vida real.
+
+**Para practicar (opcional):** ¿Por qué niveles de verificación de identidad (KYC, por _know your customer_) pasó cada persona de Bolsillo? Arma con \`array_agg\` la lista de \`to_level\` de \`kyc_events\` con \`outcome\` igual a \`'approved'\`, ordenada por \`event_at\`.
 `,
   },
 ];

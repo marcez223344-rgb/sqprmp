@@ -297,6 +297,16 @@ Regla práctica: escribe primero la versión que se entienda mejor, mide con \`E
 1. Correlacionada significa que la subconsulta menciona una columna de afuera, y por eso se evalúa por cada fila externa.
 2. Usa la correlacionada para una o dos métricas al lado de la tabla principal, y el join con \`GROUP BY\` cuando son varias.
 3. Califica siempre los nombres de columna con el alias de su tabla: la correlación involuntaria es un error difícil de detectar.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes escribir subconsultas escalares, de lista y en FROM, filtrar con EXISTS y NOT EXISTS sin caer en la trampa de NOT IN con NULL y reconocer una subconsulta correlacionada.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 22 · CTE: consultas paso a paso. Vas a ordenar esas consultas en pasos con nombre usando WITH.
+
+**Para practicar (opcional):** ¿Qué restaurantes de Pídelo tienen un \`rating\` mayor que el promedio de su ciudad? Resuélvelo con una subconsulta correlacionada sobre \`restaurants\`.
 `,
   },
 ];

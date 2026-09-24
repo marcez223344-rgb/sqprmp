@@ -75,6 +75,16 @@ ORDER BY currency;
 \`\`\`
 
 \`ORDER BY\` se aplica después de eliminar los duplicados, así que el resultado queda ordenado alfabéticamente y sin repeticiones.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes listar los valores únicos de una o varias columnas y notar cuándo un DISTINCT oculta filas duplicadas que conviene investigar.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 6 · WHERE: filtrar filas. Hasta ahora usaste todas las filas; con WHERE te quedas solo con las que responden a una pregunta concreta.
+
+**Para practicar (opcional):** ¿Qué combinaciones de país y plan existen entre los oyentes de Ritmo? Busca las combinaciones distintas de \`country\` y \`plan_tier\` en la tabla \`users\`.
 `,
   },
 ];

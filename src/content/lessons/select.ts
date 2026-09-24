@@ -152,6 +152,16 @@ FROM customers;
 - Mayúsculas para palabras clave, una cláusula por línea, columnas listadas.
 - Comillas simples para texto; evita comillas dobles en nombres.
 - Comenta el porqué de las reglas de negocio.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes escribir un SELECT que devuelve solo las columnas que necesitas, leer la tabla de resultados y dar a la consulta un formato fácil de revisar.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 4 · Alias y expresiones. Sobre ese SELECT vas a calcular columnas nuevas y ponerles nombres claros.
+
+**Para practicar (opcional):** ¿Qué tipo de cocina y qué calificación tiene cada restaurante de Pídelo? Trae las columnas \`name\`, \`cuisine\` y \`rating\` de la tabla \`restaurants\`.
 `,
   },
 ];

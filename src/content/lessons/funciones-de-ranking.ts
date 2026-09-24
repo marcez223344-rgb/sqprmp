@@ -273,6 +273,16 @@ Si la consulta devuelve 3 filas y pides \`ntile(4)\`, obtienes los bloques 1, 2 
 1. \`ntile(n)\` reparte las filas ordenadas en \`n\` bloques de tamaño casi igual.
 2. Los bloques se llenan por posición y no por valor, así que dos filas empatadas pueden quedar separadas.
 3. Agrega a la entidad correcta antes de segmentar y fija siempre un desempate estable.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes diferenciar ROW_NUMBER, RANK y DENSE_RANK cuando hay empates, obtener los primeros N de cada grupo y armar cuartiles con NTILE.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 27 · Totales acumulados y promedios móviles. Vas a usar marcos de ventana para sumar y promediar a lo largo del tiempo.
+
+**Para practicar (opcional):** ¿Cuáles son los tres platos más caros de cada restaurante de Pídelo? Numera \`menu_items\` con ROW_NUMBER por \`restaurant_id\`, de mayor a menor \`price\`.
 `,
   },
 ];

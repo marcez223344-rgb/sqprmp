@@ -311,6 +311,16 @@ Un auditor no borra ni corrige las filas malas por su cuenta. Documenta la regla
 - Las reglas de dominio (un campo), las reglas cruzadas (dos tablas) y los huecos referenciales (el padre sin hijos) son tres familias de chequeos distintas.
 - El antijoin se escribe con \`NOT EXISTS\` o con \`LEFT JOIN ... IS NULL\`; \`NOT IN\` sobre columnas con nulos devuelve vacío en silencio.
 - Reporta una fila por regla con \`UNION ALL\`, incluye también las reglas que pasan y muestra siempre el total de referencia.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes diseñar chequeos de integridad, reconciliar totales entre tablas, medir el impacto de cada problema y respaldarlo con consultas reproducibles.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 33 · Depuración de consultas. Vas a encontrar el paso exacto en el que una consulta deja de dar el resultado correcto.
+
+**Para practicar (opcional):** ¿Cuántos pedidos de agosto de 2025 son de restaurantes de Pídelo con \`is_active\` en \`false\`, y qué porcentaje del mes representan? Une \`orders\` con \`restaurants\`.
 `,
   },
 ];

@@ -170,6 +170,16 @@ Ordenar por una columna que no está en la lista del \`SELECT\` es válido porqu
 - Dividir dos enteros esperando decimales y recibir un resultado truncado.
 - Usar el alias dentro del \`WHERE\`, que devuelve el error «column does not exist».
 - Poner el alias entre comillas simples: \`AS 'neto'\` no define un alias, define un texto.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes crear columnas calculadas con operaciones aritméticas y de texto, controlar el orden del cálculo con paréntesis y renombrar el resultado con un alias.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 5 · DISTINCT: valores únicos. Vas a obtener la lista de valores distintos que aparecen en una columna.
+
+**Para practicar (opcional):** ¿Cuánto habría pagado cada cliente de Pídelo sin descuento? En \`orders\`, suma \`subtotal\` y \`delivery_fee\` (el costo de envío) con el alias \`total_sin_descuento\`.
 `,
   },
 ];

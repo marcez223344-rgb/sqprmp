@@ -138,6 +138,16 @@ A veces necesitas cambiar el tipo de un valor. Eso se llama conversión (en ingl
 - Cada columna tiene un tipo; el tipo define qué operaciones son válidas.
 - El dinero va en \`numeric\`, los instantes en \`timestamptz\` y las fechas se escriben en formato ISO (año-mes-día).
 - Convierte tipos solo cuando lo necesitas y sabiendo qué puede fallar.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes leer el esquema de una tabla, es decir, sus columnas y tipos, y reconocer las claves primarias y foráneas que la conectan con otras.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 3 · SELECT: tu primera consulta. Vas a traer de una tabla exactamente las columnas que ya sabes leer.
+
+**Para practicar (opcional):** En Bolsillo, ¿qué columna de la tabla \`transactions\` indica a qué cuenta pertenece cada movimiento, y a qué columna de qué tabla apunta?
 `,
   },
 ];

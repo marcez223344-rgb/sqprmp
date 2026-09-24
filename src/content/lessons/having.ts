@@ -269,6 +269,16 @@ Cada fila del resultado dice «esta persona usó esta promoción tantas veces».
 - Umbral de volumen, umbral de promedio con muestra mínima y comparación entre agregados cubren la mayoría de los reportes reales.
 - Un ranking con promedios necesita siempre un mínimo de observaciones y un desempate explícito.
 - \`HAVING\` solo filtra los grupos que se formaron. Para que aparezcan los grupos vacíos hay que traerlos con un join, no con un umbral.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes filtrar grupos por sus valores agregados con HAVING, explicar en qué se diferencia de WHERE y combinar ambos en una misma consulta.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 17 · INNER JOIN: combinar tablas. Vas a unir dos tablas relacionadas por sus claves.
+
+**Para practicar (opcional):** ¿Qué oyentes de Ritmo tienen más de 50 reproducciones completas? En \`plays\`, filtra \`completed\` en \`true\` con WHERE, agrupa por \`user_id\` y filtra los grupos con HAVING.
 `,
   },
 ];

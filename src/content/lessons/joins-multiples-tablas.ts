@@ -250,6 +250,16 @@ GROUP BY s.store_name;
 - Un JOIN uno-a-muchos repite filas; sumar columnas del lado «uno» infla el total.
 - Dos relaciones uno-a-muchos se multiplican entre sí (3 × 2 = 6 filas).
 - Filtra la relación hasta hacerla única, o usa \`count(DISTINCT ...)\`.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes planificar el camino de joins a partir del modelo de datos, unir tres o más tablas y agregar el resultado sin duplicar importes.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 21 · Subconsultas. Empieza el nivel Consultas avanzadas: vas a usar el resultado de una consulta dentro de otra.
+
+**Para practicar (opcional):** ¿Cuántas reproducciones tuvo cada artista de Ritmo? Encadena \`plays\`, \`tracks\`, \`albums\` y \`artists\` siguiendo sus claves foráneas y agrupa por artista.
 `,
   },
 ];

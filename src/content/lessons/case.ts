@@ -270,6 +270,16 @@ WHERE is_flagged;
 - \`COALESCE\` y \`NULLIF\` son \`CASE\` especializados en NULL: no permiten hacer nada que \`CASE\` no haga, pero se leen mucho mejor.
 - Rellenar un NULL cambia el significado del dato: hazlo cuando solo vas a mostrarlo y piénsalo dos veces si ese valor va a entrar en un cálculo.
 - Con tres o más categorías, vuelve a \`CASE\`.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes escribir expresiones CASE que convierten códigos en etiquetas y rangos numéricos en segmentos, sin olvidar la rama ELSE.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 13 · Ordenar y limitar resultados. Vas a ordenar los resultados como pide el negocio y quedarte con los primeros.
+
+**Para practicar (opcional):** ¿Qué canciones de Ritmo son cortas, medianas o largas? En \`tracks\`, según \`duration_seconds\`, menos de 180 es corta, más de 300 es larga y el resto es mediana.
 `,
   },
 ];

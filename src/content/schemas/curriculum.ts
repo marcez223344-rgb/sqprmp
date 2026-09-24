@@ -3,6 +3,21 @@ import { limits } from "@/config/limits";
 import { levelSchema, lessonKindSchema, markdownSchema, slugSchema, wordCount } from "./common";
 
 export const LESSON_MAX_WORDS = 900;
+/**
+ * The closing «Próximos pasos» block (last theory lesson of each section) is navigation with a
+ * fixed three-to-four-line shape, not teaching prose, so it is counted against its own cap instead
+ * of the lesson's. Without this, five dense lessons (sections 30, 32, 33, 35, 36) could not carry
+ * the block at all without cutting content (FEEDBACK_LOG round 5, item 21).
+ */
+export const NEXT_STEPS_MAX_WORDS = 110;
+const NEXT_STEPS_HEADING = /^## Próximos pasos\s*$/m;
+
+/** Splits a lesson body into its teaching prose and its closing «Próximos pasos» block, if any. */
+export function splitNextSteps(markdown: string): { body: string; nextSteps: string | null } {
+  const match = NEXT_STEPS_HEADING.exec(markdown);
+  if (!match) return { body: markdown, nextSteps: null };
+  return { body: markdown.slice(0, match.index), nextSteps: markdown.slice(match.index) };
+}
 
 export const courseSchema = z.object({
   slug: slugSchema,
@@ -65,12 +80,22 @@ export const lessonSchema = z
     if (lesson.kind === "theory") {
       if (!lesson.body_md) {
         ctx.addIssue({ code: "custom", path: ["body_md"], message: "theory lessons need body_md" });
-      } else if (wordCount(lesson.body_md) > LESSON_MAX_WORDS) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["body_md"],
-          message: `lesson exceeds ${LESSON_MAX_WORDS} words (${wordCount(lesson.body_md)})`,
-        });
+      } else {
+        const { body, nextSteps } = splitNextSteps(lesson.body_md);
+        if (wordCount(body) > LESSON_MAX_WORDS) {
+          ctx.addIssue({
+            code: "custom",
+            path: ["body_md"],
+            message: `lesson exceeds ${LESSON_MAX_WORDS} words (${wordCount(body)})`,
+          });
+        }
+        if (nextSteps && wordCount(nextSteps) > NEXT_STEPS_MAX_WORDS) {
+          ctx.addIssue({
+            code: "custom",
+            path: ["body_md"],
+            message: `«Próximos pasos» exceeds ${NEXT_STEPS_MAX_WORDS} words (${wordCount(nextSteps)})`,
+          });
+        }
       }
     } else if (!lesson.ref) {
       ctx.addIssue({ code: "custom", path: ["ref"], message: `${lesson.kind} lessons need ref` });

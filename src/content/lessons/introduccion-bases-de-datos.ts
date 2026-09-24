@@ -135,6 +135,16 @@ Escribir esa definición y confirmarla con quien te pidió el dato toma cinco mi
 - Antes de escribir SQL define cuatro cosas: la pregunta, las tablas, las filas y la forma del resultado.
 - Las métricas de negocio necesitan una definición explícita de estado, fechas y moneda.
 - Confirmar esa definición con quien pide el dato ahorra tiempo y evita entregar el número equivocado.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes explicar qué es una base de datos relacional, distinguir datos operativos de analíticos y decir en qué se diferencia SQL de una hoja de cálculo.
+
+**Antes de seguir:** responde el quiz de esta sección.
+
+**Lo que sigue:** Sección 2 · Tablas, filas, columnas y tipos de datos. Vas a ver cómo se organiza una tabla por dentro.
+
+**Para practicar (opcional):** ¿Qué pregunta haría cada semana el departamento de Operaciones de Pídelo, y se responde con datos operativos o analíticos?
 `,
   },
 ];

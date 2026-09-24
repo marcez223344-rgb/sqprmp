@@ -333,6 +333,16 @@ Como siempre, escribe primero la versión que se lee mejor y revisa los planes d
 ## Resumen
 
 \`INTERSECT\` se evalúa antes que \`UNION\` y \`EXCEPT\`; estos dos van de izquierda a derecha. Usa paréntesis aunque no cambien el resultado. \`EXISTS\`/\`NOT EXISTS\` y los joins son alternativas legítimas: elige por lo que necesitas en el resultado y por cómo se lee.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes apilar resultados con UNION y UNION ALL, compararlos con INTERSECT y EXCEPT y alinear columnas y tipos entre las consultas que combinas.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 24 · Agregación condicional. Vas a obtener varias métricas por segmento en una sola consulta.
+
+**Para practicar (opcional):** ¿Qué oyentes de Ritmo siguen a algún artista pero nunca crearon una lista de reproducción? Con EXCEPT, quita de los \`user_id\` de \`follows\` los \`user_id\` de \`playlists\`.
 `,
   },
 ];

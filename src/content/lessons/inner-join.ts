@@ -195,6 +195,16 @@ WHERE o.currency = 'ARS'
 \`\`\`
 
 Un pedido con dos intentos de pago aprobados aparecería dos veces en el resultado. En este dataset eso no ocurre, y además el filtro \`pay.status = 'approved'\` reduce la relación a un pago aprobado por pedido.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes unir dos tablas por su clave primaria y su clave foránea, calificar columnas con alias de tabla y prever cuántas filas devolverá el join.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 18 · LEFT, RIGHT y FULL JOIN. Vas a conservar también las filas sin pareja, como los clientes sin pedidos.
+
+**Para practicar (opcional):** ¿En qué ciudad opera cada restaurante de Pídelo? Une \`restaurants\` con \`cities\`: la columna \`city_id\` de \`restaurants\` apunta a la columna \`id\` de \`cities\`.
 `,
   },
 ];

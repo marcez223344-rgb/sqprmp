@@ -323,6 +323,16 @@ Esto no lo resuelve el SQL, lo resuelve la nota al pie. Publica el tiempo **junt
 1. El último paso alcanzado clasifica cada unidad una sola vez y suma el total: es el cuadro que permite priorizar el trabajo.
 2. La duración se calcula con \`extract(epoch FROM fin - inicio) / 60\` y se resume con la mediana o el percentil 90, nunca con el promedio.
 3. Todo tiempo de conversión se publica junto a la tasa de conversión de ese paso, porque solo se mide a los que llegaron.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes modelar un embudo de conversión a partir de una tabla de eventos, calcular la conversión de cada paso y comparar embudos por segmento.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 31 · Deduplicación. Vas a detectar registros repetidos y decidir con reglas explícitas cuál conservar.
+
+**Para practicar (opcional):** ¿Qué proporción de las personas de Bolsillo hizo una carga (\`kind\` igual a \`'topup'\`) y, después, un pago con tarjeta (\`kind\` igual a \`'card_payment'\`)? Une \`users\`, \`accounts\` y \`transactions\`.
 `,
   },
 ];

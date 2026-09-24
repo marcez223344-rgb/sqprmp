@@ -152,6 +152,16 @@ WHERE u.country = 'UY'
 \`\`\`
 
 La condición \`u.country = 'UY'\` es sobre \`users\`, que es la tabla izquierda, así que puede ir en el \`WHERE\` sin romper el LEFT JOIN: esas filas existen con valor propio, no dependen de la unión.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes elegir el join adecuado, encontrar registros sin pareja con LEFT JOIN e IS NULL y evitar que WHERE anule un LEFT JOIN.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 19 · Self joins. Vas a unir una tabla consigo misma para comparar sus filas.
+
+**Para practicar (opcional):** ¿Qué oyentes de Ritmo nunca reprodujeron una canción? Une \`users\` con \`plays\` usando LEFT JOIN y conserva las filas donde la columna \`id\` de \`plays\` está en \`NULL\`.
 `,
   },
 ];

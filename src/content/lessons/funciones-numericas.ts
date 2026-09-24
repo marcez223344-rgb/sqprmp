@@ -260,6 +260,16 @@ Cuidado con los NULL: si uno de los argumentos es NULL, \`GREATEST\` y \`LEAST\`
 - \`ABS\` para desvíos y tolerancias; \`MOD\` para restos y múltiplos.
 - \`POWER\` para crecimiento compuesto, nunca una multiplicación de tasas.
 - \`GREATEST\`/\`LEAST\` aplican mínimos y topes fila por fila.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes redondear con ROUND, TRUNC, CEIL y FLOOR, evitar la división entera y la división por cero y calcular porcentajes correctamente.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 11 · Fechas y horas. Vas a extraer partes de una fecha, agrupar por período y calcular diferencias de tiempo.
+
+**Para practicar (opcional):** ¿Qué porcentaje del subtotal fue descuento en cada pedido de Pídelo? En \`orders\`, divide \`discount\` por \`subtotal\`, redondea a un decimal y protege la división con NULLIF.
 `,
   },
 ];

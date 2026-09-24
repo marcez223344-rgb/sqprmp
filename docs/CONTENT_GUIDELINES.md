@@ -17,6 +17,7 @@ Content is code-reviewed data in `src/content/`: `course.ts`, `sections.ts` (39 
 ## 2. Theory lessons
 
 - ≤ 900 words per lesson; one idea per lesson; every claim has a runnable example on an MVP dataset.
+- **«Próximos pasos»** closes the **last theory lesson of each section** (1–38; the capstone has none), as a `## Próximos pasos` heading followed by bold-labelled lines in this order: **Lo que ya puedes hacer** (the skill, from the section objectives), **Antes de seguir** (the section's exercises and/or quiz, which come after the theory lessons in path order — omitted if the section has neither), **Lo que sigue** (next section number and exact title, one sentence on how it builds on this one) and **Para practicar (opcional)** (one business question on a different dataset, answerable with what has been taught so far, run against the snapshot before publishing). It is navigation, not teaching prose: it is counted against its own cap of 110 words (`NEXT_STEPS_MAX_WORDS`), not the lesson's 900.
 - Structure: por qué importa → concepto → ejemplo ejecutable → variantes → errores comunes → resumen de 3 líneas.
 - Never state that only one SQL style is valid when equivalents exist; show alternatives when they matter (`JOIN ... USING` vs `ON`, `CASE` vs `FILTER`, CTE vs subquery).
 

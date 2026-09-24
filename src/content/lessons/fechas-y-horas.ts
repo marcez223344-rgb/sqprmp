@@ -281,6 +281,16 @@ Ambas son correctas y se leen muy bien. Su desventaja es de rendimiento: al apli
 1. Con columnas que tienen hora, \`BETWEEN\` recorta el último día a su primer instante.
 2. Escribe siempre \`>= inicio AND < siguiente inicio\`.
 3. \`created_at::date = ...\` es legible y correcto, pero renuncia al índice.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes extraer año, mes y día de una fecha, truncarla por período con DATE_TRUNC, calcular diferencias e intervalos y explicar el efecto de la zona horaria.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 12 · CASE: lógica condicional. Vas a clasificar registros en categorías de negocio, por ejemplo por antigüedad.
+
+**Para practicar (opcional):** ¿Cuánto tiempo pasó entre el alta y el abandono de cada oyente de Ritmo? En \`users\`, resta \`signup_at\` a \`churned_at\` donde \`churned_at\` no está en \`NULL\`.
 `,
   },
 ];

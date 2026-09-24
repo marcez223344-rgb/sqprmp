@@ -158,6 +158,16 @@ ORDER BY usos DESC;
 \`\`\`
 
 Si en una promoción pensada para un solo uso por persona la columna \`usos\` resulta mayor que \`clientes\`, significa que alguien la aplicó más de una vez: encontraste un uso indebido que conviene reportar.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes agrupar por una o varias columnas, calcular métricas por grupo y elegir el nivel de detalle que pide cada pregunta de negocio.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 16 · HAVING: filtrar grupos. Vas a quedarte solo con los grupos cuyos totales cumplen una condición.
+
+**Para practicar (opcional):** ¿Cuántos pedidos tuvo TiendaViva en cada canal de venta y cada estado? Agrupa la tabla \`orders\` por \`channel\` y \`status\` y cuenta los pedidos.
 `,
   },
 ];

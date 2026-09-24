@@ -184,6 +184,16 @@ También puedes concatenar un número directamente, como en \`'Pedido ' || id\`:
 - \`LEFT\`, \`RIGHT\` y \`SUBSTRING\` cortan por posición; \`POSITION\` encuentra esa posición cuando es variable.
 - \`SPLIT_PART\` parte por un separador y es la opción más legible para correos, códigos y referencias.
 - \`||\` concatena pero deja todo en NULL si algún operando lo es; \`CONCAT\` no, y además es la forma portable entre motores.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes normalizar textos con UPPER, LOWER, TRIM e INITCAP, extraer partes con SUBSTRING o SPLIT_PART y detectar espacios sobrantes o mayúsculas inconsistentes.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 10 · Funciones numéricas. Vas a redondear, dividir sin errores y calcular porcentajes.
+
+**Para practicar (opcional):** El departamento de Marketing de Pídelo quiere saludar a cada cliente por su nombre de pila. ¿Cuál es? Sácalo de la columna \`full_name\` de \`customers\` con SPLIT_PART.
 `,
   },
 ];

@@ -269,6 +269,16 @@ Y una vez que tengas el número, verifícalo: promedio por cantidad debería rec
 1. Sobre la tabla opcional de un \`LEFT JOIN\`, la condición va en el \`ON\`; en el \`WHERE\` lo convierte en \`INNER JOIN\`.
 2. \`NOT IN\` con un NULL en la lista devuelve cero filas: usa \`NOT EXISTS\`.
 3. Declara el grano de cada paso y agrega solo en el grano de lo que mides.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes aislar con método el paso que falla, contar filas antes y después de cada join y validar el resultado contra cifras conocidas.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 34 · Fundamentos de optimización. Con la consulta correcta, el siguiente paso es que sea rápida.
+
+**Para practicar (opcional):** En Pídelo, si unes \`orders\` con \`order_items\` y cuentas filas, ¿por qué salen más pedidos que los reales? Compara las filas antes y después del join.
 `,
   },
 ];

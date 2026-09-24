@@ -299,6 +299,16 @@ Decide con el negocio cuál de las dos corresponde, porque «promedio de los dí
 1. Media móvil de N días hacia atrás = \`ROWS BETWEEN N-1 PRECEDING AND CURRENT ROW\`.
 2. Para que el primer día ya tenga una media completa, calcula sobre más historia y filtra después de la ventana.
 3. Con huecos de calendario usa \`RANGE\` con \`INTERVAL\`, o rellena la serie con ceros si el negocio los cuenta.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes calcular totales acumulados, promedios móviles con marcos ROWS y detectar errores causados por períodos sin datos.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 28 · LAG y LEAD. Vas a comparar cada fila con la anterior o la siguiente.
+
+**Para practicar (opcional):** ¿Cuántos pedidos acumuló Pídelo día a día en agosto de 2025, y con qué promedio móvil de 7 días? Cuenta los pedidos por día de \`placed_at\` y aplica ventanas sobre ese conteo.
 `,
   },
 ];

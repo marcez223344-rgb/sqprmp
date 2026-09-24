@@ -238,6 +238,16 @@ Podrías calcular el total en una consulta, los cancelados en otra y dividir a m
 - Multiplica por \`100.0\` antes de dividir: entero sobre entero trunca.
 - \`nullif(denominador, 0)\` cambia un error fatal por un NULL honesto.
 - \`count(DISTINCT ...) FILTER (...)\` cuenta personas distintas en lugar de filas. Un \`sum(CASE ...)\` no puede hacer eso, porque cuenta cada pedido por separado.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes calcular métricas por segmento con \`SUM(CASE ...)\` y \`COUNT(...) FILTER\`, armar tablas pivote (un segmento por columna) y calcular tasas sin dividir por cero.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 25 · Funciones de ventana. Vas a calcular métricas por grupo sin colapsar las filas.
+
+**Para practicar (opcional):** ¿Qué porcentaje de los pedidos de cada ciudad de Pídelo tiene \`status\` igual a \`'cancelled'\`? Une \`orders\` con \`restaurants\` y esta con \`cities\`, y cuenta los cancelados con \`COUNT(*) FILTER\`.
 `,
   },
 ];

@@ -315,6 +315,16 @@ Con una referencia de ese tipo se arma un índice base 100, que expresa cada per
 1. \`LAG\` sobre una tabla de eventos mide el tiempo entre hechos consecutivos; convierte el intervalo a número para agregarlo.
 2. Marcar «empieza algo nuevo» con \`CASE\` sobre \`lag\` sesionaliza y detecta cambios de estado.
 3. \`FIRST_VALUE\` es directo; \`LAST_VALUE\` necesita \`ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING\`.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes traer el valor anterior o el siguiente con LAG y LEAD, calcular variaciones entre períodos y medir el tiempo entre eventos consecutivos.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 29 · Análisis de cohortes y retención. Empieza el nivel Analítica aplicada: vas a medir cuántos usuarios siguen activos con el tiempo.
+
+**Para practicar (opcional):** ¿Cuánto tiempo pasa entre pedidos consecutivos de un mismo cliente de Pídelo? En \`orders\`, aplica LAG sobre \`placed_at\` particionando por \`customer_id\`.
 `,
   },
 ];

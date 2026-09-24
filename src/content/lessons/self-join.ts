@@ -285,6 +285,16 @@ Guía rápida:
 ## Resumen
 
 Para comparar filas de una tabla entre sí, une la tabla consigo misma por los atributos que definen qué significa «parecido» y agrega una desigualdad entre los identificadores, como \`b.id > a.id\`. Sin esa desigualdad, el resultado incluye cada fila emparejada consigo misma y cada pareja repetida en los dos sentidos, y ambas cosas inflan cualquier conteo.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes resolver jerarquías con un self join, comparar filas de una misma tabla y evitar pares repetidos o filas emparejadas consigo mismas.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 20 · Joins de múltiples tablas. Vas a encadenar tres o más tablas sin duplicar importes.
+
+**Para practicar (opcional):** ¿Qué pares de restaurantes de Pídelo comparten ciudad y tipo de cocina? Une \`restaurants\` consigo misma y usa la condición \`a.id < b.id\` para no repetir pares.
 `,
   },
 ];

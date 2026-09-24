@@ -323,6 +323,16 @@ Para la negación, en cambio, la elección **sí** cambia el resultado: \`NOT IN
 1. Filtra y agrega antes de unir, porque el costo del join depende de cuántas filas entran.
 2. Dos tablas hijas del mismo padre se agregan por separado y después se unen.
 3. Para preguntar por existencia usa \`EXISTS\` o \`IN\`; para preguntar por no-existencia usa siempre \`NOT EXISTS\`.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes explicar por qué una consulta es lenta, filtrar y agregar temprano y evitar patrones costosos, como una función sobre la columna filtrada.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 35 · Índices y planes de ejecución. Vas a ver cuándo un índice acelera una consulta y cuándo no.
+
+**Para practicar (opcional):** ¿Cuántos pedidos recibió TiendaViva en 2024? Escríbelo con \`EXTRACT(YEAR FROM created_at) = 2024\` y luego con un rango de fechas, y explica cuál puede usar un índice.
 `,
   },
 ];

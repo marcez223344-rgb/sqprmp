@@ -90,6 +90,16 @@ WHERE country IN ('AR', 'UY')
 \`\`\`
 
 Con \`IN\`, la lista de países es una sola condición, así que ya no hay ninguna mezcla de \`AND\` con \`OR\` que se pueda interpretar de dos maneras y los paréntesis dejan de ser necesarios.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes controlar la precedencia de AND, OR y NOT con paréntesis, usar IN y BETWEEN y diagnosticar un filtro que devuelve filas de más o de menos.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 8 · NULL: el valor desconocido. Vas a ver por qué esas comparaciones fallan cuando falta un dato.
+
+**Para practicar (opcional):** ¿Qué restaurantes de Pídelo con \`cuisine\` igual a \`'sushi'\`, \`'tacos'\` o \`'parrilla'\` tienen un \`rating\` entre \`4.0\` y \`4.5\`?
 `,
   },
 ];

@@ -1473,6 +1473,16 @@ Escribir esa definición y confirmarla con quien te pidió el dato toma cinco mi
 - Antes de escribir SQL define cuatro cosas: la pregunta, las tablas, las filas y la forma del resultado.
 - Las métricas de negocio necesitan una definición explícita de estado, fechas y moneda.
 - Confirmar esa definición con quien pide el dato ahorra tiempo y evita entregar el número equivocado.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes explicar qué es una base de datos relacional, distinguir datos operativos de analíticos y decir en qué se diferencia SQL de una hoja de cálculo.
+
+**Antes de seguir:** responde el quiz de esta sección.
+
+**Lo que sigue:** Sección 2 · Tablas, filas, columnas y tipos de datos. Vas a ver cómo se organiza una tabla por dentro.
+
+**Para practicar (opcional):** ¿Qué pregunta haría cada semana el departamento de Operaciones de Pídelo, y se responde con datos operativos o analíticos?
 $c1686$, null, null, true, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -1594,6 +1604,16 @@ A veces necesitas cambiar el tipo de un valor. Eso se llama conversión (en ingl
 - Cada columna tiene un tipo; el tipo define qué operaciones son válidas.
 - El dinero va en `numeric`, los instantes en `timestamptz` y las fechas se escriben en formato ISO (año-mes-día).
 - Convierte tipos solo cuando lo necesitas y sabiendo qué puede fallar.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes leer el esquema de una tabla, es decir, sus columnas y tipos, y reconocer las claves primarias y foráneas que la conectan con otras.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 3 · SELECT: tu primera consulta. Vas a traer de una tabla exactamente las columnas que ya sabes leer.
+
+**Para practicar (opcional):** En Bolsillo, ¿qué columna de la tabla `transactions` indica a qué cuenta pertenece cada movimiento, y a qué columna de qué tabla apunta?
 $c1697$, null, (select id from public.datasets where slug = $c1698$tiendaviva$c1698$), true, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -1729,6 +1749,16 @@ FROM customers;
 - Mayúsculas para palabras clave, una cláusula por línea, columnas listadas.
 - Comillas simples para texto; evita comillas dobles en nombres.
 - Comenta el porqué de las reglas de negocio.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes escribir un SELECT que devuelve solo las columnas que necesitas, leer la tabla de resultados y dar a la consulta un formato fácil de revisar.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 4 · Alias y expresiones. Sobre ese SELECT vas a calcular columnas nuevas y ponerles nombres claros.
+
+**Para practicar (opcional):** ¿Qué tipo de cocina y qué calificación tiene cada restaurante de Pídelo? Trae las columnas `name`, `cuisine` y `rating` de la tabla `restaurants`.
 $c1709$, null, (select id from public.datasets where slug = $c1710$tiendaviva$c1710$), true, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -1891,6 +1921,16 @@ Ordenar por una columna que no está en la lista del `SELECT` es válido porque 
 - Dividir dos enteros esperando decimales y recibir un resultado truncado.
 - Usar el alias dentro del `WHERE`, que devuelve el error «column does not exist».
 - Poner el alias entre comillas simples: `AS 'neto'` no define un alias, define un texto.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes crear columnas calculadas con operaciones aritméticas y de texto, controlar el orden del cálculo con paréntesis y renombrar el resultado con un alias.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 5 · DISTINCT: valores únicos. Vas a obtener la lista de valores distintos que aparecen en una columna.
+
+**Para practicar (opcional):** ¿Cuánto habría pagado cada cliente de Pídelo sin descuento? En `orders`, suma `subtotal` y `delivery_fee` (el costo de envío) con el alias `total_sin_descuento`.
 $c1715$, null, (select id from public.datasets where slug = $c1716$tiendaviva$c1716$), true, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -1958,6 +1998,16 @@ ORDER BY currency;
 ```
 
 `ORDER BY` se aplica después de eliminar los duplicados, así que el resultado queda ordenado alfabéticamente y sin repeticiones.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes listar los valores únicos de una o varias columnas y notar cuándo un DISTINCT oculta filas duplicadas que conviene investigar.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 6 · WHERE: filtrar filas. Hasta ahora usaste todas las filas; con WHERE te quedas solo con las que responden a una pregunta concreta.
+
+**Para practicar (opcional):** ¿Qué combinaciones de país y plan existen entre los oyentes de Ritmo? Busca las combinaciones distintas de `country` y `plan_tier` en la tabla `users`.
 $c1721$, null, (select id from public.datasets where slug = $c1722$tiendaviva$c1722$), true, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -2097,6 +2147,16 @@ WHERE created_at >= '2025-03-01'
 ```
 
 El límite superior es el día **16** a las 00:00 y está excluido, así que entran todos los pedidos del día 15 a cualquier hora.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes filtrar filas por igualdad, rango y patrón, combinar condiciones con AND, OR y NOT y filtrar fechas sin perder registros en los bordes.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 7 · Operadores de comparación y lógicos. Vas a ver en qué orden se evalúan AND y OR, y a usar IN y BETWEEN.
+
+**Para practicar (opcional):** ¿Qué transferencias de Bolsillo fallaron en agosto de 2025? En `transfers`, filtra `status` igual a `'failed'` y `created_at` en ese mes.
 $c1733$, null, (select id from public.datasets where slug = $c1734$tiendaviva$c1734$), true, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -2179,6 +2239,16 @@ WHERE country IN ('AR', 'UY')
 ```
 
 Con `IN`, la lista de países es una sola condición, así que ya no hay ninguna mezcla de `AND` con `OR` que se pueda interpretar de dos maneras y los paréntesis dejan de ser necesarios.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes controlar la precedencia de AND, OR y NOT con paréntesis, usar IN y BETWEEN y diagnosticar un filtro que devuelve filas de más o de menos.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 8 · NULL: el valor desconocido. Vas a ver por qué esas comparaciones fallan cuando falta un dato.
+
+**Para practicar (opcional):** ¿Qué restaurantes de Pídelo con `cuisine` igual a `'sushi'`, `'tacos'` o `'parrilla'` tienen un `rating` entre `4.0` y `4.5`?
 $c1739$, null, (select id from public.datasets where slug = $c1740$tiendaviva$c1740$), true, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -2316,6 +2386,16 @@ ORDER BY rating_o_cero DESC, id;
 ```
 
 Dos detalles de esa consulta. El alias `rating_o_cero` sí se puede usar dentro de `ORDER BY`, aunque no se pueda usar en `WHERE`. Y el segundo criterio de orden, `id`, existe para que el resultado sea siempre el mismo: cuando varios vendedores tienen la misma calificación, sin un criterio de desempate el motor puede devolverlos en cualquier orden y la lista cambia de una ejecución a otra.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes explicar por qué `NULL = NULL` no es verdadero, filtrar con IS NULL e IS NOT NULL y reemplazar datos faltantes con COALESCE.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 9 · Funciones de texto. Empieza el nivel Transformar datos: vas a limpiar y normalizar textos.
+
+**Para practicar (opcional):** ¿Desde qué dispositivo se hizo cada reproducción de Ritmo? En `plays`, muestra `device` y, cuando esté en `NULL`, el texto `'sin dato'` usando COALESCE.
 $c1751$, null, (select id from public.datasets where slug = $c1752$tiendaviva$c1752$), true, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -2492,6 +2572,16 @@ WHERE o.currency = 'ARS'
 ```
 
 Un pedido con dos intentos de pago aprobados aparecería dos veces en el resultado. En este dataset eso no ocurre, y además el filtro `pay.status = 'approved'` reduce la relación a un pago aprobado por pedido.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes unir dos tablas por su clave primaria y su clave foránea, calificar columnas con alias de tabla y prever cuántas filas devolverá el join.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 18 · LEFT, RIGHT y FULL JOIN. Vas a conservar también las filas sin pareja, como los clientes sin pedidos.
+
+**Para practicar (opcional):** ¿En qué ciudad opera cada restaurante de Pídelo? Une `restaurants` con `cities`: la columna `city_id` de `restaurants` apunta a la columna `id` de `cities`.
 $c1763$, null, (select id from public.datasets where slug = $c1764$tiendaviva$c1764$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -2565,6 +2655,16 @@ Restar dos marcas de tiempo, `delivered_at` menos `placed_at`, devuelve un valor
 - Pedir en el mismo `SELECT` una columna sin agregar y una función de agregación (`SELECT customer_id, count(*) FROM orders`). PostgreSQL responde «must appear in the GROUP BY clause», porque no sabe qué `customer_id` mostrar al lado de un conteo que resume miles de filas. La solución es `GROUP BY`, en la sección 15.
 - Usar `count(columna)` creyendo que cuenta filas, cuando en realidad deja afuera todas las filas donde esa columna es NULL.
 - Entregar un promedio con catorce decimales por no haber usado `round` al presentar.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes resumir filas con COUNT, SUM, AVG, MIN y MAX, distinguir `COUNT(*)` de `COUNT(columna)` y detectar cuándo un promedio engaña.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 15 · GROUP BY: resumir por categoría. Vas a calcular esas métricas por grupo, por ejemplo por país o por mes.
+
+**Para practicar (opcional):** ¿Cuántas reseñas tiene TiendaViva, cuántas traen comentario y cuál es la calificación promedio? En `reviews`, compara `COUNT(*)` con `COUNT(comment)` y calcula `AVG(rating)`.
 $c1769$, null, (select id from public.datasets where slug = $c1770$pidelo$c1770$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -2704,6 +2804,16 @@ ORDER BY usos DESC;
 ```
 
 Si en una promoción pensada para un solo uso por persona la columna `usos` resulta mayor que `clientes`, significa que alguien la aplicó más de una vez: encontraste un uso indebido que conviene reportar.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes agrupar por una o varias columnas, calcular métricas por grupo y elegir el nivel de detalle que pide cada pregunta de negocio.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 16 · HAVING: filtrar grupos. Vas a quedarte solo con los grupos cuyos totales cumplen una condición.
+
+**Para practicar (opcional):** ¿Cuántos pedidos tuvo TiendaViva en cada canal de venta y cada estado? Agrupa la tabla `orders` por `channel` y `status` y cuenta los pedidos.
 $c1781$, null, (select id from public.datasets where slug = $c1782$pidelo$c1782$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -2837,6 +2947,16 @@ WHERE u.country = 'UY'
 ```
 
 La condición `u.country = 'UY'` es sobre `users`, que es la tabla izquierda, así que puede ir en el `WHERE` sin romper el LEFT JOIN: esas filas existen con valor propio, no dependen de la unión.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes elegir el join adecuado, encontrar registros sin pareja con LEFT JOIN e IS NULL y evitar que WHERE anule un LEFT JOIN.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 19 · Self joins. Vas a unir una tabla consigo misma para comparar sus filas.
+
+**Para practicar (opcional):** ¿Qué oyentes de Ritmo nunca reprodujeron una canción? Une `users` con `plays` usando LEFT JOIN y conserva las filas donde la columna `id` de `plays` está en `NULL`.
 $c1793$, null, (select id from public.datasets where slug = $c1794$bolsillo$c1794$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -3043,6 +3163,16 @@ ORDER BY k.user_id, k.event_at;
 ```
 
 Como el `OVER` no lleva `ORDER BY`, la ventana es la partición completa y cada fila recibe el total de intentos de esa persona. Si le agregaras un `ORDER BY`, cada fila mostraría en cambio cuántos intentos llevaba hasta ese momento.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes usar OVER con PARTITION BY y ORDER BY para calcular promedios por grupo y participaciones sobre el total sin perder el detalle de cada fila.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 26 · Funciones de ranking. Vas a asignar a cada fila un puesto dentro de su grupo.
+
+**Para practicar (opcional):** ¿Cuánto se aleja el precio de cada plato de Pídelo del promedio de su restaurante? En `menu_items`, compara `price` con `AVG(price) OVER (PARTITION BY restaurant_id)`.
 $c1805$, null, (select id from public.datasets where slug = $c1806$bolsillo$c1806$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -3210,6 +3340,16 @@ También puedes concatenar un número directamente, como en `'Pedido ' || id`: P
 - `LEFT`, `RIGHT` y `SUBSTRING` cortan por posición; `POSITION` encuentra esa posición cuando es variable.
 - `SPLIT_PART` parte por un separador y es la opción más legible para correos, códigos y referencias.
 - `||` concatena pero deja todo en NULL si algún operando lo es; `CONCAT` no, y además es la forma portable entre motores.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes normalizar textos con UPPER, LOWER, TRIM e INITCAP, extraer partes con SUBSTRING o SPLIT_PART y detectar espacios sobrantes o mayúsculas inconsistentes.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 10 · Funciones numéricas. Vas a redondear, dividir sin errores y calcular porcentajes.
+
+**Para practicar (opcional):** El departamento de Marketing de Pídelo quiere saludar a cada cliente por su nombre de pila. ¿Cuál es? Sácalo de la columna `full_name` de `customers` con SPLIT_PART.
 $c1817$, null, (select id from public.datasets where slug = $c1818$tiendaviva$c1818$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -3405,6 +3545,16 @@ Las dos formas son válidas y hacen lo mismo. En SQL Server vas a encontrar `TOP
 - `LIMIT` corta después de ordenar, así que sin `ORDER BY` las filas que recibes son arbitrarias.
 - `OFFSET = (página - 1) * tamaño`, y siempre con un orden determinista.
 - `LIMIT` ignora los empates del borde; si esos empates importan, necesitas funciones de ranking.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes ordenar por una o varias columnas, decidir dónde van los NULL, obtener los primeros N registros y paginar con LIMIT y OFFSET.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 14 · Funciones de agregación. Empieza el nivel Agregar y combinar: vas a resumir filas en totales, promedios, mínimos y máximos.
+
+**Para practicar (opcional):** ¿Cuáles son los 10 artistas de Ritmo con más oyentes mensuales? Ordena `artists` por `monthly_listeners` de mayor a menor y desempata por `id`.
 $c1835$, null, (select id from public.datasets where slug = $c1836$tiendaviva$c1836$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -3647,6 +3797,16 @@ WHERE is_flagged;
 - `COALESCE` y `NULLIF` son `CASE` especializados en NULL: no permiten hacer nada que `CASE` no haga, pero se leen mucho mejor.
 - Rellenar un NULL cambia el significado del dato: hazlo cuando solo vas a mostrarlo y piénsalo dos veces si ese valor va a entrar en un cálculo.
 - Con tres o más categorías, vuelve a `CASE`.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes escribir expresiones CASE que convierten códigos en etiquetas y rangos numéricos en segmentos, sin olvidar la rama ELSE.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 13 · Ordenar y limitar resultados. Vas a ordenar los resultados como pide el negocio y quedarte con los primeros.
+
+**Para practicar (opcional):** ¿Qué canciones de Ritmo son cortas, medianas o largas? En `tracks`, según `duration_seconds`, menos de 180 es corta, más de 300 es larga y el resto es mediana.
 $c1853$, null, (select id from public.datasets where slug = $c1854$bolsillo$c1854$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -3902,6 +4062,16 @@ Ambas son correctas y se leen muy bien. Su desventaja es de rendimiento: al apli
 1. Con columnas que tienen hora, `BETWEEN` recorta el último día a su primer instante.
 2. Escribe siempre `>= inicio AND < siguiente inicio`.
 3. `created_at::date = ...` es legible y correcto, pero renuncia al índice.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes extraer año, mes y día de una fecha, truncarla por período con DATE_TRUNC, calcular diferencias e intervalos y explicar el efecto de la zona horaria.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 12 · CASE: lógica condicional. Vas a clasificar registros en categorías de negocio, por ejemplo por antigüedad.
+
+**Para practicar (opcional):** ¿Cuánto tiempo pasó entre el alta y el abandono de cada oyente de Ritmo? En `users`, resta `signup_at` a `churned_at` donde `churned_at` no está en `NULL`.
 $c1871$, null, (select id from public.datasets where slug = $c1872$tiendaviva$c1872$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -4134,6 +4304,16 @@ Cuidado con los NULL: si uno de los argumentos es NULL, `GREATEST` y `LEAST` lo 
 - `ABS` para desvíos y tolerancias; `MOD` para restos y múltiplos.
 - `POWER` para crecimiento compuesto, nunca una multiplicación de tasas.
 - `GREATEST`/`LEAST` aplican mínimos y topes fila por fila.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes redondear con ROUND, TRUNC, CEIL y FLOOR, evitar la división entera y la división por cero y calcular porcentajes correctamente.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 11 · Fechas y horas. Vas a extraer partes de una fecha, agrupar por período y calcular diferencias de tiempo.
+
+**Para practicar (opcional):** ¿Qué porcentaje del subtotal fue descuento en cada pedido de Pídelo? En `orders`, divide `discount` por `subtotal`, redondea a un decimal y protege la división con NULLIF.
 $c1889$, null, (select id from public.datasets where slug = $c1890$bolsillo$c1890$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -4375,6 +4555,16 @@ Cada fila del resultado dice «esta persona usó esta promoción tantas veces».
 - Umbral de volumen, umbral de promedio con muestra mínima y comparación entre agregados cubren la mayoría de los reportes reales.
 - Un ranking con promedios necesita siempre un mínimo de observaciones y un desempate explícito.
 - `HAVING` solo filtra los grupos que se formaron. Para que aparezcan los grupos vacíos hay que traerlos con un join, no con un umbral.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes filtrar grupos por sus valores agregados con HAVING, explicar en qué se diferencia de WHERE y combinar ambos en una misma consulta.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 17 · INNER JOIN: combinar tablas. Vas a unir dos tablas relacionadas por sus claves.
+
+**Para practicar (opcional):** ¿Qué oyentes de Ritmo tienen más de 50 reproducciones completas? En `plays`, filtra `completed` en `true` con WHERE, agrupa por `user_id` y filtra los grupos con HAVING.
 $c1907$, null, (select id from public.datasets where slug = $c1908$pidelo$c1908$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -4632,6 +4822,16 @@ Guía rápida:
 ## Resumen
 
 Para comparar filas de una tabla entre sí, une la tabla consigo misma por los atributos que definen qué significa «parecido» y agrega una desigualdad entre los identificadores, como `b.id > a.id`. Sin esa desigualdad, el resultado incluye cada fila emparejada consigo misma y cada pareja repetida en los dos sentidos, y ambas cosas inflan cualquier conteo.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes resolver jerarquías con un self join, comparar filas de una misma tabla y evitar pares repetidos o filas emparejadas consigo mismas.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 20 · Joins de múltiples tablas. Vas a encadenar tres o más tablas sin duplicar importes.
+
+**Para practicar (opcional):** ¿Qué pares de restaurantes de Pídelo comparten ciudad y tipo de cocina? Une `restaurants` consigo misma y usa la condición `a.id < b.id` para no repetir pares.
 $c1925$, null, (select id from public.datasets where slug = $c1926$tiendaviva$c1926$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -4854,6 +5054,16 @@ GROUP BY s.store_name;
 - Un JOIN uno-a-muchos repite filas; sumar columnas del lado «uno» infla el total.
 - Dos relaciones uno-a-muchos se multiplican entre sí (3 × 2 = 6 filas).
 - Filtra la relación hasta hacerla única, o usa `count(DISTINCT ...)`.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes planificar el camino de joins a partir del modelo de datos, unir tres o más tablas y agregar el resultado sin duplicar importes.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 21 · Subconsultas. Empieza el nivel Consultas avanzadas: vas a usar el resultado de una consulta dentro de otra.
+
+**Para practicar (opcional):** ¿Cuántas reproducciones tuvo cada artista de Ritmo? Encadena `plays`, `tracks`, `albums` y `artists` siguiendo sus claves foráneas y agrupa por artista.
 $c1943$, null, (select id from public.datasets where slug = $c1944$tiendaviva$c1944$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -5123,6 +5333,16 @@ Regla práctica: escribe primero la versión que se entienda mejor, mide con `EX
 1. Correlacionada significa que la subconsulta menciona una columna de afuera, y por eso se evalúa por cada fila externa.
 2. Usa la correlacionada para una o dos métricas al lado de la tabla principal, y el join con `GROUP BY` cuando son varias.
 3. Califica siempre los nombres de columna con el alias de su tabla: la correlación involuntaria es un error difícil de detectar.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes escribir subconsultas escalares, de lista y en FROM, filtrar con EXISTS y NOT EXISTS sin caer en la trampa de NOT IN con NULL y reconocer una subconsulta correlacionada.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 22 · CTE: consultas paso a paso. Vas a ordenar esas consultas en pasos con nombre usando WITH.
+
+**Para practicar (opcional):** ¿Qué restaurantes de Pídelo tienen un `rating` mayor que el promedio de su ciudad? Resuélvelo con una subconsulta correlacionada sobre `restaurants`.
 $c1961$, null, (select id from public.datasets where slug = $c1962$bolsillo$c1962$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -5407,6 +5627,16 @@ La condición `dia < DATE '2025-09-30'` es lo único que evita que la consulta s
 ## Resumen
 
 `WITH RECURSIVE` se compone de un caso base, un `UNION ALL` y un paso recursivo que se refiere a sí mismo. Termina cuando una vuelta deja de agregar filas nuevas. Agrega siempre un límite de profundidad o un registro del camino recorrido: los datos con ciclos aparecen más seguido de lo que uno esperaría.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes dividir una consulta compleja en CTE (por _common table expression_) con nombres claros y recorrer jerarquías con una CTE recursiva.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 23 · Operaciones de conjuntos. Vas a apilar o comparar resultados completos de consultas distintas.
+
+**Para practicar (opcional):** ¿Qué comercios de Bolsillo tuvieron más movimientos que el promedio de su rubro? Cuenta `transactions` por `merchant_id` en una CTE y promedia por `category` de `merchants` en otra.
 $c1979$, null, (select id from public.datasets where slug = $c1980$tiendaviva$c1980$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -5617,6 +5847,16 @@ Podrías calcular el total en una consulta, los cancelados en otra y dividir a m
 - Multiplica por `100.0` antes de dividir: entero sobre entero trunca.
 - `nullif(denominador, 0)` cambia un error fatal por un NULL honesto.
 - `count(DISTINCT ...) FILTER (...)` cuenta personas distintas en lugar de filas. Un `sum(CASE ...)` no puede hacer eso, porque cuenta cada pedido por separado.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes calcular métricas por segmento con `SUM(CASE ...)` y `COUNT(...) FILTER`, armar tablas pivote (un segmento por columna) y calcular tasas sin dividir por cero.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 25 · Funciones de ventana. Vas a calcular métricas por grupo sin colapsar las filas.
+
+**Para practicar (opcional):** ¿Qué porcentaje de los pedidos de cada ciudad de Pídelo tiene `status` igual a `'cancelled'`? Une `orders` con `restaurants` y esta con `cities`, y cuenta los cancelados con `COUNT(*) FILTER`.
 $c1997$, null, (select id from public.datasets where slug = $c1998$tiendaviva$c1998$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -5862,6 +6102,16 @@ Si la consulta devuelve 3 filas y pides `ntile(4)`, obtienes los bloques 1, 2 y 
 1. `ntile(n)` reparte las filas ordenadas en `n` bloques de tamaño casi igual.
 2. Los bloques se llenan por posición y no por valor, así que dos filas empatadas pueden quedar separadas.
 3. Agrega a la entidad correcta antes de segmentar y fija siempre un desempate estable.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes diferenciar ROW_NUMBER, RANK y DENSE_RANK cuando hay empates, obtener los primeros N de cada grupo y armar cuartiles con NTILE.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 27 · Totales acumulados y promedios móviles. Vas a usar marcos de ventana para sumar y promediar a lo largo del tiempo.
+
+**Para practicar (opcional):** ¿Cuáles son los tres platos más caros de cada restaurante de Pídelo? Numera `menu_items` con ROW_NUMBER por `restaurant_id`, de mayor a menor `price`.
 $c2015$, null, (select id from public.datasets where slug = $c2016$ritmo$c2016$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -6133,6 +6383,16 @@ Decide con el negocio cuál de las dos corresponde, porque «promedio de los dí
 1. Media móvil de N días hacia atrás = `ROWS BETWEEN N-1 PRECEDING AND CURRENT ROW`.
 2. Para que el primer día ya tenga una media completa, calcula sobre más historia y filtra después de la ventana.
 3. Con huecos de calendario usa `RANGE` con `INTERVAL`, o rellena la serie con ceros si el negocio los cuenta.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes calcular totales acumulados, promedios móviles con marcos ROWS y detectar errores causados por períodos sin datos.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 28 · LAG y LEAD. Vas a comparar cada fila con la anterior o la siguiente.
+
+**Para practicar (opcional):** ¿Cuántos pedidos acumuló Pídelo día a día en agosto de 2025, y con qué promedio móvil de 7 días? Cuenta los pedidos por día de `placed_at` y aplica ventanas sobre ese conteo.
 $c2033$, null, (select id from public.datasets where slug = $c2034$ritmo$c2034$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -6438,6 +6698,16 @@ Como siempre, escribe primero la versión que se lee mejor y revisa los planes d
 ## Resumen
 
 `INTERSECT` se evalúa antes que `UNION` y `EXCEPT`; estos dos van de izquierda a derecha. Usa paréntesis aunque no cambien el resultado. `EXISTS`/`NOT EXISTS` y los joins son alternativas legítimas: elige por lo que necesitas en el resultado y por cómo se lee.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes apilar resultados con UNION y UNION ALL, compararlos con INTERSECT y EXCEPT y alinear columnas y tipos entre las consultas que combinas.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 24 · Agregación condicional. Vas a obtener varias métricas por segmento en una sola consulta.
+
+**Para practicar (opcional):** ¿Qué oyentes de Ritmo siguen a algún artista pero nunca crearon una lista de reproducción? Con EXCEPT, quita de los `user_id` de `follows` los `user_id` de `playlists`.
 $c2051$, null, (select id from public.datasets where slug = $c2052$bolsillo$c2052$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -6725,6 +6995,16 @@ Con una referencia de ese tipo se arma un índice base 100, que expresa cada per
 1. `LAG` sobre una tabla de eventos mide el tiempo entre hechos consecutivos; convierte el intervalo a número para agregarlo.
 2. Marcar «empieza algo nuevo» con `CASE` sobre `lag` sesionaliza y detecta cambios de estado.
 3. `FIRST_VALUE` es directo; `LAST_VALUE` necesita `ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING`.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes traer el valor anterior o el siguiente con LAG y LEAD, calcular variaciones entre períodos y medir el tiempo entre eventos consecutivos.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 29 · Análisis de cohortes y retención. Empieza el nivel Analítica aplicada: vas a medir cuántos usuarios siguen activos con el tiempo.
+
+**Para practicar (opcional):** ¿Cuánto tiempo pasa entre pedidos consecutivos de un mismo cliente de Pídelo? En `orders`, aplica LAG sobre `placed_at` particionando por `customer_id`.
 $c2069$, null, (select id from public.datasets where slug = $c2070$ritmo$c2070$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -6979,6 +7259,16 @@ Dos advertencias. La primera: `ended_on IS NULL` significa «la suscripción sig
 1. La retención a N días usa ventanas relativas al `signup_at` de cada persona, con el límite superior abierto.
 2. Declara qué definición estás usando y excluye a quienes todavía no completaron la ventana.
 3. Churn = bajas del período dividido por la base activa al inicio del período, y no es el complemento de la retención por cohorte.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes definir cohortes, es decir, grupos de usuarios según su mes de alta, y medir cuántos siguen activos y cuántos abandonan.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 30 · Análisis de funnels. Vas a medir, con un embudo de conversión (_funnel_), cuántos usuarios completan cada paso.
+
+**Para practicar (opcional):** ¿Qué parte de cada cohorte mensual de clientes de Pídelo pidió algo el mes siguiente? Toma la cohorte de `signup_at` en `customers` y la actividad de `placed_at` en `orders`.
 $c2087$, null, (select id from public.datasets where slug = $c2088$ritmo$c2088$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -7274,6 +7564,16 @@ Esto no lo resuelve el SQL, lo resuelve la nota al pie. Publica el tiempo **junt
 1. El último paso alcanzado clasifica cada unidad una sola vez y suma el total: es el cuadro que permite priorizar el trabajo.
 2. La duración se calcula con `extract(epoch FROM fin - inicio) / 60` y se resume con la mediana o el percentil 90, nunca con el promedio.
 3. Todo tiempo de conversión se publica junto a la tasa de conversión de ese paso, porque solo se mide a los que llegaron.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes modelar un embudo de conversión a partir de una tabla de eventos, calcular la conversión de cada paso y comparar embudos por segmento.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 31 · Deduplicación. Vas a detectar registros repetidos y decidir con reglas explícitas cuál conservar.
+
+**Para practicar (opcional):** ¿Qué proporción de las personas de Bolsillo hizo una carga (`kind` igual a `'topup'`) y, después, un pago con tarjeta (`kind` igual a `'card_payment'`)? Une `users`, `accounts` y `transactions`.
 $c2105$, null, (select id from public.datasets where slug = $c2106$pidelo$c2106$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -7518,6 +7818,16 @@ Antes de eliminar, pregúntate qué otras filas dependen de las que se van. Si b
 1. `ROW_NUMBER` con `PARTITION BY` (identidad) y `ORDER BY` (regla) sirve en cualquier motor.
 2. `DISTINCT ON` es la versión breve de PostgreSQL y exige que el `ORDER BY` empiece por sus expresiones.
 3. Desempate único y `NULLS LAST` cuando corresponda; revisa las dependencias antes de borrar.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes detectar duplicados exactos y aproximados, elegir con una regla explícita qué registro conservar y aplicarla con ROW_NUMBER o DISTINCT ON.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 32 · Investigaciones de calidad de datos. Vas a auditar datasets completos: valores imposibles y totales que no cuadran.
+
+**Para practicar (opcional):** ¿Cuál es el último evento de cada pedido de Pídelo? Deja una fila por `order_id` de `order_events` con DISTINCT ON y compárala con el `status` de `orders`.
 $c2123$, null, (select id from public.datasets where slug = $c2124$tiendaviva$c2124$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -7793,6 +8103,16 @@ Un auditor no borra ni corrige las filas malas por su cuenta. Documenta la regla
 - Las reglas de dominio (un campo), las reglas cruzadas (dos tablas) y los huecos referenciales (el padre sin hijos) son tres familias de chequeos distintas.
 - El antijoin se escribe con `NOT EXISTS` o con `LEFT JOIN ... IS NULL`; `NOT IN` sobre columnas con nulos devuelve vacío en silencio.
 - Reporta una fila por regla con `UNION ALL`, incluye también las reglas que pasan y muestra siempre el total de referencia.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes diseñar chequeos de integridad, reconciliar totales entre tablas, medir el impacto de cada problema y respaldarlo con consultas reproducibles.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 33 · Depuración de consultas. Vas a encontrar el paso exacto en el que una consulta deja de dar el resultado correcto.
+
+**Para practicar (opcional):** ¿Cuántos pedidos de agosto de 2025 son de restaurantes de Pídelo con `is_active` en `false`, y qué porcentaje del mes representan? Une `orders` con `restaurants`.
 $c2141$, null, (select id from public.datasets where slug = $c2142$ritmo$c2142$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -8034,6 +8354,16 @@ Y una vez que tengas el número, verifícalo: promedio por cantidad debería rec
 1. Sobre la tabla opcional de un `LEFT JOIN`, la condición va en el `ON`; en el `WHERE` lo convierte en `INNER JOIN`.
 2. `NOT IN` con un NULL en la lista devuelve cero filas: usa `NOT EXISTS`.
 3. Declara el grano de cada paso y agrega solo en el grano de lo que mides.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes aislar con método el paso que falla, contar filas antes y después de cada join y validar el resultado contra cifras conocidas.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 34 · Fundamentos de optimización. Con la consulta correcta, el siguiente paso es que sea rápida.
+
+**Para practicar (opcional):** En Pídelo, si unes `orders` con `order_items` y cuentas filas, ¿por qué salen más pedidos que los reales? Compara las filas antes y después del join.
 $c2159$, null, (select id from public.datasets where slug = $c2160$tiendaviva$c2160$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -8256,6 +8586,16 @@ Resultado, definiciones, limitaciones y **una** conclusión en una frase. Si la 
 1. Cierra los totales y verifica que ningún join haya duplicado filas antes de agregar.
 2. Mira los extremos, pon un umbral mínimo de volumen y decláralo de antemano.
 3. Entrega el número con sus definiciones, sus limitaciones y una conclusión escrita.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes traducir un pedido ambiguo a preguntas de datos precisas, dejar escritos tus supuestos y entregar resultados con su contexto y sus limitaciones.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 38 · Desafíos de entrevista técnica. Vas a resolver problemas clásicos de entrevista con tiempo limitado.
+
+**Para practicar (opcional):** El departamento de Operaciones de Pídelo pregunta: «¿Cuántas entregas llegan tarde?». Define «tarde» con `delivered_at`, `placed_at` y `promised_minutes`, decide qué hacer con los cancelados y entrega la cifra.
 $c2177$, null, (select id from public.datasets where slug = $c2178$pidelo$c2178$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -8455,6 +8795,16 @@ Encontrar tu propio error durante la entrevista suma puntos en lugar de restarlo
 1. Los errores caros producen resultados plausibles: nulos, joins que filtran de más y husos horarios.
 2. Verifica el grano y el orden de magnitud antes de entregar.
 3. Detectar y corregir tu propio error en voz alta juega a tu favor.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes resolver bajo tiempo problemas típicos de entrevista, como los primeros N por grupo, rachas y duplicados, y explicar en voz alta tu razonamiento.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 39 · Proyectos finales (capstone). Vas a hacer un análisis completo de punta a punta para tu portafolio.
+
+**Para practicar (opcional):** ¿Cuál es la racha más larga de días seguidos con pagos con tarjeta de cada cuenta de Bolsillo? Usa `transactions` con `kind` igual a `'card_payment'`.
 $c2195$, null, (select id from public.datasets where slug = $c2196$bolsillo$c2196$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -8701,6 +9051,16 @@ Un uso frecuente en analítica es reasignar cada fila a su categoría **raíz**,
 1. `array_agg(... ORDER BY ...)` construye listas reproducibles, y `array_to_string`, `cardinality` y el `GROUP BY` sobre el array hacen el resto.
 2. `jsonb_build_object` arma documentos y ordena las claves; `->>` extrae un valor como texto.
 3. Las listas y los documentos son para la capa de presentación, no para reemplazar el modelo de datos.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes combinar CTE, ventanas y agregación condicional en un análisis completo, usar arrays y JSON y escribir consultas largas fáciles de mantener.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 37 · Casos de negocio. Vas a resolver pedidos ambiguos tal como llegan en la vida real.
+
+**Para practicar (opcional):** ¿Por qué niveles de verificación de identidad (KYC, por _know your customer_) pasó cada persona de Bolsillo? Arma con `array_agg` la lista de `to_level` de `kyc_events` con `outcome` igual a `'approved'`, ordenada por `event_at`.
 $c2213$, null, (select id from public.datasets where slug = $c2214$pidelo$c2214$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -9218,6 +9578,16 @@ Para la negación, en cambio, la elección **sí** cambia el resultado: `NOT IN`
 1. Filtra y agrega antes de unir, porque el costo del join depende de cuántas filas entran.
 2. Dos tablas hijas del mismo padre se agregan por separado y después se unen.
 3. Para preguntar por existencia usa `EXISTS` o `IN`; para preguntar por no-existencia usa siempre `NOT EXISTS`.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes explicar por qué una consulta es lenta, filtrar y agregar temprano y evitar patrones costosos, como una función sobre la columna filtrada.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 35 · Índices y planes de ejecución. Vas a ver cuándo un índice acelera una consulta y cuándo no.
+
+**Para practicar (opcional):** ¿Cuántos pedidos recibió TiendaViva en 2024? Escríbelo con `EXTRACT(YEAR FROM created_at) = 2024` y luego con un rango de fechas, y explica cuál puede usar un índice.
 $c2249$, null, (select id from public.datasets where slug = $c2250$pidelo$c2250$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 
@@ -9492,6 +9862,16 @@ Lo que ese pedido no es: «ponle un índice a `orders`». Y hay una pregunta pre
 1. `Nested Loop`, `Hash Join` y `Merge Join` son las tres formas de unir; el `Nested Loop` con muchas repeticiones es el patrón de las consultas que se degradan.
 2. En un índice compuesto van primero las columnas de igualdad y al final la de rango, y el índice también puede ahorrar el `Sort`.
 3. Un índice cuesta en cada escritura, así que el pedido se hace con la consulta, la selectividad medida y el índice propuesto.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes leer un plan de ejecución básico, explicar cuándo un índice ayuda y proponer una mejora de consulta o de índice con evidencia.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 36 · SQL analítico avanzado. Empieza el nivel Profesional: vas a combinar ventanas, CTE, arrays y JSON en análisis completos.
+
+**Para practicar (opcional):** ¿Serviría un índice sobre `status` en la tabla `transactions` de Bolsillo? Mide la selectividad, es decir, qué proporción de filas tiene cada estado, y decide.
 $c2267$, null, (select id from public.datasets where slug = $c2268$pidelo$c2268$), false, true)
 on conflict (slug) do update set section_id = excluded.section_id, kind = excluded.kind, title = excluded.title, sort_order = excluded.sort_order, estimated_minutes = excluded.estimated_minutes, body_md = excluded.body_md, ref_slug = excluded.ref_slug, dataset_id = excluded.dataset_id, is_free = excluded.is_free, is_published = excluded.is_published;
 

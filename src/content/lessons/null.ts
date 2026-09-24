@@ -156,6 +156,16 @@ ORDER BY rating_o_cero DESC, id;
 \`\`\`
 
 Dos detalles de esa consulta. El alias \`rating_o_cero\` sí se puede usar dentro de \`ORDER BY\`, aunque no se pueda usar en \`WHERE\`. Y el segundo criterio de orden, \`id\`, existe para que el resultado sea siempre el mismo: cuando varios vendedores tienen la misma calificación, sin un criterio de desempate el motor puede devolverlos en cualquier orden y la lista cambia de una ejecución a otra.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes explicar por qué \`NULL = NULL\` no es verdadero, filtrar con IS NULL e IS NOT NULL y reemplazar datos faltantes con COALESCE.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 9 · Funciones de texto. Empieza el nivel Transformar datos: vas a limpiar y normalizar textos.
+
+**Para practicar (opcional):** ¿Desde qué dispositivo se hizo cada reproducción de Ritmo? En \`plays\`, muestra \`device\` y, cuando esté en \`NULL\`, el texto \`'sin dato'\` usando COALESCE.
 `,
   },
 ];

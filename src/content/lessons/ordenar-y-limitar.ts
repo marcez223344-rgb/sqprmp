@@ -221,6 +221,16 @@ Las dos formas son válidas y hacen lo mismo. En SQL Server vas a encontrar \`TO
 - \`LIMIT\` corta después de ordenar, así que sin \`ORDER BY\` las filas que recibes son arbitrarias.
 - \`OFFSET = (página - 1) * tamaño\`, y siempre con un orden determinista.
 - \`LIMIT\` ignora los empates del borde; si esos empates importan, necesitas funciones de ranking.
+
+## Próximos pasos
+
+**Lo que ya puedes hacer:** Sabes ordenar por una o varias columnas, decidir dónde van los NULL, obtener los primeros N registros y paginar con LIMIT y OFFSET.
+
+**Antes de seguir:** resuelve los ejercicios y el quiz de esta sección.
+
+**Lo que sigue:** Sección 14 · Funciones de agregación. Empieza el nivel Agregar y combinar: vas a resumir filas en totales, promedios, mínimos y máximos.
+
+**Para practicar (opcional):** ¿Cuáles son los 10 artistas de Ritmo con más oyentes mensuales? Ordena \`artists\` por \`monthly_listeners\` de mayor a menor y desempata por \`id\`.
 `,
   },
 ];
