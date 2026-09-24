@@ -63,7 +63,7 @@ jobs:
           cp /tmp/database.generated.ts database.generated.ts
           node scripts/check-types-drift.mjs /tmp/database.generated.ts src/types/database.ts
       # Generating types needs Docker; contributors without it take the file from here.
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: database-types
@@ -104,7 +104,7 @@ jobs:
           } >> "$GITHUB_ENV"
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: playwright-report
