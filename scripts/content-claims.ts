@@ -15,6 +15,7 @@ import { PGlite } from "@electric-sql/pglite";
 import { content } from "../src/content/index";
 import { lessonClaims } from "../src/content/lesson-claims";
 import { loadDatasetInto } from "../sandbox-runtime/engine-core.mjs";
+import { proseNumbers } from "./lib/prose-figures";
 import type { LessonDef } from "../src/content/schemas/curriculum";
 
 const only = process.argv[2];
@@ -54,21 +55,6 @@ function engineFor(slug: string): Promise<PGlite> {
     engines.set(slug, p);
   }
   return p;
-}
-
-/** Inline code spans carry SQL literals, not claims about the data. */
-const stripCodeSpans = (s: string) => s.replace(/`[^`]*`/g, " ");
-
-/**
- * Numbers as Spanish prose writes them: thousands separated by a space (plain, non-breaking or
- * narrow) or a period, decimals after a comma.
- */
-const NUMBER = /\d+(?:[.\u00a0\u202f ]\d{3})*(?:,\d+)?/g;
-
-function proseNumbers(prose: string): number[] {
-  return (stripCodeSpans(prose).match(NUMBER) ?? []).map((raw) =>
-    Number(raw.replace(/[.\u00a0\u202f ]/g, "").replace(",", ".")),
-  );
 }
 
 function resultNumbers(row: unknown[]): number[] {

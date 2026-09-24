@@ -690,10 +690,10 @@ const outlines: Outline[] = [
  *   evidence of skill; the quiz only probes what a result set cannot show (NULL semantics,
  *   precedence, when a construct is the wrong tool). Five items at 80 % allow one mistake.
  * - 6 — "standard": four or fewer exercises, so the quiz carries more of the judgement and covers
- *   more of the section's concepts; also the interim value for gate sections whose bank is not yet
- *   deep enough for ten (see docs/DECISIONS.md D-37 for the pending question briefs).
+ *   more of the section's concepts.
  * - 10 — "gate" (`limits.quiz.gateQuestions`): sections that close a level and feed a certificate.
- *   Not assigned yet: each needs a bank of 13+ published questions.
+ *   Assigned since 2026-09-23, when the four banks reached 14 published questions each (ten served
+ *   plus four never seen in a given attempt).
  *
  * A section absent from this table falls back to `limits.quiz.questionsPerAttempt`.
  */
@@ -702,11 +702,11 @@ const quizQuestionsBySection: Record<string, number> = {
   "introduccion-bases-de-datos": 6, // no exercises at all: the quiz is the only assessment
   "tablas-filas-columnas-tipos": 6, // 2 exercises
   select: 5,
-  "alias-y-expresiones": 5, // 3 exercises, but the bank (8) only supports 5 today
-  distinct: 5, // 3 exercises, bank-limited
+  "alias-y-expresiones": 6, // 3 exercises, bank of 10
+  distinct: 6, // 3 exercises, bank of 10
   where: 6, // 4 exercises
-  "operadores-comparacion-logicos": 5, // 3 exercises, bank-limited
-  null: 6, // certificate gate: 10 once the bank reaches 13
+  "operadores-comparacion-logicos": 6, // 3 exercises, bank of 10
+  null: 10, // certificate gate (bank of 14)
   // N2 · Transformar datos
   "funciones-de-texto": 5,
   "funciones-numericas": 5,
@@ -720,7 +720,7 @@ const quizQuestionsBySection: Record<string, number> = {
   "inner-join": 5,
   "left-right-full-join": 5,
   "self-join": 5,
-  "joins-multiples-tablas": 6, // certificate gate: 10 once the bank reaches 13
+  "joins-multiples-tablas": 10, // certificate gate (bank of 14)
   // N4 · Consultas avanzadas
   subconsultas: 5,
   cte: 5,
@@ -729,7 +729,7 @@ const quizQuestionsBySection: Record<string, number> = {
   "funciones-de-ventana": 5,
   "funciones-de-ranking": 5,
   "totales-acumulados-promedios-moviles": 5,
-  "lag-y-lead": 6, // certificate gate: 10 once the bank reaches 13
+  "lag-y-lead": 10, // certificate gate (bank of 14)
   // N5 · Analítica aplicada
   "cohortes-y-retencion": 5,
   funnels: 5,
@@ -742,7 +742,7 @@ const quizQuestionsBySection: Record<string, number> = {
   "sql-analitico-avanzado": 5,
   "casos-de-negocio": 5,
   "desafios-de-entrevista": 5,
-  "proyectos-finales": 6, // certificate gate: 10 once the bank reaches 13
+  "proyectos-finales": 10, // certificate gate (bank of 14)
 };
 
 export const sections: SectionDef[] = outlines.map((o, i) => ({

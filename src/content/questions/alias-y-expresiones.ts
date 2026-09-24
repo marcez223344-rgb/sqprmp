@@ -235,4 +235,95 @@ export const questions: QuestionDef[] = [
       "Un alias en `snake_case`, sin espacios ni acentos, es legible para personas y estable para las consultas que reutilizan el resultado.",
     is_published: true,
   },
+  {
+    slug: "alias-q09-alias-de-tabla-reemplaza",
+    section,
+    lesson,
+    type: "error_diagnosis",
+    difficulty: "intermediate",
+    topic: "Alias de tabla",
+    tags: ["alias", "sintaxis"],
+    estimated_seconds: 50,
+    prompt_md:
+      'Esta consulta falla con `invalid reference to FROM-clause entry for table "orders"`. ¿Por qué, si la tabla `orders` está en el `FROM`?',
+    code_md:
+      "```sql\nSELECT o.id, o.total_amount\nFROM orders AS o\nWHERE orders.status = 'paid';\n```",
+    options: [
+      {
+        key: "a",
+        body_md:
+          "Al ponerle alias a una tabla, el alias pasa a ser su único nombre en el resto de la consulta: hay que escribir `o.status`.",
+        is_correct: true,
+      },
+      {
+        key: "b",
+        body_md: "El alias de tabla no se puede usar en el `WHERE`, solo en el `SELECT`.",
+        is_correct: false,
+        why_incorrect_md:
+          "Al revés de lo que pasa con los alias de columna: el alias de tabla se puede usar en todas las cláusulas, incluido el `WHERE`. Lo que ya no se puede usar es el nombre original.",
+      },
+      {
+        key: "c",
+        body_md: "Falta repetir la tabla en el `FROM`: `FROM orders AS o, orders`.",
+        is_correct: false,
+        why_incorrect_md:
+          "Eso nombraría la tabla dos veces y produciría todas las combinaciones de sus filas consigo misma. El error no se arregla agregando tablas, sino usando el nombre correcto.",
+      },
+      {
+        key: "d",
+        body_md: 'El alias necesita comillas dobles: `AS "o"`.',
+        is_correct: false,
+        why_incorrect_md:
+          "Las comillas dobles solo hacen falta si el identificador tiene espacios o mayúsculas que quieras conservar. No cambian nada de este error.",
+      },
+    ],
+    explanation_md:
+      "Un alias de tabla no es un apodo adicional: reemplaza el nombre dentro de esa consulta. Es una regla útil, porque obliga a que todas las referencias queden escritas igual y, en una consulta con varias tablas, deja a la vista de dónde sale cada columna.",
+    is_published: true,
+  },
+  {
+    slug: "alias-q10-coma-faltante",
+    section,
+    lesson,
+    type: "query_interpretation",
+    difficulty: "intermediate",
+    topic: "AS opcional y la coma olvidada",
+    tags: ["alias", "sintaxis", "revision"],
+    estimated_seconds: 55,
+    prompt_md:
+      "Se querían tres columnas: `id`, `subtotal` y `discount`. La consulta corre sin error y devuelve dos. ¿Qué pasó?",
+    code_md: "```sql\nSELECT id, subtotal discount\nFROM orders;\n```",
+    options: [
+      {
+        key: "a",
+        body_md:
+          "Falta la coma, y como `AS` es opcional, PostgreSQL leyó `discount` como el alias de `subtotal`: la segunda columna trae los subtotales con el nombre `discount`.",
+        is_correct: true,
+      },
+      {
+        key: "b",
+        body_md: "PostgreSQL restó las dos columnas y devolvió el neto.",
+        is_correct: false,
+        why_incorrect_md:
+          "No hay ningún operador entre las dos palabras; nada indica una resta. Dos identificadores seguidos se leen como columna y alias.",
+      },
+      {
+        key: "c",
+        body_md: "La columna `discount` se perdió porque tiene valores repetidos.",
+        is_correct: false,
+        why_incorrect_md:
+          "El contenido de una columna nunca hace que desaparezca del resultado. Las columnas que devuelve una consulta salen solo de lo que está escrito en el `SELECT`.",
+      },
+      {
+        key: "d",
+        body_md: "La consulta devolvió tres columnas y la interfaz muestra dos.",
+        is_correct: false,
+        why_incorrect_md:
+          "El resultado tiene dos columnas. Conviene comprobarlo mirando los encabezados: hay una llamada `discount` cuyos valores son los de `subtotal`.",
+      },
+    ],
+    explanation_md:
+      "Como `AS` es opcional, una coma olvidada no produce un error de sintaxis: convierte la columna siguiente en un alias. Es uno de los pocos errores de escritura que sobreviven a la ejecución, y encima deja un nombre de columna que parece correcto. Al revisar un resultado, cuenta las columnas antes de mirar los valores.",
+    is_published: true,
+  },
 ];

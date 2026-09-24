@@ -511,4 +511,98 @@ export const questions: QuestionDef[] = [
       "Es el error de agregación más caro y el más difícil de ver, porque el resultado parece razonable. La regla: un importe que vive al nivel del pedido no se suma después de unir una tabla de detalle. O agregas `order_items` en una CTE antes de unir, o calculas el importe al nivel del ítem (`quantity * unit_price`), que es la métrica que corresponde a ese nivel de detalle.",
     is_published: true,
   },
+  {
+    slug: "pf-q13-la-pregunta-no-se-puede-responder",
+    section,
+    lesson: l3,
+    type: "scenario",
+    difficulty: "advanced",
+    topic: "Cuando los datos no pueden responder la pregunta",
+    tags: ["alcance", "supuestos", "entrega"],
+    estimated_seconds: 85,
+    prompt_md:
+      "Te piden «cuántas personas intentaron pagar y no pudieron» durante el último trimestre. La tabla `payments` solo guarda una fila cuando el cobro se acreditó: los intentos rechazados nunca llegan a la base. ¿Qué haces?",
+    code_md: null,
+    options: [
+      {
+        key: "a",
+        body_md:
+          "Avisar que con estos datos la pregunta no se puede responder, explicar qué sí se puede medir (por ejemplo, pedidos creados que nunca llegaron a tener pago acreditado) y qué haría falta registrar para responderla de verdad.",
+        is_correct: true,
+      },
+      {
+        key: "b",
+        body_md:
+          "Entregar los pedidos sin pago acreditado como si fueran intentos fallidos: es la mejor aproximación disponible.",
+        is_correct: false,
+        why_incorrect_md:
+          "Es una buena aproximación, pero entregarla con la etiqueta de la pregunta original la convierte en otra cosa. Un pedido sin pago puede ser alguien que abandonó antes de intentar, y quien lo lea va a decidir creyendo que mide rechazos.",
+      },
+      {
+        key: "c",
+        body_md:
+          "Estimar los rechazos aplicando la tasa que se suele ver en la industria sobre la cantidad de pedidos.",
+        is_correct: false,
+        why_incorrect_md:
+          "Eso no es una medición, es un supuesto disfrazado de dato. Si hace falta una estimación, se entrega declarada como tal y con su fuente, nunca en la misma columna que un número calculado sobre los datos.",
+      },
+      {
+        key: "d",
+        body_md:
+          "Devolver el pedido sin respuesta hasta que el equipo de sistemas empiece a registrar los intentos fallidos.",
+        is_correct: false,
+        why_incorrect_md:
+          "Dejar a quien pregunta sin nada tampoco es la salida. Casi siempre hay una métrica cercana que sirve hoy; lo que no se puede es entregarla sin decir en qué se diferencia de lo que se pidió.",
+      },
+    ],
+    explanation_md:
+      "Buena parte del trabajo de analista es reconocer qué no está en los datos. Un resultado solo habla de lo que quedó registrado, y nunca muestra lo que el sistema no guarda: intentos rechazados, personas que no llegaron al formulario, eventos perdidos. La entrega profesional nombra el límite, propone la métrica más cercana y deja claro qué habría que instrumentar.",
+    is_published: true,
+  },
+  {
+    slug: "pf-q14-ventana-relativa-a-hoy",
+    section,
+    lesson: l2,
+    type: "single",
+    difficulty: "advanced",
+    topic: "Informes que no se pueden reproducir",
+    tags: ["reproducibilidad", "current_date", "entrega"],
+    estimated_seconds: 70,
+    prompt_md:
+      "Guardas una consulta con `WHERE created_at >= current_date - interval '30 days'` y la compartes como «el informe de los últimos 30 días». Dos semanas después, finanzas la corre y los números no coinciden con los que entregaste. ¿Cuál es el diagnóstico correcto?",
+    code_md: null,
+    options: [
+      {
+        key: "a",
+        body_md:
+          "La consulta mide un período distinto en cada ejecución, así que no hay nada que reconciliar: para comparar entregas hay que fijar el rango con fechas explícitas y dejar `current_date` solo en informes que se leen siempre al día.",
+        is_correct: true,
+      },
+      {
+        key: "b",
+        body_md:
+          "Alguien modificó datos viejos; una consulta con el mismo texto siempre devuelve el mismo resultado.",
+        is_correct: false,
+        why_incorrect_md:
+          "El mismo texto no significa el mismo resultado: `current_date` se evalúa en cada ejecución y mueve el rango. Las cargas tardías existen, pero acá no hacen falta para explicar la diferencia.",
+      },
+      {
+        key: "c",
+        body_md: "Falta `AT TIME ZONE 'UTC'`: sin fijar el huso el rango se corre un día.",
+        is_correct: false,
+        why_incorrect_md:
+          "Fijar el huso es necesario y evita un desfase de horas, pero no explica una diferencia de dos semanas. Son dos problemas distintos y conviene no confundirlos.",
+      },
+      {
+        key: "d",
+        body_md: "Hay que reemplazar `>=` por `>` para no contar dos veces el día de corte.",
+        is_correct: false,
+        why_incorrect_md:
+          "Cambiar el operador mueve el límite un día, no explica la diferencia, y además rompe el rango semiabierto, que es la forma correcta de acotar un período.",
+      },
+    ],
+    explanation_md:
+      "Un informe que va a ser auditado tiene que devolver lo mismo el día que lo entregas y seis meses después. Eso implica fechas explícitas en el rango, huso declarado y, si hace falta, la fecha en que se ejecutó como columna del resultado. `current_date` es cómodo para un tablero que se mira siempre al día, y es exactamente lo que impide reconciliar dos entregas.",
+    is_published: true,
+  },
 ];

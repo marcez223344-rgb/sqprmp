@@ -40,6 +40,42 @@ assertions, not as decoration.
 - Write the query so it is reproducible: fixed UTC, half-open date ranges and the filters the
   sentence itself names. If the sentence cannot name them, rewrite the sentence.
 
+## 2c. Numeric claims in exercise prose
+
+Exercises do not need a claims registry: the true row count is already derivable, because
+`reference_solution` is executed against the committed dataset snapshot. `npm run content:figures`
+(part of `npm run quality`, and per-slug with `npm run content:figures -- <slug>`) does that and
+compares it with the prose.
+
+It reads exactly two things as a claim about how many rows the exercise returns:
+
+1. the opening figure of `expert_explanation_md` when it follows [§10 rule A](#a-explanations-open-with-a-full-sentence-never-with-a-bare-number-or-identifier)
+   — "El resultado de la consulta da 123 filas …", "… da seis filas …", "… da treinta y siete
+   productos …" — or the older bare "123 filas, una por cliente." opening that rule replaced;
+2. a sentence whose subject is the query: "la consulta devuelve N filas", "el resultado tiene N
+   filas".
+
+It deliberately ignores every other figure, so you can keep writing the ones that carry the
+teaching: sizes of source tables and CTEs, buckets of the result, and counterfactuals ("sin los
+paréntesis obtendrías 952 filas"). Numbers inside `código en línea` and fenced blocks are SQL
+literals, never claims. A leading percentage and a statement of grain ("una fila por pedido") are
+not counts. When the query returns a single row, the opening figure may be one of the values of
+that row, which is what an aggregate explanation usually quotes.
+
+Consequences for authoring:
+
+- Open the explanation with the row count in the rule A form and the gate does the rest. If you
+  write a figure there that is not the row count of a multi-row result, the build fails — say
+  "El resultado de la consulta da una sola fila con 13 284 pedidos entregados" instead.
+- If a sentence has the query as its subject but the figure is not the result's row count (a
+  counterfactual about a wrong variant, for instance), register it in
+  `src/content/exercise-figure-exceptions.ts` with the exercise, the field, the phrase verbatim
+  and the reason. It exempts that phrase and nothing else, it can never exempt the rule A opener,
+  and an exception that no longer matches the prose fails the build. Registering a figure does not
+  verify it — it only states that it is not a row count.
+- Every other exact figure you state (averages, amounts, percentages) is still your
+  responsibility: no gate checks it. Prefer wording that makes the rounding explicit.
+
 ## 3. Exercises
 
 - Scenario reads like a real request from a colleague (marketing, finance, operations, product) with a clear business question and expected output columns.
@@ -155,7 +191,8 @@ changed exercises must follow them.
 clientes.", not "123 clientes.". The same applies mid-text: introduce a statement with "la siguiente
 sentencia:" instead of dropping raw SQL after a colon, and say "la condición de país, que debe
 escribirse como `country = 'UY'`" instead of just naming the predicate. A sentence may not begin
-with a digit, a column name or a SQL keyword.
+with a digit, a column name or a SQL keyword. That opening figure is machine-checked against the
+reference solution's row count — see [§2c](#2c-numeric-claims-in-exercise-prose).
 
 ### B. Scenarios name the department and end with why the data is being asked of the learner
 

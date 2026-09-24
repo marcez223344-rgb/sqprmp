@@ -48,19 +48,19 @@ Depth over volume. Launch with **8 fully authored sections** spanning free and p
 | 25 Funciones de ventana (showcase of advanced tier) | 5                                         | 12                 | bolsillo             |
 | **Total**                                           | **38 exercises** (+ 8 section challenges) | **~104 questions** | 3 datasets           |
 
-The table above is the MVP scope note kept for history. **The course is now fully authored.** Counts reported by `npm run content:validate` on 2026-09-23, after section 35 (índices y planes de ejecución) closed the last gap: `courses 1, sections 39 (39 published), lessons 347, questions 414, exercises 209, datasets 4`. `npm run content:verify` on the same state: `OK (209 exercise(s) verified, expected results written)`. Every section has objectives, a summary, theory lessons, a question bank and verified exercises, so no section shows "Próximamente" and none is excluded from certificate requirements. Further sections are post-MVP additions, not gaps.
+The table above is the MVP scope note kept for history. **The course is now fully authored.** Counts reported by `npm run content:validate` on 2026-09-23, after section 35 (índices y planes de ejecución) closed the last gap: `courses 1, sections 39 (39 published), lessons 347, questions 414, exercises 209, datasets 4`. `npm run content:verify` on the same state: `OK (209 exercise(s) verified, expected results written)`. Later the same day, the D-37 question banks were deepened (see the quiz-length table above) and the counts became `courses 1, sections 39 (39 published), lessons 347, questions 432, exercises 209, datasets 4`. Every section has objectives, a summary, theory lessons, a question bank and verified exercises, so no section shows "Próximamente" and none is excluded from certificate requirements. Further sections are post-MVP additions, not gaps.
 
 ### Quiz length per section (D-37)
 
-The bank is what is authored (8–12 questions); the **attempt** is a sample of it, and how big that
+The bank is what is authored (8–14 questions); the **attempt** is a sample of it, and how big that
 sample is depends on the section. The number is authored in `quizQuestionsBySection`
 (`src/content/sections.ts`) and validated by `npm run content:validate` against the bank.
 
-| Length                             | When                                                                                                       | Sections                                                                                                   |
-| ---------------------------------- | ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| **5** (check)                      | ≥ 5 authored exercises: the graded queries are the evidence, the quiz probes what a result set cannot show | 31 sections                                                                                                |
-| **6** (standard, also the default) | ≤ 4 exercises, so the quiz carries more of the judgement                                                   | 1, 2, 6, 14 · plus the four gate sections until their banks grow                                           |
-| **10** (gate)                      | closes a level and feeds a certificate                                                                     | 8 `null`, 20 `joins-multiples-tablas`, 28 `lag-y-lead`, 39 `proyectos-finales` — **pending a deeper bank** |
+| Length                             | When                                                                                                       | Sections                                                                       |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| **5** (check)                      | ≥ 5 authored exercises: the graded queries are the evidence, the quiz probes what a result set cannot show | 28 sections                                                                    |
+| **6** (standard, also the default) | ≤ 4 exercises, so the quiz carries more of the judgement                                                   | 1, 2, 4, 5, 6, 7, 14                                                           |
+| **10** (gate)                      | closes a level and feeds a certificate                                                                     | 8 `null`, 20 `joins-multiples-tablas`, 28 `lag-y-lead`, 39 `proyectos-finales` |
 
 Two constraints bind the choice and are enforced in code, not by convention:
 
@@ -69,10 +69,15 @@ Two constraints bind the choice and are enforced in code, not by convention:
 - The published bank must be at least `length + limits.quiz.minUnseenOnRetry` (3), so a retry is a
   new measurement rather than a recall of the feedback the failed attempt showed.
 
-The four gate sections need **+3, +3, +1 and +1 published questions** respectively (a bank of 13;
-14 is better) before they can move to 10. Until then they run at 6. `distinct`,
-`alias-y-expresiones` and `operadores-comparacion-logicos` have banks of 8 and belong at 6 by tier;
-+2 questions each would get them there.
+Both tiers are live since 2026-09-23. The four gate sections were taken from 10 to 14 published
+questions each (+4, +4, +2, +2), which leaves four questions outside any single 10-question
+attempt, and `distinct`, `alias-y-expresiones` and `operadores-comparacion-logicos` went from 8 to
+10, which supports the 6 their exercise count calls for. The new gate items are deliberately about
+judgement rather than syntax: `IS DISTINCT FROM` and the three-valued truth table in `null`; an
+`INNER JOIN` hanging off a `LEFT JOIN`, pre-aggregating two child tables and the average that
+silently becomes weighted in `joins-multiples-tablas`; ties in the window `ORDER BY` and the frame
+clause that `lag`/`lead` ignore in `lag-y-lead`; a question the data cannot answer and a report that
+cannot be reproduced in `proyectos-finales`.
 
 ### Published sections (2026-09-22)
 

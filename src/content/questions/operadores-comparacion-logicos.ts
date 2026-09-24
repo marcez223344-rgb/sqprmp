@@ -236,4 +236,91 @@ export const questions: QuestionDef[] = [
       "Para enteros, `BETWEEN 3 AND 6`, la lista explícita y la negación del complemento describen el mismo conjunto {3, 4, 5, 6}.",
     is_published: true,
   },
+  {
+    slug: "oper-q09-between-invertido",
+    section,
+    lesson,
+    type: "single",
+    difficulty: "intermediate",
+    topic: "BETWEEN con los extremos al revés",
+    tags: ["where", "between"],
+    estimated_seconds: 50,
+    prompt_md:
+      "Quieres los productos con `stock` entre 6 y 3 unidades y escribes `WHERE stock BETWEEN 6 AND 3`. La consulta corre sin error y devuelve 0 filas, aunque hay productos con 4 y 5 unidades. ¿Por qué?",
+    options: [
+      {
+        key: "a",
+        body_md:
+          "`BETWEEN a AND b` significa `stock >= 6 AND stock <= 3`, y ningún número cumple las dos cosas. El orden de los extremos importa: primero el menor.",
+        is_correct: true,
+      },
+      {
+        key: "b",
+        body_md: "PostgreSQL ordena los extremos automáticamente, así que el problema es otro.",
+        is_correct: false,
+        why_incorrect_md:
+          "No los ordena. `BETWEEN` es una forma corta de escribir dos comparaciones, y las escribe en el orden en que las diste.",
+      },
+      {
+        key: "c",
+        body_md: "`BETWEEN` no funciona con enteros, solo con fechas y textos.",
+        is_correct: false,
+        why_incorrect_md:
+          "Funciona con cualquier tipo que se pueda ordenar, incluidos los enteros. El resultado vacío viene del rango invertido.",
+      },
+      {
+        key: "d",
+        body_md: "Faltan paréntesis: `BETWEEN (6 AND 3)`.",
+        is_correct: false,
+        why_incorrect_md:
+          "El `AND` de `BETWEEN` es parte del operador, no un `AND` lógico, y no lleva paréntesis. Agregarlos daría un error de sintaxis.",
+      },
+    ],
+    explanation_md:
+      "`BETWEEN` no valida que el rango tenga sentido: si el primer extremo es mayor que el segundo, devuelve un conjunto vacío sin avisar. Un resultado vacío que no esperabas siempre merece releer el filtro antes de concluir que no hay datos.",
+    is_published: true,
+  },
+  {
+    slug: "oper-q10-precedencia-de-not",
+    section,
+    lesson,
+    type: "query_interpretation",
+    difficulty: "intermediate",
+    topic: "Precedencia de NOT",
+    tags: ["where", "not", "precedencia"],
+    estimated_seconds: 55,
+    prompt_md: "¿Qué productos devuelve esta consulta?",
+    code_md: "```sql\nSELECT id\nFROM products\nWHERE NOT is_active AND stock > 0;\n```",
+    options: [
+      {
+        key: "a",
+        body_md: "Los productos inactivos que además tienen stock.",
+        is_correct: true,
+      },
+      {
+        key: "b",
+        body_md: "Los productos que no cumplen las dos condiciones a la vez.",
+        is_correct: false,
+        why_incorrect_md:
+          "Eso sería `NOT (is_active AND stock > 0)`, con paréntesis. Sin ellos, el `NOT` alcanza solo a la condición que tiene al lado.",
+      },
+      {
+        key: "c",
+        body_md: "Los productos inactivos y sin stock.",
+        is_correct: false,
+        why_incorrect_md:
+          "El `NOT` no se reparte sobre las dos condiciones: `stock > 0` queda tal cual y exige que haya stock.",
+      },
+      {
+        key: "d",
+        body_md: "Ninguno: `NOT` no se puede aplicar a una columna booleana.",
+        is_correct: false,
+        why_incorrect_md:
+          "Sí se puede: una columna `boolean` ya es una condición por sí sola, así que `NOT is_active` es válido y equivale a `is_active = false`.",
+      },
+    ],
+    explanation_md:
+      "El orden de precedencia es `NOT`, después `AND`, y por último `OR`. Como `NOT` es el que más aprieta, toma solo la condición inmediata. Cuando una condición mezcla los tres, los paréntesis dejan de ser opcionales: no cambian el significado, lo vuelven visible para quien lea la consulta después.",
+    is_published: true,
+  },
 ];

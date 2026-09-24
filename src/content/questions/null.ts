@@ -307,4 +307,164 @@ export const questions: QuestionDef[] = [
       "NULL significa «no sabemos». Las agregaciones lo ignoran por diseño; inventar un valor cambia el significado del resultado.",
     is_published: true,
   },
+  {
+    slug: "null-q11-group-by-agrupa-nulos",
+    section,
+    lesson: logica,
+    type: "single",
+    difficulty: "intermediate",
+    topic: "NULL en GROUP BY y DISTINCT",
+    tags: ["null_handling", "group_by", "distinct"],
+    estimated_seconds: 60,
+    prompt_md:
+      "En una tabla `envios` hay 40 filas cuyo `transportista` quedó sin cargar. `SELECT transportista, count(*) FROM envios GROUP BY transportista` devuelve una fila con `transportista` vacío y el conteo 40: los 40 NULL quedaron en un mismo grupo. Sin embargo, `WHERE transportista = transportista` descarta esas mismas 40 filas. ¿Cómo conviven las dos cosas?",
+    options: [
+      {
+        key: "a",
+        body_md:
+          "Son dos reglas distintas del estándar: `GROUP BY` y `DISTINCT` juntan los NULL porque comparan por «no ser distintos», mientras que el operador `=` devuelve UNKNOWN y el `WHERE` solo deja pasar lo verdadero.",
+        is_correct: true,
+      },
+      {
+        key: "b",
+        body_md:
+          "`GROUP BY` reemplaza los NULL por un valor interno antes de agrupar, así que después de agrupar ya se pueden comparar con `=`.",
+        is_correct: false,
+        why_incorrect_md:
+          "No los reemplaza por nada: el valor de la columna sigue siendo NULL en el resultado y compararlo con `=` vuelve a dar UNKNOWN. Lo que cambia es el criterio de comparación que usa cada operación, no el dato.",
+      },
+      {
+        key: "c",
+        body_md:
+          "Es una particularidad de PostgreSQL; en otros motores el grupo de los NULL no aparece en el resultado.",
+        is_correct: false,
+        why_incorrect_md:
+          "Agrupar los NULL en un solo grupo es comportamiento del estándar SQL y lo hacen todos los motores usuales. No es una diferencia entre motores.",
+      },
+      {
+        key: "d",
+        body_md:
+          "El grupo aparece porque `count(*)` cuenta filas; con `count(transportista)` la fila de los NULL desaparecería del resultado.",
+        is_correct: false,
+        why_incorrect_md:
+          "`count(transportista)` cambiaría el número a 0, pero la fila del grupo seguiría ahí. La agregación que elijas no decide qué grupos existen; eso lo decide el `GROUP BY`.",
+      },
+    ],
+    explanation_md:
+      "Conviene tenerlo separado en la cabeza: para comparar (`=`, `<>`, `IN`, `JOIN ... ON`), dos NULL no son iguales y el resultado es UNKNOWN; para juntar filas (`GROUP BY`, `DISTINCT`, `UNION`), dos NULL van al mismo lugar. Ese grupo de NULL en un `GROUP BY` suele ser la primera señal de un problema de carga.",
+    is_published: true,
+  },
+  {
+    slug: "null-q12-is-distinct-from",
+    section,
+    lesson: logica,
+    type: "error_diagnosis",
+    difficulty: "advanced",
+    topic: "Detectar cambios con IS DISTINCT FROM",
+    tags: ["null_handling", "comparacion"],
+    estimated_seconds: 80,
+    prompt_md:
+      "Un control diario compara el precio de hoy con el de ayer para listar los productos que cambiaron. Los productos que ayer no tenían precio cargado y hoy sí lo tienen nunca aparecen en el resultado. ¿Cuál es la causa?",
+    code_md:
+      "```sql\nSELECT h.product_id\nFROM precios_hoy AS h\nINNER JOIN precios_ayer AS a ON a.product_id = h.product_id\nWHERE h.price <> a.price;\n```",
+    options: [
+      {
+        key: "a",
+        body_md:
+          "Si alguno de los dos precios es NULL, `<>` devuelve UNKNOWN y la fila no pasa el filtro. `h.price IS DISTINCT FROM a.price` compara tratando a NULL como un valor más y sí marca el cambio.",
+        is_correct: true,
+      },
+      {
+        key: "b",
+        body_md:
+          "El `INNER JOIN` descarta esos productos porque ayer no tenían fila en `precios_ayer`.",
+        is_correct: false,
+        why_incorrect_md:
+          "La fila de ayer existe: lo que falta es el precio dentro de esa fila, no la fila. El join encuentra la pareja sin problema y recién falla la comparación.",
+      },
+      {
+        key: "c",
+        body_md: "Hay que envolver ambos lados en `coalesce(price, 0)` antes de compararlos.",
+        is_correct: false,
+        why_incorrect_md:
+          "Funciona mientras 0 no sea un precio real. El día que un producto pase de costar 0 a no tener precio, el control lo leerá como «sin cambio». `IS DISTINCT FROM` no necesita inventar ningún valor.",
+      },
+      {
+        key: "d",
+        body_md: "`<>` no compara columnas de tablas distintas; para eso hay que usar `!=`.",
+        is_correct: false,
+        why_incorrect_md:
+          "`<>` y `!=` son el mismo operador en PostgreSQL y ambos comparan columnas de cualquier tabla. El problema no es cuál elijas, sino lo que hacen los dos frente a NULL.",
+      },
+    ],
+    explanation_md:
+      "`a IS DISTINCT FROM b` es la comparación que nunca devuelve UNKNOWN: es verdadera cuando los valores difieren o cuando uno es NULL y el otro no, y falsa cuando ambos son NULL. Es la herramienta correcta para detectar cambios entre dos versiones de un dato, porque «pasó de vacío a tener valor» es justamente uno de los cambios que te interesa ver. Su opuesta es `IS NOT DISTINCT FROM`.",
+    is_published: true,
+  },
+  {
+    slug: "null-q13-vacio-contra-null",
+    section,
+    lesson: coalesce,
+    type: "scenario",
+    difficulty: "intermediate",
+    topic: "NULL frente a cadena vacía",
+    tags: ["null_handling", "calidad_de_datos"],
+    estimated_seconds: 65,
+    prompt_md:
+      "En la tabla `contactos` de un sistema interno, la columna `phone` tiene filas con NULL y filas con la cadena vacía, según por qué formulario entró cada persona. Te piden cuántos contactos no dejaron teléfono. ¿Qué corresponde hacer?",
+    options: [
+      {
+        key: "a",
+        body_md:
+          "Contar los dos casos (`phone IS NULL OR phone = ''`), entregar el total y avisar que el sistema guarda «sin teléfono» de dos formas distintas.",
+        is_correct: true,
+      },
+      {
+        key: "b",
+        body_md: "Usar `count(phone)` y restarlo del total de clientes.",
+        is_correct: false,
+        why_incorrect_md:
+          "`count(phone)` solo ignora los NULL. La cadena vacía es un valor como cualquier otro y se cuenta como si fuera un teléfono, así que el resultado queda corto.",
+      },
+      {
+        key: "c",
+        body_md: "Filtrar con `phone IS NULL`: en SQL una cadena vacía es NULL.",
+        is_correct: false,
+        why_incorrect_md:
+          "En PostgreSQL una cadena vacía es un texto de longitud cero, un valor perfectamente conocido, y no es NULL. La confusión viene de Oracle, que sí los trata igual; en el resto de los motores no es así.",
+      },
+      {
+        key: "d",
+        body_md: "Filtrar con `phone = ''`, porque ese filtro también alcanza a los NULL.",
+        is_correct: false,
+        why_incorrect_md:
+          "Comparar NULL con la cadena vacía da UNKNOWN, así que esas filas no pasan el filtro. Es el mismo error que la opción anterior, con los casos invertidos.",
+      },
+    ],
+    explanation_md:
+      "NULL significa «no sabemos»; la cadena vacía significa «sabemos que está vacío». Que las dos convivan en una columna casi siempre indica dos caminos de carga distintos, y eso es parte de la respuesta que entregas: el número por sí solo esconde que la base representa lo mismo de dos maneras.",
+    is_published: true,
+  },
+  {
+    slug: "null-q14-tabla-de-verdad",
+    section,
+    lesson: logica,
+    type: "matching",
+    difficulty: "advanced",
+    topic: "Lógica de tres valores en AND y OR",
+    tags: ["null_handling", "logica"],
+    estimated_seconds: 85,
+    prompt_md:
+      "Una fila tiene `is_active` en NULL. Relaciona cada condición del `WHERE` con lo que el motor decide para esa fila.",
+    pairs: [
+      { left: "is_active OR true", right: "Verdadero: la fila pasa el filtro" },
+      { left: "is_active AND false", right: "Falso: la fila no pasa el filtro" },
+      { left: "is_active AND true", right: "UNKNOWN: la fila no pasa el filtro" },
+      { left: "NOT is_active", right: "UNKNOWN: la fila no pasa el filtro" },
+      { left: "is_active IS NULL", right: "Verdadero: la fila pasa el filtro" },
+    ],
+    explanation_md:
+      "`OR` con algo verdadero da verdadero aunque el otro lado sea desconocido, y `AND` con algo falso da falso por el mismo motivo: en esos dos casos el valor que falta ya no cambia nada. En el resto, el UNKNOWN se propaga, y `NOT UNKNOWN` sigue siendo UNKNOWN: no se puede negar algo que no sabes si es cierto. Como el `WHERE` deja pasar solo lo verdadero, UNKNOWN y falso terminan en el mismo lugar, y por eso el error es tan difícil de ver.",
+    is_published: true,
+  },
 ];

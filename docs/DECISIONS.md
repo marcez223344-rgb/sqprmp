@@ -694,9 +694,9 @@ three — its 83.3 % bar fails competent learners more often than five _and_ mor
   `introduccion-bases-de-datos`, which has no exercises at all: there the quiz is the only
   assessment in the section.
 - **10, "gate"** (`limits.quiz.gateQuestions`) — the four sections that close a level and feed a
-  certificate (`null`, `joins-multiples-tablas`, `lag-y-lead`, `proyectos-finales`). **Not applied
-  yet**: see the briefs below. They run at 6 until their banks are deep enough, which is exactly the
-  situation D-33 flagged (a certificate reachable by luck) and this decision does not yet fix.
+  certificate (`null`, `joins-multiples-tablas`, `lag-y-lead`, `proyectos-finales`). **Applied on
+  2026-09-23**, once the four banks reached 14 published questions each (see "Question briefs"
+  below): four questions stay outside any single attempt, one more than the floor requires.
 
 Objectives were not usable as the driver: all 39 sections declare exactly four, and topics are
 almost one per question, so neither discriminates. Exercise count and certificate role do.
@@ -714,8 +714,9 @@ keeps the policy (default, allowed lengths, bank floor, gate length). It is deli
 column on `public.sections`: no migration is needed, and sampling already runs in server code that
 can import the content module (`src/lib/quizzes/length.ts`).
 
-**Question briefs for `content-author`** (the only reason the gate tier is not live). Minimum to
-reach a 13-question bank, which is 10 + 3 unseen; 14 is recommended for a fourth unseen question:
+**Question briefs for `content-author`** (done on 2026-09-23; the recommended figure was written in
+every case, so each gate bank has 14). Minimum to reach a 13-question bank, which is 10 + 3 unseen;
+14 gives a fourth unseen question:
 
 | Section                  | Bank now | Needed for L=10 | New questions |
 | ------------------------ | -------- | --------------- | ------------- |
@@ -724,9 +725,19 @@ reach a 13-question bank, which is 10 + 3 unseen; 14 is recommended for a fourth
 | `lag-y-lead`             | 12       | 13 (14)         | +1 (+2)       |
 | `proyectos-finales`      | 12       | 13 (14)         | +1 (+2)       |
 
-Secondary: `distinct`, `alias-y-expresiones` and `operadores-comparacion-logicos` have banks of 8
-and three exercises each. By tier they belong at 6, but 6 + 3 unseen needs 9; +2 questions each
-would let them move from 5 to 6.
+Secondary: `distinct`, `alias-y-expresiones` and `operadores-comparacion-logicos` had banks of 8
+and three exercises each. By tier they belong at 6, but 6 + 3 unseen needs 9; the +2 questions each
+were written on 2026-09-23 and the three moved from 5 to 6.
+
+**Result (2026-09-23).** 18 questions added, none of them recall items: the gate banks gained
+`IS DISTINCT FROM`, the AND/OR truth table with UNKNOWN, NULL against the empty string and the
+split between comparison and grouping semantics (`null`); an `INNER JOIN` hanging off a `LEFT
+JOIN`, pre-aggregating two child tables, `count(*)` against `count(col)` after an outer join and
+the average that silently becomes weighted by fan-out (`joins-multiples-tablas`); ties in the
+window `ORDER BY` and the frame clause that `lag`/`lead` ignore (`lag-y-lead`); a question the data
+cannot answer and a report that `current_date` makes impossible to reconcile (`proyectos-finales`).
+The quiz length table in `src/content/sections.ts` now reads 28 sections at 5, seven at 6 and four
+at 10.
 
 **Downstream.** Quiz XP is unchanged per correct answer, so a check-tier pass now pays at most 45 XP
 instead of 50 and the path's maximum quiz XP falls from ~1 900 to ~1 795 — quizzes weigh slightly

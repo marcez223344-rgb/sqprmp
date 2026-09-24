@@ -376,4 +376,190 @@ export const questions: QuestionDef[] = [
       "Unir por columnas no únicas es legal y a veces necesario, pero antes de hacerlo verifica cuántas filas comparten cada valor: ahí nace la mayoría de los resultados inflados.",
     is_published: true,
   },
+  {
+    slug: "jm-q11-inner-despues-de-left",
+    section,
+    lesson: mezcla,
+    type: "error_diagnosis",
+    difficulty: "advanced",
+    topic: "Un INNER colgado de una tabla opcional",
+    tags: ["outer_join", "inner_join", "cadena_de_joins"],
+    estimated_seconds: 85,
+    prompt_md:
+      "Este listado debía mostrar **todos** los vendedores argentinos y, cuando tienen productos publicados, el producto y su categoría. Los vendedores sin ningún producto no aparecen, aunque el `WHERE` no los excluye. ¿Cuál es la causa?",
+    code_md:
+      "```sql\nSELECT s.store_name, p.name AS producto, c.name AS categoria\nFROM sellers AS s\nLEFT JOIN products AS p ON p.seller_id = s.id\nINNER JOIN categories AS c ON c.id = p.category_id\nWHERE s.country = 'AR';\n```",
+    options: [
+      {
+        key: "a",
+        body_md:
+          "El `INNER JOIN` cuelga de `products`: para un vendedor sin productos, `p.category_id` es NULL, la igualdad del `ON` no se cumple y la fila desaparece, como si el LEFT nunca hubiera estado.",
+        is_correct: true,
+      },
+      {
+        key: "b",
+        body_md: "El `WHERE s.country = 'AR'` anula el LEFT JOIN.",
+        is_correct: false,
+        why_incorrect_md:
+          "Esa condición es sobre `sellers`, la tabla conductora. Filtrar por la tabla izquierda no rompe un LEFT JOIN; lo rompe lo que se le cuelga a la derecha.",
+      },
+      {
+        key: "c",
+        body_md:
+          "Hay que escribir el `INNER JOIN` antes del `LEFT JOIN` para que se evalúe primero.",
+        is_correct: false,
+        why_incorrect_md:
+          "Escrito antes, `categories` no tendría con qué unirse: `p` todavía no existe en la consulta. El orden no es el problema; el tipo de unión sí.",
+      },
+      {
+        key: "d",
+        body_md:
+          "`categories` es una tabla de catálogo y le falta una fila con `id` NULL para los productos sin categoría.",
+        is_correct: false,
+        why_incorrect_md:
+          "Una fila con clave NULL no se uniría con nada, porque comparar NULL con NULL no da verdadero. Un catálogo no se arregla agregando una fila vacía, sino uniéndolo con LEFT cuando la rama es opcional.",
+      },
+    ],
+    explanation_md:
+      "En una cadena, cada join se aplica al resultado acumulado hasta ese punto. Un INNER que depende de una tabla unida con LEFT descarta todas las filas donde esa tabla no trajo pareja, y el LEFT queda anulado sin que ninguna condición lo diga. La regla práctica: desde el primer LEFT, todo lo que cuelgue de esa rama también va con LEFT.",
+    is_published: true,
+  },
+  {
+    slug: "jm-q12-agregar-antes-de-unir",
+    section,
+    lesson: duplicacion,
+    type: "scenario",
+    difficulty: "advanced",
+    topic: "Dos agregaciones de tablas distintas",
+    tags: ["duplicates", "aggregation_level", "subquery"],
+    estimated_seconds: 85,
+    prompt_md:
+      "Necesitas, por pedido, las unidades compradas (de `order_items`) y el total pagado (de `payments`). Un pedido puede tener varias líneas y varios intentos de pago. ¿Cuál es la estrategia correcta?",
+    options: [
+      {
+        key: "a",
+        body_md:
+          "Agregar cada tabla por su cuenta —una subconsulta con `sum(quantity)` por pedido y otra con `sum(amount)` por pedido— y recién después unir esos dos resultados, que ya tienen una fila por pedido.",
+        is_correct: true,
+      },
+      {
+        key: "b",
+        body_md:
+          "Unir las tres tablas y usar `sum(DISTINCT oi.quantity)` y `sum(DISTINCT p.amount)` para descontar las repeticiones.",
+        is_correct: false,
+        why_incorrect_md:
+          "`sum(DISTINCT ...)` suma valores distintos, no filas distintas: dos líneas de 2 unidades cada una sumarían 2 en lugar de 4. Descarta datos reales además de las copias.",
+      },
+      {
+        key: "c",
+        body_md:
+          "Unir las tres tablas y dividir cada suma por la cantidad de filas del otro lado para deshacer la multiplicación.",
+        is_correct: false,
+        why_incorrect_md:
+          "El factor de repetición cambia pedido por pedido y deja de ser exacto en cuanto un pedido no tiene pagos o no tiene líneas. Corregir a mano lo que el join multiplicó es frágil e imposible de auditar.",
+      },
+      {
+        key: "d",
+        body_md:
+          "Unir las tres tablas con `LEFT JOIN` en lugar de `INNER JOIN`: así cada pedido aparece una sola vez.",
+        is_correct: false,
+        why_incorrect_md:
+          "El tipo de unión decide qué filas se conservan, no cuántas se generan. Un LEFT contra una tabla con tres coincidencias devuelve tres filas, igual que el INNER.",
+      },
+    ],
+    explanation_md:
+      "Cuando dos tablas de detalle cuelgan de la misma tabla principal, unirlas a la vez multiplica las filas de una por las de la otra. La solución estructural es llevar cada una a la granularidad del pedido antes de unir: así cada subconsulta aporta una sola fila por pedido y la unión ya no puede multiplicar nada.",
+    is_published: true,
+  },
+  {
+    slug: "jm-q13-count-en-left-join",
+    section,
+    lesson: mezcla,
+    type: "query_interpretation",
+    difficulty: "intermediate",
+    topic: "Qué cuenta cada count tras un LEFT JOIN",
+    tags: ["outer_join", "aggregate"],
+    estimated_seconds: 70,
+    prompt_md:
+      "Un vendedor no tiene ningún producto publicado. ¿Qué devuelven las columnas `a` y `b` en su fila?",
+    code_md:
+      "```sql\nSELECT s.id,\n       count(*) AS a,\n       count(p.id) AS b\nFROM sellers AS s\nLEFT JOIN products AS p ON p.seller_id = s.id\nGROUP BY s.id;\n```",
+    options: [
+      {
+        key: "a",
+        body_md:
+          "`a` = 1 y `b` = 0: el LEFT deja una fila con las columnas de `products` en NULL; `count(*)` cuenta esa fila y `count(p.id)` no cuenta el NULL.",
+        is_correct: true,
+      },
+      {
+        key: "b",
+        body_md: "`a` = 0 y `b` = 0: sin productos no hay filas que contar.",
+        is_correct: false,
+        why_incorrect_md:
+          "Entonces el vendedor no aparecería en el resultado, que es justamente lo que el LEFT JOIN evita. Hay una fila, con las columnas de la tabla derecha en NULL.",
+      },
+      {
+        key: "c",
+        body_md: "`a` = 1 y `b` = 1: `count` cuenta filas, mire la columna que mire.",
+        is_correct: false,
+        why_incorrect_md:
+          "`count(*)` cuenta filas, pero `count(columna)` cuenta valores no nulos. Esa diferencia es exactamente lo que separa «vendedores» de «vendedores con productos».",
+      },
+      {
+        key: "d",
+        body_md: "`a` = NULL y `b` = NULL: la fila viene con NULL y el NULL se propaga a la suma.",
+        is_correct: false,
+        why_incorrect_md:
+          "`count` nunca devuelve NULL: devuelve 0 cuando no hay nada que contar. Las que sí devuelven NULL sobre un grupo sin valores son `sum` y `avg`.",
+      },
+    ],
+    explanation_md:
+      "Después de un LEFT JOIN, `count(*)` nunca da cero para una fila de la izquierda: siempre queda al menos una fila, aunque esté vacía del lado derecho. Para contar coincidencias reales usa `count(columna_de_la_tabla_derecha)`. Conviene mirar los dos juntos: uno dice cuántas entidades hay y el otro cuántas tienen el dato.",
+    is_published: true,
+  },
+  {
+    slug: "jm-q14-promedio-ponderado-sin-querer",
+    section,
+    lesson: duplicacion,
+    type: "single",
+    difficulty: "advanced",
+    topic: "Un promedio que cambió de unidad",
+    tags: ["duplicates", "aggregation_level"],
+    estimated_seconds: 75,
+    prompt_md:
+      "Una consulta une `orders` con `order_items` y calcula `avg(o.total_amount)` por país. El resultado trae una fila por país, como se esperaba, y ningún valor parece raro. ¿Qué mide en realidad ese promedio?",
+    options: [
+      {
+        key: "a",
+        body_md:
+          "El importe de los pedidos ponderado por cantidad de líneas: los pedidos con más ítems pesan más, así que ya no es el ticket promedio.",
+        is_correct: true,
+      },
+      {
+        key: "b",
+        body_md: "El ticket promedio correcto: `avg` ignora las filas repetidas.",
+        is_correct: false,
+        why_incorrect_md:
+          "`avg` no sabe que dos filas vienen del mismo pedido: suma todo lo que recibe y divide por la cantidad de filas. Repetir un valor sí mueve el promedio.",
+      },
+      {
+        key: "c",
+        body_md: "El importe promedio por línea de pedido.",
+        is_correct: false,
+        why_incorrect_md:
+          "Para eso habría que promediar una columna del nivel del ítem, como `oi.quantity * oi.unit_price`. Acá se promedia el total del pedido completo, repetido una vez por línea.",
+      },
+      {
+        key: "d",
+        body_md:
+          "Nada: la consulta falla porque se agregan columnas de dos niveles de detalle distintos.",
+        is_correct: false,
+        why_incorrect_md:
+          "No falla. La consulta es válida y devuelve un número bien calculado; el problema es que ese número responde otra pregunta, y por eso nadie lo detecta al revisarlo.",
+      },
+    ],
+    explanation_md:
+      "La cantidad de filas del resultado no dice nada sobre la duplicación: el `GROUP BY` la esconde. Un promedio calculado después de un join uno a muchos deja de pesar por entidad y pasa a pesar por fila. La verificación barata es comparar `count(*)` con `count(DISTINCT o.id)` antes de agrupar: si difieren, todas las agregaciones sobre columnas del pedido están contaminadas.",
+    is_published: true,
+  },
 ];

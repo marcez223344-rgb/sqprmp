@@ -487,4 +487,94 @@ export const questions: QuestionDef[] = [
       "Un período en curso siempre se ve como una caída enorme. Las dos salidas honestas son filtrarlo (`played_at < date_trunc('month', current_date)`) o marcarlo con una bandera de «incompleto» para que la variación no se lea como un hecho del negocio.",
     is_published: true,
   },
+  {
+    slug: "laglead-q13-empates-en-el-orden",
+    section,
+    lesson: basico,
+    type: "scenario",
+    difficulty: "advanced",
+    topic: "Empates en el ORDER BY de la ventana",
+    tags: ["lag_lead", "order_by", "determinismo"],
+    estimated_seconds: 80,
+    prompt_md:
+      "Calculas la diferencia contra el pago anterior con `lag(amount) OVER (PARTITION BY order_id ORDER BY paid_at)`. En esta tabla hay pedidos con dos pagos registrados exactamente en el mismo instante. Ejecutas la consulta dos veces y algunos valores cambian. ¿Por qué?",
+    code_md: null,
+    options: [
+      {
+        key: "a",
+        body_md:
+          "Cuando dos filas empatan en la clave de orden, cuál queda antes no está definido, así que `lag` puede tomar una u otra en cada ejecución. Hay que agregar un criterio de desempate, por ejemplo `ORDER BY paid_at, id`.",
+        is_correct: true,
+      },
+      {
+        key: "b",
+        body_md: "Porque los datos cambian entre una ejecución y otra.",
+        is_correct: false,
+        why_incorrect_md:
+          "El planteo es sobre los mismos datos. Aunque la tabla estuviera congelada, el resultado seguiría pudiendo variar: la causa está en la consulta, no en la base.",
+      },
+      {
+        key: "c",
+        body_md: "Porque falta `ROWS BETWEEN 1 PRECEDING AND 1 PRECEDING` para fijar el marco.",
+        is_correct: false,
+        why_incorrect_md:
+          "`lag` no se apoya en el marco: se define por la posición dentro de la partición ordenada. Agregar una cláusula de marco no cambia nada acá.",
+      },
+      {
+        key: "d",
+        body_md: "Porque `PARTITION BY order_id` obliga a ordenar por `order_id` también.",
+        is_correct: false,
+        why_incorrect_md:
+          "La partición ya separa por pedido; repetir `order_id` en el `ORDER BY` es redundante y no desempata dos pagos del mismo pedido con la misma marca de tiempo.",
+      },
+    ],
+    explanation_md:
+      "Un `ORDER BY` con empates deja el orden de las filas empatadas a criterio del motor, y ese criterio puede cambiar con el plan de ejecución o el paralelismo. Toda ventana que vaya a un informe necesita una clave de orden única: agrega una columna de desempate estable (el identificador, por ejemplo). Es el mismo cuidado que exige `row_number()`, y acá el síntoma es peor, porque el número sale distinto sin ningún error.",
+    is_published: true,
+  },
+  {
+    slug: "laglead-q14-marco-no-afecta-a-lag",
+    section,
+    lesson: brechas,
+    type: "single",
+    difficulty: "advanced",
+    topic: "El marco y las funciones de desplazamiento",
+    tags: ["lag_lead", "frame", "window_function"],
+    estimated_seconds: 70,
+    prompt_md:
+      "Alguien agrega `ROWS BETWEEN 2 PRECEDING AND CURRENT ROW` a una ventana que usa `lag(ventas)` y a otra que usa `avg(ventas)`, ambas con el mismo `PARTITION BY` y el mismo `ORDER BY`. ¿Qué cambia?",
+    code_md: null,
+    options: [
+      {
+        key: "a",
+        body_md:
+          "Cambia el `avg`, que pasa a promediar solo las tres últimas filas; el `lag` devuelve lo mismo, porque las funciones de desplazamiento no miran el marco.",
+        is_correct: true,
+      },
+      {
+        key: "b",
+        body_md: "Cambian las dos: el marco define qué filas ve cualquier función de ventana.",
+        is_correct: false,
+        why_incorrect_md:
+          "El marco define qué filas ve una función de agregación dentro de la ventana, y también `first_value`, `last_value` y `nth_value`. `lag` y `lead` se definen por posición dentro de la partición y lo ignoran.",
+      },
+      {
+        key: "c",
+        body_md: "No cambia ninguna: el marco solo se aplica cuando se escribe `RANGE`.",
+        is_correct: false,
+        why_incorrect_md:
+          "`ROWS` y `RANGE` son dos maneras de expresar el marco, no la diferencia entre tenerlo y no tenerlo. Con `ORDER BY` siempre hay un marco: si no lo escribes, es `RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`.",
+      },
+      {
+        key: "d",
+        body_md: "Cambia el `lag`, que pasa a mirar dos filas hacia atrás en lugar de una.",
+        is_correct: false,
+        why_incorrect_md:
+          "Cuántas filas retrocede `lag` lo decide su segundo argumento (`lag(ventas, 2)`), no el marco. La cláusula de marco no altera el desplazamiento.",
+      },
+    ],
+    explanation_md:
+      "Una ventana tiene tres partes: la partición, el orden y el marco. `lag`, `lead`, `row_number` y `rank` usan solo las dos primeras; las agregaciones de ventana (`sum`, `avg`, `count`) y `first_value` / `last_value` / `nth_value` usan las tres. Saber cuál es cuál te ahorra el error inverso, que es mucho más común: esperar que `last_value` devuelva la última fila de la partición cuando el marco por omisión la corta en la fila actual.",
+    is_published: true,
+  },
 ];

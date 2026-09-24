@@ -251,4 +251,92 @@ export const questions: QuestionDef[] = [
       "Listar `customer_id` únicos de `orders` equivale a «clientes con al menos un pedido».",
     is_published: true,
   },
+  {
+    slug: "distinct-q09-parentesis",
+    section,
+    lesson,
+    type: "single",
+    difficulty: "intermediate",
+    topic: "DISTINCT no es una función",
+    tags: ["distinct", "sintaxis"],
+    estimated_seconds: 50,
+    prompt_md:
+      "Alguien escribe `SELECT DISTINCT(country), city FROM customers;` creyendo que así elimina los países repetidos y deja la ciudad como dato extra. La consulta corre sin error. ¿Qué devuelve?",
+    options: [
+      {
+        key: "a",
+        body_md:
+          "Lo mismo que `SELECT DISTINCT country, city`: una fila por combinación distinta de país y ciudad. Los paréntesis solo agrupan la expresión `country`.",
+        is_correct: true,
+      },
+      {
+        key: "b",
+        body_md: "Una fila por país, con la primera ciudad que encuentre para cada uno.",
+        is_correct: false,
+        why_incorrect_md:
+          "SQL nunca elige «la primera» por su cuenta. Para quedarte con una fila por país necesitas decir con qué criterio, y eso ya no es trabajo de `DISTINCT`.",
+      },
+      {
+        key: "c",
+        body_md: "Una fila por país, con la ciudad en blanco.",
+        is_correct: false,
+        why_incorrect_md:
+          "Ninguna cláusula vacía columnas del resultado. Si `city` está en el `SELECT`, cada fila trae su valor y esa columna participa de la comparación.",
+      },
+      {
+        key: "d",
+        body_md: "Un error, porque `DISTINCT` no acepta paréntesis.",
+        is_correct: false,
+        why_incorrect_md:
+          "Los acepta, y ese es el problema: se leen como los paréntesis de cualquier expresión, la consulta corre y el resultado no es el que quien la escribió esperaba.",
+      },
+    ],
+    explanation_md:
+      "`DISTINCT` no es una función que se aplique a una columna: es una cláusula que se aplica a toda la fila del resultado. Escribirlo con paréntesis produce una consulta válida cuyo significado no coincide con la intención, que es la peor combinación posible. Si de verdad necesitas una fila por país, el camino es agrupar y decidir qué hacer con la ciudad.",
+    is_published: true,
+  },
+  {
+    slug: "distinct-q10-duplicados-que-no-lo-son",
+    section,
+    lesson,
+    type: "scenario",
+    difficulty: "intermediate",
+    topic: "Lo que DISTINCT no puede unir",
+    tags: ["distinct", "calidad_de_datos"],
+    estimated_seconds: 55,
+    prompt_md:
+      "En una tabla `contactos` cargada desde un formulario de texto libre, `SELECT DISTINCT city FROM contactos;` devuelve, entre otras filas, `Bogotá`, `bogota` y `Bogotá ` (con un espacio al final). Te piden la lista de ciudades donde hay contactos. ¿Qué corresponde?",
+    options: [
+      {
+        key: "a",
+        body_md:
+          "Reportar que la columna tiene la misma ciudad escrita de varias maneras: `DISTINCT` compara textos exactos y no puede saber que las tres son la misma ciudad.",
+        is_correct: true,
+      },
+      {
+        key: "b",
+        body_md: "Volver a ejecutar la consulta: `DISTINCT` falló en eliminar los duplicados.",
+        is_correct: false,
+        why_incorrect_md:
+          "`DISTINCT` hizo exactamente lo que define: para el motor, tres textos que difieren en una tilde, una mayúscula o un espacio son tres valores distintos. No hay nada que reintentar.",
+      },
+      {
+        key: "c",
+        body_md: "Entregar la lista tal cual: es lo que hay en la base.",
+        is_correct: false,
+        why_incorrect_md:
+          "Es lo que hay en la base, pero la pregunta era por ciudades, no por escrituras. Entregar 3 filas donde hay 1 ciudad hace que quien lo lea cuente mal sus mercados.",
+      },
+      {
+        key: "d",
+        body_md: "Borrar las filas repetidas de la tabla para que la consulta quede limpia.",
+        is_correct: false,
+        why_incorrect_md:
+          "No son filas repetidas: son contactos distintos con la ciudad mal escrita. Y un análisis no modifica los datos de origen; el arreglo se acuerda con quien es responsable de esa tabla.",
+      },
+    ],
+    explanation_md:
+      "`DISTINCT` elimina filas idénticas, no filas equivalentes. Encontrar variantes de escritura es uno de los usos más valiosos que tiene: no te da la lista limpia, te muestra que la columna necesita normalizarse. En el informe conviene entregar la lista normalizada y, aparte, las variantes encontradas.",
+    is_published: true,
+  },
 ];
