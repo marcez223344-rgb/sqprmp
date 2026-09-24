@@ -1,7 +1,10 @@
 export const founder = {
   name: "Marcelo Pisner",
   role: "Fundador e instructor",
-  bio: "Especialista en datos y SQL con experiencia en analítica de negocio en América Latina. Creó Data Minds SQL Academy para que más personas accedan a una carrera en datos con práctica realista.",
+  // Only claims datamindssolutions.com already makes in public may appear here: "consultora de
+  // datos e inteligencia artificial" and "más de 15 años de experiencia", both attributed to the
+  // consultancy rather than to the person, which is what the site states.
+  bio: "Especialista en datos y SQL. Dirige Data Minds Solutions, una consultora de datos e inteligencia artificial con más de 15 años de experiencia, y creó Data Minds SQL Academy para que más personas accedan a una carrera en datos con práctica realista.",
   avatar: "/brand/founder.jpg", // placeholder asset; replace with a real photo when available
   /**
    * Only real destinations belong here. `undefined` means "no profile supplied yet" and callers

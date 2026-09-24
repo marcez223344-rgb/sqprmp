@@ -31,25 +31,26 @@
     "privacy": "Privacidad",
     "verify": "Verificar certificado",
     "rights": "Todos los derechos reservados.",
-    "madeIn": "Hecho en América Latina para toda la región."
+    "madeIn": "Hecho en América Latina, para quien aprende SQL en español.",
+    "consultancy": "Una iniciativa de {org} — <link>{site}</link>"
   },
   "landing": {
     "metaTitle": "Aprende SQL con datos reales de negocio",
-    "metaDescription": "Ejercicios prácticos con datos de empresas latinoamericanas, retroalimentación inmediata, pistas progresivas y certificados verificables.",
+    "metaDescription": "Curso de SQL en español: ejercicios prácticos con datos de empresas realistas, retroalimentación inmediata, pistas progresivas y certificados verificables.",
     "hero": {
       "eyebrow": "SQL para tu carrera en datos",
       "title": "Aprende SQL resolviendo problemas reales de negocio",
-      "subtitle": "Practica con datos de e-commerce, fintech y delivery de América Latina. Ejecuta consultas en el navegador, recibe retroalimentación útil y consigue certificados verificables.",
+      "subtitle": "Practica con datos de negocio realistas: e-commerce, fintech y delivery. Ejecuta consultas en el navegador, recibe retroalimentación útil y consigue certificados verificables.",
       "ctaPrimary": "Empieza gratis con Google",
       "ctaSecondary": "Probar SQL sin registrarme",
       "note": "Dos secciones completas gratis, más tus primeros {count} ejercicios del resto del curso. Sin tarjeta."
     },
     "benefits": {
-      "title": "Diseñado para personas que trabajan con datos",
+      "title": "Para quien trabaja con datos, en cualquier país",
       "items": {
         "practice": {
           "title": "Práctica realista",
-          "body": "Cada ejercicio parte de una pregunta de negocio con datos ficticios pero creíbles: pedidos, pagos, clientes, cohortes."
+          "body": "Cada ejercicio parte de una pregunta de negocio con datos ficticios pero creíbles: pedidos, pagos, clientes, cohortes. Vas a trabajar con varias monedas y países, como en cualquier empresa con operación internacional."
         },
         "feedback": {
           "title": "Retroalimentación que enseña",
@@ -169,7 +170,7 @@
     "goals": {
       "title": "Metas",
       "daily": "XP de hoy",
-      "weekly": "Minutos en ejercicios y quizzes",
+      "weekly": "Minutos de práctica",
       "edit": "Ajustar metas",
       "dailyLabel": "Meta diaria de XP",
       "weeklyLabel": "Meta semanal de minutos de práctica",
@@ -353,7 +354,7 @@
   },
   "curriculum": {
     "title": "Currículo completo",
-    "intro": "Seis niveles, treinta y nueve secciones. Cada sección combina teoría breve, ejercicios sobre datos de negocio reales de América Latina y un quiz. Las secciones marcadas como «Próximamente» se publican semana a semana.",
+    "intro": "Seis niveles, treinta y nueve secciones. Cada sección combina teoría breve, ejercicios sobre datos de negocio realistas y un quiz. Las secciones marcadas como «Próximamente» se publican semana a semana.",
     "cta": "Empieza gratis con Google"
   },
   "path": {
@@ -396,6 +397,15 @@
     "breadcrumb": "Ubicación",
     "path": "Ruta",
     "sectionNumber": "Sección {number}",
+    "fallbackTitle": "Lección",
+    "block": {
+      "objectives": "Al terminar vas a poder",
+      "keyIdea": "Idea clave",
+      "wrong": "Así no",
+      "right": "Así sí",
+      "result": "Resultado",
+      "diagram": "Diagrama"
+    },
     "minutes": "{minutes} min",
     "pagination": "Navegación entre lecciones",
     "backToPath": "Volver a la ruta",
@@ -439,6 +449,7 @@
     "breadcrumb": "Ubicación",
     "path": "Ruta",
     "sectionNumber": "Sección {number}",
+    "fallbackTitle": "Ejercicio",
     "minutes": "{minutes} min",
     "freeCounter": "Cupo gratis del curso pago: {used} de {limit}",
     "difficulty": {
@@ -700,7 +711,7 @@
   },
   "demo": {
     "title": "Prueba SQL en tu navegador",
-    "intro": "Este es el dataset TiendaViva, un marketplace ficticio de América Latina. Las consultas se ejecutan en un PostgreSQL real dentro de tu navegador: nada sale de tu computadora. Inicia sesión para resolver ejercicios con validación, pistas y certificados.",
+    "intro": "Este es el dataset TiendaViva, un marketplace ficticio con operación en varios países de América Latina. Las consultas se ejecutan en un PostgreSQL real dentro de tu navegador: nada sale de tu computadora. Inicia sesión para resolver ejercicios con validación, pistas y certificados.",
     "editorTitle": "Consulta de ejemplo (edítala)",
     "editorAria": "Editor de SQL de demostración",
     "run": "Ejecutar",
@@ -810,9 +821,9 @@
     },
     "faq": {
       "title": "Preguntas sobre pagos",
-      "manual": "Transferencias: aceptamos transferencia bancaria y Mercado Pago en pesos argentinos y Wallbit en dólares. Un humano revisa cada pago; por eso puede tardar unas horas.",
-      "hotmart": "Tarjetas: el checkout lo procesa Hotmart, que emite tu factura y acepta cuotas y métodos locales según tu país.",
-      "refund": "Reembolsos: si el curso no es para ti, escríbenos dentro de los 7 días de la compra y te devolvemos el dinero.",
+      "manual": "Transferencias: aceptamos transferencia bancaria y Mercado Pago en pesos argentinos, Wallbit en dólares si estás en América Latina y PayPal en dólares desde cualquier país. Revisamos cada pago a mano, así que puede tardar unas horas.",
+      "other": "¿Ningún medio te sirve? Escríbenos a {email} y coordinamos otra forma de pago.",
+      "refund": "Reembolsos: si el curso no es para ti, escríbenos dentro de los {refundDays} días de la compra y te devolvemos el dinero.",
       "scholarship": "Becas: si el precio es una barrera, pídenos un código de beca desde tu página de acceso."
     }
   },
@@ -1461,7 +1472,7 @@
       "errors": {
         "unauthorized": "Tienes que iniciar sesión.",
         "validation": "Ingresa un nombre válido (3 a 60 caracteres).",
-        "not_eligible": "Todavía no cumplís todos los requisitos de esta ruta.",
+        "not_eligible": "Todavía no cumples todos los requisitos de esta ruta.",
         "not_found": "No encontramos esta ruta certificable.",
         "unknown": "No pudimos emitir el certificado. Vuelve a intentarlo."
       }
@@ -1523,13 +1534,13 @@
   },
   "about": {
     "title": "Nosotros",
-    "intro": "{product} nace de una convicción: SQL se aprende resolviendo problemas de negocio reales, con datos que se parecen a los de una empresa latinoamericana y con retroalimentación que explica el porqué.",
+    "intro": "{product} nace de una convicción: SQL se aprende resolviendo problemas de negocio reales, con datos que se parecen a los de una empresa de verdad y con retroalimentación que explica el porqué. El curso es en español y está abierto a cualquier país; los datos de práctica son de empresas latinoamericanas, con sus monedas y sus ciudades.",
     "linkedin": "Ver perfil en LinkedIn",
     "principles": {
       "title": "Cómo enseñamos",
       "real": {
         "title": "Datos con contexto",
-        "body": "Tres empresas ficticias pero verosímiles: un marketplace, una billetera digital y un delivery. Monedas, estacionalidad y problemas de calidad reales."
+        "body": "Tres empresas ficticias pero verosímiles: un marketplace, una billetera digital y un delivery, con operación en varios países de América Latina. Varias monedas, estacionalidad y problemas de calidad de datos reales: la misma complejidad que vas a encontrar en cualquier empresa."
       },
       "safe": {
         "title": "Ejecución segura",
@@ -1546,7 +1557,8 @@
     },
     "company": {
       "title": "La empresa",
-      "body": "{org} es una consultora de datos con base en Argentina que trabaja con equipos de toda América Latina. La academia es nuestra forma de compartir lo que enseñamos en proyectos reales.",
+      "body": "{org} es una consultora de datos e inteligencia artificial con más de 15 años de experiencia, con base en Argentina y proyectos con equipos de distintos países. La academia es nuestra forma de compartir lo que enseñamos en esos proyectos.",
+      "site": "Conoce la consultora",
       "contact": "Escríbenos a"
     },
     "cta": "Empezar gratis"
@@ -1597,7 +1609,11 @@
     "items": {
       "who": {
         "q": "¿Para quién es este curso?",
-        "a": "Para personas adultas que trabajan o quieren trabajar con datos: análisis, producto, finanzas, operaciones, marketing. No necesitas saber programar; empezamos desde cero y llegamos a funciones de ventana, cohortes y casos de entrevista."
+        "a": "Para personas adultas que trabajan o quieren trabajar con datos: análisis, producto, finanzas, operaciones, marketing. Vivas donde vivas, si trabajas en español el curso es para ti. No necesitas saber programar; empezamos desde cero y llegamos a funciones de ventana, cohortes y casos de entrevista."
+      },
+      "region": {
+        "q": "¿Sirve si no vivo en América Latina?",
+        "a": "Sí. El curso es en español neutro y el SQL que enseñamos es PostgreSQL estándar, igual en cualquier país. Los datos de práctica son de empresas latinoamericanas ficticias, así que vas a ver pesos argentinos, pesos colombianos y ciudades de la región; eso agrega una dificultad útil, porque trabajar con varias monedas y zonas horarias es parte del trabajo real con datos. Nada de lo que aprendes depende del país donde estés."
       },
       "free": {
         "q": "¿Qué incluye el plan gratuito?",
@@ -1609,7 +1625,7 @@
       },
       "payments": {
         "q": "¿Cómo puedo pagar desde mi país?",
-        "a": "Con tarjeta a través de Hotmart (acepta cuotas y métodos locales según el país) o por transferencia: banco o Mercado Pago en pesos argentinos y Wallbit en dólares. Las transferencias se validan manualmente en horas hábiles."
+        "a": "Por transferencia: banco o Mercado Pago en pesos argentinos, Wallbit en dólares si estás en América Latina y PayPal en dólares desde cualquier país. Validamos cada transferencia a mano en horas hábiles. Si ninguno de esos medios te sirve, escríbenos a {email} y coordinamos otra forma de pago."
       },
       "refund": {
         "q": "¿Puedo pedir un reembolso?",

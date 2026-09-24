@@ -104,15 +104,14 @@ export const getDashboard = cache(async (profile: Profile): Promise<DashboardDat
   const xpTotal = totals.data?.xp_total ?? 0;
   const todayRow = (activity.data ?? []).find((a) => a.activity_date === today);
   // What `minutes_active` actually measures, so the label can say it honestly (owner feedback
-  // item 27: "clearly practised more than 33 minutes"). `touch_daily_activity` is called from
-  // exactly two places — submitting an exercise (`src/lib/exercises/service.ts`) and the quiz
-  // actions — and each call adds min(5, minutes since the previous call). Reading a lesson,
-  // running a query in the browser engine or thinking in the editor is invisible to the server and
-  // adds nothing, and the 5-minute cap means a long gap between two submissions counts as five
-  // minutes, not as the gap. So this is "minutes around graded activity", always an undercount of
-  // time spent learning. The dashboard label names the two activities rather than claiming
-  // "minutes practised"; widening the measurement means calling `touchActivity` from the lesson
-  // view and the draft autosave too, which is a change in files this module does not own.
+  // item 27: "clearly practised more than 33 minutes"). `touch_daily_activity` now fires on every
+  // kind of practice that leaves a server-side trace — opening a lesson, marking one complete,
+  // the editor autosave, an exercise submission and the quiz actions — and each call adds
+  // min(5, minutes since the previous call). The cap is deliberate: a long gap between two actions
+  // counts as five minutes, not as the gap, so a tab left open overnight adds nothing. What still
+  // escapes the count is time with no round trip at all: running a query in the browser engine, or
+  // reading without navigating. So this remains a floor on time practised, not a stopwatch — but a
+  // close enough one for the label to say "minutos de práctica".
   const weekMinutes = (activity.data ?? []).reduce((a, r) => a + r.minutes_active, 0);
   const weekXp = (activity.data ?? []).reduce((a, r) => a + r.xp_earned, 0);
   const goalRow = goals.data ?? {

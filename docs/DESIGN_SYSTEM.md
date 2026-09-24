@@ -65,9 +65,12 @@ Spacing scale 4 px based (1–24). Radius: 6 (inputs), 10 (cards), 16 (modals), 
 
 The category vocabulary is **closed**: call sites choose a category, never their own colour classes. Anything not in the table uses `neutral`.
 
+**Choose a category by meaning, never by appearance.** Warm and alert hues — `--color-accent-ink` (`why`), `--color-warning-ink` (`pitfall`, `hint`), `--color-danger` (`feedback-incorrect`) — are reserved for the things that ask the reader to be careful: mistakes, wrong answers, content that is held back. Anything that describes **achievement, progress or a promise to the learner** must not use them, and `verify`/`success-ink` is reserved for "this is done or verified" so that green keeps meaning exactly one thing across the lesson body, the workspace verdict and the progress markers of §5c. The «Al terminar vas a poder» block was built on `why` because the `Target` icon fitted, and a full-width terracotta panel at the top of every lesson read as a warning banner (owner feedback, 2026-09-24); it is now `goal`, on `--color-achievement` — the hue the product already uses for levels and the «nivel» badge family, so "what you will achieve" looks the same wherever it appears. Measured on the `goal` tint: ink 5.72:1 light / 5.73:1 dark, `--color-muted` 5.13:1 / 5.90:1.
+
 | Category             | Icon             | Ink                   | Tint (light / dark) | Border           | Used by                                                               |
 | -------------------- | ---------------- | --------------------- | ------------------- | ---------------- | --------------------------------------------------------------------- |
 | `why`                | `Target`         | `--color-accent-ink`  | accent-ink 10 / 14  | accent-ink 30 %  | lesson «Por qué importa»                                              |
+| `goal`               | `Flag`           | `--color-achievement` | achievement 10 / 14 | achievement 30 % | lesson «Al terminar vas a poder» (`objetivos`)                        |
 | `concept`            | `BookOpen`       | `--color-info`        | info 10 / 14        | info 30 %        | lesson «El concepto», «La sintaxis»; workspace «Teoría relevante»     |
 | `schema`             | `Table2`         | `--color-text`        | `surface-2`         | `border`         | workspace «Definiciones de tablas», «Columnas esperadas», «Resultado» |
 | `example`            | `SquareTerminal` | `--color-primary`     | primary 10 / 14     | primary 30 %     | lesson «Ejemplo resuelto», «Ejemplo ejecutable»                       |
@@ -112,6 +115,48 @@ not a dependency. Inks measured 2026-09-24 on `--color-surface-2` (light / dark)
 `--color-muted` 5.27 / 6.72 — every one ≥ 4.5:1 in both themes. Colour here
 carries **no** information that the text does not already carry, which is why it does not violate
 "no meaning by colour alone".
+
+### 5c. Progress-state vocabulary (2026-09-24)
+
+`src/components/progress/progress-state.tsx` is the only place a lesson, exercise or section says
+how far along it is. `/ruta`, `/curriculo` and the per-section checklist on `/certificados` all draw
+from it.
+
+**The bug it replaces.** `/ruta` told «Completada», «En curso» and «Sin empezar» apart with three
+circular lucide glyphs (`CheckCircle2`, `PlayCircle`, `Circle`) and three inks. Desaturated, those
+inks are greys 98, 95 and 99 out of 255 — a contrast of **1.02:1 to 1.07:1 between the states**. So
+in greyscale, and for a learner with deuteranopia or protanopia, the three states were literally the
+same colour and the only surviving difference was a ~3 px mark inside an identical circle, repeated
+up to 347 times down one page. Colour was never _alone_ (there was always a word), but it was the
+only difference the eye could use at scanning speed, which is the failure the owner reported.
+
+**Rule 1 — the channel is the amount of ink, not the hue.** The marker goes
+
+| State         | Marker (18 px / 40 px)                                                        | Row rail                               | Card edge                            |
+| ------------- | ----------------------------------------------------------------------------- | -------------------------------------- | ------------------------------------ |
+| `completed`   | **filled** disc, `success-ink`, knockout `Check` in `--color-bg`              | 2 px solid `success-ink`               | 2 px solid `success-ink`             |
+| `in_progress` | **ringed** disc, 2 px `primary`, solid centre dot (40 px: the section number) | 2 px `primary` + 8/12 % `primary` fill | 4 px `primary` + `primary/50` border |
+| `not_started` | **empty** disc, 1 px `border`, `surface-2`                                    | transparent                            | plain `border`                       |
+| `locked`      | **dashed** disc + `Lock`                                                      | 2 px dashed `border`                   | dashed `border`                      |
+| `soon`        | **dashed** disc, no glyph                                                     | 2 px dashed `border`                   | dashed `border`                      |
+
+filled → ringed → empty → dashed is a luminance ladder, so it survives greyscale and every form of
+colour blindness; the hue only confirms what the shape already said. The knockout on the filled
+marker is `--color-bg`, not white: white on the dark theme's `--color-success-ink` (`#4cc38a`) is
+2.1:1, `--color-bg` is 5.74:1 light / 8.97:1 dark.
+
+**Rule 2 — the states are not equal, and the design is deliberately asymmetric.** «En curso» is the
+only thing the learner is actually hunting for, and there is normally exactly one of it, so it is the
+only row that gets a background fill, a bold title and a visible word. «Completada» keeps its marker
+and a thin rail and nothing else — reassurance, not competition; its green card tint and green title
+ink are gone, because 20 green blocks compete with the one blue one. «Sin empezar» spends no ink at
+all: an empty marker on a transparent rail. At 347 repetitions the quiet states have to cost
+nothing, or the one row that matters drowns in them. In the dense lesson list the labels of the
+quiet states live in an `sr-only` span on the marker, so a screen reader still hears every state.
+
+**`locked` vs `not_started`** is the pair most at risk of collapsing: `locked` is the only state with
+a dashed rail _and_ a glyph, and on a lesson row it takes precedence over `not_started` but never
+over `completed` — an expired entitlement must not erase work already done.
 
 **`StatTile` / `Meter`** (`src/components/progress/stat-tile.tsx`) are the only sanctioned KPI tile and meter. Tile = the same `size-8` icon container as `SectionHeader`, a sentence-case label, a `text-3xl font-bold` number, an optional meter and an optional caption. Two rules: **hue comes from the family the number belongs to** (level → `--color-achievement`, the same token as the «nivel» badge family; XP and exercises → `--color-primary`; streak → `--color-accent-ink`, the only genuinely time-sensitive number; mastery → `--color-success-ink`; a number with nothing to progress toward is `neutral`), and **a meter appears only where a real threshold exists** — total XP and coins have none, and a full bar for them would promise a goal the product does not have. A meter is never shown without its text equivalent: `role="progressbar"` with `aria-valuenow/min/max`, `aria-valuetext` in words («59 XP para el nivel 3»), plus the visible caption. Meter fills measure ≥ 4.7:1 against the `surface-2` track in both themes. No glyph is ever added to an already-labelled number — the motivating information is the distance to the threshold, not decoration.
 

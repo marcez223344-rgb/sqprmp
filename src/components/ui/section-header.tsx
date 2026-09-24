@@ -1,6 +1,7 @@
 import {
   BookOpen,
   CheckCheck,
+  Flag,
   CircleCheck,
   CircleX,
   Lightbulb,
@@ -24,6 +25,7 @@ import { cn } from "@/lib/utils/cn";
  */
 export const sectionCategories = [
   "why",
+  "goal",
   "concept",
   "schema",
   "example",
@@ -50,6 +52,13 @@ interface CategoryStyle {
 }
 
 /**
+ * **Pick a category by meaning, never by appearance.** Warm and alert hues — `--color-accent-ink`
+ * (`why`), `--color-warning-ink` (`pitfall`, `hint`), `--color-danger` (`feedback-incorrect`) — are
+ * reserved for the things that ask the reader to be careful. Anything that describes achievement,
+ * progress or a promise to the learner must not use them: the «Al terminar vas a poder» block was
+ * built on `why` because the `Target` icon fitted, and a full-width terracotta panel at the top of
+ * every lesson read as a warning (owner feedback, 2026-09-24). That block is now `goal`.
+ *
  * Tints are 10 % in light and 14 % in dark, the cap at which `--color-muted` still passes 4.5:1
  * over the tint. `feedback-*` are the only pair allowed a 45 % border plus a tint — a verdict is
  * the one place in the product that may raise its voice. The danger tint stays at 8 % in light
@@ -61,6 +70,12 @@ export const CATEGORY_STYLES: Record<SectionCategory, CategoryStyle> = {
     ink: "text-accent-ink",
     container: "border-accent-ink/30 bg-accent-ink/10 dark:bg-accent-ink/14",
     surface: "border-accent-ink/30 bg-accent-ink/10 dark:bg-accent-ink/14",
+  },
+  goal: {
+    icon: Flag,
+    ink: "text-achievement",
+    container: "border-achievement/30 bg-achievement/10 dark:bg-achievement/14",
+    surface: "border-achievement/30 bg-achievement/10 dark:bg-achievement/14",
   },
   concept: {
     icon: BookOpen,

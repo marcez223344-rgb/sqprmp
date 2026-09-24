@@ -4,6 +4,7 @@ import { getFormatter, getTranslations } from "next-intl/server";
 import { PricingActions } from "@/components/payments/pricing-actions";
 import { Card } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
+import { brand } from "@/config/brand";
 import { limits } from "@/config/limits";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { getAccessStatus, getCatalog } from "@/lib/payments/service";
@@ -95,8 +96,11 @@ export default async function PricingPage({ searchParams }: PageProps<"/precios"
       <section className="text-muted space-y-3 text-sm">
         <h2 className="text-text text-xl">{t("faq.title")}</h2>
         <p>{t("faq.manual")}</p>
-        <p>{t("faq.hotmart")}</p>
-        <p>{t("faq.refund")}</p>
+        {/* The card line promised a Hotmart checkout that D-32 disabled, so the page offered a way
+            to pay that does not exist. The channels named here are the ones in
+            `manualTransferChannels`; `faq.other` is the way out for a buyer none of them reach. */}
+        <p>{t("faq.other", { email: brand.supportEmail })}</p>
+        <p>{t("faq.refund", { refundDays: brand.refundDays })}</p>
         <p>{t("faq.scholarship")}</p>
       </section>
     </div>

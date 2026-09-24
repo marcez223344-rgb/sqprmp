@@ -4,26 +4,39 @@ import {
   Award,
   BarChart3,
   BookOpen,
-  CheckCircle2,
+  Check,
   ChevronRight,
-  Circle,
   CircleDashed,
+  CircleDot,
   Layers,
   ListChecks,
-  Lock,
   Network,
-  PlayCircle,
   Sprout,
   SquareTerminal,
   Trophy,
   type LucideIcon,
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import {
+  ProgressChip,
+  ProgressMarker,
+  PROGRESS_STATE_STYLES,
+  progressRailClasses,
+  type ProgressState,
+} from "@/components/progress/progress-state";
 import { LEVEL_ORDER, type PathLesson, type PathSection } from "@/lib/curriculum/queries";
 import { lessonNeedsAccess } from "@/lib/progress/lesson-lock";
 import { cn } from "@/lib/utils/cn";
 
+/** The section-level names of the shared states: `available` is `not_started` with its own word. */
 type SectionState = "completed" | "in_progress" | "available" | "soon";
+
+const SECTION_PROGRESS_STATE: Record<SectionState, ProgressState> = {
+  completed: "completed",
+  in_progress: "in_progress",
+  available: "not_started",
+  soon: "soon",
+};
 
 const LEVEL_ICON: Record<(typeof LEVEL_ORDER)[number], LucideIcon> = {
   beginner: Sprout,
@@ -32,39 +45,16 @@ const LEVEL_ICON: Record<(typeof LEVEL_ORDER)[number], LucideIcon> = {
   expert: BarChart3,
 };
 
-const STATE_ICON: Record<SectionState, LucideIcon> = {
-  completed: CheckCircle2,
-  in_progress: PlayCircle,
+/**
+ * Chip icons. Four different silhouettes on purpose: a bare check, a dot inside a ring, an open
+ * book and a dashed ring. The previous set was three circles (`CheckCircle2`, `PlayCircle`,
+ * `Circle`) whose only difference was a 3 px mark in the middle.
+ */
+const STATE_CHIP_ICON: Record<SectionState, LucideIcon> = {
+  completed: Check,
+  in_progress: CircleDot,
   available: BookOpen,
   soon: CircleDashed,
-};
-
-/**
- * State styling. Every state also carries an icon and a text label, so color is never the only
- * channel; tints stay light enough to keep text above 4.5:1 (a blanket opacity once dropped the
- * muted text below it — docs/reviews/2026-09-18-accessibility.md).
- */
-const STATE_STYLES: Record<SectionState, { card: string; chip: string; badge: string }> = {
-  completed: {
-    card: "border-success-ink/40 bg-success-ink/5",
-    chip: "border-success-ink/40 bg-success-ink/10 text-success-ink",
-    badge: "border-success-ink/40 bg-success-ink/10 text-success-ink",
-  },
-  in_progress: {
-    card: "border-primary/40 bg-surface",
-    chip: "border-primary/40 bg-primary/10 text-primary",
-    badge: "border-primary/40 bg-primary/10 text-primary",
-  },
-  available: {
-    card: "border-border bg-surface",
-    chip: "border-border bg-surface-2 text-text",
-    badge: "border-border bg-surface-2 text-muted",
-  },
-  soon: {
-    card: "border-border bg-surface border-dashed",
-    chip: "border-border bg-surface text-muted border-dashed",
-    badge: "border-border bg-surface text-muted border-dashed",
-  },
 };
 
 const LESSON_ICON: Record<string, LucideIcon> = {
@@ -82,7 +72,8 @@ function sectionState(s: PathSection, publishedLessons: number): SectionState {
 
 /**
  * Shared by the public /curriculo page (no progress, no links into lessons for anon) and the
- * authenticated /ruta page. Status is always icon + text (never color alone).
+ * authenticated /ruta page. Status is always marker + word (never colour alone); the vocabulary
+ * lives in `src/components/progress/progress-state.tsx` and is documented in DESIGN_SYSTEM §5c.
  */
 /**
  * `hasAccess` is the same answer the server gate gives (`has_active_entitlement`), passed in by the
@@ -145,8 +136,12 @@ export async function LearningPath({
               {group.sections.map((s) => {
                 const total = s.lessons.filter((l) => l.is_published).length;
                 const state = sectionState(s, total);
-                const StateIcon = STATE_ICON[state];
-                const styles = STATE_STYLES[state];
+                // In `public` mode nobody has progress, so every published card reads as untouched.
+                const progressState: ProgressState =
+                  mode === "public" && state !== "soon"
+                    ? "not_started"
+                    : SECTION_PROGRESS_STATE[state];
+                const styles = PROGRESS_STATE_STYLES[progressState];
                 const isCurrent = mode === "learner" && s.slug === currentSlug;
                 const percent = total > 0 ? Math.round((s.completed_lessons / total) * 100) : 0;
                 return (
@@ -160,24 +155,23 @@ export async function LearningPath({
                   >
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="flex min-w-0 items-start gap-3">
-                        <span
-                          aria-hidden="true"
-                          className={cn(
-                            "flex size-10 shrink-0 items-center justify-center rounded-full border text-sm font-bold",
-                            styles.badge,
-                          )}
-                        >
-                          {state === "completed" ? <CheckCircle2 className="size-5" /> : s.number}
-                        </span>
+                        <ProgressMarker
+                          size="lg"
+                          state={progressState}
+                          number={s.number}
+                          label={t(`state.${state}`)}
+                        />
                         <div className="min-w-0 space-y-1">
                           <p className="text-muted text-xs font-semibold tracking-wide uppercase">
                             {t("sectionNumber", { number: s.number })}
                             {s.is_free_theory ? ` · ${t("freeTheory")}` : ""}
                           </p>
+                          {/* Only the section in progress is bold: at 39 cards the eye needs one
+                              target, not three competing weights. */}
                           <h3
                             className={cn(
                               "text-lg",
-                              state === "completed" && "text-success-ink",
+                              styles.emphasised && "font-bold",
                               isCurrent && "text-xl",
                             )}
                           >
@@ -188,18 +182,15 @@ export async function LearningPath({
                       </div>
 
                       <div className="flex shrink-0 flex-col items-end gap-2">
-                        <span
-                          className={cn(
-                            "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium",
-                            styles.chip,
-                          )}
-                        >
-                          <StateIcon aria-hidden="true" className="size-4" />
-                          {t(`state.${state}`)}
-                          {mode === "learner" && state !== "soon" && total > 0
-                            ? ` · ${s.completed_lessons}/${total}`
-                            : ""}
-                        </span>
+                        <ProgressChip
+                          state={progressState}
+                          icon={STATE_CHIP_ICON[state]}
+                          label={`${t(`state.${state}`)}${
+                            mode === "learner" && state !== "soon" && total > 0
+                              ? ` · ${s.completed_lessons}/${total}`
+                              : ""
+                          }`}
+                        />
                         {isCurrent ? (
                           <span className="text-primary inline-flex items-center gap-1 text-xs font-semibold">
                             {t("current")}
@@ -281,53 +272,46 @@ function LessonRow({
   const done = mode === "learner" && lesson.status === "completed";
   const started = mode === "learner" && lesson.status === "in_progress";
 
+  /**
+   * Precedence: work already done outranks the padlock (an expired entitlement must not erase a
+   * completed lesson), and the padlock outranks "sin empezar" — those two are the pair most at risk
+   * of collapsing into each other, which is why `locked` is the one state drawn with a dashed rail
+   * and a glyph instead of an empty marker.
+   */
+  const state: ProgressState = done
+    ? "completed"
+    : needsAccess
+      ? "locked"
+      : started
+        ? "in_progress"
+        : "not_started";
+  const label = needsAccess && !done ? t("premiumLesson") : t(`lessonStatus.${lesson.status}`);
+
   const inner = (
     <span
       className={cn(
-        "flex min-h-11 items-center justify-between gap-3 border-l-2 px-4 py-3 text-sm",
-        done
-          ? "border-l-success-ink bg-success-ink/5"
-          : started
-            ? "border-l-primary"
-            : "border-l-transparent",
+        "flex min-h-11 items-center justify-between gap-3 px-4 py-3 text-sm",
+        progressRailClasses(state),
       )}
     >
       <span className="flex min-w-0 items-center gap-2">
-        <Icon
-          aria-hidden="true"
-          className={cn("size-4 shrink-0", done ? "text-success-ink" : "text-muted")}
-        />
+        <ProgressMarker state={state} label={label} />
+        <Icon aria-hidden="true" className="text-muted size-4 shrink-0" />
         <span className="sr-only">{t(`lessonKind.${lesson.kind}` as never)}: </span>
-        <span className={cn("truncate", done ? "font-semibold" : "font-medium")}>
+        {/* The in-progress row is the only bold line in a list of up to 347 rows: that is the whole
+            hierarchy. Completed rows keep their weight and recede through the rail. */}
+        <span className={cn("truncate", state === "in_progress" ? "font-bold" : "font-medium")}>
           {lesson.title}
         </span>
-        {needsAccess ? (
-          <>
-            <Lock aria-hidden="true" className="text-muted size-3.5 shrink-0" />
-            <span className="sr-only">{t("premiumLesson")}</span>
-          </>
-        ) : null}
       </span>
       <span className="text-muted flex shrink-0 items-center gap-3 text-xs">
         <span className="hidden sm:inline">
           {t("minutes", { minutes: lesson.estimated_minutes })}
         </span>
-        {mode === "learner" ? (
-          <span
-            className={cn(
-              "inline-flex items-center gap-1 font-medium",
-              done ? "text-success-ink" : started ? "text-primary" : "text-muted",
-            )}
-          >
-            {done ? (
-              <CheckCircle2 aria-hidden="true" className="size-4" />
-            ) : started ? (
-              <PlayCircle aria-hidden="true" className="size-4" />
-            ) : (
-              <Circle aria-hidden="true" className="size-4" />
-            )}
-            {t(`lessonStatus.${lesson.status}`)}
-          </span>
+        {/* Only «En curso» spends a word here. «Completada» and «Sin empezar» are carried by the
+            marker and the rail, and their label travels with the marker for screen readers. */}
+        {state === "in_progress" ? (
+          <span className="text-primary font-semibold">{t("lessonStatus.in_progress")}</span>
         ) : null}
         {!locked ? <ChevronRight aria-hidden="true" className="size-4" /> : null}
       </span>

@@ -1,7 +1,21 @@
 import Link from "next/link";
-import { Award, CheckCircle2, Circle, Download, ShieldCheck } from "lucide-react";
+import {
+  Award,
+  Check,
+  CircleDashed,
+  CircleDot,
+  CircleX,
+  Download,
+  ShieldCheck,
+  type LucideIcon,
+} from "lucide-react";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { IssueCertificateForm } from "@/components/certificates/issue-form";
+import {
+  ProgressMarker,
+  progressRailClasses,
+  type ProgressState,
+} from "@/components/progress/progress-state";
 import { Meter } from "@/components/progress/stat-tile";
 import { Card } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
@@ -17,9 +31,12 @@ export async function generateMetadata() {
 
 export default async function CertificatesPage() {
   const profile = await requireOnboardedProfile("/certificados");
-  const [statuses, t, format] = await Promise.all([
+  // `path` is borrowed for one string: the word «En curso», so a section that has work started on
+  // it reads the same here as it does on /ruta.
+  const [statuses, t, tPath, format] = await Promise.all([
     getRequirementStatuses(profile),
     getTranslations("certificates"),
+    getTranslations("path"),
     getFormatter(),
   ]);
   return (
@@ -125,27 +142,39 @@ export default async function CertificatesPage() {
                             ]
                               .filter((x): x is string => Boolean(x))
                               .join(" · ");
+                      // The same four-state vocabulary as /ruta (DESIGN_SYSTEM §5c): a bare circle
+                      // could not say whether a pending section had been started.
+                      const state: ProgressState =
+                        p.unitsTotal === 0
+                          ? "soon"
+                          : sec.completed
+                            ? "completed"
+                            : p.unitsDone > 0
+                              ? "in_progress"
+                              : "not_started";
+                      const stateLabel =
+                        state === "completed"
+                          ? t("sectionDone")
+                          : state === "in_progress"
+                            ? tPath("state.in_progress")
+                            : state === "soon"
+                              ? t("detail.soon")
+                              : t("sectionPending");
                       return (
                         <li
                           key={sec.slug}
-                          className="border-border bg-surface-2 flex items-start gap-2 rounded-md border p-3"
-                        >
-                          {sec.completed ? (
-                            <CheckCircle2
-                              aria-hidden="true"
-                              className="text-success-ink mt-0.5 size-4 shrink-0"
-                            />
-                          ) : (
-                            <Circle
-                              aria-hidden="true"
-                              className="text-muted mt-0.5 size-4 shrink-0"
-                            />
+                          className={cn(
+                            "border-border bg-surface flex items-start gap-2 rounded-md border p-3",
+                            progressRailClasses(state),
+                            // These cards are fully bordered, unlike the /ruta lesson rows, so the
+                            // untouched state keeps a normal left border instead of a transparent
+                            // notch in the outline.
+                            state === "not_started" && "border-l-border",
                           )}
+                        >
+                          <ProgressMarker state={state} label={stateLabel} className="mt-0.5" />
                           <span className="min-w-0">
-                            <span className="sr-only">
-                              {sec.completed ? t("sectionDone") : t("sectionPending")}
-                            </span>
-                            <span className="block">
+                            <span className={cn("block", state === "in_progress" && "font-bold")}>
                               {sec.number}. {sec.title}
                             </span>
                             {/* What is actually left in this section, instead of a bare circle. */}
@@ -211,6 +240,19 @@ export default async function CertificatesPage() {
   );
 }
 
+/**
+ * Four verdicts that used to differ only by hue — and `--color-success` over its own 10 % tint
+ * measures 4.35:1, below AA. Each one now carries a glyph as well, and the success ink is the
+ * `-ink` variant that passes.
+ */
+const PILL: Record<"success" | "danger" | "info" | "muted", { classes: string; icon: LucideIcon }> =
+  {
+    success: { classes: "bg-success-ink/10 text-success-ink", icon: Check },
+    danger: { classes: "bg-danger/8 text-danger", icon: CircleX },
+    info: { classes: "bg-info/10 text-info", icon: CircleDot },
+    muted: { classes: "bg-surface-2 text-muted", icon: CircleDashed },
+  };
+
 function StatusPill({
   label,
   tone,
@@ -218,13 +260,16 @@ function StatusPill({
   label: string;
   tone: "success" | "danger" | "info" | "muted";
 }) {
-  const tones = {
-    success: "bg-success/10 text-success",
-    danger: "bg-danger/10 text-danger",
-    info: "bg-info/10 text-info",
-    muted: "bg-surface-2 text-muted",
-  } as const;
+  const { classes, icon: Icon } = PILL[tone];
   return (
-    <span className={cn("rounded-full px-3 py-1 text-xs font-semibold", tones[tone])}>{label}</span>
+    <span
+      className={cn(
+        "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold",
+        classes,
+      )}
+    >
+      <Icon aria-hidden="true" className="size-3.5" />
+      {label}
+    </span>
   );
 }

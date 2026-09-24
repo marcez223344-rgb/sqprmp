@@ -8,7 +8,10 @@ export const brand = {
   organization: "Data Minds Solutions",
   tagline: "Aprende SQL con datos reales de negocio",
   description:
-    "Plataforma de aprendizaje de SQL para profesionales de América Latina: ejercicios con datos de negocio realistas, retroalimentación inmediata y certificados verificables.",
+    // The product is described by language, not by region (owner, 2026-09-24): the datasets stay
+    // Latin-American, but nothing here may read as an eligibility rule for a Spanish speaker
+    // outside the region. See docs/reviews/2026-09-24-positioning.md.
+    "Plataforma de aprendizaje de SQL en español: ejercicios con datos de negocio realistas, retroalimentación inmediata y certificados verificables.",
   locale: "es-419",
   defaultTimezone: "America/Argentina/Buenos_Aires",
   /**

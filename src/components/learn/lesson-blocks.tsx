@@ -75,14 +75,23 @@ export function KeyIdea({ label, children }: { label: string; children: ReactNod
   );
 }
 
-/** The lesson opener: what the learner will be able to do. `why` — the same category as «Por qué importa». */
+/**
+ * The lesson opener: what the learner will be able to do. `goal` — `--color-achievement`, the hue
+ * the product already uses for levels and the «nivel» badge family, so "what you will achieve"
+ * looks the same wherever it appears.
+ *
+ * It used to be `why` (`--color-accent-ink`), inherited from the small «Por qué importa» aside
+ * because the icon fitted. Blown up to a full-width panel at the top of every lesson, a warm
+ * terracotta block with red-ish check marks read as a warning — the exact opposite of a promise
+ * (owner feedback, 2026-09-24). Warm hues are reserved for things that need care.
+ */
 export function Objectives({ label, items }: { label: string; items: ReactNode[] }) {
   return (
-    <Callout category="why" eyebrow={label} className="mt-0 mb-8">
+    <Callout category="goal" eyebrow={label} className="mt-0 mb-8">
       <ul className="mt-1 space-y-2">
         {items.map((item, i) => (
           <li key={i} className="flex items-start gap-2.5">
-            <Check aria-hidden="true" className="text-accent-ink mt-1 size-4 shrink-0" />
+            <Check aria-hidden="true" className="text-achievement mt-1 size-4 shrink-0" />
             <span className="min-w-0">{item}</span>
           </li>
         ))}

@@ -101,6 +101,17 @@ export default async function AboutPage() {
           {t("company.title")}
         </h2>
         <p className="text-muted">{t("company.body", { org: brand.organization })}</p>
+        {/* The consultancy is the answer to "who is teaching me": it goes first, above the contact
+            line, because it is the destination a doubting buyer wants. */}
+        <a
+          href={brand.website}
+          target="_blank"
+          rel="noreferrer"
+          className={cn(buttonVariants({ variant: "ghost" }), "w-fit")}
+        >
+          <ExternalLink aria-hidden="true" />
+          {t("company.site")}
+        </a>
         <p className="text-muted text-sm">
           {t("company.contact")}{" "}
           <a href={`mailto:${brand.supportEmail}`} className="underline underline-offset-4">

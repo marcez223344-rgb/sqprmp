@@ -10,6 +10,7 @@ import {
   submitExercise,
   type SubmitResult,
 } from "@/lib/exercises/service";
+import { touchActivity } from "@/lib/rewards/service";
 import { createClient } from "@/lib/supabase/server";
 
 const idSchema = z.uuid();
@@ -82,7 +83,12 @@ export async function saveDraftAction(rawExerciseId: unknown, rawSql: unknown) {
     p_exercise_id: id.data,
     p_sql: sql.data,
   });
-  return error ? { ok: false as const, error: "unknown" as const } : { ok: true as const };
+  if (error) return { ok: false as const, error: "unknown" as const };
+  // The autosave is the only server-side trace of someone writing SQL in the editor, so it is how
+  // experimenting before a submission gets counted as practice (owner feedback item 27). The
+  // 5-minute gap cap in `touch_daily_activity` still applies, so a tab left open adds nothing.
+  await touchActivity(profile);
+  return { ok: true as const };
 }
 
 export async function saveQueryAction(

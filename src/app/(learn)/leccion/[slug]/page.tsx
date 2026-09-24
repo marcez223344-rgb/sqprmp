@@ -23,6 +23,7 @@ import { requireOnboardedProfile } from "@/lib/auth/session";
 import { getLessonBySlug, getPremiumLessonBody } from "@/lib/curriculum/queries";
 import { recordLessonView } from "@/lib/curriculum/progress";
 import { getQuiz } from "@/lib/quizzes/service";
+import { touchActivity } from "@/lib/rewards/service";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils/cn";
@@ -39,7 +40,8 @@ const KIND_ICON: Record<string, LucideIcon> = {
 export async function generateMetadata({ params }: PageProps<"/leccion/[slug]">) {
   const { slug } = await params;
   const detail = await getLessonBySlug(slug);
-  const title = detail?.lesson.title ?? "Lección";
+  const t = await getTranslations("lesson");
+  const title = detail?.lesson.title ?? t("fallbackTitle");
   // The route is behind the proxy's auth check, so a crawler sees the sign-in page, not this
   // card. The tags are still emitted for a learner who shares the link with a signed-in
   // audience, and so the page is ready if lessons ever get a public preview.
@@ -80,6 +82,10 @@ export default async function LessonPage({ params }: PageProps<"/leccion/[slug]"
     body = lesson.is_free ? lesson.body_md_free : await getPremiumLessonBody(lesson.id);
     // Viewing records progress (idempotent); completion is an explicit learner action.
     await recordLessonView(lesson.slug, lesson.kind ?? "theory", profile.id);
+    // Opening a lesson is practice, and it is the only server-side trace reading leaves. Without
+    // this the weekly minutes counted graded submissions only (owner feedback item 27). Capped at
+    // 5 minutes per touch inside the RPC, so a tab parked on a lesson never inflates the number.
+    await touchActivity(profile);
     const supabase = await createClient();
     const { data: progress } = await supabase
       .from("lesson_progress")
@@ -170,7 +176,21 @@ export default async function LessonPage({ params }: PageProps<"/leccion/[slug]"
         </Card>
       ) : lesson.kind === "theory" && body ? (
         <article>
-          <Markdown>{body}</Markdown>
+          {/* The block labels are user-facing Spanish, so they come from the catalogue rather than
+              from the content layer (CLAUDE.md rule 6); `Markdown` keeps its own defaults for
+              callers that have no translator. */}
+          <Markdown
+            labels={{
+              objectives: t("block.objectives"),
+              keyIdea: t("block.keyIdea"),
+              wrong: t("block.wrong"),
+              right: t("block.right"),
+              result: t("block.result"),
+              diagram: t("block.diagram"),
+            }}
+          >
+            {body}
+          </Markdown>
         </article>
       ) : (
         <Card>

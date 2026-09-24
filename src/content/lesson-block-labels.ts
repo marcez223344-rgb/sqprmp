@@ -1,10 +1,11 @@
 /**
  * Fixed labels for the authored lesson blocks (`docs/DESIGN_SYSTEM.md` §5b).
  *
- * They live in the content layer, next to the Spanish prose they label, because they are chrome
- * *of the authored content*: a lesson body written in es-419 carries its own block labels the same
- * way it carries its own headings. `Markdown` takes them as an overridable prop, so the lesson page
- * can pass `next-intl` values later without touching any content file.
+ * **The catalogue is the source of truth**: `lesson.block.*` in `src/messages/es-419.json` is what
+ * a learner reads, passed in by the lesson page and by `MarkdownClient` (CLAUDE.md rule 6). These
+ * values stay as `Markdown`'s defaults for callers with no translator in scope — component tests,
+ * and any future non-React rendering of a lesson body — and must be kept identical to the
+ * catalogue. They are not a second place to change the wording.
  */
 export interface LessonBlockLabels {
   /** Eyebrow of the lesson-opening outcome list. */

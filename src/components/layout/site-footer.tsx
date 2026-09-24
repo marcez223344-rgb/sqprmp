@@ -4,6 +4,9 @@ import { Logo } from "@/components/layout/logo";
 import { brand } from "@/config/brand";
 import { founder } from "@/config/founder";
 
+/** `https://www.datamindssolutions.com/` → `datamindssolutions.com`, the readable form. */
+const consultancyDomain = new URL(brand.website).hostname.replace(/^www\./, "");
+
 export function SiteFooter() {
   const t = useTranslations("footer");
   const year = new Date().getFullYear();
@@ -15,6 +18,25 @@ export function SiteFooter() {
           <p className="text-muted text-sm">{t("madeIn")}</p>
           <p className="text-muted text-sm">
             {founder.role} · {founder.name}
+          </p>
+          {/* The bare domain is the point: read as a credential, it says an established consultancy
+              is behind a US$20 purchase from an unknown brand. Derived from config so the label and
+              the href can never drift apart. */}
+          <p className="text-muted text-sm">
+            {t.rich("consultancy", {
+              org: brand.organization,
+              site: consultancyDomain,
+              link: (chunks) => (
+                <a
+                  href={brand.website}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-text underline underline-offset-4"
+                >
+                  {chunks}
+                </a>
+              ),
+            })}
           </p>
         </div>
         <nav aria-label="Legal" className="flex flex-wrap gap-x-6 gap-y-2 text-sm">

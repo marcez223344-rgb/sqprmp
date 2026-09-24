@@ -18,6 +18,7 @@ export async function generateMetadata({ params }: PageProps<"/ejercicio/[slug]"
   // The tab said "Ejercicio · catalogo-de-categorias"; a learner with several tabs open reads the
   // slug, not the exercise. Fall back to the generic word rather than to the slug.
   const supabase = await createClient();
+  const t = await getTranslations("workspace");
   const { data } = await supabase
     .from("exercises_public")
     .select("title, learning_objective")
@@ -26,7 +27,7 @@ export async function generateMetadata({ params }: PageProps<"/ejercicio/[slug]"
   // Auth-gated like /leccion: the card is for learners sharing the link, not for crawlers.
   return buildPageMetadata({
     path: `/ejercicio/${slug}`,
-    title: data?.title ?? "Ejercicio",
+    title: data?.title ?? t("fallbackTitle"),
     description: data?.learning_objective ?? brand.description,
     type: "article",
     noIndex: true,

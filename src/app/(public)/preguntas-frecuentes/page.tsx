@@ -17,6 +17,9 @@ export async function generateMetadata() {
 
 const ITEMS = [
   "who",
+  // Second on purpose: "¿sirve si no vivo en América Latina?" is the doubt a reader outside the
+  // region has while reading the first answer, and it is cheaper to answer it than to lose them.
+  "region",
   "free",
   "price",
   "payments",
