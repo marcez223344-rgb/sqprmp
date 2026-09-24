@@ -1207,7 +1207,9 @@
         "accessDaysHint": "Cuántos días de acceso otorga la beca a quien la canjea.",
         "discountPercent": "Porcentaje de descuento",
         "maxRedemptions": "Canjes máximos",
-        "maxHint": "Vacío = sin límite",
+        "maxHint": "Cuántas personas distintas pueden canjearlo. Cada persona puede canjearlo una sola vez.",
+        "unlimited": "Sin límite de canjes",
+        "unlimitedWarning": "Con esta opción, cualquiera que reciba el código puede canjearlo, sin tope, hasta que lo desactives. Un código compartido en un grupo llega más lejos de lo previsto.",
         "expiresAt": "El código deja de canjearse el",
         "expiresHint": "Vacío = se puede canjear siempre. Es distinto de los días de acceso que otorga.",
         "note": "Nota interna",
@@ -1217,14 +1219,17 @@
           "unauthorized": "No autorizado.",
           "validation": "Revisa los datos: el código debe tener 4–40 caracteres y el tipo su valor.",
           "duplicate": "Ya existe un código con ese nombre.",
-          "unknown": "No pudimos crear el código."
+          "unknown": "No pudimos crear el código.",
+          "max_redemptions_required": "Indica cuántos canjes permite el código, o marca «sin límite de canjes».",
+          "rate_limited": "Creaste varios códigos seguidos. Espera unos minutos."
         },
         "customCode": "Escribir un código propio",
         "customCodeHint": "Útil para una campaña con nombre. Evita las letras O e I y los números 0 y 1: se confunden al dictarlo.",
         "generatedHint": "Generamos un código sin caracteres ambiguos (sin O, 0, I ni 1) y te lo mostramos al crearlo.",
         "regenerate": "Generar otro código",
         "accessEndsOn": "Quien lo canjee hoy tendría acceso hasta el {date}."
-      }
+      },
+      "unlimitedUses": "sin límite"
     },
     "flags": {
       "title": "Feature flags",

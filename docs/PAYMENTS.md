@@ -154,6 +154,41 @@ way an admin revokes any entitlement, with a reason.
   (`users.exported`), and carries exactly the columns the directory already shows — no email, no
   birth date (docs/SECURITY.md §7.2).
 
+## 5d. A promo code is capped unless someone says otherwise (2026-09-24)
+
+The owner asked whether "canjes máximos" should not always be 1. It should. `max_redemptions` is
+nullable and `redeem_promo` **skips the exhaustion check entirely when it is null**, so null means
+unlimited. The only other guard there is per user (the same person cannot redeem twice), which does
+nothing about a code forwarded to a hundred different people. Until this change an empty field —
+the field you get by not thinking about it — produced exactly that code.
+
+What is enforced now:
+
+- The form pre-fills `limits.promoCodes.defaultMaxRedemptions` (1) and the field is required.
+- Unlimited exists only behind the «Sin límite de canjes» checkbox, which disables the number field
+  and states what it means in plain words.
+- **The server decides, not the form.** `promoCodeInputSchema` (`src/lib/payments/promo-schema.ts`)
+  rejects a null cap that does not carry `unlimited: true`, and the tick wins over any number left
+  in the disabled field, so the two controls can never describe two different codes. The action is
+  an HTTP endpoint: anything that can authenticate as an admin can post to it without the form.
+  Creation is also rate limited now (`limits.rateLimits.checkout`).
+- **The database agrees**: `promo_codes.max_redemptions` defaults to 1 and a stated cap must be
+  ≥ 1 (migration `20260924130000_promo_redemption_cap.sql`).
+- An uncapped creation is audited under its own action, `promo_code.created_unlimited`, so
+  `/admin/auditoria` can filter for the one kind of code that can cost money. The list at
+  `/admin/promos` marks an uncapped code in words, not with an infinity glyph alone.
+
+**Why the expiry date is still optional.** A code with no expiry but a cap of N is bounded by N
+redemptions, which is the property that limits the loss; a date only decides how long that N stays
+on offer. Requiring one would block a legitimate evergreen partner code and, more importantly,
+would invite the habit of typing a far-off date to get past the form — a guard people route around
+is worse than none. The combination that is actually open-ended, uncapped _and_ never expiring, now
+needs the deliberate tick and lands in the audit log under its own action. It is surfaced, not
+forbidden.
+
+Rows created before this change are untouched: the default applies to new inserts only. Uncapped
+codes already in the database have to be capped or deactivated by hand.
+
 ## 6. Legal and accounting notes for the owner (not implemented by the app)
 
 - Argentina: electronic invoicing obligations for digital services; monotributo vs. responsable inscripto categories affect pricing and net revenue.

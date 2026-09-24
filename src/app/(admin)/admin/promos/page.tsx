@@ -65,8 +65,15 @@ export default async function AdminPromosPage() {
                         ? t("days", { days: p.access_days ?? 0 })
                         : `${p.discount_percent ?? 0}%`}
                     </td>
-                    <td className="py-2 pr-3 tabular-nums">
-                      {p.redemptions_count}/{p.max_redemptions ?? "∞"}
+                    {/* An uncapped code says so in words: the infinity glyph used to be the only
+                        marker, and a symbol alone is not a label a screen reader can read out. */}
+                    <td className="py-2 pr-3">
+                      <span className="tabular-nums">{p.redemptions_count}</span>
+                      {p.max_redemptions === null ? (
+                        <span className="text-warning-ink"> · {t("unlimitedUses")}</span>
+                      ) : (
+                        <span className="tabular-nums">/{p.max_redemptions}</span>
+                      )}
                     </td>
                     <td className="py-2 pr-3 whitespace-nowrap">
                       {p.expires_at

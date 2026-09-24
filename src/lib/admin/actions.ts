@@ -7,11 +7,8 @@ import { track } from "@/lib/analytics/track";
 import { searchLearnersAdmin } from "@/lib/admin/queries";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { ACCESS_GRANT_KINDS, MAX_ACCESS_DAYS } from "@/lib/payments/access-grants";
-import {
-  generatePromoCode,
-  normalizePromoCode,
-  PROMO_CODE_PATTERN,
-} from "@/lib/payments/promo-code";
+import { generatePromoCode } from "@/lib/payments/promo-code";
+import { promoCodeInputSchema } from "@/lib/payments/promo-schema";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 type Result = { ok: true } | { ok: false; error: string };
@@ -294,35 +291,22 @@ export async function setFeatureFlagAction(
   return { ok: true };
 }
 
-const optionalInt = (max: number) =>
-  z.preprocess(
-    (v) => (v === "" || v === null || v === undefined ? null : v),
-    z.coerce.number().int().min(1).max(max).nullable(),
-  );
-
 export async function createPromoCodeAction(raw: unknown): Promise<ResultWith<{ code: string }>> {
   const admin = await requireAdminProfile();
   if (!admin) return { ok: false, error: "unauthorized" };
-  const parsed = z
-    .object({
-      // Empty means "generate one": the admin should not have to invent an unambiguous string.
-      code: z.preprocess(
-        (v) => normalizePromoCode(typeof v === "string" ? v : ""),
-        z.string().regex(PROMO_CODE_PATTERN).or(z.literal("")),
-      ),
-      kind: z.enum(["scholarship", "discount"]),
-      accessDays: optionalInt(3650),
-      discountPercent: optionalInt(100),
-      maxRedemptions: optionalInt(100000),
-      expiresAt: z.preprocess((v) => (v === "" ? null : v), z.iso.date().nullable()),
-      note: z.string().trim().max(300),
-    })
-    .refine(
-      (v) => (v.kind === "scholarship" ? v.accessDays !== null : v.discountPercent !== null),
-      { message: "kind_fields" },
-    )
-    .safeParse(raw);
-  if (!parsed.success) return { ok: false, error: "validation" };
+  // `promoCodeInputSchema` is the only place the redemption cap rule lives, and it refuses a null
+  // cap that is not accompanied by an explicit `unlimited` (see src/lib/payments/promo-schema.ts).
+  const parsed = promoCodeInputSchema.safeParse(raw);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: parsed.error.issues.some((i) => i.message === "max_redemptions_required")
+        ? "max_redemptions_required"
+        : "validation",
+    };
+  }
+  if (await limited(`admin-promo:${admin.id}`, limits.rateLimits.checkout))
+    return { ok: false, error: "rate_limited" };
   const v = parsed.data;
   const code = v.code || generatePromoCode(v.kind === "scholarship" ? "BECA" : "DMSA");
   const { error } = await createAdminClient().rpc("create_promo_code", {

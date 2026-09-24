@@ -88,28 +88,29 @@ Statuses updated as work lands. "In flight" = an agent is on it in the session i
 Reconstructed from `docs/DECISIONS.md`, `docs/reviews/**` and the commit history; rows are added
 here as they are confirmed, rather than asserted from memory.
 
-| Round     | Item                                                                | Status         | Where it landed                                                                        |
-| --------- | ------------------------------------------------------------------- | -------------- | -------------------------------------------------------------------------------------- |
-| 1 (09-22) | The first sections must be free, and marked as free on the path     | Done           | `limits.freeExerciseSections`; sections 2 and 3 never consume the 5-exercise allowance |
-| 2 (09-23) | Explain things for someone meeting the idea for the first time      | Done           | D-23 + CONTENT_GUIDELINES §9; full rewrite of the lesson prose                         |
-| 2 (09-23) | The path should recommend an order, not lock me out of sections     | Done           | D-24                                                                                   |
-| 2 (09-23) | The login screen should not advertise the free limit                | Done           | D-25                                                                                   |
-| 2 (09-23) | Too few avatars, and reshuffling them moved everyone's choice       | Done           | D-26: 116 avatars, appended so existing picks never move                               |
-| 2 (09-23) | Revealing the solution with no hints spent should warn first        | Done           | D-27                                                                                   |
-| 2 (09-23) | The 10-day refund clause                                            | Reviewed, kept | D-28: kept as written after review                                                     |
-| 2 (09-23) | State the free offer in full, do not undersell it                   | Done           | D-29                                                                                   |
-| 2 (09-23) | Certificates should name the instructor and the company             | Done           | D-30                                                                                   |
-| 2 (09-23) | Do not show a payment channel that cannot actually be paid          | Done           | D-32: transfer-only at launch                                                          |
-| 2 (09-23) | Rioplatense voseo in user-facing strings                            | Done           | `0e4ae50`                                                                              |
-| 2 (09-23) | The avatar picker jumped while choosing                             | Done           | `5b04912`                                                                              |
-| 2 (09-23) | SQL drafts were lost when leaving an exercise                       | Done           | `5b04912`: autosave, swept on sign-out                                                 |
-| 2 (09-23) | A consent question for a ranking that did not exist                 | Done           | D-35: the board was built rather than the question deleted                             |
-| 2 (09-23) | Quiz gave no feedback until the very end                            | Done           | D-34: per-question feedback, graded on the server                                      |
-| 2 (09-23) | Nine wrong dataset figures in exercise copy                         | Done           | `2154c03`, and now gated by `content:figures`                                          |
-| 2 (09-23) | Write clearly: define terms, expand acronyms, spell out identifiers | Done           | CONTENT_GUIDELINES §9                                                                  |
-| 2 (09-23) | Stop asking permission for the project's own tooling                | Done           | D-36                                                                                   |
-| 2 (09-23) | Sections are not clearly divided visually                           | Done           | `SectionHeader`; shipped 09-23, only visible to you after the 09-23 push               |
-| 3 (09-24) | Stop asking me non-critical questions                               | Done           | You removed the `git push` prompt; recorded so I decide reversible things myself       |
+| Round     | Item                                                                | Status         | Where it landed                                                                             |
+| --------- | ------------------------------------------------------------------- | -------------- | ------------------------------------------------------------------------------------------- |
+| 1 (09-22) | The first sections must be free, and marked as free on the path     | Done           | `limits.freeExerciseSections`; sections 2 and 3 never consume the 5-exercise allowance      |
+| 2 (09-23) | Explain things for someone meeting the idea for the first time      | Done           | D-23 + CONTENT_GUIDELINES §9; full rewrite of the lesson prose                              |
+| 2 (09-23) | The path should recommend an order, not lock me out of sections     | Done           | D-24                                                                                        |
+| 2 (09-23) | The login screen should not advertise the free limit                | Done           | D-25                                                                                        |
+| 2 (09-23) | Too few avatars, and reshuffling them moved everyone's choice       | Done           | D-26: 116 avatars, appended so existing picks never move                                    |
+| 2 (09-23) | Revealing the solution with no hints spent should warn first        | Done           | D-27                                                                                        |
+| 2 (09-23) | The 10-day refund clause                                            | Reviewed, kept | D-28: kept as written after review                                                          |
+| 2 (09-23) | State the free offer in full, do not undersell it                   | Done           | D-29                                                                                        |
+| 2 (09-23) | Certificates should name the instructor and the company             | Done           | D-30                                                                                        |
+| 2 (09-23) | Do not show a payment channel that cannot actually be paid          | Done           | D-32: transfer-only at launch                                                               |
+| 2 (09-23) | Rioplatense voseo in user-facing strings                            | Done           | `0e4ae50`                                                                                   |
+| 2 (09-23) | The avatar picker jumped while choosing                             | Done           | `5b04912`                                                                                   |
+| 2 (09-23) | SQL drafts were lost when leaving an exercise                       | Done           | `5b04912`: autosave, swept on sign-out                                                      |
+| 2 (09-23) | A consent question for a ranking that did not exist                 | Done           | D-35: the board was built rather than the question deleted                                  |
+| 2 (09-23) | Quiz gave no feedback until the very end                            | Done           | D-34: per-question feedback, graded on the server                                           |
+| 2 (09-23) | Nine wrong dataset figures in exercise copy                         | Done           | `2154c03`, and now gated by `content:figures`                                               |
+| 2 (09-23) | Write clearly: define terms, expand acronyms, spell out identifiers | Done           | CONTENT_GUIDELINES §9                                                                       |
+| 2 (09-23) | Stop asking permission for the project's own tooling                | Done           | D-36                                                                                        |
+| 2 (09-23) | Sections are not clearly divided visually                           | Done           | `SectionHeader`; shipped 09-23, only visible to you after the 09-23 push                    |
+| 3 (09-24) | Stop asking me non-critical questions                               | Done           | You removed the `git push` prompt; recorded so I decide reversible things myself            |
+| 3 (09-24) | «¿Canjes máximos no debería ser siempre 1? ¿no es peligroso?»       | Done           | PAYMENTS §5d: cap of 1 by default and required; unlimited needs a tick and is audited apart |
 
 ## Found while fixing the above, not reported by him
 

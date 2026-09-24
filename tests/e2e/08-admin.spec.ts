@@ -143,7 +143,15 @@ test.describe("admin tools", () => {
     await page.getByLabel(message("admin.promos.form.customCode")).check();
     await page.getByLabel(message("admin.promos.form.code"), { exact: true }).fill(promo);
     await page.getByLabel(message("admin.promos.form.accessDays")).fill("30");
-    await page.getByLabel(message("admin.promos.form.maxRedemptions")).fill("1");
+    // D-39: the cap arrives pre-filled with 1 and unlimited needs its own tick, so the code you
+    // get by not touching the field is the safe one.
+    const cap = page.getByLabel(message("admin.promos.form.maxRedemptions"));
+    await expect(cap).toHaveValue("1");
+    const unlimited = page.getByLabel(message("admin.promos.form.unlimited"));
+    await unlimited.check();
+    await expect(cap).toBeDisabled();
+    await unlimited.uncheck();
+    await expect(cap).toBeEnabled();
     await page.getByRole("button", { name: message("admin.promos.form.submit") }).click();
     await expect(page.getByText(message("admin.promos.form.done"))).toBeVisible();
     const row = page.getByRole("row", { name: new RegExp(promo) });

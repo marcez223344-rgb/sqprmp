@@ -43,8 +43,13 @@ export function LockedWorkspace({
         aria-labelledby="paywall-title"
         className="border-primary/45 bg-primary/10 dark:bg-primary/14 space-y-4 rounded-lg border-2 p-6"
       >
+        {/* `neutral` + the lock, not a hue borrowed for its looks: this panel used to be `example`,
+            the "worked SQL example" category, because the primary tint suited it (design audit,
+            2026-09-24). Being locked is not a mistake and not a warning, so it takes no alert hue;
+            the lock and the eyebrow carry the meaning, and the panel's own brand-tinted frame
+            belongs to the offer below it. See docs/DESIGN_SYSTEM.md §5. */}
         <SectionHeader
-          category="example"
+          category="neutral"
           icon={Lock}
           eyebrow={t("locked.eyebrow")}
           as="h2"

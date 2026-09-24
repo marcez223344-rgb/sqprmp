@@ -170,6 +170,15 @@ export const limits = {
     generatedLength: 8,
     /** Characters per hyphen-separated group (DMSA-XXXX-XXXX reads back without losing place). */
     groupSize: 4,
+    /**
+     * Redemptions a new code allows unless the admin deliberately asks for more. A promo code is
+     * shared by voice, screenshot and WhatsApp group, so the expensive mistake is an open-ended
+     * one: the owner asked (2026-09-24) that the safe number be the one you get by not thinking
+     * about the field, and that "unlimited" cost a separate, explicit tick.
+     */
+    defaultMaxRedemptions: 1,
+    /** Upper bound accepted for the cap; beyond it the number is a typo, not a campaign. */
+    maxRedemptionsCap: 100000,
   },
 
   admin: {

@@ -778,6 +778,32 @@ an out-of-band transfer (D-32) and it is why both branches are audit-logged with
 learner and the reason, and why `admin_grant_access` reuses the learner's pending purchase when
 there is one, so the reference the learner actually used on the transfer survives into the books.
 
+### D-39 · A promo code is capped by default; unlimited is a deliberate, audited choice
+
+**Status:** Accepted (2026-09-24). Owner question: «canjes máximos, ¿no debería ser siempre 1? ¿no
+es peligroso?» Answer: yes — default to 1, and let unlimited exist only behind an explicit tick.
+
+**The problem.** `promo_codes.max_redemptions` is nullable and `redeem_promo` skips the exhaustion
+check entirely when it is null, so null means unlimited. The form left the field empty by default
+and its hint said «Vacío = sin límite». The path of least resistance therefore produced a code that
+never runs out: forwarded once into a WhatsApp group, it gives the paid course to everyone who
+reads it. The per-user guard in `redeem_promo` does not help — it only stops the same person
+redeeming twice, and the exposure here is many different people.
+
+**The decision.** The safe value is the one you get by not thinking: the cap is pre-filled with
+`limits.promoCodes.defaultMaxRedemptions` (1) and required. Unlimited is a separate checkbox that
+states its consequence. The rule is enforced in `promoCodeInputSchema`, not in the form, because a
+server action is a reachable endpoint; the database defaults the column to 1 as a third layer. An
+uncapped creation is audited as `promo_code.created_unlimited` rather than as an ordinary creation.
+
+**What was deliberately not done.** The expiry date stays optional. A capped code is bounded by its
+cap whether or not it expires, and forcing a date would be routed around by typing a far-off one.
+The genuinely open-ended combination is surfaced — its own audit action, and a worded marker in the
+promo list — rather than forbidden.
+
+**Consequence.** Codes created before this change keep whatever they have; the column default only
+affects new rows. Any existing uncapped code has to be capped or deactivated by hand.
+
 ## Owner-only follow-ups from 2026-09-23
 
 - **`SUPABASE_SECRET_KEY` is invalid in production** (see the runbook note in
