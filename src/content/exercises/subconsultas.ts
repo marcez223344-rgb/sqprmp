@@ -348,12 +348,7 @@ export const exercises: ExerciseDef[] = [
     validation_rules: { required_concepts: ["subquery"] },
     reference_solution:
       "SELECT\n  a.id,\n  a.currency,\n  a.balance,\n  (SELECT count(*)\n   FROM transactions AS t\n   WHERE t.account_id = a.id AND t.status = 'completed') AS movimientos,\n  (SELECT max(t.created_at)\n   FROM transactions AS t\n   WHERE t.account_id = a.id AND t.status = 'completed') AS ultimo_movimiento\nFROM accounts AS a\nWHERE a.status = 'frozen';",
-    alternative_solutions: [
-      {
-        label: "LEFT JOIN con GROUP BY",
-        sql: "SELECT\n  a.id,\n  a.currency,\n  a.balance,\n  count(t.id) AS movimientos,\n  max(t.created_at) AS ultimo_movimiento\nFROM accounts AS a\nLEFT JOIN transactions AS t\n  ON t.account_id = a.id\n AND t.status = 'completed'\nWHERE a.status = 'frozen'\nGROUP BY a.id, a.currency, a.balance;",
-      },
-    ],
+    alternative_solutions: [],
     hints: [
       {
         level: 1,
@@ -397,7 +392,7 @@ export const exercises: ExerciseDef[] = [
       },
     ],
     expert_explanation_md:
-      "El resultado de la consulta da 126 cuentas congeladas, con una fila por cuenta. Las subconsultas correlacionadas mantienen a la tabla `accounts` como protagonista: no hay cláusula `GROUP BY`, no hay riesgo de multiplicar filas y cada métrica se lee como una pregunta independiente.\n\nLa alternativa con `LEFT JOIN` y `GROUP BY` devuelve exactamente lo mismo, pero exige dos cuidados. El filtro `t.status = 'completed'` va en el `ON`, porque puesto en el `WHERE` convertiría el `LEFT JOIN` en un `INNER JOIN` y perderías las cuentas sin movimientos completados. Y hay que usar `count(t.id)` en lugar de `count(*)`, que informaría 1 para una cuenta sin ninguna coincidencia.\n\nCuál conviene elegir depende de cuántas métricas necesites. Con una o dos, la subconsulta correlacionada suele ganar en legibilidad. A partir de tres o cuatro, cada subconsulta implica un recorrido más de la tabla `transactions`, y entonces el cruce agrupado, que hace una sola pasada y usa agregación condicional si hace falta, es la mejor opción. Los planes que arma PostgreSQL para las dos versiones son comparables en este volumen de datos: el criterio real es quién va a leer el código después.",
+      "El resultado de la consulta da 126 cuentas congeladas, con una fila por cuenta. Las subconsultas correlacionadas mantienen a la tabla `accounts` como protagonista: no hay cláusula `GROUP BY`, no hay riesgo de multiplicar filas y cada métrica se lee como una pregunta independiente.\n\nUn `LEFT JOIN` con `GROUP BY` devuelve exactamente lo mismo. Este ejercicio no lo acepta porque practica las subconsultas correlacionadas, pero conviene saber escribirlo, y exige dos cuidados. El filtro `t.status = 'completed'` va en el `ON`, porque puesto en el `WHERE` convertiría el `LEFT JOIN` en un `INNER JOIN` y perderías las cuentas sin movimientos completados. Y hay que usar `count(t.id)` en lugar de `count(*)`, que informaría 1 para una cuenta sin ninguna coincidencia.\n\nCuál conviene elegir depende de cuántas métricas necesites. Con una o dos, la subconsulta correlacionada suele ganar en legibilidad. A partir de tres o cuatro, cada subconsulta implica un recorrido más de la tabla `transactions`, y entonces el cruce agrupado, que hace una sola pasada y usa agregación condicional si hace falta, es la mejor opción. Los planes que arma PostgreSQL para las dos versiones son comparables en este volumen de datos: el criterio real es quién va a leer el código después.",
     reward: defaultReward("advanced"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,

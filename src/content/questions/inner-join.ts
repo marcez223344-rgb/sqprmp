@@ -14,7 +14,8 @@ export const questions: QuestionDef[] = [
     topic: "Condición de unión",
     tags: ["inner_join"],
     estimated_seconds: 40,
-    prompt_md: "¿Cuál es la condición correcta para unir `products` con su vendedor?",
+    prompt_md:
+      "En `FROM products AS p INNER JOIN sellers AS s ...`, `p` es el alias de la tabla `products` y `s` el de `sellers`. ¿Cuál es la condición correcta para unir cada producto con su vendedor?",
     options: [
       { key: "a", body_md: "`ON s.id = p.seller_id`", is_correct: true },
       {
@@ -33,7 +34,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "La clave foránea `products.seller_id` apunta a la clave primaria `sellers.id`.",
+      "La columna `seller_id` de la tabla `products` es una clave foránea, es decir, una columna que guarda el identificador de una fila de otra tabla: apunta a la columna `id` de la tabla `sellers`, su clave primaria. Por eso la condición iguala `s.id` con `p.seller_id`.",
     is_published: true,
   },
   {
@@ -112,9 +113,9 @@ export const questions: QuestionDef[] = [
     tags: ["inner_join", "duplicates"],
     estimated_seconds: 60,
     prompt_md:
-      "El pedido 42 tiene un pago rechazado y otro aprobado. ¿Cuántas filas devuelve esta consulta para ese pedido?",
+      "En TiendaViva, el pedido 63 tiene dos filas en `payments`: un pago rechazado y otro aprobado. ¿Cuántas filas devuelve esta consulta?",
     code_md:
-      "```sql\nSELECT o.id, o.total_amount, pay.status\nFROM orders AS o\nINNER JOIN payments AS pay ON pay.order_id = o.id\nWHERE o.id = 42;\n```",
+      "```sql\nSELECT o.id, o.total_amount, pay.status\nFROM orders AS o\nINNER JOIN payments AS pay ON pay.order_id = o.id\nWHERE o.id = 63;\n```",
     options: [
       { key: "a", body_md: "2: una por cada pago.", is_correct: true },
       {
@@ -132,7 +133,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "Relación uno-a-muchos: el pedido se repite por cada pago. Si luego sumas `total_amount`, contarías el pedido dos veces.",
+      "Es una relación uno a muchos: un pedido puede tener varios pagos, así que la fila del pedido se repite una vez por cada pago. Si después sumaras `total_amount` sobre este resultado, el importe del pedido 63 entraría dos veces en la suma.",
     is_published: true,
   },
   {
@@ -170,8 +171,11 @@ export const questions: QuestionDef[] = [
     tags: ["inner_join"],
     estimated_seconds: 30,
     prompt_md:
-      "Completa la palabra clave que introduce la condición de unión: `INNER JOIN sellers AS s ___ s.id = p.seller_id`.",
-    answer: { accepted: ["ON"], case_sensitive: false },
+      "Completa la palabra clave que introduce la condición de unión: `INNER JOIN sellers AS s ___ s.id = p.seller_id`. Escribe solo la palabra clave.",
+    answer: {
+      accepted: ["ON", "ON s.id = p.seller_id", "ON p.seller_id = s.id"],
+      case_sensitive: false,
+    },
     explanation_md: "`ON` introduce la condición; sin ella la consulta no es válida.",
     is_published: true,
   },
@@ -259,7 +263,7 @@ export const questions: QuestionDef[] = [
     tags: ["inner_join"],
     estimated_seconds: 35,
     prompt_md:
-      "Verdadero o falso: con solo INNER JOIN, cambiar el orden en que se escriben los JOIN cambia las filas del resultado.",
+      "Verdadero o falso: en una consulta que solo usa INNER JOIN, cambiar el orden en que se escriben las tablas cambia el conjunto de filas del resultado.",
     options: [
       {
         key: "a",
@@ -284,12 +288,12 @@ export const questions: QuestionDef[] = [
     tags: ["inner_join", "duplicates"],
     estimated_seconds: 55,
     prompt_md:
-      "Uniste `orders` con `shipments` para un reporte «un pedido por fila» y obtuviste más filas que pedidos con envío. ¿Cuál es la explicación más probable y qué haces?",
+      "En TiendaViva, uniste `products` con `reviews` (las reseñas) por `reviews.product_id = products.id` para un reporte de «un producto por fila» y obtuviste más filas que productos con reseña. ¿Cuál es la explicación más probable y qué haces?",
     options: [
       {
         key: "a",
         body_md:
-          "Algunos pedidos tienen más de un envío; verifico contando envíos por pedido antes de decidir cómo tratarlos.",
+          "Algunos productos tienen más de una reseña; lo verifico contando reseñas por producto antes de decidir cómo tratarlas (por ejemplo, promediarlas con `GROUP BY`).",
         is_correct: true,
       },
       {
@@ -297,14 +301,14 @@ export const questions: QuestionDef[] = [
         body_md: "El JOIN está mal escrito; cambio `INNER` por `LEFT`.",
         is_correct: false,
         why_incorrect_md:
-          "`LEFT JOIN` agregaría los pedidos sin envío; no reduce las filas duplicadas.",
+          "`LEFT JOIN` agregaría los productos sin reseña; no reduce las filas repetidas de los productos con varias reseñas.",
       },
       {
         key: "c",
         body_md: "Agrego `DISTINCT` y sigo.",
         is_correct: false,
         why_incorrect_md:
-          "Si los envíos tienen datos distintos, `DISTINCT` no los une; además oculta la causa.",
+          "Las reseñas de un mismo producto tienen datos distintos (autor, puntaje, fecha), así que `DISTINCT` no las junta; además oculta la causa.",
       },
     ],
     explanation_md:

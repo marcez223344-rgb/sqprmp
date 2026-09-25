@@ -1,19 +1,15 @@
 import "server-only";
 import { createHash } from "node:crypto";
 import { cache } from "react";
-import type { FeedbackCategory, SqlConcept } from "@/content/schemas/common";
+import type { FeedbackCategory } from "@/content/schemas/common";
 import { limits } from "@/config/limits";
 import { workerEngine } from "@/lib/sandbox/engines/worker-engine";
-import { gateSql } from "@/lib/sandbox/gate";
 import type { SandboxOutcome } from "@/lib/sandbox/types";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import {
-  compareResults,
-  type ExpectedColumn,
-  type ValidationRules,
-} from "@/lib/validation/compare";
-import { buildFeedback, type FeedbackItem } from "@/lib/validation/feedback";
+import type { ExpectedColumn } from "@/lib/validation/compare";
+import type { FeedbackItem } from "@/lib/validation/feedback";
+import { gradeSubmission, type StoredValidationRules } from "@/lib/validation/grade";
 import { syncExerciseLessonProgress } from "@/lib/progress/lesson-sync";
 import { awardExerciseCompletion, touchActivity, type AwardOutcome } from "@/lib/rewards/service";
 import { settleSectionCompletion } from "@/lib/quizzes/service";
@@ -304,50 +300,22 @@ export async function submitExercise(
   const allowed = (ex.allowed_statements ?? ["select"]) as (
     "select" | "insert" | "update" | "delete"
   )[];
-  const outcome = await workerEngine.execute(
-    { slug: datasetSlug, version: ex.dataset_version },
+  const { outcome, correct, feedback } = await gradeSubmission({
+    engine: workerEngine,
+    dataset: { slug: datasetSlug, version: ex.dataset_version },
     sql,
-    { allowedStatements: allowed },
-  );
+    allowedStatements: allowed,
+    expected: { columns: expected.columns as never, rows: expected.rows as never },
+    expectedColumns: ex.expected_columns as unknown as ExpectedColumn[],
+    validationRules: ex.validation_rules as StoredValidationRules,
+    commonMistakeCategories: ((ex.common_mistakes as { category: FeedbackCategory }[]) ?? []).map(
+      (m) => m.category,
+    ),
+    improvementConditions:
+      (ex.improvement_feedback as { condition: string; message_key: string }[]) ?? [],
+  });
   const sqlHash = createHash("sha256").update(sql).digest("hex");
   const isGenuine = Boolean(sql.trim()) && sql.trim() !== (previousSql ?? "").trim();
-
-  let feedback: FeedbackItem[] = [];
-  let correct = false;
-  if (outcome.ok) {
-    const gate = gateSql(sql, allowed);
-    const rules = {
-      order_matters: false,
-      numeric_tolerance: 0.01,
-      allow_extra_columns: false,
-      dedupe: false,
-      ...(ex.validation_rules as Partial<ValidationRules> & {
-        required_concepts?: SqlConcept[];
-        prohibited_patterns?: string[];
-      }),
-    };
-    const compare = compareResults(
-      { columns: outcome.columns, rows: outcome.rows, truncated: outcome.truncated },
-      { columns: expected.columns as never, rows: expected.rows as never },
-      ex.expected_columns as unknown as ExpectedColumn[],
-      rules,
-    );
-    const built = buildFeedback({
-      sql,
-      statement: gate.ast!,
-      functions: gate.functions,
-      compare,
-      requiredConcepts: rules.required_concepts ?? [],
-      prohibitedPatterns: rules.prohibited_patterns ?? [],
-      commonMistakeCategories: ((ex.common_mistakes as { category: FeedbackCategory }[]) ?? []).map(
-        (m) => m.category,
-      ),
-      improvementConditions:
-        (ex.improvement_feedback as { condition: string; message_key: string }[]) ?? [],
-    });
-    feedback = built.items;
-    correct = built.correct;
-  }
 
   const status = !outcome.ok ? "error" : correct ? "correct" : "incorrect";
   const { data: recorded } = await admin.rpc("record_attempt", {

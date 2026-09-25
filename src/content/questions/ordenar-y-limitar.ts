@@ -61,7 +61,7 @@ export const questions: QuestionDef[] = [
     tags: ["order_by", "null_handling"],
     estimated_seconds: 50,
     prompt_md:
-      "En `sellers` hay 28 vendedores con `rating` NULL. ¿Qué devuelven las primeras filas de esta consulta en PostgreSQL?",
+      "En la tabla `sellers` de TiendaViva hay 28 vendedores con `rating` NULL. ¿Qué devuelven las primeras filas de esta consulta en PostgreSQL?",
     code_md:
       "```sql\nSELECT store_name, rating\nFROM sellers\nORDER BY rating DESC\nLIMIT 12;\n```",
     options: [
@@ -134,7 +134,7 @@ export const questions: QuestionDef[] = [
     estimated_seconds: 40,
     prompt_md:
       "El listado muestra 25 restaurantes por página. ¿Qué valor de `OFFSET` necesitas para mostrar la página 4? Escribe solo el número.",
-    answer: { accepted: ["75"], case_sensitive: false },
+    answer: { accepted: ["75", "OFFSET 75", "LIMIT 25 OFFSET 75"], case_sensitive: false },
     explanation_md:
       "`OFFSET = (página - 1) * tamaño = (4 - 1) * 25 = 75`. La consulta termina en `LIMIT 25 OFFSET 75`, siempre con un `ORDER BY` determinista.",
     is_published: true,
@@ -193,7 +193,7 @@ export const questions: QuestionDef[] = [
     tags: ["limit", "offset", "order_by"],
     estimated_seconds: 60,
     prompt_md:
-      "Un listado paginado ordena por `ORDER BY city_id` con `LIMIT 20`. Operaciones reporta que algunos restaurantes aparecen en dos páginas y otros no aparecen nunca. ¿Cuál es la causa más probable?",
+      "Un listado paginado de restaurantes ordena con `ORDER BY city_id` y muestra 20 por página con `LIMIT 20 OFFSET ...`. El departamento de Operaciones reporta que algunos restaurantes aparecen en dos páginas y otros no aparecen nunca. ¿Cuál es la causa más probable?",
     options: [
       {
         key: "a",
@@ -251,7 +251,7 @@ export const questions: QuestionDef[] = [
       },
       {
         key: "c",
-        body_md: "`LIMIT 10` puede cortar un empate y dejar afuera una fila con el mismo valor.",
+        body_md: "`LIMIT 10` puede cortar un empate y dejar fuera una fila con el mismo valor.",
         is_correct: true,
       },
       {
@@ -283,18 +283,27 @@ export const questions: QuestionDef[] = [
     tags: ["order_by", "null_handling"],
     estimated_seconds: 70,
     prompt_md:
-      "Relaciona cada cláusula con la posición que ocupan los valores NULL en PostgreSQL (`delivered_at` de `shipments` tiene NULL en envíos no entregados).",
+      "Relaciona cada cláusula con el orden que produce en PostgreSQL. La columna `delivered_at` de la tabla `shipments` tiene NULL en los envíos que todavía no se entregaron.",
     pairs: [
-      { left: "ORDER BY delivered_at ASC", right: "NULL al final" },
-      { left: "ORDER BY delivered_at DESC", right: "NULL al principio" },
-      { left: "ORDER BY delivered_at DESC NULLS LAST", right: "NULL al final, explícito" },
       {
-        left: "ORDER BY (delivered_at IS NULL) ASC, delivered_at DESC",
-        right: "NULL al final, sin usar NULLS LAST",
+        left: "ORDER BY delivered_at ASC",
+        right: "De la fecha más antigua a la más reciente, con los NULL al final",
+      },
+      {
+        left: "ORDER BY delivered_at DESC",
+        right: "De la fecha más reciente a la más antigua, con los NULL al principio",
+      },
+      {
+        left: "ORDER BY delivered_at DESC NULLS LAST",
+        right: "De la fecha más reciente a la más antigua, con los NULL al final",
+      },
+      {
+        left: "ORDER BY delivered_at ASC NULLS FIRST",
+        right: "De la fecha más antigua a la más reciente, con los NULL al principio",
       },
     ],
     explanation_md:
-      "La regla base: NULL se considera mayor que cualquier valor, así que queda último en `ASC` y primero en `DESC`. `NULLS FIRST`/`NULLS LAST` y la expresión booleana permiten decidirlo de forma explícita.",
+      "La regla base de PostgreSQL es que, para ordenar, NULL se considera mayor que cualquier valor: queda último en `ASC` y primero en `DESC`. `NULLS FIRST` y `NULLS LAST` cambian esa posición de forma explícita. Otra forma de lograrlo sin esas palabras clave es ordenar primero por una expresión booleana, por ejemplo `ORDER BY (delivered_at IS NULL), delivered_at DESC`, porque `false` va antes que `true`.",
     is_published: true,
   },
   {
@@ -307,7 +316,7 @@ export const questions: QuestionDef[] = [
     tags: ["limit", "order_by"],
     estimated_seconds: 45,
     prompt_md:
-      "Finanzas pide «los 5 pedidos de mayor importe en pesos mexicanos». ¿Qué consulta responde exactamente eso?",
+      "El departamento de Finanzas de TiendaViva pide «los 5 pedidos de mayor importe en pesos mexicanos» (moneda `MXN`). ¿Qué consulta responde exactamente eso?",
     options: [
       {
         key: "a",

@@ -783,6 +783,76 @@ export type Database = {
           },
         ];
       };
+      exercise_reports: {
+        Row: {
+          id: string;
+          user_id: string;
+          exercise_id: string | null;
+          exercise_slug: string;
+          category: string;
+          note: string;
+          learner_sql: string | null;
+          status: string;
+          resolved_at: string | null;
+          resolved_by: string | null;
+          resolution_note: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          exercise_id?: string | null;
+          exercise_slug: string;
+          category: string;
+          note: string;
+          learner_sql?: string | null;
+          status?: string;
+          resolved_at?: string | null;
+          resolved_by?: string | null;
+          resolution_note?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          exercise_id?: string | null;
+          exercise_slug?: string;
+          category?: string;
+          note?: string;
+          learner_sql?: string | null;
+          status?: string;
+          resolved_at?: string | null;
+          resolved_by?: string | null;
+          resolution_note?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "exercise_reports_exercise_id_fkey";
+            columns: ["exercise_id"];
+            isOneToOne: false;
+            referencedRelation: "exercises";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "exercise_reports_resolved_by_fkey";
+            columns: ["resolved_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "exercise_reports_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       exercises: {
         Row: {
           id: string;
@@ -2416,6 +2486,10 @@ export type Database = {
           p_reference?: string | null;
         };
         Returns: string;
+      };
+      admin_resolve_exercise_report: {
+        Args: { p_report_id: string; p_actor: string; p_reason: string };
+        Returns: undefined;
       };
       admin_search_learners: {
         Args: { p_query: string; p_limit?: number };

@@ -137,7 +137,7 @@ export const questions: QuestionDef[] = [
     tags: ["select", "esquema"],
     estimated_seconds: 40,
     prompt_md:
-      "En TiendaViva, la tabla `customers` existe y sus columnas son `id`, `full_name`, `email`, `country`, `city` y `signup_at`. ¿Qué error devuelve esta consulta?",
+      "En TiendaViva, la tabla `customers` existe y sus columnas son `id`, `full_name`, `email`, `country`, `city`, `signup_at`, `birth_year` y `marketing_opt_in`. ¿Qué error devuelve esta consulta?",
     code_md: "```sql\nSELECT nombre\nFROM customers;\n```",
     options: [
       {
@@ -191,36 +191,38 @@ export const questions: QuestionDef[] = [
     slug: "select-q07-comillas",
     section,
     lesson: "select-buenas-practicas",
-    type: "single",
+    type: "error_diagnosis",
     difficulty: "easy",
-    topic: "Comillas",
+    topic: "Comillas dobles en nombres",
     tags: ["sintaxis"],
-    estimated_seconds: 40,
-    prompt_md: "¿Qué diferencia hay entre `'MX'` y `\"MX\"` en PostgreSQL?",
+    estimated_seconds: 45,
+    prompt_md:
+      'La tabla `customers` tiene una columna llamada `full_name`, en minúsculas. Esta consulta falla con `column "Full_Name" does not exist`. ¿Por qué?',
+    code_md: '```sql\nSELECT "Full_Name"\nFROM customers;\n```',
     options: [
       {
         key: "a",
         body_md:
-          "`'MX'` es un literal de texto; `\"MX\"` es un identificador (nombre de columna o tabla).",
+          "Con comillas dobles, PostgreSQL respeta las mayúsculas tal como están escritas y busca una columna llamada exactamente `Full_Name`, que no existe.",
         is_correct: true,
       },
       {
         key: "b",
-        body_md: "Son equivalentes.",
+        body_md: "Las comillas dobles convierten `Full_Name` en un texto fijo.",
         is_correct: false,
         why_incorrect_md:
-          "No lo son: las comillas dobles delimitan identificadores y las simples, texto.",
+          "Los textos fijos van con comillas simples. Las comillas dobles delimitan nombres de columnas o tablas; por eso el error habla de una columna.",
       },
       {
         key: "c",
-        body_md: "`\"MX\"` es texto en mayúsculas y `'MX'` en minúsculas.",
+        body_md: "Falta escribir `SELECT` en minúsculas para que coincida con la columna.",
         is_correct: false,
         why_incorrect_md:
-          "Las comillas no cambian mayúsculas; cambian el significado (texto vs. nombre).",
+          "Las palabras clave como `SELECT` funcionan igual en mayúsculas o minúsculas. Lo que importa aquí es cómo se escribió el nombre de la columna.",
       },
     ],
     explanation_md:
-      "Usar comillas dobles para texto es una fuente frecuente de errores `column does not exist`.",
+      "Sin comillas, PostgreSQL pasa los nombres a minúsculas, así que `Full_Name` a secas encontraría la columna `full_name`. Con comillas dobles el nombre se toma letra por letra. Por eso la convención del curso es escribir los nombres en minúsculas y sin comillas.",
     is_published: true,
   },
   {

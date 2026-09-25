@@ -5,6 +5,7 @@ import {
   BarChart3,
   CreditCard,
   Flag,
+  FlagTriangleRight,
   KeyRound,
   ScrollText,
   Ticket,
@@ -13,16 +14,17 @@ import {
 import { getTranslations } from "next-intl/server";
 import { Card } from "@/components/ui/card";
 import { requireAdmin } from "@/lib/auth/session";
-import { getAdminMetrics } from "@/lib/admin/queries";
+import { countOpenExerciseReports, getAdminMetrics } from "@/lib/admin/queries";
 
 export const metadata = { title: "Administración" };
 
 export default async function AdminPage() {
   await requireAdmin();
-  const [t, tm, m] = await Promise.all([
+  const [t, tm, m, openReports] = await Promise.all([
     getTranslations("admin.hub"),
     getTranslations("admin.metrics"),
     getAdminMetrics(),
+    countOpenExerciseReports(),
   ]);
   const tools: { href: Route; label: string; icon: typeof Users; badge?: number }[] = [
     {
@@ -36,6 +38,12 @@ export default async function AdminPage() {
       label: t("payments"),
       icon: CreditCard,
       badge: m?.monetization.unmatched_events,
+    },
+    {
+      href: "/admin/reportes",
+      label: t("reports"),
+      icon: FlagTriangleRight,
+      badge: openReports ?? undefined,
     },
     { href: "/admin/usuarios", label: t("users"), icon: Users },
     { href: "/admin/certificados", label: t("certificates"), icon: Award },

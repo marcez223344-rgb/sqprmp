@@ -147,7 +147,7 @@ FROM customers;
 
 \`SPLIT_PART(texto, separador, n)\` parte el texto cada vez que encuentra el separador y devuelve el pedazo número \`n\`, empezando a contar en 1.
 
-Es más legible que combinar \`POSITION\` con \`SUBSTRING\` y no tiene el problema anterior: cuando el separador no aparece, devuelve una cadena vacía en lugar de un valor engañoso. Las dos formas son válidas; elige la que se lea mejor para el equipo que va a mantener la consulta.
+Es más legible que combinar \`POSITION\` con \`SUBSTRING\` y no tiene el problema anterior: cuando el separador no aparece, la parte 1 es el texto completo y cualquier otra parte es una cadena vacía (\`''\`), en lugar de un valor engañoso. Las dos formas son válidas; elige la que se lea mejor para el equipo que va a mantener la consulta.
 
 ## Reemplazar: REPLACE
 

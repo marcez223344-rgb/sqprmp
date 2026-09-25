@@ -123,12 +123,7 @@ export const exercises: ExerciseDef[] = [
     validation_rules: { order_matters: true, required_concepts: ["group_by", "having"] },
     reference_solution:
       "SELECT\n  user_id,\n  track_id,\n  played_at,\n  count(*) AS veces\nFROM plays\nGROUP BY user_id, track_id, played_at\nHAVING count(*) > 1\nORDER BY user_id, track_id, played_at;",
-    alternative_solutions: [
-      {
-        label: "Con una función de ventana en lugar de GROUP BY",
-        sql: "SELECT user_id, track_id, played_at, veces\nFROM (\n  SELECT\n    user_id,\n    track_id,\n    played_at,\n    count(*) OVER (PARTITION BY user_id, track_id, played_at) AS veces,\n    row_number() OVER (PARTITION BY user_id, track_id, played_at ORDER BY id) AS copia\n  FROM plays\n) AS marcadas\nWHERE veces > 1 AND copia = 1\nORDER BY user_id, track_id, played_at;",
-      },
-    ],
+    alternative_solutions: [],
     hints: [
       {
         level: 1,
@@ -172,7 +167,7 @@ export const exercises: ExerciseDef[] = [
       },
     ],
     expert_explanation_md:
-      "El resultado de la consulta da 340 filas, todas con la columna `veces` en 2: no hay ningún caso triplicado. Esa uniformidad es información útil para Ingeniería, porque encaja con un único reintento de envío y no con un bucle.\n\nLa cláusula `HAVING` es la pieza clave: la cláusula `WHERE` filtra filas antes de agrupar y la cláusula `HAVING` filtra grupos después. Por eso la expresión `count(*)` solo puede aparecer en `HAVING`.\n\nLa alternativa con funciones de ventana llega al mismo resultado sin colapsar las filas: la expresión `count(*) OVER (PARTITION BY ...)` agrega el tamaño del grupo a cada fila y la condición `row_number() = 1` evita que cada grupo aparezca dos veces. Es más larga para esta pregunta, pero es el camino natural cuando además necesitas arrastrar columnas que no están en la clave, como `id` o `device`.\n\nAgrupar solamente por `user_id` y `track_id` devolvería muchísimos más grupos y sería un error de negocio: esa combinación identifica «esta persona escuchó esta canción» y no «este evento de reproducción».",
+      "El resultado de la consulta da 340 filas, todas con la columna `veces` en 2: no hay ningún caso triplicado. Esa uniformidad es información útil para Ingeniería, porque encaja con un único reintento de envío y no con un bucle.\n\nLa cláusula `HAVING` es la pieza clave: la cláusula `WHERE` filtra filas antes de agrupar y la cláusula `HAVING` filtra grupos después. Por eso la expresión `count(*)` solo puede aparecer en `HAVING`.\n\nCon funciones de ventana se llega al mismo resultado sin colapsar las filas, aunque este ejercicio pide `GROUP BY` con `HAVING`, que es lo que practica: la expresión `count(*) OVER (PARTITION BY ...)` agrega el tamaño del grupo a cada fila y la condición `row_number() = 1` evita que cada grupo aparezca dos veces. Es más larga para esta pregunta, pero es el camino natural cuando además necesitas arrastrar columnas que no están en la clave, como `id` o `device`.\n\nAgrupar solamente por `user_id` y `track_id` devolvería muchísimos más grupos y sería un error de negocio: esa combinación identifica «esta persona escuchó esta canción» y no «este evento de reproducción».",
     improvement_feedback: [
       {
         condition: "missing_alias_on_aggregate",
@@ -380,12 +375,7 @@ export const exercises: ExerciseDef[] = [
     validation_rules: { order_matters: true, required_concepts: ["window_function"] },
     reference_solution:
       "WITH marcadas AS (\n  SELECT\n    id,\n    user_id,\n    track_id,\n    row_number() OVER (PARTITION BY user_id, track_id, played_at ORDER BY id) AS copia,\n    min(id) OVER (PARTITION BY user_id, track_id, played_at) AS id_conservado\n  FROM plays\n)\nSELECT\n  id AS id_a_eliminar,\n  id_conservado,\n  user_id,\n  track_id\nFROM marcadas\nWHERE copia > 1\nORDER BY id_a_eliminar;",
-    alternative_solutions: [
-      {
-        label: "Con una subconsulta agregada en lugar de ventanas",
-        sql: "SELECT\n  p.id AS id_a_eliminar,\n  g.id_conservado,\n  p.user_id,\n  p.track_id\nFROM plays AS p\nINNER JOIN (\n  SELECT user_id, track_id, played_at, min(id) AS id_conservado\n  FROM plays\n  GROUP BY user_id, track_id, played_at\n  HAVING count(*) > 1\n) AS g\n  ON g.user_id = p.user_id\n AND g.track_id = p.track_id\n AND g.played_at = p.played_at\nWHERE p.id > g.id_conservado\nORDER BY id_a_eliminar;",
-      },
-    ],
+    alternative_solutions: [],
     hints: [
       {
         level: 1,
@@ -429,7 +419,7 @@ export const exercises: ExerciseDef[] = [
       },
     ],
     expert_explanation_md:
-      "El resultado de la consulta da 340 filas, con valores de `id_a_eliminar` entre 745 y 109 184. En todos los casos el `id_a_eliminar` es mayor que el `id_conservado`, porque la copia siempre se insertó después.\n\nEste es el ejercicio donde se ve por qué la función `ROW_NUMBER` no se puede reemplazar por `DISTINCT`: en cuanto el resultado tiene que arrastrar una columna que **no** forma parte de la clave de identidad, que acá es el `id`, la palabra clave `DISTINCT` deja de descartar cualquier cosa. El patrón «particiona por la identidad, ordena por la regla y filtra por el número» es el que vas a reutilizar el resto de tu carrera.\n\nLas dos ventanas comparten exactamente la misma partición, así que PostgreSQL las calcula en una sola pasada de ordenamiento. Si te incomoda repetir la lista de columnas, una cláusula `WINDOW` con nombre haría lo mismo; en este entorno preferimos escribirla completa.\n\nLa alternativa con `GROUP BY` y `min(id)` es igual de correcta y funciona en motores que no tienen funciones de ventana, a cambio de recorrer la tabla `plays` dos veces. Las dos formas devuelven exactamente las mismas 340 filas.\n\nUn último punto, y no es menor: esta consulta **no borra nada**. Entregar la lista para revisión antes de ejecutar una sentencia `DELETE` es la diferencia entre una limpieza auditada y un incidente.",
+      "El resultado de la consulta da 340 filas, con valores de `id_a_eliminar` entre 745 y 109 184. En todos los casos el `id_a_eliminar` es mayor que el `id_conservado`, porque la copia siempre se insertó después.\n\nEste es el ejercicio donde se ve por qué la función `ROW_NUMBER` no se puede reemplazar por `DISTINCT`: en cuanto el resultado tiene que arrastrar una columna que **no** forma parte de la clave de identidad, que acá es el `id`, la palabra clave `DISTINCT` deja de descartar cualquier cosa. El patrón «particiona por la identidad, ordena por la regla y filtra por el número» es el que vas a reutilizar el resto de tu carrera.\n\nLas dos ventanas comparten exactamente la misma partición, así que PostgreSQL las calcula en una sola pasada de ordenamiento. Si te incomoda repetir la lista de columnas, una cláusula `WINDOW` con nombre haría lo mismo; en este entorno preferimos escribirla completa.\n\nUna versión con `GROUP BY` y `min(id)` devuelve exactamente las mismas 340 filas y funciona en motores que no tienen funciones de ventana, a cambio de recorrer la tabla `plays` dos veces. Este ejercicio no la acepta porque practica `ROW_NUMBER`.\n\nUn último punto, y no es menor: esta consulta **no borra nada**. Entregar la lista para revisión antes de ejecutar una sentencia `DELETE` es la diferencia entre una limpieza auditada y un incidente.",
     improvement_feedback: [
       { condition: "uses_select_star", message_key: "improve.uses_select_star" },
     ],
@@ -554,7 +544,7 @@ export const exercises: ExerciseDef[] = [
     ],
     validation_rules: {
       order_matters: true,
-      required_concepts: ["window_function", "text_functions"],
+      required_concepts: ["text_functions"],
     },
     reference_solution:
       "WITH duplicados AS (\n  SELECT lower(btrim(email)) AS correo\n  FROM customers\n  GROUP BY lower(btrim(email))\n  HAVING count(*) > 1\n),\ncandidatas AS (\n  SELECT\n    lower(btrim(c.email)) AS correo,\n    c.id,\n    c.signup_at,\n    count(o.id) AS pedidos\n  FROM customers AS c\n  INNER JOIN duplicados AS d ON d.correo = lower(btrim(c.email))\n  LEFT JOIN orders AS o ON o.customer_id = c.id\n  GROUP BY lower(btrim(c.email)), c.id, c.signup_at\n),\nelegidas AS (\n  SELECT\n    correo,\n    id,\n    pedidos,\n    count(*) OVER (PARTITION BY correo) AS cuentas,\n    sum(pedidos) OVER (PARTITION BY correo) AS pedidos_grupo,\n    row_number() OVER (PARTITION BY correo ORDER BY pedidos DESC, signup_at, id) AS puesto\n  FROM candidatas\n)\nSELECT\n  correo,\n  cuentas,\n  id AS id_ganador,\n  pedidos AS pedidos_ganador,\n  pedidos_grupo\nFROM elegidas\nWHERE puesto = 1\nORDER BY correo;",

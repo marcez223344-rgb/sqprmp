@@ -28,7 +28,7 @@ export const questions: QuestionDef[] = [
         body_md: "En `SELECT`, como subconsulta escalar.",
         is_correct: false,
         why_incorrect_md:
-          "Una escalar devuelve un solo valor; acá necesitas una tabla con una fila por cliente para poder promediarla.",
+          "Una subconsulta escalar devuelve un solo valor; aquí necesitas una tabla con una fila por cliente para poder promediar esos conteos.",
       },
       {
         key: "c",
@@ -41,7 +41,7 @@ export const questions: QuestionDef[] = [
         body_md: "En ninguna: basta con `avg(count(*))`.",
         is_correct: false,
         why_incorrect_md:
-          "SQL no permite anidar agregaciones directamente; necesitas dos niveles de consulta.",
+          "PostgreSQL rechaza `avg(count(*))` con el error «aggregate function calls cannot be nested» (no se pueden anidar funciones de agregación): necesitas dos niveles de consulta.",
       },
     ],
     explanation_md:
@@ -94,7 +94,7 @@ export const questions: QuestionDef[] = [
     tags: ["subquery", "null_handling"],
     estimated_seconds: 45,
     prompt_md:
-      "Si la lista de un `NOT IN` contiene al menos un `NULL`, la condición nunca es verdadera y la consulta devuelve cero filas.",
+      "En `WHERE id NOT IN (lista)`, si la lista contiene al menos un `NULL`, esa condición nunca es verdadera para ninguna fila, así que la consulta (sin otras condiciones con `OR`) devuelve cero filas.",
     options: [
       { key: "a", body_md: "Verdadero", is_correct: true },
       {
@@ -119,7 +119,7 @@ export const questions: QuestionDef[] = [
     tags: ["subquery", "null_handling", "exists"],
     estimated_seconds: 70,
     prompt_md:
-      "`SELECT * FROM cards WHERE id NOT IN (SELECT card_id FROM transactions);` devuelve cero filas porque `card_id` admite `NULL`. ¿Qué alternativas devuelven las tarjetas sin movimientos? Marca todas las correctas.",
+      "En Bolsillo, `SELECT * FROM cards WHERE id NOT IN (SELECT card_id FROM transactions);` devuelve cero filas, porque la columna `card_id` de la tabla `transactions` está en `NULL` en todos los movimientos que no se hicieron con tarjeta. ¿Qué cambios devuelven las tarjetas sin movimientos? Marca todas las correctas.",
     options: [
       {
         key: "a",
@@ -142,11 +142,11 @@ export const questions: QuestionDef[] = [
         body_md: "Agregar `DISTINCT` a la subconsulta.",
         is_correct: false,
         why_incorrect_md:
-          "`DISTINCT` quita duplicados pero conserva un `NULL` en la lista, así que el problema sigue igual.",
+          "`DISTINCT` quita duplicados pero conserva un `NULL` en la lista (se queda con uno), así que el problema sigue igual.",
       },
     ],
     explanation_md:
-      "Las dos soluciones válidas son quitar los `NULL` de la lista o expresar la pregunta como inexistencia con `NOT EXISTS`, que no compara valores.",
+      "Las dos soluciones válidas son quitar los `NULL` de la lista o expresar la pregunta como inexistencia con `NOT EXISTS`, que pregunta si hay filas relacionadas en lugar de comparar contra una lista de valores. En este dataset ambas devuelven 1638 tarjetas.",
     is_published: true,
   },
   {
@@ -159,10 +159,10 @@ export const questions: QuestionDef[] = [
     tags: ["subquery", "exists"],
     estimated_seconds: 40,
     prompt_md:
-      "Completa el operador que pregunta si una subconsulta devuelve al menos una fila: `WHERE ___ (SELECT 1 FROM transactions AS t WHERE t.account_id = a.id)`.",
+      "Completa el operador que pregunta si una subconsulta devuelve al menos una fila: `WHERE ___ (SELECT 1 FROM transactions AS t WHERE t.account_id = a.id)`. Escribe solo la palabra clave.",
     answer: { accepted: ["EXISTS", "exists"], case_sensitive: false },
     explanation_md:
-      "`EXISTS` evalúa presencia de filas, no valores; por eso es inmune a los `NULL` y puede detenerse en la primera coincidencia.",
+      "`EXISTS` evalúa si hay filas, no qué valores tienen; por eso no le afectan los `NULL` y puede detenerse en la primera coincidencia.",
     is_published: true,
   },
   {
@@ -209,33 +209,43 @@ export const questions: QuestionDef[] = [
     lesson: escalares,
     type: "error_diagnosis",
     difficulty: "easy",
-    topic: "Alias de la tabla derivada",
+    topic: "Columnas visibles de una tabla derivada",
     tags: ["subquery", "errors"],
     estimated_seconds: 50,
-    prompt_md: "Postgres rechaza esta consulta. ¿Por qué?",
+    prompt_md:
+      'PostgreSQL rechaza esta consulta con el error «column "country" does not exist» (la columna `country` no existe). ¿Por qué?',
     code_md:
       "```sql\nSELECT country, avg(pedidos)\nFROM (\n  SELECT customer_id, count(*) AS pedidos\n  FROM orders\n  GROUP BY customer_id\n)\nGROUP BY country;\n```",
     options: [
       {
         key: "a",
-        body_md: "La subconsulta en `FROM` no tiene alias.",
+        body_md:
+          "La consulta externa solo ve las columnas que expone la subconsulta (`customer_id` y `pedidos`), y `country` no está entre ellas.",
         is_correct: true,
       },
       {
         key: "b",
-        body_md: "`count(*)` no puede usarse dentro de una subconsulta.",
+        body_md: "La subconsulta en `FROM` no tiene alias.",
         is_correct: false,
-        why_incorrect_md: "Una subconsulta puede agregar sin ninguna restricción.",
+        why_incorrect_md:
+          "Desde PostgreSQL 16 el alias de una subconsulta en `FROM` es opcional, y el mensaje de error habla de una columna, no del alias. Otras bases de datos (y PostgreSQL 15 o anterior) sí lo exigen, así que ponerlo sigue siendo buena práctica.",
       },
       {
         key: "c",
-        body_md: "Falta `ORDER BY`.",
+        body_md: "`count(*)` no puede usarse dentro de una subconsulta.",
         is_correct: false,
-        why_incorrect_md: "`ORDER BY` nunca es obligatorio.",
+        why_incorrect_md:
+          "Una subconsulta puede agregar sin ninguna restricción: es justamente lo que hace aquí para contar pedidos por cliente.",
+      },
+      {
+        key: "d",
+        body_md: "Falta `ORDER BY` en la consulta externa.",
+        is_correct: false,
+        why_incorrect_md: "`ORDER BY` nunca es obligatorio; su ausencia no produce errores.",
       },
     ],
     explanation_md:
-      "Toda subconsulta en `FROM` necesita un alias, por ejemplo `AS p` después del paréntesis de cierre. Además, `country` no existe en la tabla derivada: habría que exponerla o unir con `customers`.",
+      "Una tabla derivada, es decir, una subconsulta en `FROM`, se comporta como una tabla que solo tiene las columnas de su `SELECT`. La tabla `orders` no tiene país: para agrupar por país hay que unir el resultado con `customers` (por ejemplo, `INNER JOIN customers AS c ON c.id = p.customer_id`) y agrupar por `c.country`. Aunque PostgreSQL ya no lo exija, conviene darle un alias a la subconsulta (`AS p`) para poder nombrar sus columnas.",
     is_published: true,
   },
   {
@@ -307,7 +317,7 @@ export const questions: QuestionDef[] = [
         body_md: "`count(*)` debería ser `count(t.id)`.",
         is_correct: false,
         why_incorrect_md:
-          "Ambas cuentan lo mismo acá; el problema es el universo de filas, no la función.",
+          "Ambas cuentan lo mismo aquí, porque `id` nunca es `NULL`; el problema es qué filas entran en la subconsulta, no la función.",
       },
     ],
     explanation_md:
@@ -344,7 +354,7 @@ export const questions: QuestionDef[] = [
         body_md: "Seis consultas separadas y unirlas después en la herramienta de reportes.",
         is_correct: false,
         why_incorrect_md:
-          "Mueve el trabajo fuera de la base y multiplica los puntos donde los filtros pueden divergir.",
+          "Mueve el trabajo fuera de la base de datos y repite los mismos filtros en seis lugares, donde es fácil que terminen siendo distintos.",
       },
     ],
     explanation_md:

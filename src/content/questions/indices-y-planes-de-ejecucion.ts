@@ -26,13 +26,13 @@ export const questions: QuestionDef[] = [
     tags: ["indices", "selectividad"],
     estimated_seconds: 60,
     prompt_md:
-      "En `orders` de Pídelo hay 14 437 pedidos y 13 284 tienen `status = 'delivered'`. Existe un índice sobre `status`. ¿Qué hace el planificador con la consulta `SELECT count(*) FROM orders WHERE status = 'delivered'`?",
+      "En `orders` de Pídelo hay 14 437 pedidos y 13 284 tienen `status = 'delivered'`. Supón que existe un índice sobre `status`. ¿Qué hace el planificador con la consulta `SELECT sum(total) FROM orders WHERE status = 'delivered'`?",
     code_md: null,
     options: [
       {
         key: "a",
         body_md:
-          "Lee la tabla completa (`Seq Scan`), porque el filtro deja pasar el 92 % de las filas y buscarlas de a una por el índice costaría más.",
+          "Lee la tabla completa (`Seq Scan`), porque el filtro deja pasar el 92 % de las filas y buscarlas una por una a través del índice costaría más.",
         is_correct: true,
       },
       {
@@ -40,7 +40,7 @@ export const questions: QuestionDef[] = [
         body_md: "Usa el índice, porque para eso se creó.",
         is_correct: false,
         why_incorrect_md:
-          "Que el índice exista no obliga al motor a usarlo. El planificador compara costos y acá el recorrido completo gana.",
+          "Que el índice exista no obliga al motor a usarlo. El planificador compara costos y aquí el recorrido completo gana.",
       },
       {
         key: "c",
@@ -51,13 +51,15 @@ export const questions: QuestionDef[] = [
       },
       {
         key: "d",
-        body_md: "Devuelve un error, porque no se puede contar sobre una columna indexada.",
+        body_md:
+          "Devuelve un error, porque no se puede filtrar por una columna indexada dentro de un agregado.",
         is_correct: false,
-        why_incorrect_md: "No hay ningún error posible acá; la consulta es válida.",
+        why_incorrect_md:
+          "La consulta es válida: un índice nunca cambia qué consultas se pueden escribir, solo cómo se ejecutan.",
       },
     ],
     explanation_md:
-      "Usar un índice son dos pasos: buscar en el índice las direcciones de las filas y después ir a la tabla a leer cada una. El segundo paso es el caro, porque esas filas están dispersas. Cuando hay que repetirlo 13 284 veces sobre una tabla de 14 437 filas, leer la tabla de corrido sale más barato. El mismo índice sobre la misma columna sí convendría para `status = 'cancelled'`, que deja pasar 1153 filas.",
+      "Usar un índice son dos pasos: buscar en el índice las direcciones de las filas y después ir a la tabla a leer cada una. El segundo paso es el caro, porque esas filas están dispersas. Cuando hay que repetirlo 13 284 veces sobre una tabla de 14 437 filas, leer la tabla de corrido sale más barato. El mismo índice sí conviene para `status = 'cancelled'`, que deja pasar 1153 filas: con ese filtro, el plan pasa a usarlo.\n\nUn matiz: si la consulta fuera `SELECT count(*)`, que no necesita ninguna columna de la tabla, PostgreSQL podría contar leyendo solo el índice (`Index Only Scan`), que es más chico que la tabla. Por eso la pregunta suma `total`, una columna que el índice no tiene.",
     is_published: true,
   },
   {
@@ -70,7 +72,7 @@ export const questions: QuestionDef[] = [
     tags: ["indices", "cardinalidad"],
     estimated_seconds: 90,
     prompt_md:
-      "En `orders` de Pídelo (14 437 filas) medís: 4810 `customer_id` distintos, 400 `restaurant_id`, 600 `courier_id` (sin contar 1153 NULL), 2 `status` y 3 `payment_method`. ¿Cuáles de estas afirmaciones son correctas? Selecciona todas las que apliquen.",
+      "En `orders` de Pídelo (14 437 filas) mides: 4810 `customer_id` distintos, 400 `restaurant_id`, 600 `courier_id` (sin contar 1153 NULL), 2 `status` y 3 `payment_method`. ¿Cuáles de estas afirmaciones son correctas? Selecciona todas las que apliquen.",
     code_md: null,
     options: [
       {
@@ -88,7 +90,7 @@ export const questions: QuestionDef[] = [
       {
         key: "c",
         body_md:
-          "La cardinalidad es un promedio y puede esconder la distribución: si un cliente concentrara la mitad de los pedidos, para ese cliente la columna se comportaría como de cardinalidad baja.",
+          "Las filas por valor (total de filas dividido por la cardinalidad) son un promedio y pueden esconder la distribución: si un cliente concentrara la mitad de los pedidos, para ese cliente la columna se comportaría como de cardinalidad baja.",
         is_correct: true,
       },
       {
@@ -109,7 +111,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "La cardinalidad es la cantidad de valores distintos de una columna, y ordena los candidatos a índice: alta (`customer_id`, `courier_id`, `restaurant_id`) es buen terreno, baja (`status`, `payment_method`) solo sirve para el valor raro. Dos límites: es un promedio, así que esconde columnas desbalanceadas, y `count(DISTINCT col)` no cuenta los NULL.",
+      "La cardinalidad es la cantidad de valores distintos de una columna, y ordena los candidatos a índice: alta (`customer_id`, `courier_id`, `restaurant_id`) es buen terreno, baja (`status`, `payment_method`) solo sirve para el valor raro. Dos límites: las filas por valor que se deducen de ella son un promedio, así que esconden columnas desbalanceadas, y `count(DISTINCT col)` no cuenta los NULL.",
     is_published: true,
   },
   {
@@ -155,7 +157,7 @@ export const questions: QuestionDef[] = [
       case_sensitive: false,
     },
     explanation_md:
-      "`Index Only Scan` es el acceso más barato sobre una tabla grande, porque se salta el paso caro: ir a buscar cada fila a su lugar en el disco. Requiere un **índice cubriente**, es decir uno que contenga todas las columnas que la consulta usa. Agregar una sola columna al `SELECT` que no esté en el índice hace desaparecer el atajo y el nodo vuelve a ser `Index Scan`.",
+      "`Index Only Scan` es el acceso más barato sobre una tabla grande, porque se salta el paso caro: ir a buscar cada fila a su lugar en el disco. Requiere un **índice cubriente**, es decir uno que contenga todas las columnas que la consulta usa. Agregar una sola columna al `SELECT` que no esté en el índice hace desaparecer el atajo, y el plan vuelve a un acceso que visita la tabla (por ejemplo `Index Scan`). Además, PostgreSQL solo evita la tabla en las páginas que el mantenimiento automático (`VACUUM`) ya marcó como al día.",
     is_published: true,
   },
   {
@@ -168,7 +170,7 @@ export const questions: QuestionDef[] = [
     tags: ["indices", "indice-compuesto", "prefijo-izquierdo"],
     estimated_seconds: 75,
     prompt_md:
-      "`orders` tiene un índice compuesto sobre `(restaurant_id, placed_at)`, en ese orden. ¿Cuál de estos filtros **no** puede aprovecharlo?",
+      "`orders` tiene un índice compuesto sobre `(restaurant_id, placed_at)`, en ese orden, y ningún otro índice sobre `placed_at`. ¿Para cuál de estos filtros ese índice sirve **menos**, porque el filtro no le indica al motor en qué parte del índice empezar a leer?",
     code_md: null,
     options: [
       {
@@ -182,7 +184,7 @@ export const questions: QuestionDef[] = [
         body_md: "```sql\nWHERE restaurant_id = 194\n```",
         is_correct: false,
         why_incorrect_md:
-          "Usa la primera columna del índice, así que lo aprovecha. El índice está ordenado por `restaurant_id` y el motor salta directo a ese bloque.",
+          "Usa la primera columna del índice, así que lo aprovecha. El índice está ordenado por `restaurant_id` y el motor salta directo al tramo de ese restaurante.",
       },
       {
         key: "c",
@@ -190,7 +192,7 @@ export const questions: QuestionDef[] = [
           "```sql\nWHERE restaurant_id = 194\n  AND placed_at >= TIMESTAMPTZ '2025-08-01 00:00:00+00'\n```",
         is_correct: false,
         why_incorrect_md:
-          "Este es el caso ideal: igualdad en la primera columna y rango en la segunda. Lo aprovecha completo.",
+          "Este es el caso ideal: igualdad en la primera columna y rango en la segunda. El motor entra al tramo del restaurante y, dentro de él, empieza a leer en la fecha pedida.",
       },
       {
         key: "d",
@@ -201,7 +203,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "La **regla del prefijo izquierdo**: un índice compuesto sirve si el filtro usa la primera columna, o la primera y la segunda, pero no si saltea la primera. El índice está ordenado por `restaurant_id` y, dentro de cada restaurante, por `placed_at`; un filtro que solo nombra `placed_at` no tiene por dónde entrar, porque las fechas están repartidas en 400 bloques distintos. Para ese filtro hace falta un índice sobre `placed_at` solo, que en `pidelo` también existe.",
+      "El índice está ordenado primero por `restaurant_id` y, dentro de cada restaurante, por `placed_at`. Un filtro que solo nombra `placed_at` no le dice al motor en qué tramo entrar: las fechas de agosto están repartidas en 400 tramos, uno por restaurante. PostgreSQL todavía puede usar el índice, recorriéndolo entero o, desde la versión 18, con un *skip scan* (lectura con saltos) que entra una vez en el tramo de cada restaurante; pero eso rara vez le gana a un índice que empiece por `placed_at`, y con frecuencia el planificador prefiere leer la tabla.\n\nDe ahí la **regla del prefijo izquierdo**, que es una regla de diseño: un índice compuesto rinde de verdad cuando el filtro usa su primera columna, o la primera y la segunda. Si el filtro importante es solo la fecha, hace falta un índice que empiece por `placed_at`.",
     is_published: true,
   },
   {
@@ -221,7 +223,7 @@ export const questions: QuestionDef[] = [
       {
         key: "a",
         body_md:
-          "El motor leyó las 14 437 filas y descartó 1153 con el filtro; el `Seq Scan` es la decisión correcta porque el filtro deja pasar el 92 % de la tabla.",
+          "El motor leyó las 14 437 filas y descartó 1153 con el filtro; como el filtro deja pasar el 92 % de la tabla, leerla de corrido es razonable y el plan no muestra nada que corregir.",
         is_correct: true,
       },
       {
@@ -229,7 +231,7 @@ export const questions: QuestionDef[] = [
         body_md: "El `Seq Scan` indica que falta un índice sobre `status`: hay que pedirlo.",
         is_correct: false,
         why_incorrect_md:
-          "Un `Seq Scan` no es por sí mismo un defecto. Con un filtro que deja pasar 13 284 de 14 437 filas, ningún índice sobre `status` mejoraría esta consulta.",
+          "Un `Seq Scan` no es por sí mismo un defecto. Con un filtro que deja pasar 13 284 de 14 437 filas y una consulta de 24 ms, un índice sobre `status` ahorraría muy poco (como mucho, contar desde el índice sin abrir la tabla) y encarecería cada escritura. Nada en este plan justifica pedirlo.",
       },
       {
         key: "c",
@@ -249,7 +251,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "El plan tiene dos nodos: el `Seq Scan` lee `orders` de corrido y `Aggregate` cuenta lo que pasa el filtro. `rows=13284` estimado contra `actual rows=13284.00` dice que el planificador tenía buena información, y `Rows Removed by Filter: 1153` que leyó la tabla entera. Los 24,5 ms son el costo honesto de esa lectura, y aun así es más barato que buscar 13 284 filas de a una por un índice.\n\nUn detalle del entorno: las 208 páginas son `shared hit`, o sea que todo estaba ya en memoria. En una tabla real, donde los bloques hay que traerlos del disco, la diferencia entre un recorrido secuencial y miles de accesos dispersos es mucho mayor que la que se ve acá.",
+      "El plan tiene dos nodos: el `Seq Scan` lee `orders` de corrido y `Aggregate` cuenta lo que pasa el filtro. `rows=13284` estimado contra `actual rows=13284.00` dice que el planificador tenía buena información, y `Rows Removed by Filter: 1153` que leyó la tabla entera. Los 24,5 ms son el costo honesto de esa lectura, y aun así es más barato que buscar 13 284 filas una por una a través de un índice.\n\nUn detalle del entorno: las 208 páginas son `shared hit`, o sea que todo estaba ya en memoria. En una tabla real, donde los bloques hay que traerlos del disco, la diferencia entre un recorrido secuencial y miles de accesos dispersos es mucho mayor que la que se ve aquí.",
     is_published: true,
   },
   {
@@ -278,7 +280,7 @@ export const questions: QuestionDef[] = [
           "El problema es el `Index Scan` interno: usar un índice dentro de un bucle siempre es un error y hay que reemplazarlo por un `Seq Scan`.",
         is_correct: false,
         why_incorrect_md:
-          "Ese `Index Scan` interno es lo correcto de este plan: resuelve cada búsqueda en pocas filas. Lo que está mal es cuántas veces se lo obliga a repetir.",
+          "Ese `Index Scan` interno es lo correcto de este plan: resuelve cada búsqueda en pocas filas. Lo que está mal es cuántas veces se lo obliga a repetirse.",
       },
       {
         key: "c",
@@ -294,7 +296,7 @@ export const questions: QuestionDef[] = [
           "Como los dos lados usan índices, el plan es óptimo y el problema tiene que estar en la red o en el disco.",
         is_correct: false,
         why_incorrect_md:
-          "Que los dos lados usen índices no dice nada sobre la estrategia de unión. Acá la estrategia se eligió con una estimación equivocada por cuatro órdenes de magnitud.",
+          "Que los dos lados usen índices no dice nada sobre la estrategia de unión. Aquí la estrategia se eligió con una estimación equivocada por casi cuatro órdenes de magnitud (100 contra 912 430).",
       },
     ],
     explanation_md:
@@ -341,7 +343,7 @@ export const questions: QuestionDef[] = [
         body_md: "Hay que pedir un índice sobre `to_char(placed_at, 'YYYY-MM')`.",
         is_correct: false,
         why_incorrect_md:
-          "Es posible —se llama índice por expresión— pero es la respuesta equivocada acá, porque la consulta se puede reescribir para usar el índice que ya existe. Un índice por expresión se pide cuando la función es inevitable.",
+          "Es posible —se llama índice por expresión— pero es la respuesta equivocada aquí, porque la consulta se puede reescribir para usar el índice que ya existe. Un índice por expresión se pide cuando la función es inevitable.",
       },
     ],
     explanation_md:
@@ -431,10 +433,10 @@ export const questions: QuestionDef[] = [
       {
         key: "e",
         body_md:
-          "Un índice nuevo puede volver más lentas las consultas de lectura que ya funcionan.",
+          "Un índice nuevo puede cambiar el resultado de las consultas que ya existen, porque reordena las filas de la tabla.",
         is_correct: false,
         why_incorrect_md:
-          "Un índice de más no ralentiza las lecturas: el planificador simplemente no lo elige. El costo de un índice sobrante está en las escrituras, el disco y el tiempo de planificación, no en las consultas existentes.",
+          "Un índice es una estructura aparte: no mueve ni modifica las filas de la tabla, y ninguna consulta devuelve un resultado distinto por tenerlo. Lo que puede cambiar es el plan de ejecución, es decir, cómo llega el motor a ese mismo resultado.",
       },
     ],
     explanation_md:
@@ -485,7 +487,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "Un pedido que un ingeniero puede evaluar en cinco minutos trae cinco cosas: la consulta exacta, cuántas filas deja pasar el filtro y sobre cuántas filas de la tabla, cada cuánto corre y quién la espera, el índice propuesto con las columnas en orden y el motivo de ese orden, y qué mediste antes y qué esperas después.\n\nY hay una pregunta previa que a veces vuelve innecesario el ticket: ¿se puede reescribir la consulta para leer menos filas? Un índice acelera el acceso a las filas que pedís; no arregla una consulta que pide filas que no necesita.",
+      "Un pedido que un ingeniero puede evaluar en cinco minutos trae cinco cosas: la consulta exacta, cuántas filas deja pasar el filtro y sobre cuántas filas de la tabla, cada cuánto corre y quién la espera, el índice propuesto con las columnas en orden y el motivo de ese orden, y qué mediste antes y qué esperas después.\n\nY hay una pregunta previa que a veces vuelve innecesario el ticket: ¿se puede reescribir la consulta para leer menos filas? Un índice acelera el acceso a las filas que pides; no arregla una consulta que pide filas que no necesita.",
     is_published: true,
   },
   {
@@ -498,7 +500,7 @@ export const questions: QuestionDef[] = [
     tags: ["explain", "costo", "nodos"],
     estimated_seconds: 80,
     prompt_md:
-      "Buscás el paso caro de un plan con varios nodos. ¿Cuál es la forma correcta de encontrarlo?",
+      "Buscas el paso caro de un plan con varios nodos. ¿Cuál es la forma correcta de encontrarlo?",
     code_md: null,
     options: [
       {

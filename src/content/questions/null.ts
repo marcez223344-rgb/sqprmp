@@ -77,8 +77,12 @@ export const questions: QuestionDef[] = [
     estimated_seconds: 25,
     prompt_md:
       "Completa: `SELECT id FROM shipments WHERE delivered_at ___ NULL;` para obtener los envíos no entregados. Escribe solo la palabra clave.",
-    answer: { accepted: ["IS"], case_sensitive: false },
-    explanation_md: "`IS NULL` es el único operador correcto para detectar NULL.",
+    answer: {
+      accepted: ["IS", "IS NULL", "delivered_at IS NULL", "WHERE delivered_at IS NULL"],
+      case_sensitive: false,
+    },
+    explanation_md:
+      "`IS NULL` es el operador correcto para detectar NULL. `delivered_at = NULL` no daría error, pero nunca es verdadero y devolvería 0 filas.",
     is_published: true,
   },
   {
@@ -91,7 +95,7 @@ export const questions: QuestionDef[] = [
     tags: ["null_handling", "subquery"],
     estimated_seconds: 70,
     prompt_md:
-      "Esta consulta debería listar categorías que no son padre de ninguna otra, pero devuelve 0 filas aunque existen 24 subcategorías. ¿Por qué?",
+      "En `categories`, la columna `parent_id` guarda el `id` de la categoría padre y es NULL en las categorías de primer nivel. Esta consulta debería listar las categorías que no son padre de ninguna otra, pero devuelve 0 filas aunque existen 24. ¿Por qué?",
     code_md:
       "```sql\nSELECT id, name\nFROM categories\nWHERE id NOT IN (SELECT parent_id FROM categories);\n```",
     options: [
@@ -280,31 +284,31 @@ export const questions: QuestionDef[] = [
     tags: ["null_handling", "coalesce"],
     estimated_seconds: 55,
     prompt_md:
-      "Vas a calcular la calificación promedio de los vendedores para un ranking. 28 no tienen calificación. ¿Qué conviene?",
+      "Te piden la calificación promedio de los vendedores que ya tienen calificación. La tabla `sellers` tiene 180 vendedores y 28 tienen `rating` NULL porque todavía no recibieron reseñas. ¿Qué expresión da ese promedio?",
     options: [
       {
         key: "a",
         body_md:
-          "Dejar los NULL como están: `avg(rating)` los ignora y el promedio refleja solo a los calificados.",
+          "`avg(rating)`: la función ignora los NULL y promedia solo a los 152 vendedores calificados.",
         is_correct: true,
       },
       {
         key: "b",
-        body_md: "Reemplazarlos con `COALESCE(rating, 0)` antes de promediar.",
+        body_md: "`avg(COALESCE(rating, 0))`",
         is_correct: false,
         why_incorrect_md:
-          "Un 0 inventado hunde el promedio: «sin calificación» no significa «pésimo».",
+          "Convierte a los 28 vendedores sin reseñas en vendedores con calificación 0 y los incluye en el promedio, que baja. «Sin calificación» no significa «pésimo».",
       },
       {
         key: "c",
-        body_md: "Reemplazarlos con el promedio general.",
+        body_md: "`sum(rating) / count(*)`",
         is_correct: false,
         why_incorrect_md:
-          "Es una técnica de imputación válida en ciencia de datos, pero para un ranking simple oculta que faltan datos.",
+          "`sum` ignora los NULL, pero `count(*)` cuenta las 180 filas. Divide la suma de 152 calificaciones entre 180 y da un promedio más bajo que el real, igual que la opción con `COALESCE`.",
       },
     ],
     explanation_md:
-      "NULL significa «no sabemos». Las agregaciones lo ignoran por diseño; inventar un valor cambia el significado del resultado.",
+      "NULL significa «no sabemos». Las funciones de agregación como `avg` lo ignoran por diseño; reemplazarlo por 0 o dividir por todas las filas cambia el significado del resultado. En el informe conviene aclarar aparte cuántos vendedores todavía no tienen calificación.",
     is_published: true,
   },
   {
@@ -317,7 +321,7 @@ export const questions: QuestionDef[] = [
     tags: ["null_handling", "group_by", "distinct"],
     estimated_seconds: 60,
     prompt_md:
-      "En una tabla `envios` hay 40 filas cuyo `transportista` quedó sin cargar. `SELECT transportista, count(*) FROM envios GROUP BY transportista` devuelve una fila con `transportista` vacío y el conteo 40: los 40 NULL quedaron en un mismo grupo. Sin embargo, `WHERE transportista = transportista` descarta esas mismas 40 filas. ¿Cómo conviven las dos cosas?",
+      "En una tabla `envios` hay 40 filas cuyo `transportista` quedó sin cargar. `SELECT transportista, count(*) FROM envios GROUP BY transportista` devuelve una fila con `transportista` en NULL y el conteo 40: los 40 NULL quedaron en un mismo grupo. Sin embargo, `WHERE transportista = transportista` descarta esas mismas 40 filas. ¿Cómo conviven las dos cosas?",
     options: [
       {
         key: "a",
@@ -364,7 +368,7 @@ export const questions: QuestionDef[] = [
     tags: ["null_handling", "comparacion"],
     estimated_seconds: 80,
     prompt_md:
-      "Un control diario compara el precio de hoy con el de ayer para listar los productos que cambiaron. Los productos que ayer no tenían precio cargado y hoy sí lo tienen nunca aparecen en el resultado. ¿Cuál es la causa?",
+      "Un control diario compara el precio de hoy con el de ayer para listar los productos que cambiaron. Todos los productos tienen una fila en `precios_ayer` y otra en `precios_hoy`. Los que ayer tenían la columna `price` en NULL (sin precio cargado) y hoy ya tienen un precio nunca aparecen en el resultado. ¿Cuál es la causa?",
     code_md:
       "```sql\nSELECT h.product_id\nFROM precios_hoy AS h\nINNER JOIN precios_ayer AS a ON a.product_id = h.product_id\nWHERE h.price <> a.price;\n```",
     options: [
@@ -380,7 +384,7 @@ export const questions: QuestionDef[] = [
           "El `INNER JOIN` descarta esos productos porque ayer no tenían fila en `precios_ayer`.",
         is_correct: false,
         why_incorrect_md:
-          "La fila de ayer existe: lo que falta es el precio dentro de esa fila, no la fila. El join encuentra la pareja sin problema y recién falla la comparación.",
+          "La fila de ayer existe: lo que falta es el precio dentro de esa fila, no la fila. El join encuentra la pareja sin problema, y es después, en el `WHERE`, donde falla la comparación.",
       },
       {
         key: "c",
@@ -421,7 +425,7 @@ export const questions: QuestionDef[] = [
       },
       {
         key: "b",
-        body_md: "Usar `count(phone)` y restarlo del total de clientes.",
+        body_md: "Usar `count(phone)` y restarlo del total de contactos.",
         is_correct: false,
         why_incorrect_md:
           "`count(phone)` solo ignora los NULL. La cadena vacía es un valor como cualquier otro y se cuenta como si fuera un teléfono, así que el resultado queda corto.",

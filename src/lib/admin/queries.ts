@@ -385,3 +385,47 @@ export async function getUserDetailAdmin(userId: string) {
     exercisesCompleted: row?.exercises_completed ?? 0,
   };
 }
+
+/**
+ * Exercise problem reports for /admin/reportes (D-42), newest first. `status = null` lists both.
+ * The reporter is identified by alias and display name; no email.
+ */
+export async function getExerciseReportsAdmin(status: "open" | "resolved" | null) {
+  let query = createAdminClient()
+    .from("exercise_reports")
+    .select(
+      "id, exercise_id, exercise_slug, category, note, learner_sql, status, created_at, resolved_at, resolution_note, reporter:profiles!exercise_reports_user_id_fkey(alias, display_name), exercises(title)",
+    )
+    .order("created_at", { ascending: false })
+    .limit(limits.admin.reportsListMax);
+  if (status) query = query.eq("status", status);
+  const { data, error } = await query;
+  if (error) return null;
+  return (data ?? []).map((r) => ({
+    id: r.id,
+    exerciseSlug: r.exercise_slug,
+    exerciseTitle: (r.exercises as { title: string } | null)?.title ?? null,
+    exerciseExists: r.exercise_id !== null,
+    category: r.category,
+    note: r.note,
+    sql: r.learner_sql,
+    status: r.status,
+    createdAt: r.created_at,
+    resolvedAt: r.resolved_at,
+    resolutionNote: r.resolution_note,
+    reporterAlias:
+      (r.reporter as { alias: string | null; display_name: string | null } | null)?.alias ?? null,
+    reporterName:
+      (r.reporter as { alias: string | null; display_name: string | null } | null)?.display_name ??
+      null,
+  }));
+}
+
+/** Open reports, for the badge on the admin hub. Null when the count cannot be read. */
+export async function countOpenExerciseReports(): Promise<number | null> {
+  const { count, error } = await createAdminClient()
+    .from("exercise_reports")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "open");
+  return error ? null : (count ?? 0);
+}

@@ -31,6 +31,7 @@ import type { CourseLevelKey } from "@/config/course-levels";
 import { groupByCourseLevel } from "@/lib/curriculum/course-levels";
 import { sectionMinutes } from "@/lib/curriculum/path-summary";
 import type { PathLesson, PathSection } from "@/lib/curriculum/queries";
+import { sectionProgress, type SectionProgress } from "@/lib/learning/section-progress";
 import { lessonNeedsAccess } from "@/lib/progress/lesson-lock";
 import { cn } from "@/lib/utils/cn";
 
@@ -72,10 +73,10 @@ const LESSON_ICON: Record<string, LucideIcon> = {
   challenge: Trophy,
 };
 
-function sectionState(s: PathSection, publishedLessons: number): SectionState {
+function sectionState(s: PathSection, progress: SectionProgress): SectionState {
   if (!s.is_published) return "soon";
-  if (publishedLessons > 0 && s.completed_lessons === publishedLessons) return "completed";
-  return s.completed_lessons > 0 ? "in_progress" : "available";
+  if (progress.total > 0 && progress.done === progress.total) return "completed";
+  return progress.done > 0 ? "in_progress" : "available";
 }
 
 /**
@@ -108,9 +109,9 @@ export async function LearningPath({
   const currentSlug =
     mode === "learner"
       ? (sections.find((s) => {
-          const published = s.lessons.filter((l) => l.is_published).length;
-          const state = sectionState(s, published);
-          return published > 0 && (state === "in_progress" || state === "available");
+          const progress = sectionProgress(s.lessons);
+          const state = sectionState(s, progress);
+          return progress.total > 0 && (state === "in_progress" || state === "available");
         })?.slug ?? null)
       : null;
 
@@ -119,7 +120,7 @@ export async function LearningPath({
       {byLevel.map((group) => {
         const LevelIcon = LEVEL_ICON[group.level];
         const levelDone = group.sections.filter(
-          (s) => sectionState(s, s.lessons.filter((l) => l.is_published).length) === "completed",
+          (s) => sectionState(s, sectionProgress(s.lessons)) === "completed",
         ).length;
         return (
           <section key={group.level} aria-labelledby={`nivel-${group.level}`}>
@@ -142,8 +143,11 @@ export async function LearningPath({
 
             <ol className="space-y-4">
               {group.sections.map((s) => {
-                const total = s.lessons.filter((l) => l.is_published).length;
-                const state = sectionState(s, total);
+                // Same count as the banner on the section's own pages (`sectionProgress`), so the
+                // card and the page can never show two different percentages.
+                const progress = sectionProgress(s.lessons);
+                const { total, done, percent } = progress;
+                const state = sectionState(s, progress);
                 // In `public` mode nobody has progress, so every published card reads as untouched.
                 const progressState: ProgressState =
                   mode === "public" && state !== "soon"
@@ -151,7 +155,6 @@ export async function LearningPath({
                     : SECTION_PROGRESS_STATE[state];
                 const styles = PROGRESS_STATE_STYLES[progressState];
                 const isCurrent = mode === "learner" && s.slug === currentSlug;
-                const percent = total > 0 ? Math.round((s.completed_lessons / total) * 100) : 0;
                 return (
                   <li
                     key={s.id}
@@ -196,7 +199,7 @@ export async function LearningPath({
                           icon={STATE_CHIP_ICON[state]}
                           label={`${t(`state.${state}`)}${
                             mode === "learner" && state !== "soon" && total > 0
-                              ? ` · ${s.completed_lessons}/${total}`
+                              ? ` · ${done}/${total}`
                               : ""
                           }`}
                         />
@@ -228,7 +231,7 @@ export async function LearningPath({
                           />
                         </div>
                         <p className="text-muted text-xs">
-                          {t("progress", { done: s.completed_lessons, total, percent })}
+                          {t("progress", { done, total, percent })}
                         </p>
                       </div>
                     ) : null}

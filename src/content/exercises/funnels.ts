@@ -229,10 +229,6 @@ export const exercises: ExerciseDef[] = [
         label: "count(*) FILTER en lugar de count(columna)",
         sql: "WITH hitos AS (SELECT o.id AS order_id, min(pay.paid_at) AS pagado_at, min(shp.shipped_at) AS enviado_at, min(shp.delivered_at) AS entregado_at FROM orders AS o LEFT JOIN payments AS pay ON pay.order_id = o.id AND pay.status IN ('approved', 'refunded') LEFT JOIN shipments AS shp ON shp.order_id = o.id WHERE o.created_at >= timestamptz '2025-01-01 00:00:00+00' AND o.created_at < timestamptz '2025-07-01 00:00:00+00' GROUP BY o.id) SELECT 1 AS paso, 'creado' AS etapa, count(*) AS pedidos FROM hitos UNION ALL SELECT 2, 'pagado', count(*) FILTER (WHERE pagado_at IS NOT NULL) FROM hitos UNION ALL SELECT 3, 'enviado', count(*) FILTER (WHERE enviado_at IS NOT NULL) FROM hitos UNION ALL SELECT 4, 'entregado', count(*) FILTER (WHERE entregado_at IS NOT NULL) FROM hitos ORDER BY paso;",
       },
-      {
-        label: "Hitos con subconsultas EXISTS",
-        sql: "WITH hitos AS (SELECT o.id AS order_id, EXISTS (SELECT 1 FROM payments AS p WHERE p.order_id = o.id AND p.status IN ('approved', 'refunded')) AS pago_ok, EXISTS (SELECT 1 FROM shipments AS s WHERE s.order_id = o.id AND s.shipped_at IS NOT NULL) AS envio_ok, EXISTS (SELECT 1 FROM shipments AS s WHERE s.order_id = o.id AND s.delivered_at IS NOT NULL) AS entrega_ok FROM orders AS o WHERE o.created_at >= timestamptz '2025-01-01 00:00:00+00' AND o.created_at < timestamptz '2025-07-01 00:00:00+00') SELECT 1 AS paso, 'creado' AS etapa, count(*) AS pedidos FROM hitos UNION ALL SELECT 2, 'pagado', count(*) FILTER (WHERE pago_ok) FROM hitos UNION ALL SELECT 3, 'enviado', count(*) FILTER (WHERE envio_ok) FROM hitos UNION ALL SELECT 4, 'entregado', count(*) FILTER (WHERE entrega_ok) FROM hitos ORDER BY paso;",
-      },
     ],
     hints: [
       {
@@ -277,7 +273,7 @@ export const exercises: ExerciseDef[] = [
       },
     ],
     expert_explanation_md:
-      "El resultado de la consulta da cuatro filas: 6400 pedidos creados, 5589 pagados, 5447 enviados y 5068 entregados. Es decir, un 87.33 % de conversión a pago y un 79.19 % de punta a punta.\n\nTres decisiones sostienen el resultado.\n\nPrimera, los `LEFT JOIN`. La base de un funnel es el universo completo; si la recortas con `INNER JOIN`, todos los porcentajes posteriores salen optimistas. El filtro de `status` en el `ON` es la otra cara de lo mismo: el `ON` decide qué filas de la derecha se emparejan, el `WHERE` decide qué filas del resultado sobreviven.\n\nSegunda, incluir `refunded` entre los pagos. Un pedido devuelto pagó y después se le reembolsó; excluirlo produciría un funnel imposible, con más envíos que pagos. Vale la pena comprobarlo: si un paso posterior supera a uno anterior, casi siempre hay un filtro mal puesto.\n\nTercera, el límite superior abierto (`< '2025-07-01'`). Con marcas de tiempo, `BETWEEN` con la fecha final es una fuente permanente de errores silenciosos.\n\nEl `UNION ALL` es la forma directa de girar una fila de cuatro medidas en cuatro filas. La alternativa con `EXISTS` evita el `GROUP BY` y suele leerse mejor cuando solo te interesa «ocurrió o no» y no *cuándo* ocurrió; en cuanto necesites los tiempos entre pasos, vuelve a hacer falta la tabla de hitos con marcas de tiempo.",
+      "El resultado de la consulta da cuatro filas: 6400 pedidos creados, 5589 pagados, 5447 enviados y 5068 entregados. Es decir, un 87.33 % de conversión a pago y un 79.19 % de punta a punta.\n\nTres decisiones sostienen el resultado.\n\nPrimera, los `LEFT JOIN`. La base de un funnel es el universo completo; si la recortas con `INNER JOIN`, todos los porcentajes posteriores salen optimistas. El filtro de `status` en el `ON` es la otra cara de lo mismo: el `ON` decide qué filas de la derecha se emparejan, el `WHERE` decide qué filas del resultado sobreviven.\n\nSegunda, incluir `refunded` entre los pagos. Un pedido devuelto pagó y después se le reembolsó; excluirlo produciría un funnel imposible, con más envíos que pagos. Vale la pena comprobarlo: si un paso posterior supera a uno anterior, casi siempre hay un filtro mal puesto.\n\nTercera, el límite superior abierto (`< '2025-07-01'`). Con marcas de tiempo, `BETWEEN` con la fecha final es una fuente permanente de errores silenciosos.\n\nEl `UNION ALL` es la forma directa de girar una fila de cuatro medidas en cuatro filas. Una versión con un `EXISTS` por hito evita el `GROUP BY` y suele leerse mejor cuando solo te interesa «ocurrió o no» y no *cuándo* ocurrió. Este ejercicio no la acepta porque practica la tabla de hitos con `LEFT JOIN`, que es la que necesitas en cuanto aparecen los tiempos entre pasos.",
     improvement_feedback: [
       { condition: "no_table_alias_in_join", message_key: "improve.no_table_alias_in_join" },
       {
@@ -417,7 +413,7 @@ export const exercises: ExerciseDef[] = [
     validation_rules: {
       order_matters: true,
       numeric_tolerance: 0.001,
-      required_concepts: ["cte", "case", "window_function"],
+      required_concepts: ["cte", "case"],
     },
     reference_solution:
       "WITH avance AS (\n  SELECT\n    order_id,\n    max(CASE event\n      WHEN 'placed' THEN 1\n      WHEN 'accepted' THEN 2\n      WHEN 'preparing' THEN 3\n      WHEN 'picked_up' THEN 4\n      WHEN 'delivered' THEN 5\n      ELSE 0\n    END) AS ultimo_paso\n  FROM order_events\n  GROUP BY order_id\n)\nSELECT\n  ultimo_paso,\n  CASE ultimo_paso\n    WHEN 1 THEN 'placed'\n    WHEN 2 THEN 'accepted'\n    WHEN 3 THEN 'preparing'\n    WHEN 4 THEN 'picked_up'\n    WHEN 5 THEN 'delivered'\n  END AS ultima_etapa,\n  count(*) AS pedidos,\n  round(100.0 * count(*) / sum(count(*)) OVER (), 2) AS pct_del_total\nFROM avance\nGROUP BY 1, 2\nORDER BY ultimo_paso;",
@@ -517,7 +513,7 @@ export const exercises: ExerciseDef[] = [
     ],
     validation_rules: {
       order_matters: true,
-      required_concepts: ["cte", "outer_join", "set_operations"],
+      required_concepts: ["cte", "set_operations"],
     },
     reference_solution:
       "WITH escuchas AS (\n  SELECT user_id, min(played_at) AS primera_escucha_at\n  FROM plays\n  GROUP BY user_id\n), listas AS (\n  SELECT user_id, min(created_at) AS primera_playlist_at\n  FROM playlists\n  GROUP BY user_id\n), subs AS (\n  SELECT user_id, min(started_on) AS primera_suscripcion_on\n  FROM subscriptions\n  GROUP BY user_id\n), hitos AS (\n  SELECT\n    u.id AS user_id,\n    u.signup_at,\n    e.primera_escucha_at,\n    l.primera_playlist_at,\n    s.primera_suscripcion_on\n  FROM users AS u\n  LEFT JOIN escuchas AS e ON e.user_id = u.id\n  LEFT JOIN listas AS l ON l.user_id = u.id\n  LEFT JOIN subs AS s ON s.user_id = u.id\n)\nSELECT 1 AS paso, 'alta' AS etapa, count(*) AS usuarios_cualquier_orden, count(*) AS usuarios_orden_estricto\nFROM hitos\nUNION ALL\nSELECT 2, 'primera escucha', count(primera_escucha_at),\n  count(*) FILTER (WHERE primera_escucha_at > signup_at)\nFROM hitos\nUNION ALL\nSELECT 3, 'primera playlist', count(primera_playlist_at),\n  count(*) FILTER (\n    WHERE primera_escucha_at > signup_at\n      AND primera_playlist_at > primera_escucha_at\n  )\nFROM hitos\nUNION ALL\nSELECT 4, 'primera suscripcion', count(primera_suscripcion_on),\n  count(*) FILTER (\n    WHERE primera_escucha_at > signup_at\n      AND primera_playlist_at > primera_escucha_at\n      AND primera_suscripcion_on >= (primera_playlist_at AT TIME ZONE 'UTC')::date\n  )\nFROM hitos\nORDER BY paso;",

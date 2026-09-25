@@ -18,7 +18,7 @@ export const lessons: LessonDef[] = [
 
 Una consulta lenta casi nunca es lenta por culpa del motor: es lenta porque **le pediste que tocara más filas de las necesarias**. Optimizar, en el día a día de un analista, consiste sobre todo en aprender a estimar cuánto trabajo genera tu consulta antes de ejecutarla.
 
-Trabajas con **Pídelo**, la plataforma de delivery. La tabla \`orders\` tiene 14 437 filas, \`order_items\` tiene 35 589 y \`order_events\` tiene 69 724. Son tablas chicas, así que todo lo que escribas aquí va a responder rápido. El objetivo de esta sección no es ganar milisegundos en el simulador: es que salgas con el criterio que vas a necesitar cuando la misma consulta corra contra 400 millones de filas en tu trabajo.
+Trabajas con **Pídelo**, la plataforma de delivery. La tabla \`orders\` tiene 14 437 filas, \`order_items\` tiene 35 589 y \`order_events\` tiene 69 724. Son tablas chicas: el objetivo no es ganar milisegundos en el simulador, sino el criterio que vas a necesitar cuando la misma consulta corra contra 400 millones de filas.
 
 ## El orden lógico manda
 
@@ -26,7 +26,7 @@ PostgreSQL evalúa una consulta en este orden conceptual:
 
 \`FROM\` y los joins → \`WHERE\` → \`GROUP BY\` → \`HAVING\` → funciones de ventana → \`SELECT\` → \`DISTINCT\` → \`ORDER BY\` → \`LIMIT\`.
 
-De ese orden salen casi todas las reglas prácticas de esta sección. Como el \`WHERE\` corre antes de agrupar, cada fila que descartas ahí es una fila que el \`GROUP BY\` ya no tiene que ordenar ni acumular. Como el \`HAVING\` corre después, un filtro puesto en \`HAVING\` que podría haber ido en \`WHERE\` obliga al motor a formar grupos completos para descartarlos enseguida.
+De ese orden salen casi todas las reglas prácticas de esta sección. Como el \`WHERE\` corre antes de agrupar, cada fila que descartas ahí es una fila que el \`GROUP BY\` ya no tiene que ordenar ni acumular. Como el \`HAVING\` corre después, en ese orden un filtro puesto en \`HAVING\` que podría haber ido en \`WHERE\` forma grupos completos para descartarlos enseguida.
 
 Mismo resultado, distinto trabajo:
 
@@ -44,7 +44,7 @@ GROUP BY restaurant_id, status
 HAVING status = 'delivered';
 \`\`\`
 
-Las dos devuelven lo mismo. La primera agrupa 13 284 filas, y la segunda agrupa las 14 437 y arma grupos de más que después tira. El **planificador** de PostgreSQL, que es el componente que decide cómo ejecutar cada consulta, es lo bastante bueno como para corregir varios casos así por su cuenta, pero **no siempre puede**, y escribir el filtro donde corresponde no te cuesta nada.
+Las dos devuelven lo mismo. En el orden lógico, la primera agrupa 13 284 filas, y la segunda agrupa las 14 437 y arma grupos de más que después tira. En la práctica, el **planificador** de PostgreSQL, el componente que decide cómo ejecutar cada consulta, ve que la condición del \`HAVING\` no usa agregados y la traslada al \`WHERE\`: en un servidor, el plan de las dos es idéntico. Igual escribe la forma A: dice lo que quieres, no depende de una optimización que otro motor puede no hacer y deja el \`HAVING\` para las condiciones sobre agregados. El planificador corrige varios casos así, pero **no siempre puede**.
 
 ## Medir el trabajo: contar filas en cada paso
 
@@ -74,7 +74,7 @@ Esta consulta no devuelve «los primeros diez pedidos»: devuelve diez pedidos c
 
 ## Por qué \`EXPLAIN\` no está en este entorno
 
-En un servidor PostgreSQL real, \`EXPLAIN\` y \`EXPLAIN ANALYZE\` te muestran el plan que eligió el motor y cuántas filas pasaron por cada paso de ese plan. Es la herramienta principal para diagnosticar el rendimiento de una consulta y la vas a usar en tu trabajo; la sección siguiente del curso está dedicada a leerla. **En este entorno de práctica no está disponible**, y es a propósito: todo lo de esta sección se decide antes de mirar un plan, contando filas y leyendo tu propia consulta. Si solo puedes detectar un problema cuando tienes el plan delante, se te van a escapar la mayoría de los casos, porque la mayoría se ven en el SQL.
+En un servidor PostgreSQL real, \`EXPLAIN\` y \`EXPLAIN ANALYZE\` te muestran el plan que eligió el motor y cuántas filas pasaron por cada paso de ese plan. Es la herramienta principal de diagnóstico, y la sección siguiente está dedicada a leerla. **En este entorno de práctica no está disponible**, y es a propósito: todo lo de esta sección se decide antes de mirar un plan, contando filas y leyendo tu propia consulta. Si solo puedes detectar un problema cuando tienes el plan delante, se te van a escapar la mayoría de los casos, porque la mayoría se ven en el SQL.
 
 ## Errores comunes
 
@@ -141,9 +141,9 @@ Las dos devuelven 1214. La segunda le permite al motor ubicar el comienzo del ra
 | \`date_trunc('day', placed_at) = DATE '2025-07-04'\` | \`placed_at >= '2025-07-04' AND placed_at < '2025-07-05'\` |
 | \`to_char(placed_at, 'YYYY-MM') = '2025-07'\` | rango de un mes |
 | \`total * 1.21 > 1000\` | \`total > 1000 / 1.21\` |
-| \`upper(name) = 'PIZZA'\` | \`name ILIKE 'pizza'\` o un índice sobre \`upper(name)\` |
+| \`upper(name) = 'PIZZA'\` | un índice sobre \`upper(name)\` (\`ILIKE\` tampoco usa un índice común) |
 
-Usa siempre rangos **semiabiertos**, es decir, \`>= inicio\` y \`< fin\`. Así no tienes que preguntarte si el instante final incluye o no los microsegundos del último segundo del mes.
+Usa siempre rangos **semiabiertos**, es decir, \`>= inicio\` y \`< fin\`. Así no dudas sobre los microsegundos del último segundo del mes.
 
 ## Cuándo la función sí está bien
 
@@ -157,11 +157,12 @@ GROUP BY 1
 ORDER BY 1;
 \`\`\`
 
-Aquí \`date_trunc\` se aplica solo a las filas que el rango del \`WHERE\` ya dejó pasar, y no se usa para decidir cuáles leer. Además, si de verdad necesitas filtrar por una expresión, un DBA (por *database administrator*, la persona que administra la base de datos) puede crear un **índice por expresión** sobre \`date_trunc('month', placed_at)\`, que guarda ya calculado ese valor. Saber pedir eso con fundamento también es parte del trabajo.
-
+Aquí \`date_trunc\` se aplica solo a las filas que el rango del \`WHERE\` ya dejó pasar, y no se usa para decidir cuáles leer. Además, si de verdad necesitas filtrar por una expresión, un DBA (por *database administrator*, la persona que administra la base de datos) puede crear un **índice por expresión** sobre \`date_trunc('month', placed_at)\`, que guarda ya calculado ese valor.
 ## \`LIKE\`, comodines y el orden del índice
 
 \`name LIKE 'Pizza%'\` puede usar un índice, porque el prefijo fijo le dice al motor desde qué punto del orden alfabético empezar a leer. \`name LIKE '%Pizza'\` y \`name LIKE '%Pizza%'\` no pueden, porque el texto buscado puede estar en cualquier posición y no hay ningún orden que ayude a descartar filas. Para las búsquedas de texto libre existen herramientas específicas, como los índices de texto completo o los de trigramas (que indexan fragmentos de tres caracteres); un \`LIKE\` con comodín al principio no las reemplaza.
+
+Un detalle del prefijo: el índice común sirve a un \`LIKE\` solo con la intercalación \`C\` (*collation*, las reglas del orden alfabético; es la del simulador) o si se creó con \`text_pattern_ops\` (\`varchar_pattern_ops\` para \`varchar\`). Con una intercalación regional como \`es_AR.UTF-8\`, habitual en servidores reales, esa clase de operadores es obligatoria.
 
 ## \`OR\` entre columnas distintas
 
@@ -178,7 +179,7 @@ UNION
 SELECT id FROM orders WHERE promotion_id = 12;
 \`\`\`
 
-Dos advertencias que no se negocian. La primera: \`UNION\` elimina los duplicados, así que un pedido que cumple las dos condiciones aparece una sola vez, igual que con \`OR\`. Si usas \`UNION ALL\` ese pedido aparece dos veces y cambiaste el resultado. La segunda: esta reescritura vale la pena cuando hay índices y cada rama descarta muchas filas. Sin índices detrás es solamente más código para el mismo trabajo, así que no la apliques como reflejo.
+Dos advertencias que no se negocian. La primera: \`UNION\` elimina los duplicados, así que un pedido que cumple las dos condiciones aparece una sola vez, igual que con \`OR\`. Si usas \`UNION ALL\` ese pedido aparece dos veces y cambiaste el resultado. La segunda: esta reescritura vale la pena cuando hay índices y cada rama descarta muchas filas. Sin índices detrás es solo más código para el mismo trabajo.
 
 Un \`OR\` sobre **la misma** columna (\`status = 'a' OR status = 'b'\`) sí se puede aprovechar, y se escribe mejor como \`status IN ('a','b')\`.
 
@@ -192,7 +193,7 @@ Un \`OR\` sobre **la misma** columna (\`status = 'a' OR status = 'b'\`) sí se p
 
 1. Sargable significa que la columna aparece sola de un lado del operador, y por eso el motor puede usar el índice.
 2. Los filtros de fecha se escriben como rangos semiabiertos, no con funciones aplicadas sobre la columna.
-3. \`LIKE 'x%'\` aprovecha el índice y \`LIKE '%x'\` no; un \`OR\` entre columnas distintas a veces conviene reescribirlo con \`UNION\`.
+3. \`LIKE 'x%'\` puede aprovechar el índice y \`LIKE '%x'\` no; un \`OR\` entre columnas distintas a veces conviene reescribirlo con \`UNION\`.
 `,
   },
   {

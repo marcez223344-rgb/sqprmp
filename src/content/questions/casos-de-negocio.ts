@@ -105,7 +105,7 @@ export const questions: QuestionDef[] = [
         body_md: "Los datos están mal: si el ticket no cambió, los ingresos no podían caer.",
         is_correct: false,
         why_incorrect_md:
-          "Los ingresos son pedidos por ticket. Con el ticket estable, una caída de 8 % en pedidos produce casi exactamente una caída de 9 % en ingresos: los números son coherentes.",
+          "Los ingresos son pedidos por ticket promedio. Una caída de 8 % en pedidos con un ticket casi igual (apenas un 1 % más bajo) da una caída de ingresos de alrededor del 9 %: 0,92 × 0,99 ≈ 0,91. Los números son coherentes.",
       },
       {
         key: "d",
@@ -129,9 +129,9 @@ export const questions: QuestionDef[] = [
     tags: ["casos-de-negocio", "fechas", "timestamptz"],
     estimated_seconds: 60,
     prompt_md:
-      "`orders.created_at` es `timestamptz`. Para que el mes de calendario no dependa de la zona horaria de quien ejecuta la consulta, hay que fijar el huso: `date_trunc('month', created_at AT TIME ZONE '____')::date`. Escribe el valor que hace el corte reproducible cuando el informe se declara en hora universal.",
+      "`orders.created_at` es `timestamptz`, es decir, fecha y hora con zona horaria (parecido al `datetime` de otras bases de datos). Para que el mes de calendario no dependa de la zona horaria de quien ejecuta la consulta, hay que fijar el huso: `date_trunc('month', created_at AT TIME ZONE '____')::date`. Escribe el nombre de la zona horaria que hace el corte reproducible cuando el informe se declara en hora universal (el texto que va entre las comillas).",
     code_md: null,
-    answer: { accepted: ["UTC", "utc"], case_sensitive: false },
+    answer: { accepted: ["UTC", "'UTC'", "Etc/UTC", "'Etc/UTC'"], case_sensitive: false },
     explanation_md:
       "Sin `AT TIME ZONE`, `date_trunc` usa el huso de la sesión y un pedido del 1 de marzo a las 00:30 UTC cae en febrero para una sesión en Bogotá. Fijar `'UTC'` (o el huso del negocio, declarándolo) hace que el resultado sea igual en cualquier máquina.",
     is_published: true,
@@ -193,7 +193,7 @@ export const questions: QuestionDef[] = [
     tags: ["casos-de-negocio", "join", "supuestos"],
     estimated_seconds: 75,
     prompt_md:
-      "Te pidieron «el volumen mensual de movimientos de la billetera». Escribiste esto. ¿Qué supuesto introduce la consulta sin decirlo?",
+      "Te pidieron «el volumen mensual de movimientos de la billetera». Escribiste esto. ¿Qué supuesto introduce, sin decirlo, el `INNER JOIN` con `merchants`?",
     code_md:
       "```sql\nSELECT\n  date_trunc('month', t.created_at AT TIME ZONE 'UTC')::date AS mes,\n  round(sum(t.amount), 2) AS volumen\nFROM transactions AS t\nINNER JOIN merchants AS m ON m.id = t.merchant_id\nWHERE t.status = 'completed'\nGROUP BY 1\nORDER BY 1;\n```",
     options: [
@@ -208,7 +208,7 @@ export const questions: QuestionDef[] = [
         body_md: "Que todos los movimientos están en la misma moneda.",
         is_correct: false,
         why_incorrect_md:
-          "Ese también es un problema real de la consulta, pero no lo introduce el join: lo introduce el `sum()` sobre importes de monedas distintas. La pregunta es por el supuesto que agrega esta línea de más.",
+          "Es otro supuesto real de esta consulta (en Bolsillo hay movimientos en siete monedas), pero no lo introduce el join: lo introduce el `sum()` sobre importes de monedas distintas, y existiría igual sin unir `merchants`.",
       },
       {
         key: "c",
@@ -400,7 +400,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "Unir a un grano más fino multiplica las filas del grano original. Si no necesitas los ítems, no los unas; si los necesitas, agrégalos en una CTE antes de unirlos, o suma con `sum(DISTINCT ...)` solo cuando el identificador lo permita. El chequeo preventivo es comparar `count(*)` con `count(DISTINCT o.id)`.",
+      "Unir a un grano más fino multiplica las filas del grano original. Si no necesitas los ítems, no los unas; si los necesitas, agrégalos en una CTE con una fila por pedido antes de unirlos. `sum(DISTINCT o.total)` no es una salida: descarta también los pedidos distintos que tienen el mismo total. El chequeo preventivo es comparar `count(*)` con `count(DISTINCT o.id)`.",
     is_published: true,
   },
   {

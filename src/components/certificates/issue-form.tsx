@@ -1,5 +1,7 @@
 "use client";
 
+import type { Route } from "next";
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { Award, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -22,6 +24,7 @@ export function IssueCertificateForm({
   const [name, setName] = useState(defaultName);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const router = useRouter();
   const id = `recipient-${requirementSlug}`;
 
   return (
@@ -37,6 +40,17 @@ export function IssueCertificateForm({
               ? (r.error as KnownError)
               : "unknown";
             setError(t(`errors.${code}`));
+            return;
+          }
+          // A fresh issuance opens the congratulation on the same page; the server re-checks the
+          // certificate before showing it, so the query parameter alone proves nothing.
+          if (!r.alreadyIssued) {
+            router.replace(
+              `/certificados?emitido=${encodeURIComponent(requirementSlug)}` as Route,
+              {
+                scroll: false,
+              },
+            );
           }
         });
       }}

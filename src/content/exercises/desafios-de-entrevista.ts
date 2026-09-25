@@ -316,35 +316,21 @@ ORDER BY transacciones_marcadas DESC, m.name, m.id;`,
     alternative_solutions: [
       {
         label: "Agregar primero y unir después",
-        sql: `SELECT
+        sql: `WITH marcadas AS (
+  SELECT merchant_id, count(*) AS marcadas, sum(amount) AS monto
+  FROM transactions
+  WHERE is_flagged AND created_at >= timestamptz '2025-01-01 00:00:00+00'
+  GROUP BY merchant_id
+)
+SELECT
   m.id AS merchant_id,
   m.name,
   m.category,
   coalesce(f.marcadas, 0) AS transacciones_marcadas,
   coalesce(f.monto, 0) AS monto_marcado
 FROM merchants AS m
-LEFT JOIN (
-  SELECT merchant_id, count(*) AS marcadas, sum(amount) AS monto
-  FROM transactions
-  WHERE is_flagged AND created_at >= timestamptz '2025-01-01 00:00:00+00'
-  GROUP BY merchant_id
-) AS f ON f.merchant_id = m.id
+LEFT JOIN marcadas AS f ON f.merchant_id = m.id
 ORDER BY transacciones_marcadas DESC, m.name, m.id;`,
-      },
-      {
-        label: "Subconsultas correlacionadas",
-        sql: `SELECT
-  m.id AS merchant_id,
-  m.name,
-  m.category,
-  (SELECT count(*) FROM transactions AS t
-    WHERE t.merchant_id = m.id AND t.is_flagged
-      AND t.created_at >= timestamptz '2025-01-01 00:00:00+00') AS transacciones_marcadas,
-  coalesce((SELECT sum(t.amount) FROM transactions AS t
-    WHERE t.merchant_id = m.id AND t.is_flagged
-      AND t.created_at >= timestamptz '2025-01-01 00:00:00+00'), 0) AS monto_marcado
-FROM merchants AS m
-ORDER BY 4 DESC, m.name, m.id;`,
       },
     ],
     hints: [
@@ -390,7 +376,7 @@ ORDER BY 4 DESC, m.name, m.id;`,
       },
     ],
     expert_explanation_md:
-      "El resultado de la consulta da 300 filas, una por comercio. En 2025 hay 92 transacciones marcadas, pero 36 no tienen comercio asociado (son cargas y retiros), así que solo 51 comercios acumulan alguna alerta: los otros **249 informan cero**, que es justo la parte del pedido que esta pregunta evalúa.\n\nDos errores producen aquí un resultado plausible y falso:\n\n1. **La condición en el `WHERE`.** `LEFT JOIN transactions ... WHERE t.is_flagged` descarta las filas sin coincidencia, porque en ellas `t.is_flagged` es `NULL` y `NULL` no es verdadero. El resultado baja a 51 filas y parece correcto si no cuentas.\n2. **`count(*)` en lugar de `count(t.id)`.** `count(*)` cuenta filas, y un comercio sin alertas sigue siendo una fila: los 249 ceros se convierten en 249 unos. `count(t.id)` solo cuenta valores no nulos.\n\nLa versión que agrega primero y une después (`LEFT JOIN (SELECT ... GROUP BY merchant_id)`) suele ser la más clara cuando hay varias métricas o varias tablas opcionales, y evita la discusión sobre dónde poner cada condición: el filtro vive dentro de la subconsulta, donde no hay nada opcional.\n\nEl empate de la cabecera (cinco comercios con 2 alertas) es la razón del `ORDER BY` de tres claves: sin `name` y `merchant_id` como desempate, el orden de esas cinco filas no sería reproducible.",
+      "El resultado de la consulta da 300 filas, una por comercio. En 2025 hay 92 transacciones marcadas, pero 36 no tienen comercio asociado (son cargas y retiros), así que solo 51 comercios acumulan alguna alerta: los otros **249 informan cero**, que es justo la parte del pedido que esta pregunta evalúa.\n\nDos errores producen aquí un resultado plausible y falso:\n\n1. **La condición en el `WHERE`.** `LEFT JOIN transactions ... WHERE t.is_flagged` descarta las filas sin coincidencia, porque en ellas `t.is_flagged` es `NULL` y `NULL` no es verdadero. El resultado baja a 51 filas y parece correcto si no cuentas.\n2. **`count(*)` en lugar de `count(t.id)`.** `count(*)` cuenta filas, y un comercio sin alertas sigue siendo una fila: los 249 ceros se convierten en 249 unos. `count(t.id)` solo cuenta valores no nulos.\n\nLa versión que agrega primero y une después (una CTE que agrupa las transacciones marcadas por `merchant_id` y un `LEFT JOIN` contra ella) suele ser la más clara cuando hay varias métricas o varias tablas opcionales, y evita la discusión sobre dónde poner cada condición: el filtro vive dentro de la CTE, donde no hay nada opcional. Las subconsultas correlacionadas en el `SELECT`, una por métrica, también dan el resultado, pero este ejercicio practica el `LEFT JOIN` filtrado y no las acepta.\n\nEl empate de la cabecera (cinco comercios con 2 alertas) es la razón del `ORDER BY` de tres claves: sin `name` y `merchant_id` como desempate, el orden de esas cinco filas no sería reproducible.",
     reward: defaultReward("advanced"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,
@@ -427,7 +413,7 @@ ORDER BY 4 DESC, m.name, m.id;`,
     ],
     validation_rules: {
       order_matters: true,
-      required_concepts: ["group_by", "having"],
+      required_concepts: ["group_by"],
     },
     reference_solution: `WITH normalizados AS (
   SELECT id, lower(trim(email)) AS correo, signup_at
@@ -678,7 +664,7 @@ ORDER BY r.dias_racha DESC, r.user_id;`,
     business_question_md:
       "Debes generar un dataset ordenando las reproducciones de cada oyente por `played_at` y, en caso de empate, por `id`. Devuelve cada reproducción que sea la **tercera o posterior** de una secuencia ininterrumpida de la misma canción por el mismo oyente. Columnas: `user_id`, `track_id`, `title` (título de la canción) y `tercera_utc` (el `played_at` de esa reproducción, mostrado en UTC). Ordena por `user_id` y luego por `tercera_utc`.",
     learning_objective:
-      "Comparar una fila con las anteriores usando LAG con desplazamiento para detectar eventos consecutivos.",
+      "Comparar una fila con las anteriores usando LAG con desplazamiento, o numerar bloques con brechas e islas, para detectar eventos consecutivos.",
     theory_ref: patrones,
     expected_columns: [
       { name: "user_id", type: "integer" },
@@ -688,7 +674,7 @@ ORDER BY r.dias_racha DESC, r.user_id;`,
     ],
     validation_rules: {
       order_matters: true,
-      required_concepts: ["lag_lead", "window_function"],
+      required_concepts: ["window_function"],
     },
     reference_solution: `WITH secuencia AS (
   SELECT

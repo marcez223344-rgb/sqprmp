@@ -47,7 +47,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "Una CTE le pone nombre a un paso intermedio dentro del alcance de una sola consulta. Al terminar, ese nombre deja de existir.",
+      "Una CTE (expresión de tabla común, por _common table expression_, su nombre en inglés) le pone nombre a un paso intermedio dentro de una sola consulta. Al terminar esa consulta, el nombre deja de existir.",
     is_published: true,
   },
   {
@@ -60,7 +60,7 @@ export const questions: QuestionDef[] = [
     tags: ["cte", "with"],
     estimated_seconds: 35,
     prompt_md:
-      "En `WITH a AS (...), b AS (...)`, la CTE `b` puede leer de `a`, pero `a` no puede leer de `b` (salvo en una CTE recursiva).",
+      "En `WITH a AS (...), b AS (...)`, escrito sin la palabra `RECURSIVE`, la CTE `b` puede leer de `a`, pero `a` no puede leer de `b`.",
     code_md: null,
     options: [
       { key: "a", body_md: "Verdadero", is_correct: true },
@@ -69,11 +69,11 @@ export const questions: QuestionDef[] = [
         body_md: "Falso",
         is_correct: false,
         why_incorrect_md:
-          "Las CTE se resuelven en el orden en que están declaradas: una CTE solo puede referirse a las anteriores. Solo `WITH RECURSIVE` permite que una CTE se mencione a sí misma.",
+          "Sin `RECURSIVE`, una CTE solo puede referirse a las que están declaradas antes que ella. Si `a` intenta leer de `b`, PostgreSQL responde que la relación `b` no existe.",
       },
     ],
     explanation_md:
-      "El orden de declaración define qué puede usar cada CTE. Por eso conviene escribirlas en el orden del razonamiento: del detalle al resumen.",
+      "El orden de declaración define qué puede usar cada CTE. Por eso conviene escribirlas en el orden del razonamiento: del detalle al resumen. (Con `WITH RECURSIVE` el orden deja de importar y una CTE puede mencionarse a sí misma, pero eso se usa para recorrer jerarquías, no para ordenar pasos.)",
     is_published: true,
   },
   {
@@ -86,7 +86,7 @@ export const questions: QuestionDef[] = [
     tags: ["cte", "sintaxis"],
     estimated_seconds: 25,
     prompt_md:
-      "Completa la palabra clave que abre una expresión de tabla común: `____ entregas AS (SELECT id FROM orders WHERE status = 'delivered') SELECT count(*) FROM entregas;`. Escribe solo la palabra.",
+      "Completa la palabra clave que abre una expresión de tabla común (CTE): `____ entregas AS (SELECT id FROM orders WHERE status = 'delivered') SELECT count(*) FROM entregas;`. Escribe solo la palabra.",
     code_md: null,
     answer: { accepted: ["WITH", "with"], case_sensitive: false },
     explanation_md:
@@ -191,7 +191,7 @@ export const questions: QuestionDef[] = [
     tags: ["cte", "subquery", "vista"],
     estimated_seconds: 65,
     prompt_md:
-      "El equipo de Operaciones consulta todos los días «restaurantes activos con calificación conocida» en cinco reportes distintos y quiere que la definición sea la misma para todos. ¿Qué conviene?",
+      "El departamento de Operaciones de PideLo usa todos los días la definición «restaurantes activos con calificación conocida» en cinco reportes distintos y necesita que sea exactamente la misma en todos. ¿Qué conviene?",
     code_md: null,
     options: [
       {
@@ -234,13 +234,13 @@ export const questions: QuestionDef[] = [
     tags: ["cte", "performance"],
     estimated_seconds: 90,
     prompt_md:
-      "Sobre el rendimiento de las CTE en PostgreSQL 17, ¿cuáles afirmaciones son correctas? (Varias opciones.)",
+      "Sobre el rendimiento de las CTE en PostgreSQL (versión 12 o posterior), ¿qué afirmaciones son correctas? Marca todas las correctas.",
     code_md: null,
     options: [
       {
         key: "a",
         body_md:
-          "El planificador puede integrar («inline») una CTE no recursiva usada una sola vez, como si fuera una subconsulta.",
+          "El planificador puede integrar en la consulta principal una CTE no recursiva, de solo lectura y usada una sola vez, como si fuera una subconsulta.",
         is_correct: true,
       },
       {
@@ -272,7 +272,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "Hasta PostgreSQL 11 toda CTE era una barrera de optimización; desde la 12 el planificador decide, y `MATERIALIZED` / `NOT MATERIALIZED` te dejan forzar el comportamiento. La recursiva es la excepción: siempre se materializa.",
+      "Hasta PostgreSQL 11, toda CTE se calculaba por separado y el planificador no podía optimizarla junto con el resto de la consulta. Desde la versión 12 el planificador decide, y `MATERIALIZED` / `NOT MATERIALIZED` te permiten forzar el comportamiento. La recursiva es la excepción: siempre se calcula por separado.",
     is_published: true,
   },
   {
@@ -327,17 +327,18 @@ export const questions: QuestionDef[] = [
       },
       {
         key: "b",
-        body_md: "Cuando alcanza el número de filas indicado en el `LIMIT` del `SELECT` final.",
+        body_md:
+          "Cuando el paso recursivo devuelve una fila que ya había aparecido antes, aunque la CTE use `UNION ALL`.",
         is_correct: false,
         why_incorrect_md:
-          "El `LIMIT` externo recorta el resultado, pero no es una garantía de terminación de la recursión en el caso general.",
+          "`UNION ALL` no compara filas: las repetidas se agregan igual y la recursión sigue. Solo con `UNION` se descartan las repetidas, y la recursión termina cuando una vuelta no deja ninguna fila nueva.",
       },
       {
         key: "c",
         body_md: "Después de 100 iteraciones, que es el máximo que impone PostgreSQL.",
         is_correct: false,
         why_incorrect_md:
-          "PostgreSQL no impone un máximo de iteraciones: una recursión con ciclos corre hasta agotar tiempo o memoria.",
+          "PostgreSQL no impone un máximo de iteraciones (ese límite de 100 existe en SQL Server): una recursión con ciclos corre hasta agotar el tiempo o la memoria.",
       },
       {
         key: "d",
@@ -390,7 +391,7 @@ export const questions: QuestionDef[] = [
         body_md: "Un `ORDER BY dia` dentro de la CTE.",
         is_correct: false,
         why_incorrect_md:
-          "Ordenar no limita cuántas filas se generan; el problema es que el paso recursivo nunca deja de producirlas.",
+          "Ordenar no limita cuántas filas se generan; el problema es que el paso recursivo nunca deja de producirlas. Además, PostgreSQL no admite `ORDER BY` en el paso recursivo.",
       },
     ],
     explanation_md:

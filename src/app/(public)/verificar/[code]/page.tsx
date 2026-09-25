@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CheckCircle2, ShieldCheck, XCircle } from "lucide-react";
 import { getFormatter, getTranslations } from "next-intl/server";
+import { CertificateSeal } from "@/components/certificates/certificate-seal";
 import { Card } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { brand } from "@/config/brand";
@@ -59,19 +60,24 @@ export default async function VerifyCodePage({ params }: PageProps<"/verificar/[
         </Card>
       ) : (
         <Card className="space-y-4" role="status">
-          <p
-            className={cn(
-              "inline-flex items-center gap-2 font-semibold",
-              result.revoked ? "text-danger" : "text-success",
-            )}
-          >
-            {result.revoked ? (
-              <XCircle aria-hidden="true" className="size-5" />
-            ) : (
-              <CheckCircle2 aria-hidden="true" className="size-5" />
-            )}
-            {result.revoked ? t("revoked.title") : t("valid.title")}
-          </p>
+          <div className="flex items-start justify-between gap-4">
+            <p
+              className={cn(
+                "inline-flex items-center gap-2 font-semibold",
+                result.revoked ? "text-danger" : "text-success-ink",
+              )}
+            >
+              {result.revoked ? (
+                <XCircle aria-hidden="true" className="size-5" />
+              ) : (
+                <CheckCircle2 aria-hidden="true" className="size-5" />
+              )}
+              {result.revoked ? t("revoked.title") : t("valid.title")}
+            </p>
+            {/* The same seal as the PDF (D-42). Decorative: the verdict above says it in words.
+                A revoked certificate shows none, since a seal reads as "valid". */}
+            {result.revoked ? null : <CertificateSeal className="-mt-1 w-16 sm:w-20" />}
+          </div>
           {result.revoked ? <p className="text-muted text-sm">{t("revoked.body")}</p> : null}
           <dl className="grid gap-3 text-sm sm:grid-cols-[auto_1fr]">
             <dt className="text-muted">{t("fields.recipient")}</dt>
@@ -80,6 +86,12 @@ export default async function VerifyCodePage({ params }: PageProps<"/verificar/[
             <dd className="font-medium">{result.title}</dd>
             <dt className="text-muted">{t("fields.skills")}</dt>
             <dd>{result.skills.join(" · ")}</dd>
+            {result.programHours > 0 ? (
+              <>
+                <dt className="text-muted">{t("fields.programHours")}</dt>
+                <dd>{t("fields.programHoursValue", { hours: result.programHours })}</dd>
+              </>
+            ) : null}
             <dt className="text-muted">{t("fields.issuedAt")}</dt>
             <dd>{format.dateTime(new Date(result.issuedAt), { dateStyle: "long" })}</dd>
             <dt className="text-muted">{t("fields.id")}</dt>

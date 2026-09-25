@@ -12,7 +12,8 @@ export const questions: QuestionDef[] = [
     topic: "Claves primarias",
     tags: ["claves"],
     estimated_seconds: 35,
-    prompt_md: "¿Qué garantiza una clave primaria?",
+    prompt_md:
+      "¿Qué garantiza una clave primaria (PK, por *primary key*, su nombre en inglés) en una tabla?",
     options: [
       {
         key: "a",
@@ -24,7 +25,7 @@ export const questions: QuestionDef[] = [
         body_md: "Que la tabla está ordenada por esa columna.",
         is_correct: false,
         why_incorrect_md:
-          "El orden físico o de lectura no está garantizado por la clave; solo la unicidad e integridad.",
+          "La clave primaria no fija ningún orden: si quieres las filas ordenadas tienes que pedirlo con `ORDER BY`. Lo que garantiza es que el valor no se repite y no falta.",
       },
       {
         key: "c",
@@ -35,7 +36,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "La clave primaria (PK) identifica cada fila: es única y no admite NULL. En TiendaViva es la columna `id` de cada tabla.",
+      "La clave primaria identifica cada fila, como el número de documento de identidad identifica a una persona: su valor no se repite entre filas y no admite NULL (valor faltante). En TiendaViva es la columna `id` de cada tabla.",
     is_published: true,
   },
   {
@@ -48,10 +49,23 @@ export const questions: QuestionDef[] = [
     tags: ["claves", "relaciones"],
     estimated_seconds: 40,
     prompt_md:
-      "Completa con **una sola palabra**: la columna `order_items.order_id` es una clave ________ que apunta a `orders.id`.",
-    answer: { accepted: ["foránea", "foranea", "foreign", "fk"], case_sensitive: false },
+      "Completa con **una sola palabra**: la columna `order_id` de la tabla `order_items` guarda el `id` de la tabla `orders`, así que es una clave ________.",
+    answer: {
+      accepted: [
+        "foránea",
+        "foranea",
+        "externa",
+        "foreign",
+        "fk",
+        "foreign key",
+        "clave foránea",
+        "clave foranea",
+        "clave externa",
+      ],
+      case_sensitive: false,
+    },
     explanation_md:
-      "Una clave foránea guarda la clave primaria de otra tabla para expresar la relación «esta línea pertenece a este pedido».",
+      "Es una clave foránea (también llamada clave externa; FK, por *foreign key*, su nombre en inglés). Guarda la clave primaria de otra tabla para expresar la relación «esta línea de pedido pertenece a este pedido».",
     is_published: true,
   },
   {
@@ -64,7 +78,7 @@ export const questions: QuestionDef[] = [
     tags: ["relaciones", "joins"],
     estimated_seconds: 60,
     prompt_md:
-      "Un cliente tiene 4 pedidos. Si combinas `customers` con `orders` por `customer_id`, ¿cuántas veces aparece ese cliente en el resultado?",
+      "Un cliente tiene 4 pedidos. Si combinas la tabla `customers` con la tabla `orders`, emparejando cada pedido con su cliente (la columna `customer_id` de `orders` con la columna `id` de `customers`), ¿cuántas veces aparece ese cliente en el resultado?",
     options: [
       { key: "a", body_md: "4 veces, una por cada pedido.", is_correct: true },
       {
@@ -158,7 +172,7 @@ export const questions: QuestionDef[] = [
     tags: ["tipos", "fechas"],
     estimated_seconds: 35,
     prompt_md:
-      "Un valor `timestamptz` representa un instante absoluto y puede mostrarse con fecha distinta según la zona horaria de la sesión.",
+      "Un valor `timestamptz` (fecha y hora con zona horaria) representa un instante absoluto y puede mostrarse con una fecha distinta según la zona horaria de la sesión.",
     options: [
       { key: "a", body_md: "Verdadero", is_correct: true },
       {
@@ -166,11 +180,11 @@ export const questions: QuestionDef[] = [
         body_md: "Falso",
         is_correct: false,
         why_incorrect_md:
-          "Un pedido de las 23:30 en Buenos Aires aparece al día siguiente si se muestra en UTC; el instante es el mismo, la representación cambia.",
+          "Es verdadero. Un pedido de las 23:30 en Buenos Aires aparece al día siguiente si se muestra en UTC (el tiempo universal coordinado), porque allí ya son las 02:30: el instante es el mismo y lo que cambia es cómo se muestra.",
       },
     ],
     explanation_md:
-      "Por eso los cortes por día deben hacerse en la zona horaria del negocio, tema que se profundiza en la sección de fechas.",
+      "Por eso los cortes por día deben hacerse en la zona horaria del negocio, tema que se profundiza en la sección de fechas. Si trabajas con otras bases de datos: en MySQL o SQL Server un tipo parecido de fecha y hora se llama `datetime`, y en PostgreSQL el equivalente sin zona horaria es `timestamp`.",
     is_published: true,
   },
   {
@@ -255,7 +269,7 @@ export const questions: QuestionDef[] = [
       { left: "order_items.quantity", right: "integer" },
     ],
     explanation_md:
-      "Importes en `numeric`, banderas en `boolean`, instantes en `timestamptz` y conteos en `integer`.",
+      "Importes en `numeric`, valores sí/no en `boolean`, instantes en `timestamptz` (fecha y hora con zona horaria; en MySQL o SQL Server un tipo parecido se llama `datetime`) y cantidades enteras en `integer`.",
     is_published: true,
   },
   {
@@ -268,7 +282,7 @@ export const questions: QuestionDef[] = [
     tags: ["claves", "calidad"],
     estimated_seconds: 50,
     prompt_md:
-      "Ejecutas esta consulta sobre `customers`, que tiene 4 000 filas, y devuelve 0 filas. ¿Qué confirma ese resultado?",
+      "Ejecutas esta consulta sobre `customers`, que tiene 3 000 filas, y devuelve 0 filas. La consulta agrupa las filas por `id` y se queda con los grupos que tienen más de una fila. ¿Qué confirma ese resultado?",
     code_md: "```sql\nSELECT id, COUNT(*)\nFROM customers\nGROUP BY id\nHAVING COUNT(*) > 1;\n```",
     options: [
       {

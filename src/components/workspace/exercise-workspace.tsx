@@ -22,6 +22,7 @@ import {
 import { useTranslations } from "next-intl";
 import { DatasetBadge } from "@/components/datasets/dataset-badge";
 import { Button } from "@/components/ui/button";
+import { CopyButton } from "@/components/ui/copy-button";
 import {
   CATEGORY_STYLES,
   SectionHeader,
@@ -44,6 +45,7 @@ import { useAppleShortcutKey } from "./use-apple-platform";
 import { MarkdownClient } from "./markdown-client";
 import { FeedbackPanel, HintPanel, SchemaBrowser } from "./panels";
 import { ResultsTable } from "./results-table";
+import { ReportProblem } from "./report-problem";
 import { SaveQueryForm } from "./save-query-form";
 import { SavedQueriesPanel } from "./saved-queries-panel";
 import { SubmitStatus, type SubmitStage, type SubmitVerdict } from "./submit-status";
@@ -386,6 +388,13 @@ export function ExerciseWorkspace({
                   <pre className="border-border bg-surface-2 overflow-x-auto rounded-md border p-3 font-mono text-xs">
                     {solution.sql}
                   </pre>
+                  <CopyButton
+                    text={solution.sql}
+                    label={t("copySolution.button")}
+                    accessibleLabel={t("copySolution.label")}
+                    copiedMessage={t("copySolution.copied")}
+                    failedMessage={t("copySolution.failed")}
+                  />
                   <MarkdownClient>{solution.explanation_md}</MarkdownClient>
                   {solution.alternatives.map((a) => (
                     <details key={a.label} className="border-border rounded-md border p-3">
@@ -393,6 +402,14 @@ export function ExerciseWorkspace({
                         {t("alternative", { label: a.label })}
                       </summary>
                       <pre className="mt-2 overflow-x-auto font-mono text-xs">{a.sql}</pre>
+                      <CopyButton
+                        text={a.sql}
+                        label={t("copySolution.button")}
+                        accessibleLabel={t("copySolution.alternativeLabel", { label: a.label })}
+                        copiedMessage={t("copySolution.copied")}
+                        failedMessage={t("copySolution.failed")}
+                        className="mt-2"
+                      />
                     </details>
                   ))}
                   <p className="text-muted">{t("solutionRetry")}</p>
@@ -652,6 +669,9 @@ export function ExerciseWorkspace({
             </footer>
           ) : null}
         </div>
+
+        {/* D-42: private report to the instructor, with whatever is in the editor right now. */}
+        <ReportProblem exerciseId={exercise.id} sql={sqlText} />
       </section>
     </div>
   );

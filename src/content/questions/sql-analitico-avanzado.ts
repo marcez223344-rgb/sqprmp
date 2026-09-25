@@ -172,10 +172,11 @@ export const questions: QuestionDef[] = [
       },
       {
         key: "d",
-        body_md: "La subconsulta lateral no necesita alias.",
+        body_md:
+          "Una subconsulta lateral puede usar columnas de las tablas que aparecen **a su derecha** en el `FROM`.",
         is_correct: false,
         why_incorrect_md:
-          "PostgreSQL exige un alias para cualquier subconsulta del `FROM`, lateral o no.",
+          "`LATERAL` solo da acceso a los elementos que la **preceden** en el `FROM`, es decir, los que están a su izquierda. Lo que viene después todavía no existe cuando se evalúa la subconsulta.",
       },
       {
         key: "e",
@@ -220,7 +221,7 @@ export const questions: QuestionDef[] = [
         body_md: "Hay que reemplazar el `WHERE` por `HAVING puesto <= 3`.",
         is_correct: false,
         why_incorrect_md:
-          "`HAVING` también se evalúa antes que las ventanas, así que el error persiste con otro mensaje.",
+          "`HAVING` también se evalúa antes que las ventanas, así que `puesto` tampoco existe ahí y el error persiste.",
       },
       {
         key: "d",
@@ -407,7 +408,7 @@ export const questions: QuestionDef[] = [
     tags: ["rollup", "cube", "pivote", "negocio"],
     estimated_seconds: 120,
     prompt_md:
-      "Finanzas pide una tabla con los pedidos por país y por canal, donde se pueda leer el total de cada país, el total de cada canal y el total general. Los canales se agregan y se retiran varias veces al año. ¿Qué forma conviene?",
+      "Finanzas pide una tabla con los pedidos por país y por canal, donde se pueda leer el total de cada país, el total de cada canal y el total general. Cada año se incorporan canales nuevos y se retiran otros. ¿Qué forma conviene?",
     code_md: null,
     options: [
       {
@@ -433,10 +434,11 @@ export const questions: QuestionDef[] = [
       },
       {
         key: "d",
-        body_md: "Tres consultas unidas con `UNION ALL`, una por cada nivel de totales.",
+        body_md:
+          "Cuatro consultas unidas con `UNION ALL`: el cruce, el total por país, el total por canal y el total general.",
         is_correct: false,
         why_incorrect_md:
-          "Da el mismo resultado, pero recorre la tabla tres veces y repite el filtro en tres lugares: es la fuente habitual de reportes que dejan de cuadrar.",
+          "Da el mismo resultado, pero repite el filtro y la lógica en cuatro lugares, y basta con que uno quede distinto para que los totales dejen de cuadrar. `CUBE` calcula los cuatro niveles en una sola consulta.",
       },
     ],
     explanation_md:
@@ -487,7 +489,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "Las funciones de ventana se evalúan después del `SELECT` lógico y **antes** del `ORDER BY` y del `LIMIT`. Por eso `OVER ()` ve el conjunto completo y el recorte posterior no altera el denominador. Mover el `LIMIT` a una capa anterior cambia el número y su significado.",
+      "Las funciones de ventana se evalúan después del `WHERE`, el `GROUP BY` y el `HAVING`, y **antes** del `ORDER BY` y del `LIMIT`. Por eso `OVER ()` ve el conjunto completo y el recorte posterior no altera el denominador. Mover el `LIMIT` a una capa anterior cambia el número y su significado.",
     is_published: true,
   },
 ];

@@ -24,6 +24,8 @@ PostgreSQL distingue tres tipos que se ven parecidos:
 - \`timestamp\` guarda día y hora, **sin zona horaria**: \`2025-09-15 23:54:47\`.
 - \`timestamptz\` (por *timestamp with time zone*, marca de tiempo con zona horaria) guarda un instante absoluto y lo **muestra** en la zona horaria de la sesión desde la que consultas.
 
+Si vienes de otras bases de datos, como MySQL o SQL Server, allí un tipo parecido a \`timestamp\` se llama \`datetime\`; en PostgreSQL ese nombre no existe y se escribe \`timestamp\` o \`timestamptz\`.
+
 En TiendaViva, \`sellers.joined_at\` es \`date\` (solo interesa el día del alta), mientras que \`orders.created_at\`, \`payments.paid_at\` y \`shipments.delivered_at\` son \`timestamptz\`: un pedido ocurre en un instante, no en un día.
 
 Esa diferencia es la causa número uno de errores en los reportes. Cuando comparas un \`timestamptz\` con un valor \`date\`, ese \`date\` se entiende como el **primer instante** de ese día, las 00:00, así que \`created_at <= DATE '2025-08-31'\` deja fuera todo lo que ocurrió el 31 de agosto después de la medianoche, o sea casi todo el día. Lo veremos en detalle en la tercera lección.

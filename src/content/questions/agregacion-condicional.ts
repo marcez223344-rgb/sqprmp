@@ -90,10 +90,11 @@ export const questions: QuestionDef[] = [
       },
       {
         key: "d",
-        body_md: "`count` no distingue mayúsculas y `'cancelled'` no coincide con ningún valor.",
+        body_md:
+          "El texto `'cancelled'` no coincide con ningún valor de `status`, así que el `CASE` nunca entra en la rama `THEN`.",
         is_correct: false,
         why_incorrect_md:
-          "La comparación de textos en PostgreSQL sí distingue mayúsculas y `'cancelled'` coincide con 2313 filas; el problema es qué hace `count` con los ceros.",
+          "`'cancelled'` coincide con 2313 filas. Y aunque no coincidiera con ninguna, con `ELSE 0` el resultado sería el mismo 18 000: el problema es qué hace `count` con los ceros.",
       },
     ],
     explanation_md:
@@ -110,7 +111,7 @@ export const questions: QuestionDef[] = [
     tags: ["conditional_aggregation", "filter"],
     estimated_seconds: 60,
     prompt_md:
-      "En `orders`, la columna `currency` indica la moneda del pedido y `channel` vale `app`, `web` o `marketplace_partner`. ¿Qué devuelve exactamente esta consulta?",
+      "En la tabla `orders`, la columna `currency` indica la moneda del pedido (`'MXN'` son pesos mexicanos) y la columna `channel` vale `'app'`, `'web'` o `'marketplace_partner'`. ¿Qué devuelve exactamente esta consulta?",
     code_md:
       "```sql\nSELECT\n  count(*) AS total_orders,\n  avg(total_amount) FILTER (WHERE channel = 'app') AS avg_app\nFROM orders\nWHERE currency = 'MXN';\n```",
     options: [
@@ -265,16 +266,16 @@ export const questions: QuestionDef[] = [
       {
         key: "c",
         body_md:
-          "Conviene pivotar dimensiones con pocos valores y estables, como el canal, el estado o el método de pago.",
+          "Para pivotar una dimensión con 300 valores distintos, como la ciudad, habría que escribir 300 expresiones condicionales en el `SELECT`.",
         is_correct: true,
       },
       {
         key: "d",
         body_md:
-          "Pivotar una dimensión abierta, como la ciudad o el producto, es la forma recomendada de presentar esos datos.",
+          "Lo que convierte los valores de la dimensión pivotada en columnas es ponerla en el `GROUP BY`.",
         is_correct: false,
         why_incorrect_md:
-          "Una dimensión abierta produciría cientos de columnas escritas a mano y que quedan desactualizadas apenas aparece un valor nuevo. Esos datos se dejan en formato largo.",
+          "Es al revés: lo que va en el `GROUP BY` se convierte en **filas**. Las columnas salen de los agregados condicionales escritos a mano, uno por valor.",
       },
       {
         key: "e",
@@ -286,7 +287,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "La tabla pivote es una decisión de presentación con un costo: congela la lista de valores. Se compensa con una columna de total como control y reservando la técnica para dimensiones cortas y estables.",
+      "Una tabla pivote, es decir, un reporte que convierte los valores de una columna en columnas del resultado, congela la lista de valores al escribir la consulta. Por eso se acompaña de una columna de total como control y se reserva para dimensiones con pocos valores y estables, como el canal o el método de pago: con una dimensión abierta, como la ciudad, habría que escribir y mantener cientos de columnas.",
     is_published: true,
   },
   {
@@ -346,7 +347,7 @@ export const questions: QuestionDef[] = [
     tags: ["conditional_aggregation", "numeric_functions"],
     estimated_seconds: 60,
     prompt_md:
-      "En `orders` hay pedidos en los tres canales y la proporción real de cancelados ronda el 0,12 (12 %) en cada uno. ¿Qué valores devuelve la columna `rate` de esta consulta en PostgreSQL?",
+      "En la tabla `orders` hay pedidos en los tres canales y la proporción real de cancelados está entre 0,12 y 0,13 (entre 12 % y 13 %) en cada uno. ¿Qué valores devuelve la columna `rate` de esta consulta en PostgreSQL?",
     code_md:
       "```sql\nSELECT\n  channel,\n  count(*) FILTER (WHERE status = 'cancelled') / count(*) AS rate\nFROM orders\nGROUP BY channel;\n```",
     options: [
@@ -378,7 +379,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "Entre enteros, `/` es división entera: `279 / 2313` da `0`. La solución habitual es `round(100.0 * count(*) FILTER (WHERE status = 'cancelled') / nullif(count(*), 0), 2)`, donde el `100.0` fuerza aritmética numérica.",
+      "Entre enteros, `/` es división entera: en el canal `'web'` la cuenta es `861 / 6812`, que da `0`. La solución habitual es `round(100.0 * count(*) FILTER (WHERE status = 'cancelled') / nullif(count(*), 0), 2)`, donde el `100.0` fuerza aritmética numérica.",
     is_published: true,
   },
   {
@@ -391,7 +392,7 @@ export const questions: QuestionDef[] = [
     tags: ["conditional_aggregation", "null_handling"],
     estimated_seconds: 70,
     prompt_md:
-      "Esta consulta calcula, para cada cliente de `orders`, qué porcentaje de sus pedidos entregados terminó devuelto. Falla con el error «division by zero» porque hay clientes sin ningún pedido entregado. ¿Cuál es la mejor corrección?",
+      "Esta consulta calcula, para cada cliente de la tabla `orders`, cuántos pedidos devueltos (`status = 'returned'`) tiene por cada 100 pedidos entregados (`status = 'delivered'`). Falla con el error «division by zero» (división por cero) porque 151 clientes no tienen ningún pedido entregado. ¿Cuál es la mejor corrección?",
     code_md:
       "```sql\nSELECT\n  customer_id,\n  round(\n    100.0 * count(*) FILTER (WHERE status = 'returned')\n      / count(*) FILTER (WHERE status = 'delivered'),\n    2\n  ) AS return_rate_pct\nFROM orders\nGROUP BY customer_id;\n```",
     options: [
@@ -424,7 +425,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "`count(*) FILTER (...)` devuelve `0` cuando ningún registro cumple, y dividir por cero aborta la consulta entera. `nullif(denominador, 0)` convierte ese cero en NULL, la división devuelve NULL y el reporte muestra «sin dato» para los clientes que todavía no recibieron ningún pedido.",
+      "`count(*) FILTER (...)` devuelve `0` cuando ninguna fila cumple, y dividir por cero aborta la consulta entera. `nullif(denominador, 0)` devuelve NULL cuando el denominador vale 0; la división da NULL y el reporte muestra «sin dato» para los clientes que no tienen ningún pedido entregado.",
     is_published: true,
   },
   {
@@ -433,7 +434,7 @@ export const questions: QuestionDef[] = [
     lesson: l1,
     type: "matching",
     difficulty: "intermediate",
-    topic: "Equivalencias entre FILTER y CASE",
+    topic: "Lectura de agregados con FILTER",
     tags: ["conditional_aggregation", "case"],
     estimated_seconds: 80,
     prompt_md:
@@ -445,8 +446,8 @@ export const questions: QuestionDef[] = [
         right: "Cantidad de pedidos con estado 'paid'",
       },
       {
-        left: "count(CASE WHEN status = 'paid' THEN 1 ELSE 0 END)",
-        right: "Cantidad total de pedidos, sin importar el estado",
+        left: "avg(total_amount) FILTER (WHERE channel = 'app')",
+        right: "Importe promedio de los pedidos hechos por la app",
       },
       {
         left: "sum(total_amount) FILTER (WHERE status = 'paid')",
@@ -458,7 +459,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "`FILTER` y `CASE` dicen lo mismo mientras el `CASE` no lleve `ELSE` dentro de un `count`. El `ELSE 0` convierte el conteo condicional en un conteo total: es la trampa más frecuente de esta sección.",
+      "`FILTER` decide qué filas entran en cada agregado; el agregado decide qué se calcula con ellas: `count` cuenta, `sum` acumula el importe, `avg` lo promedia y `count(DISTINCT ...)` cuenta valores distintos, en este caso clientes y no pedidos.",
     is_published: true,
   },
   {
@@ -471,7 +472,7 @@ export const questions: QuestionDef[] = [
     tags: ["conditional_aggregation", "distinct"],
     estimated_seconds: 90,
     prompt_md:
-      "Producto te pide, por país, **cuántos clientes distintos** compraron al menos una vez por el canal `app` (no cuántos pedidos entraron por la app). Trabajas sobre `orders` unida con `customers` y agrupas por país. ¿Qué expresión responde la pregunta?",
+      "El equipo de Producto te pide, por país, **cuántos clientes distintos** compraron al menos una vez por el canal `app` (no cuántos pedidos entraron por la app). Trabajas sobre `orders` unida con `customers` y agrupas por país. ¿Qué expresión responde la pregunta?",
     code_md: null,
     options: [
       {
@@ -498,7 +499,7 @@ export const questions: QuestionDef[] = [
         body_md: "`DISTINCT count(o.customer_id) FILTER (WHERE o.channel = 'app')`",
         is_correct: false,
         why_incorrect_md:
-          "`DISTINCT` no se aplica delante de un agregado de esa forma: va dentro del paréntesis, sobre la expresión que se cuenta. Escrito así, la consulta ni siquiera es válida.",
+          "`DISTINCT` va dentro del paréntesis, sobre la expresión que se cuenta. Escrito delante del agregado y después de otra columna (`SELECT country, DISTINCT count(...)`), PostgreSQL da un error de sintaxis; y si fuera la primera columna, sería un `SELECT DISTINCT`, que quita filas repetidas del resultado y no cuenta clientes distintos.",
       },
     ],
     explanation_md:

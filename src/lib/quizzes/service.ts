@@ -7,13 +7,14 @@ import { createClient } from "@/lib/supabase/server";
 import type { Json, Profile } from "@/types/database";
 import {
   gradeAnswer,
+  matchingChoices,
   shuffle,
   type AnswerKey,
   type LearnerAnswer,
   type QuestionType,
 } from "./grading";
 import { quizLengthForSection } from "./length";
-import { sampleQuestions } from "./sampling";
+import { sampleQuestions, type QuizHistory } from "./sampling";
 
 /** Feedback for a question the learner has already answered in this attempt (answers are final). */
 export interface QuestionFeedback {
@@ -146,7 +147,10 @@ async function matchingSides(questionIds: string[]): Promise<MatchingSides> {
   for (const row of data ?? []) {
     if (!Array.isArray(row.pairs)) continue;
     const pairs = row.pairs as { left: string; right: string }[];
-    out.set(row.id, { left: pairs.map((p) => p.left), right: shuffle(pairs.map((p) => p.right)) });
+    out.set(row.id, {
+      left: pairs.map((p) => p.left),
+      right: matchingChoices(pairs.map((p) => p.right)),
+    });
   }
   return out;
 }
@@ -183,8 +187,9 @@ async function publishedQuizLesson(lessonSlug: string) {
  * Starts or resumes the learner's attempt at a section quiz and returns its questions.
  *
  * D-33/D-37: the attempt holds a stratified sample of the bank, of the length this section
- * declares (`quizLengthForSection`), frozen server-side, so reloading cannot re-roll it and a
- * retry gets a different sample.
+ * declares (`quizLengthForSection`), frozen server-side, so reloading cannot re-roll it. A retry
+ * draws questions the learner has not been served first, then those they got wrong
+ * (`quizHistory`); once the bank is exhausted, questions repeat.
  * D-34: questions already answered in this attempt come back with their feedback attached; the
  * unanswered ones carry no answer key.
  */
@@ -252,7 +257,12 @@ async function startAttempt(
   sectionSlug: string,
 ): Promise<{ attemptId: string; questionIds: string[] }> {
   const size = quizLengthForSection(sectionSlug, bank.length);
-  const proposed = sampleQuestions(bank, size).map((q) => q.id);
+  const history = await quizHistory(
+    lessonId,
+    userId,
+    bank.map((q) => q.id),
+  );
+  const proposed = sampleQuestions(bank, size, Math.random, history).map((q) => q.id);
   const { data, error } = await createAdminClient().rpc("start_quiz_attempt", {
     p_user_id: userId,
     p_lesson_id: lessonId,
@@ -262,6 +272,50 @@ async function startAttempt(
   if (error || !row?.attempt_id)
     throw new Error(`quiz attempt unavailable: ${error?.message ?? "no attempt"}`);
   return { attemptId: row.attempt_id, questionIds: row.question_ids ?? [] };
+}
+
+/**
+ * What the learner was asked in earlier attempts at this quiz, so a retry prefers questions they
+ * have not seen yet and then the ones they got wrong (round 6, items 7/10).
+ *
+ * "Seen" is the union of the samples of submitted attempts and every question of this bank the
+ * learner has an answer for: attempts recorded before per-question grading have an empty
+ * `question_ids`, but their answers are still there. "Wrong" is judged by the most recent answer,
+ * so a question answered wrong and later right is no longer pushed forward.
+ */
+async function quizHistory(
+  lessonId: string,
+  userId: string,
+  bankIds: string[],
+): Promise<QuizHistory> {
+  const admin = createAdminClient();
+  const [{ data: attempts, error: attemptsError }, { data: answers, error: answersError }] =
+    await Promise.all([
+      admin
+        .from("quiz_attempts")
+        .select("question_ids")
+        .eq("user_id", userId)
+        .eq("lesson_id", lessonId)
+        .eq("status", "submitted"),
+      admin
+        .from("quiz_answers")
+        .select("question_id, is_correct, answered_at")
+        .eq("user_id", userId)
+        .in("question_id", bankIds)
+        .order("answered_at", { ascending: false }),
+    ]);
+  // Without history the sample is still valid, only not fresher; a read failure must not block
+  // the quiz.
+  if (attemptsError || answersError) return { seen: new Set(), wrong: new Set() };
+  const seen = new Set<string>();
+  for (const a of attempts ?? []) for (const id of a.question_ids ?? []) seen.add(id);
+  const latest = new Map<string, boolean>();
+  for (const a of answers ?? []) {
+    seen.add(a.question_id);
+    if (!latest.has(a.question_id)) latest.set(a.question_id, a.is_correct);
+  }
+  const wrong = new Set([...latest].filter(([, ok]) => !ok).map(([id]) => id));
+  return { seen, wrong };
 }
 
 /** Feedback for the answers already recorded in this attempt. */

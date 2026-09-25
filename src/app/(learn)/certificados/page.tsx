@@ -11,7 +11,9 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { getFormatter, getTranslations } from "next-intl/server";
+import { CertificateSeal } from "@/components/certificates/certificate-seal";
 import { IssueCertificateForm } from "@/components/certificates/issue-form";
+import { CertificateIssuedNotice } from "@/components/certificates/issued-notice";
 import {
   ProgressMarker,
   progressRailClasses,
@@ -33,8 +35,18 @@ export async function generateMetadata() {
   return { title: t("title") };
 }
 
-export default async function CertificatesPage() {
-  const profile = await requireOnboardedProfile("/certificados");
+interface CertificatesPageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
+
+export default async function CertificatesPage({ searchParams }: CertificatesPageProps) {
+  const [profile, params] = await Promise.all([
+    requireOnboardedProfile("/certificados"),
+    searchParams,
+  ]);
+  // Set by the issue form after a fresh issuance. Only used to pick which card congratulates; the
+  // card itself shows it only when the server has an issued, unrevoked certificate for it.
+  const justIssued = typeof params.emitido === "string" ? params.emitido : null;
   // `path` is borrowed for one string: the word «En curso», so a section that has work started on
   // it reads the same here as it does on /ruta.
   const [statuses, t, tPath, format] = await Promise.all([
@@ -192,55 +204,79 @@ export default async function CertificatesPage() {
                   <p className="text-muted text-xs">
                     {t("skills")}: {s.skills.join(" · ")}
                   </p>
+                  {/* D-42: the program's authored duration, identical for every holder. */}
+                  {s.programHours > 0 ? (
+                    <p className="text-muted text-xs">
+                      {t("programHours", { hours: s.programHours })}
+                    </p>
+                  ) : null}
+
+                  {s.certificate && !s.certificate.revoked && justIssued === s.slug ? (
+                    <CertificateIssuedNotice
+                      title={
+                        profile.display_name
+                          ? t("issuedNotice.title", { name: profile.display_name, title: s.title })
+                          : t("issuedNotice.titleNoName", { title: s.title })
+                      }
+                      body={t("issuedNotice.body")}
+                      next={t("issuedNotice.next")}
+                    />
+                  ) : null}
 
                   {s.certificate ? (
-                    <div className="border-border space-y-2 border-t pt-4 text-sm">
-                      <p>
-                        {t("issuedOn", {
-                          date: format.dateTime(new Date(s.certificate.issuedAt), {
-                            dateStyle: "long",
-                          }),
-                        })}{" "}
-                        · <span className="font-mono">{s.certificate.publicId}</span>
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        <a
-                          href={`/certificados/${s.certificate.publicId}/pdf`}
-                          className={cn(buttonVariants({ variant: "secondary" }))}
-                          target="_blank"
-                          rel="noopener"
-                        >
-                          <Download aria-hidden="true" />
-                          {t("downloadPdf")}
-                          <span className="sr-only"> {t("opensNewTab")}</span>
-                        </a>
-                        <Link
-                          href={`/verificar/${s.certificate.verificationCode}`}
-                          className={cn(buttonVariants({ variant: "ghost" }))}
-                        >
-                          <ShieldCheck aria-hidden="true" />
-                          {t("verifyLink")}
-                        </Link>
-                        {/* Only on the learner's own page: the public verify page is read by
-                            employers, who have no certificate to add. */}
-                        {!s.certificate.revoked ? (
+                    <div className="border-border flex items-start gap-4 border-t pt-4 text-sm">
+                      {/* Same seal as the PDF; decorative, the status pill says it in words. */}
+                      {!s.certificate.revoked ? <CertificateSeal className="w-14" /> : null}
+                      <div className="min-w-0 space-y-2">
+                        <p>
+                          {t("issuedOn", {
+                            date: format.dateTime(new Date(s.certificate.issuedAt), {
+                              dateStyle: "long",
+                            }),
+                          })}{" "}
+                          · <span className="font-mono">{s.certificate.publicId}</span>
+                        </p>
+                        <div className="flex flex-wrap gap-2">
                           <a
-                            href={linkedInAddCertificationUrl({
-                              name: s.title,
-                              organizationName: brand.organization,
-                              issuedAt: new Date(s.certificate.issuedAt),
-                              certUrl: absoluteUrl(`/verificar/${s.certificate.verificationCode}`),
-                              certId: s.certificate.publicId,
-                            })}
-                            className={cn(buttonVariants({ variant: "ghost" }))}
+                            href={`/certificados/${s.certificate.publicId}/pdf`}
+                            className={cn(buttonVariants({ variant: "secondary" }))}
                             target="_blank"
-                            rel="noopener noreferrer"
+                            rel="noopener"
                           >
-                            <Share2 aria-hidden="true" />
-                            {t("addToLinkedIn")}
+                            <Download aria-hidden="true" />
+                            {t("downloadPdf")}
                             <span className="sr-only"> {t("opensNewTab")}</span>
                           </a>
-                        ) : null}
+                          <Link
+                            href={`/verificar/${s.certificate.verificationCode}`}
+                            className={cn(buttonVariants({ variant: "ghost" }))}
+                          >
+                            <ShieldCheck aria-hidden="true" />
+                            {t("verifyLink")}
+                          </Link>
+                          {/* Only on the learner's own page: the public verify page is read by
+                            employers, who have no certificate to add. */}
+                          {!s.certificate.revoked ? (
+                            <a
+                              href={linkedInAddCertificationUrl({
+                                name: s.title,
+                                organizationName: brand.organization,
+                                issuedAt: new Date(s.certificate.issuedAt),
+                                certUrl: absoluteUrl(
+                                  `/verificar/${s.certificate.verificationCode}`,
+                                ),
+                                certId: s.certificate.publicId,
+                              })}
+                              className={cn(buttonVariants({ variant: "ghost" }))}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <Share2 aria-hidden="true" />
+                              {t("addToLinkedIn")}
+                              <span className="sr-only"> {t("opensNewTab")}</span>
+                            </a>
+                          ) : null}
+                        </div>
                       </div>
                     </div>
                   ) : s.eligible ? (

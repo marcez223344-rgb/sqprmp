@@ -9,40 +9,41 @@ export const questions: QuestionDef[] = [
   {
     slug: "fnum-q01-division-entera",
     section,
-    lesson: division,
+    lesson: redondeo,
     type: "single",
     difficulty: "easy",
-    topic: "División entera",
-    tags: ["numeric_functions", "tipos"],
-    estimated_seconds: 40,
-    prompt_md: "En PostgreSQL, ¿qué devuelve `SELECT 1 / 2;`?",
+    topic: "CEIL para contar cajas",
+    tags: ["numeric_functions", "ceil"],
+    estimated_seconds: 50,
+    prompt_md:
+      "Hay que despachar 26 unidades en cajas de 12, y una caja a medio llenar igual cuenta como una caja. ¿Qué expresión devuelve la cantidad de cajas necesarias, que es 3?",
     code_md: null,
     options: [
-      { key: "a", body_md: "`0`", is_correct: true },
+      { key: "a", body_md: "`CEIL(26 / 12.0)`", is_correct: true },
       {
         key: "b",
-        body_md: "`0.5`",
+        body_md: "`CEIL(26 / 12)`",
         is_correct: false,
         why_incorrect_md:
-          "Para obtener `0.5` al menos uno de los operandos debe ser `numeric`: `1.0 / 2`.",
+          "`26 / 12` es una división entre enteros y ya da 2 antes de llegar a `CEIL`; no queda ningún decimal que redondear hacia arriba. El resultado es 2.",
       },
       {
         key: "c",
-        body_md: "`1`",
+        body_md: "`ROUND(26 / 12.0)`",
         is_correct: false,
         why_incorrect_md:
-          "La división entera no redondea: trunca hacia cero, y el cociente de 1 entre 2 es 0.",
+          "`26 / 12.0` es 2,1666…, y `ROUND` va al entero más cercano, que es 2. Solo coincide con la cantidad de cajas cuando la fracción llega a la mitad, y aquí la regla es subir siempre.",
       },
       {
         key: "d",
-        body_md: "Un error de tipos.",
+        body_md: "`26 % 12`",
         is_correct: false,
         why_incorrect_md:
-          "No hay error: la operación es válida y por eso el problema pasa desapercibido en los reportes.",
+          "`%` (o `MOD`) devuelve el resto de la división: las 2 unidades que quedan fuera de las cajas completas, no la cantidad de cajas.",
       },
     ],
     explanation_md:
-      "`integer / integer` devuelve `integer` y descarta la parte decimal. La consulta corre sin fallar, que es lo que vuelve peligroso este comportamiento.",
+      "`CEIL` sube siempre al entero siguiente, que es la regla de «cuántas cajas necesito». Funciona solo si le llega un número con decimales: por eso uno de los operandos se escribe como decimal (`12.0`), para evitar la división entera.",
     is_published: true,
   },
   {
@@ -126,9 +127,12 @@ export const questions: QuestionDef[] = [
     prompt_md:
       "Completa la función que evita el error *division by zero* convirtiendo el denominador en NULL cuando vale 0: `ROUND(discount * 100 / ___(subtotal, 0), 2)`.",
     code_md: null,
-    answer: { accepted: ["nullif"], case_sensitive: false },
+    answer: {
+      accepted: ["NULLIF", "NULLIF(subtotal, 0)", "NULLIF(subtotal,0)"],
+      case_sensitive: false,
+    },
     explanation_md:
-      "`NULLIF(subtotal, 0)` devuelve NULL cuando `subtotal` es 0; la división con NULL devuelve NULL y la fila sobrevive en vez de abortar la consulta. A diferencia de la división entera, dividir por cero **sí** lanza un error.",
+      "`NULLIF(subtotal, 0)` devuelve NULL cuando `subtotal` es 0; la división con NULL devuelve NULL y esa fila queda con el resultado en NULL en lugar de detener toda la consulta. Sin `NULLIF`, una sola fila con `subtotal` en 0 hace fallar la consulta completa con el error *division by zero*.",
     is_published: true,
   },
   {
@@ -203,11 +207,11 @@ export const questions: QuestionDef[] = [
         body_md: "`ROUND(rating / 5, 2) * 100`",
         is_correct: false,
         why_incorrect_md:
-          "`ROUND` actúa después de la división entera: redondea 0 y devuelve 0.00, luego 0.00.",
+          "`ROUND` actúa después de la división entera: `2 / 5` ya dio 0, `ROUND(0, 2)` devuelve 0.00 y multiplicado por 100 sigue siendo 0.00.",
       },
     ],
     explanation_md:
-      "Hay dos caminos válidos: convertir un operando a `numeric` o multiplicar antes de dividir para que el numerador sea mayor que el denominador. La conversión explícita es más segura porque no depende del orden de los operadores.",
+      "Hay dos caminos: convertir un operando a `numeric` (opciones b y c) o multiplicar antes de dividir (opción a). El segundo funciona aquí solo porque 200 dividido 5 es exacto; con otro divisor, como `rating * 100 / 3`, la división entera volvería a descartar los decimales. Por eso la conversión explícita es la forma segura.",
     is_published: true,
   },
   {
@@ -242,7 +246,7 @@ export const questions: QuestionDef[] = [
     tags: ["numeric_functions", "readability"],
     estimated_seconds: 60,
     prompt_md:
-      "En un reporte de facturación, el total no coincide por unos centavos con la suma que calcula Finanzas. Cada línea se redondea a dos decimales y después se suman las líneas. ¿Qué conviene hacer?",
+      "En un reporte de facturación, el total no coincide por unos centavos con la suma que calcula el área de Finanzas. Cada línea se redondea a dos decimales y después se suman las líneas. ¿Qué conviene hacer?",
     code_md: null,
     options: [
       {
@@ -329,7 +333,7 @@ export const questions: QuestionDef[] = [
       {
         key: "a",
         body_md:
-          "`numeric` es exacto y su redondeo es predecible; `double precision` es aproximado y `ROUND` no admite decimales sobre él.",
+          "`numeric` es exacto y su redondeo es predecible; `double precision` es aproximado, y en PostgreSQL `ROUND(valor, decimales)` ni siquiera acepta ese tipo.",
         is_correct: true,
       },
       {

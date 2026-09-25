@@ -47,8 +47,11 @@ export const questions: QuestionDef[] = [
     tags: ["outer_join", "null_handling"],
     estimated_seconds: 35,
     prompt_md:
-      "Completa para obtener los clientes sin pedidos: `... LEFT JOIN orders o ON o.customer_id = c.id WHERE o.id ___ ___;`",
-    answer: { accepted: ["IS NULL"], case_sensitive: false },
+      "Completa las dos palabras clave que faltan para obtener los clientes sin pedidos: `... LEFT JOIN orders o ON o.customer_id = c.id WHERE o.id ___ ___;`",
+    answer: {
+      accepted: ["IS NULL", "o.id IS NULL", "WHERE o.id IS NULL"],
+      case_sensitive: false,
+    },
     explanation_md:
       "Las filas sin pareja tienen NULL en las columnas de la tabla derecha; `IS NULL` sobre su clave primaria las identifica.",
     is_published: true,
@@ -94,7 +97,7 @@ export const questions: QuestionDef[] = [
     tags: ["outer_join", "where"],
     estimated_seconds: 60,
     prompt_md:
-      "Este reporte debía listar los 25 restaurantes de Montevideo con sus pedidos de agosto (0 si no tuvieron), pero devuelve 22 filas. ¿Por qué?",
+      "En Pídelo, este reporte debía listar los 25 restaurantes de Montevideo (la ciudad con `city_id = 8`) con su cantidad de pedidos de agosto de 2025, y 0 para los que no tuvieron pedidos, pero devuelve 22 filas. ¿Por qué?",
     code_md:
       "```sql\nSELECT r.id, count(o.id) AS pedidos\nFROM restaurants AS r\nLEFT JOIN orders AS o ON o.restaurant_id = r.id\nWHERE r.city_id = 8\n  AND o.placed_at >= '2025-08-01' AND o.placed_at < '2025-09-01'\nGROUP BY r.id;\n```",
     options: [
@@ -157,18 +160,20 @@ export const questions: QuestionDef[] = [
     tags: ["outer_join"],
     estimated_seconds: 50,
     prompt_md:
-      "Auditoría quiere, en una sola consulta, las cuentas sin movimientos **y** los movimientos cuya cuenta no existe. ¿Qué JOIN usas?",
+      "Tienes dos tablas cargadas desde sistemas distintos, `cuentas` (alias `c`) y `movimientos` (alias `m`), sin una clave foránea que obligue a que cada movimiento apunte a una cuenta existente. El departamento de Auditoría quiere, en una sola consulta, las cuentas sin movimientos **y** los movimientos cuya cuenta no existe. ¿Qué JOIN usas?",
     options: [
       {
         key: "a",
-        body_md: "`FULL JOIN` y `WHERE a.id IS NULL OR t.id IS NULL`.",
+        body_md:
+          "`cuentas c FULL JOIN movimientos m ON m.cuenta_id = c.id` y `WHERE c.id IS NULL OR m.id IS NULL`.",
         is_correct: true,
       },
       {
         key: "b",
-        body_md: "`LEFT JOIN` desde `accounts`.",
+        body_md: "`LEFT JOIN` desde `cuentas`.",
         is_correct: false,
-        why_incorrect_md: "Solo encontraría cuentas sin movimientos, no movimientos huérfanos.",
+        why_incorrect_md:
+          "Solo encontraría las cuentas sin movimientos. Los movimientos cuya cuenta no existe están en la tabla derecha y el LEFT JOIN los descarta.",
       },
       {
         key: "c",
@@ -225,7 +230,7 @@ export const questions: QuestionDef[] = [
     tags: ["outer_join"],
     estimated_seconds: 35,
     prompt_md:
-      "Verdadero o falso: un `LEFT JOIN` correcto nunca devuelve menos filas que la tabla izquierda tiene (antes del `WHERE` sobre la izquierda).",
+      "Verdadero o falso: una consulta `FROM A LEFT JOIN B ON ...` sin `WHERE` devuelve siempre al menos tantas filas como tiene la tabla `A`.",
     options: [
       { key: "a", body_md: "Verdadero", is_correct: true },
       {
@@ -233,7 +238,7 @@ export const questions: QuestionDef[] = [
         body_md: "Falso",
         is_correct: false,
         why_incorrect_md:
-          "Cada fila de la izquierda aparece al menos una vez; si hay menos, un filtro sobre la derecha lo convirtió en INNER.",
+          "Es verdadero: cada fila de `A` aparece al menos una vez, con pareja o con las columnas de `B` en NULL. Si al agregar un `WHERE` con una condición sobre `B` obtienes menos filas que `A`, ese filtro convirtió el LEFT JOIN en un INNER JOIN.",
       },
     ],
     explanation_md:

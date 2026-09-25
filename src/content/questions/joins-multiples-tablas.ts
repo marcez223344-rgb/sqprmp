@@ -87,7 +87,7 @@ export const questions: QuestionDef[] = [
     tags: ["outer_join", "where"],
     estimated_seconds: 70,
     prompt_md:
-      "Este reporte debía listar los 173 pedidos peruanos entregados con el monto reembolsado cuando hubo devolución, pero devuelve 8 filas. ¿Cuál es la causa?",
+      "En TiendaViva, este reporte debía listar los 1229 pedidos de clientes peruanos entregados o devueltos, con el monto reembolsado cuando hubo devolución (y NULL cuando no la hubo), pero devuelve solo 82 filas. ¿Cuál es la causa?",
     code_md:
       "```sql\nSELECT o.id, c.full_name, r.refund_amount\nFROM orders AS o\nINNER JOIN customers AS c ON c.id = o.customer_id\nLEFT JOIN returns AS r ON r.order_id = o.id\nWHERE c.country = 'PE'\n  AND o.status IN ('delivered', 'returned')\n  AND r.refund_amount > 0;\n```",
     options: [
@@ -214,8 +214,11 @@ export const questions: QuestionDef[] = [
     tags: ["duplicates", "aggregate"],
     estimated_seconds: 40,
     prompt_md:
-      "Completa para contar pedidos (no líneas) en una consulta que ya unió `order_items`: `SELECT s.store_name, count(___ o.id) AS pedidos ...`",
-    answer: { accepted: ["DISTINCT"], case_sensitive: false },
+      "Completa la palabra clave que falta para contar pedidos (no líneas de pedido) en una consulta que ya unió `order_items`: `SELECT s.store_name, count(___ o.id) AS pedidos ...`. Escribe solo la palabra clave.",
+    answer: {
+      accepted: ["DISTINCT", "DISTINCT o.id", "count(DISTINCT o.id)"],
+      case_sensitive: false,
+    },
     explanation_md:
       "Tras un JOIN uno-a-muchos, `count(o.id)` cuenta líneas. `count(DISTINCT o.id)` recupera la cantidad real de pedidos.",
     is_published: true,
@@ -229,7 +232,8 @@ export const questions: QuestionDef[] = [
     topic: "ON contra WHERE",
     tags: ["inner_join", "outer_join", "where"],
     estimated_seconds: 75,
-    prompt_md: "Selecciona todas las afirmaciones correctas.",
+    prompt_md:
+      "Selecciona todas las afirmaciones correctas sobre dónde escribir una condición: en el `ON` del JOIN o en el `WHERE`.",
     options: [
       {
         key: "a",
@@ -246,7 +250,7 @@ export const questions: QuestionDef[] = [
       {
         key: "c",
         body_md:
-          "`r.id IS NULL` en el `WHERE` de un LEFT JOIN es un uso intencional de esa conversión: sirve para buscar lo que no tiene pareja.",
+          "En `A LEFT JOIN returns r ON ...`, escribir `WHERE r.id IS NULL` deja a propósito solo las filas de `A` que no tienen ninguna devolución.",
         is_correct: true,
       },
       {
@@ -258,10 +262,11 @@ export const questions: QuestionDef[] = [
       },
       {
         key: "e",
-        body_md: "Las condiciones sobre la tabla conductora deben ir siempre en el `ON`.",
+        body_md:
+          "En un LEFT JOIN, las condiciones sobre la tabla izquierda (la que se escribe en el `FROM`) deben ir siempre en el `ON`.",
         is_correct: false,
         why_incorrect_md:
-          "Las condiciones sobre la tabla izquierda pueden ir en el `WHERE` sin alterar el LEFT JOIN.",
+          "Van en el `WHERE`. En el `ON` de un LEFT JOIN no filtrarían la tabla izquierda: todas sus filas seguirían apareciendo, solo que sin pareja cuando no cumplen la condición.",
       },
     ],
     explanation_md:
@@ -278,12 +283,15 @@ export const questions: QuestionDef[] = [
     tags: ["inner_join", "outer_join"],
     estimated_seconds: 70,
     prompt_md:
-      "En un reporte de pedidos de TiendaViva, relaciona cada tabla con el tipo de unión adecuado.",
+      "En un reporte que parte de `orders` en TiendaViva y debe conservar todos los pedidos, relaciona cada tabla con el tipo de unión adecuado. Cada tipo de unión puede usarse más de una vez.",
     pairs: [
       { left: "customers (todo pedido tiene cliente)", right: "INNER JOIN" },
-      { left: "order_items (todo pedido facturado tiene líneas)", right: "INNER JOIN" },
+      { left: "order_items (todo pedido tiene al menos una línea)", right: "INNER JOIN" },
       { left: "returns (solo algunos pedidos se devuelven)", right: "LEFT JOIN" },
-      { left: "reviews (la reseña es opcional)", right: "LEFT JOIN" },
+      {
+        left: "shipments (los pedidos cancelados o pendientes no tienen envío)",
+        right: "LEFT JOIN",
+      },
     ],
     explanation_md:
       "INNER para lo que existe siempre; LEFT para el dato extra que puede faltar. Así el reporte conserva todos los pedidos.",
@@ -299,12 +307,12 @@ export const questions: QuestionDef[] = [
     tags: ["duplicates", "inner_join"],
     estimated_seconds: 75,
     prompt_md:
-      "Necesitas una fila por pedido con el método de pago y las unidades compradas. En TiendaViva hay 2502 pedidos con más de un intento de pago. ¿Cuál es la mejor estrategia sin usar subconsultas?",
+      "Necesitas una fila por pedido con el método de pago (`payments.method`). En TiendaViva hay 1251 pedidos con más de un intento de pago en la tabla `payments`, y ningún pedido tiene más de un pago aprobado. Sin usar subconsultas, ¿cómo unes `payments` para no repetir pedidos?",
     options: [
       {
         key: "a",
         body_md:
-          "Unir `payments` con `AND pay.status = 'approved'` en el `ON`: cada pedido tiene a lo sumo un pago aprobado.",
+          "Unir `payments` con `LEFT JOIN payments AS pay ON pay.order_id = o.id AND pay.status = 'approved'`: cada pedido tiene a lo sumo un pago aprobado, y el LEFT conserva también los pedidos que no tienen ninguno.",
         is_correct: true,
       },
       {
@@ -316,10 +324,11 @@ export const questions: QuestionDef[] = [
       },
       {
         key: "c",
-        body_md: "Usar `LEFT JOIN` con `payments` en vez de `INNER JOIN`.",
+        body_md:
+          "Usar `LEFT JOIN payments AS pay ON pay.order_id = o.id` en vez de `INNER JOIN`, sin ninguna otra condición.",
         is_correct: false,
         why_incorrect_md:
-          "El LEFT conserva pedidos sin pago, pero no reduce los pedidos que tienen dos.",
+          "El LEFT conserva los pedidos sin pago, pero un pedido con dos intentos de pago sigue apareciendo dos veces.",
       },
       {
         key: "d",
@@ -386,22 +395,22 @@ export const questions: QuestionDef[] = [
     tags: ["outer_join", "inner_join", "cadena_de_joins"],
     estimated_seconds: 85,
     prompt_md:
-      "Este listado debía mostrar **todos** los vendedores argentinos y, cuando tienen productos publicados, el producto y su categoría. Los vendedores sin ningún producto no aparecen, aunque el `WHERE` no los excluye. ¿Cuál es la causa?",
+      "En TiendaViva, este listado debía mostrar **todos** los productos activos y, cuando tienen reseñas, el puntaje y el nombre de quien la escribió. Los 98 productos activos sin ninguna reseña no aparecen, aunque el `WHERE` no los excluye. ¿Cuál es la causa?",
     code_md:
-      "```sql\nSELECT s.store_name, p.name AS producto, c.name AS categoria\nFROM sellers AS s\nLEFT JOIN products AS p ON p.seller_id = s.id\nINNER JOIN categories AS c ON c.id = p.category_id\nWHERE s.country = 'AR';\n```",
+      "```sql\nSELECT p.name AS producto, r.rating, c.full_name AS autor\nFROM products AS p\nLEFT JOIN reviews AS r ON r.product_id = p.id\nINNER JOIN customers AS c ON c.id = r.customer_id\nWHERE p.is_active;\n```",
     options: [
       {
         key: "a",
         body_md:
-          "El `INNER JOIN` cuelga de `products`: para un vendedor sin productos, `p.category_id` es NULL, la igualdad del `ON` no se cumple y la fila desaparece, como si el LEFT nunca hubiera estado.",
+          "El `INNER JOIN` con `customers` depende de `reviews`: para un producto sin reseñas, `r.customer_id` es NULL, la igualdad del `ON` no se cumple y la fila desaparece, como si el LEFT nunca hubiera estado.",
         is_correct: true,
       },
       {
         key: "b",
-        body_md: "El `WHERE s.country = 'AR'` anula el LEFT JOIN.",
+        body_md: "El `WHERE p.is_active` anula el LEFT JOIN.",
         is_correct: false,
         why_incorrect_md:
-          "Esa condición es sobre `sellers`, la tabla conductora. Filtrar por la tabla izquierda no rompe un LEFT JOIN; lo rompe lo que se le cuelga a la derecha.",
+          "Esa condición es sobre `products`, la tabla izquierda. Filtrar por la tabla izquierda no rompe un LEFT JOIN; lo rompe lo que se une después a la tabla opcional.",
       },
       {
         key: "c",
@@ -409,19 +418,19 @@ export const questions: QuestionDef[] = [
           "Hay que escribir el `INNER JOIN` antes del `LEFT JOIN` para que se evalúe primero.",
         is_correct: false,
         why_incorrect_md:
-          "Escrito antes, `categories` no tendría con qué unirse: `p` todavía no existe en la consulta. El orden no es el problema; el tipo de unión sí.",
+          "Escrito antes, `customers` no tendría con qué unirse: `r` todavía no existe en ese punto de la consulta y PostgreSQL da un error. El orden no es el problema; el tipo de unión sí.",
       },
       {
         key: "d",
         body_md:
-          "`categories` es una tabla de catálogo y le falta una fila con `id` NULL para los productos sin categoría.",
+          "A `customers` le falta una fila con `id` NULL para emparejar los productos sin reseña.",
         is_correct: false,
         why_incorrect_md:
-          "Una fila con clave NULL no se uniría con nada, porque comparar NULL con NULL no da verdadero. Un catálogo no se arregla agregando una fila vacía, sino uniéndolo con LEFT cuando la rama es opcional.",
+          "Una fila con clave NULL no se uniría con nada, porque comparar NULL con NULL no da verdadero. El problema no está en los datos, sino en el tipo de unión: la rama opcional también debe unirse con LEFT.",
       },
     ],
     explanation_md:
-      "En una cadena, cada join se aplica al resultado acumulado hasta ese punto. Un INNER que depende de una tabla unida con LEFT descarta todas las filas donde esa tabla no trajo pareja, y el LEFT queda anulado sin que ninguna condición lo diga. La regla práctica: desde el primer LEFT, todo lo que cuelgue de esa rama también va con LEFT.",
+      "En una cadena, cada JOIN se aplica al resultado acumulado hasta ese punto. Un INNER JOIN que depende de una tabla unida con LEFT descarta todas las filas donde esa tabla no trajo pareja, y el LEFT queda anulado sin que ninguna condición lo diga. Aquí se pierden 98 filas: la consulta devuelve 3589 filas en lugar de 3687. La regla práctica: desde el primer LEFT JOIN, todo lo que se une a esa tabla opcional también va con LEFT JOIN.",
     is_published: true,
   },
   {
@@ -481,36 +490,36 @@ export const questions: QuestionDef[] = [
     tags: ["outer_join", "aggregate"],
     estimated_seconds: 70,
     prompt_md:
-      "Un vendedor no tiene ningún producto publicado. ¿Qué devuelven las columnas `a` y `b` en su fila?",
+      "En TiendaViva, un producto no tiene ninguna reseña. ¿Qué devuelven las columnas `a` y `b` en su fila?",
     code_md:
-      "```sql\nSELECT s.id,\n       count(*) AS a,\n       count(p.id) AS b\nFROM sellers AS s\nLEFT JOIN products AS p ON p.seller_id = s.id\nGROUP BY s.id;\n```",
+      "```sql\nSELECT p.id,\n       count(*) AS a,\n       count(r.id) AS b\nFROM products AS p\nLEFT JOIN reviews AS r ON r.product_id = p.id\nGROUP BY p.id;\n```",
     options: [
       {
         key: "a",
         body_md:
-          "`a` = 1 y `b` = 0: el LEFT deja una fila con las columnas de `products` en NULL; `count(*)` cuenta esa fila y `count(p.id)` no cuenta el NULL.",
+          "`a` = 1 y `b` = 0: el LEFT deja una fila con las columnas de `reviews` en NULL; `count(*)` cuenta esa fila y `count(r.id)` no cuenta el NULL.",
         is_correct: true,
       },
       {
         key: "b",
-        body_md: "`a` = 0 y `b` = 0: sin productos no hay filas que contar.",
+        body_md: "`a` = 0 y `b` = 0: sin reseñas no hay filas que contar.",
         is_correct: false,
         why_incorrect_md:
-          "Entonces el vendedor no aparecería en el resultado, que es justamente lo que el LEFT JOIN evita. Hay una fila, con las columnas de la tabla derecha en NULL.",
+          "Entonces el producto no aparecería en el resultado, que es justamente lo que el LEFT JOIN evita. Hay una fila, con las columnas de la tabla derecha en NULL.",
       },
       {
         key: "c",
         body_md: "`a` = 1 y `b` = 1: `count` cuenta filas, mire la columna que mire.",
         is_correct: false,
         why_incorrect_md:
-          "`count(*)` cuenta filas, pero `count(columna)` cuenta valores no nulos. Esa diferencia es exactamente lo que separa «vendedores» de «vendedores con productos».",
+          "`count(*)` cuenta filas, pero `count(columna)` cuenta valores no nulos. Esa diferencia es exactamente lo que separa «productos» de «productos con reseñas».",
       },
       {
         key: "d",
-        body_md: "`a` = NULL y `b` = NULL: la fila viene con NULL y el NULL se propaga a la suma.",
+        body_md: "`a` = NULL y `b` = NULL: la fila viene con NULL y el NULL se propaga al conteo.",
         is_correct: false,
         why_incorrect_md:
-          "`count` nunca devuelve NULL: devuelve 0 cuando no hay nada que contar. Las que sí devuelven NULL sobre un grupo sin valores son `sum` y `avg`.",
+          "`count` nunca devuelve NULL: devuelve 0 cuando no hay nada que contar. Las que sí devuelven NULL sobre un grupo sin valores son `sum`, `avg`, `min` y `max`.",
       },
     ],
     explanation_md:
@@ -547,7 +556,7 @@ export const questions: QuestionDef[] = [
         body_md: "El importe promedio por línea de pedido.",
         is_correct: false,
         why_incorrect_md:
-          "Para eso habría que promediar una columna del nivel del ítem, como `oi.quantity * oi.unit_price`. Acá se promedia el total del pedido completo, repetido una vez por línea.",
+          "Para eso habría que promediar una columna del nivel del ítem, como `oi.quantity * oi.unit_price`. Aquí se promedia el total del pedido completo, repetido una vez por línea.",
       },
       {
         key: "d",

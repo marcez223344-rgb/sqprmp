@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { limits } from "@/config/limits";
 import { passThreshold } from "@/lib/quizzes/grading";
-import { sampleQuestions, type Sampleable } from "@/lib/quizzes/sampling";
+import {
+  freshnessTier,
+  sampleQuestions,
+  type QuizHistory,
+  type Sampleable,
+} from "@/lib/quizzes/sampling";
 
 /** A bank shaped like the real ones: 10 questions, three difficulties, four topics. */
 function bank(): Sampleable[] {
@@ -102,6 +107,80 @@ describe("sampleQuestions", () => {
 
   it("returns nothing for a non-positive size", () => {
     expect(sampleQuestions(bank(), 0, seeded(1))).toEqual([]);
+  });
+});
+
+describe("sampleQuestions on a retry (round 6, items 7/10)", () => {
+  const history = (seen: string[], wrong: string[] = []): QuizHistory => ({
+    seen: new Set([...seen, ...wrong]),
+    wrong: new Set(wrong),
+  });
+
+  it("ranks never-served before answered-wrong before the rest", () => {
+    const h = history(["1", "2"], ["3"]);
+    expect(freshnessTier("9", h)).toBe(0);
+    expect(freshnessTier("3", h)).toBe(1);
+    expect(freshnessTier("1", h)).toBe(2);
+    expect(freshnessTier("1")).toBe(0);
+  });
+
+  it("serves only unseen questions while enough remain", () => {
+    // 10-question bank, first attempt saw four: six unseen are left for a six-question retry.
+    const h = history(["1", "4", "8", "5"]);
+    for (let seed = 1; seed <= 50; seed++) {
+      const ids = sampleQuestions(bank(), size, seeded(seed), h).map((q) => q.id);
+      expect(ids.sort()).toEqual(["10", "2", "3", "6", "7", "9"]);
+    }
+  });
+
+  it("fills the remaining slots with wrong answers before questions already answered right", () => {
+    // Unseen: 9, 10. Wrong: 1, 5, 8. Answered right: 2, 3, 4, 6, 7.
+    const h = history(["2", "3", "4", "6", "7"], ["1", "5", "8"]);
+    for (let seed = 1; seed <= 50; seed++) {
+      const ids = new Set(sampleQuestions(bank(), size, seeded(seed), h).map((q) => q.id));
+      for (const id of ["9", "10", "1", "5", "8"]) expect(ids.has(id)).toBe(true);
+      expect(ids.size).toBe(size);
+    }
+  });
+
+  it("repeats only once the unseen and wrong ones are used up, still covering difficulties", () => {
+    // Everything was seen and nothing was wrong: a plain stratified sample, no question dropped.
+    const all = bank().map((q) => q.id);
+    for (let seed = 1; seed <= 20; seed++) {
+      const picked = sampleQuestions(bank(), size, seeded(seed), history(all));
+      expect(picked).toHaveLength(size);
+      expect(new Set(picked.map((q) => q.difficulty)).size).toBe(3);
+    }
+  });
+
+  it("keeps difficulty coverage inside the unseen questions", () => {
+    // Nine unseen, three of each difficulty: coverage still applies within the fresh tier.
+    const h = history(["1"]);
+    for (let seed = 1; seed <= 50; seed++) {
+      const picked = sampleQuestions(bank(), size, seeded(seed), h);
+      expect(picked.map((q) => q.id)).not.toContain("1");
+      expect(new Set(picked.map((q) => q.difficulty))).toEqual(
+        new Set(["very_easy", "easy", "intermediate"]),
+      );
+    }
+  });
+
+  it("without history, gives the same sample as the plain stratified draw", () => {
+    const empty = history([]);
+    for (let seed = 1; seed <= 20; seed++)
+      expect(sampleQuestions(bank(), size, seeded(seed), empty).map((q) => q.id)).toEqual(
+        sampleQuestions(bank(), size, seeded(seed)).map((q) => q.id),
+      );
+  });
+
+  it("with the D-37 bank floor, two consecutive attempts share no question", () => {
+    // Bank = length + minUnseenOnRetry is the smallest bank allowed; a first attempt of `size`
+    // leaves at least minUnseenOnRetry questions for the retry, and they are all served.
+    const first = sampleQuestions(bank(), size, seeded(5)).map((q) => q.id);
+    const retry = sampleQuestions(bank(), size, seeded(6), history(first)).map((q) => q.id);
+    const unseen = bank().length - first.length;
+    expect(unseen).toBeGreaterThanOrEqual(limits.quiz.minUnseenOnRetry);
+    expect(retry.filter((id) => !first.includes(id))).toHaveLength(Math.min(unseen, size));
   });
 });
 

@@ -74,33 +74,38 @@ export const questions: QuestionDef[] = [
     slug: "distinct-q03-posicion",
     section,
     lesson,
-    type: "error_diagnosis",
-    difficulty: "very_easy",
-    topic: "Sintaxis",
+    type: "query_interpretation",
+    difficulty: "intermediate",
+    topic: "Posición de DISTINCT",
     tags: ["distinct", "sintaxis"],
-    estimated_seconds: 30,
-    prompt_md: "Esta consulta produce un error de sintaxis. ¿Cuál es la causa?",
+    estimated_seconds: 50,
+    prompt_md:
+      "Alguien quiere la lista de países sin repetir y escribe `DISTINCT` al final. `customers` tiene 3 000 filas y 6 países distintos. La consulta corre **sin error**. ¿Qué devuelve?",
     code_md: "```sql\nSELECT country DISTINCT\nFROM customers;\n```",
     options: [
       {
         key: "a",
-        body_md: "`DISTINCT` debe ir inmediatamente después de `SELECT`.",
+        body_md:
+          "Las 3 000 filas, con países repetidos, en una columna llamada `distinct`: PostgreSQL leyó la palabra como un alias de `country`.",
         is_correct: true,
       },
       {
         key: "b",
-        body_md: "Falta un alias para `country`.",
+        body_md: "Los 6 países sin repetir, igual que `SELECT DISTINCT country`.",
         is_correct: false,
-        why_incorrect_md: "Los alias son opcionales; el problema es la posición de `DISTINCT`.",
+        why_incorrect_md:
+          "`DISTINCT` solo elimina repetidos cuando va inmediatamente después de `SELECT`. Escrito después de la columna, PostgreSQL lo toma como el nombre de la columna en el resultado.",
       },
       {
         key: "c",
-        body_md: "`DISTINCT` requiere paréntesis.",
+        body_md: "Un error de sintaxis, porque `DISTINCT` está en el lugar equivocado.",
         is_correct: false,
-        why_incorrect_md: "No lleva paréntesis: `SELECT DISTINCT country`.",
+        why_incorrect_md:
+          "Es lo que uno esperaría, pero PostgreSQL acepta casi cualquier palabra como alias aunque no lleve `AS`, incluida `DISTINCT`. Por eso no hay ningún aviso.",
       },
     ],
-    explanation_md: "La forma correcta es `SELECT DISTINCT country FROM customers;`.",
+    explanation_md:
+      "`DISTINCT` se escribe inmediatamente después de `SELECT`: `SELECT DISTINCT country FROM customers;` devuelve 6 filas. Como `AS` es opcional, una palabra escrita después de una columna se lee como su alias, y la consulta corre sin eliminar ningún repetido. Si el resultado tiene tantas filas como la tabla y una columna con un nombre raro, revisa la posición de `DISTINCT`.",
     is_published: true,
   },
   {
@@ -169,14 +174,23 @@ export const questions: QuestionDef[] = [
     section,
     lesson,
     type: "fill_blank",
-    difficulty: "easy",
-    topic: "Alcance de DISTINCT",
+    difficulty: "very_easy",
+    topic: "Explorar valores existentes",
     tags: ["distinct"],
-    estimated_seconds: 40,
+    estimated_seconds: 30,
     prompt_md:
-      "`orders` tiene 6 valores distintos de `status` y 3 de `channel`, y todas las combinaciones aparecen al menos una vez. ¿Cuántas filas devuelve `SELECT DISTINCT status, channel FROM orders;`? Escribe solo el número.",
-    answer: { accepted: ["18"], case_sensitive: false },
-    explanation_md: "Una fila por combinación existente: 6 × 3 = 18.",
+      "Antes de filtrar por estado, quieres ver qué valores de `status` existen en la tabla `orders`, cada uno una sola vez. Completa la palabra clave que falta: `SELECT ___ status FROM orders;`. Escribe solo la palabra clave.",
+    answer: {
+      accepted: [
+        "DISTINCT",
+        "SELECT DISTINCT",
+        "SELECT DISTINCT status",
+        "SELECT DISTINCT status FROM orders",
+      ],
+      case_sensitive: false,
+    },
+    explanation_md:
+      "`SELECT DISTINCT status FROM orders;` devuelve cada estado una sola vez. Es la forma más rápida de comprobar cómo están escritos los valores en la base (por ejemplo, `delivered` en minúsculas) antes de usarlos en un filtro.",
     is_published: true,
   },
   {
@@ -199,7 +213,7 @@ export const questions: QuestionDef[] = [
       },
       {
         key: "b",
-        body_md: "Es la forma correcta de responder «qué valores existen en una columna».",
+        body_md: "Es una forma adecuada de responder «qué valores existen en una columna».",
         is_correct: true,
       },
       {
@@ -216,7 +230,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "`DISTINCT` tiene un costo proporcional al tamaño del resultado y es la herramienta adecuada para listar valores únicos; no modifica valores ni descarta NULL.",
+      "Para eliminar repetidos, el motor tiene que ordenar o agrupar las filas, y ese trabajo crece con la cantidad de filas. `DISTINCT` es una herramienta adecuada para listar valores únicos; no modifica valores ni descarta NULL.",
     is_published: true,
   },
   {
@@ -274,7 +288,7 @@ export const questions: QuestionDef[] = [
         body_md: "Una fila por país, con la primera ciudad que encuentre para cada uno.",
         is_correct: false,
         why_incorrect_md:
-          "SQL nunca elige «la primera» por su cuenta. Para quedarte con una fila por país necesitas decir con qué criterio, y eso ya no es trabajo de `DISTINCT`.",
+          "`DISTINCT` no elige una fila por país: compara las filas completas del resultado, y dos filas con el mismo país y distinta ciudad son distintas. Para quedarte con una fila por país necesitas decir con qué criterio, y eso ya no es trabajo de `DISTINCT`.",
       },
       {
         key: "c",

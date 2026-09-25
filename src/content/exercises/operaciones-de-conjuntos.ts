@@ -116,12 +116,7 @@ export const exercises: ExerciseDef[] = [
     validation_rules: { order_matters: true, required_concepts: ["set_operations"] },
     reference_solution:
       "SELECT c.id AS customer_id, c.full_name\nFROM orders AS o\nINNER JOIN customers AS c ON c.id = o.customer_id\nWHERE c.country = 'UY'\n  AND o.status = 'delivered'\n  AND o.channel = 'web'\n\nUNION\n\nSELECT c.id AS customer_id, c.full_name\nFROM orders AS o\nINNER JOIN customers AS c ON c.id = o.customer_id\nWHERE c.country = 'UY'\n  AND o.status = 'delivered'\n  AND o.channel = 'marketplace_partner'\n\nORDER BY customer_id;",
-    alternative_solutions: [
-      {
-        label: "Una sola consulta con IN y DISTINCT",
-        sql: "SELECT DISTINCT c.id AS customer_id, c.full_name FROM orders AS o INNER JOIN customers AS c ON c.id = o.customer_id WHERE c.country = 'UY' AND o.status = 'delivered' AND o.channel IN ('web', 'marketplace_partner') ORDER BY customer_id;",
-      },
-    ],
+    alternative_solutions: [],
     hints: [
       {
         level: 1,
@@ -165,7 +160,7 @@ export const exercises: ExerciseDef[] = [
       },
     ],
     expert_explanation_md:
-      "El resultado de la consulta da 82 filas. Con `UNION ALL` el resultado tendría cientos de filas, una por cada pedido entregado.\n\nLa alternativa con `channel IN ('web', 'marketplace_partner')` y `DISTINCT` devuelve exactamente lo mismo, lee la tabla una sola vez y en general es más eficiente. Vale la pena tenerlo presente: la operación de conjuntos brilla cuando las ramas son **distintas de verdad**, es decir, cuando usan tablas diferentes o agregaciones diferentes, y no cuando cambian solo en el valor de un filtro.\n\nLa razón por la que el operador `UNION` puede deduplicar acá es que proyectas únicamente el identificador y el nombre del cliente. Dos filas son duplicadas solamente cuando coinciden todas sus columnas, así que agregar cualquier dato del pedido rompe esa condición.",
+      "El resultado de la consulta da 82 filas. Con `UNION ALL` el resultado tendría cientos de filas, una por cada pedido entregado.\n\nFuera de este ejercicio, que practica `UNION`, una sola consulta con `channel IN ('web', 'marketplace_partner')` y `DISTINCT` devuelve exactamente lo mismo, lee la tabla una sola vez y en general es más eficiente. Vale la pena tenerlo presente: la operación de conjuntos brilla cuando las ramas son **distintas de verdad**, es decir, cuando usan tablas diferentes o agregaciones diferentes, y no cuando cambian solo en el valor de un filtro.\n\nLa razón por la que el operador `UNION` puede deduplicar acá es que proyectas únicamente el identificador y el nombre del cliente. Dos filas son duplicadas solamente cuando coinciden todas sus columnas, así que agregar cualquier dato del pedido rompe esa condición.",
     improvement_feedback: [
       { condition: "no_table_alias_in_join", message_key: "improve.no_table_alias_in_join" },
     ],
@@ -196,12 +191,7 @@ export const exercises: ExerciseDef[] = [
     validation_rules: { order_matters: true, required_concepts: ["set_operations"] },
     reference_solution:
       "SELECT u.id AS user_id, u.full_name\nFROM transactions AS t\nINNER JOIN accounts AS a ON a.id = t.account_id\nINNER JOIN users AS u ON u.id = a.user_id\nWHERE u.country = 'PE'\n  AND t.status = 'completed'\n  AND t.kind = 'qr_payment'\n\nINTERSECT\n\nSELECT u.id AS user_id, u.full_name\nFROM transactions AS t\nINNER JOIN accounts AS a ON a.id = t.account_id\nINNER JOIN users AS u ON u.id = a.user_id\nWHERE u.country = 'PE'\n  AND t.status = 'completed'\n  AND t.kind = 'card_payment'\n\nORDER BY user_id;",
-    alternative_solutions: [
-      {
-        label: "Agrupando y contando los tipos distintos",
-        sql: "SELECT u.id AS user_id, u.full_name FROM transactions AS t INNER JOIN accounts AS a ON a.id = t.account_id INNER JOIN users AS u ON u.id = a.user_id WHERE u.country = 'PE' AND t.status = 'completed' AND t.kind IN ('qr_payment', 'card_payment') GROUP BY u.id, u.full_name HAVING count(DISTINCT t.kind) = 2 ORDER BY user_id;",
-      },
-    ],
+    alternative_solutions: [],
     hints: [
       {
         level: 1,
@@ -245,7 +235,7 @@ export const exercises: ExerciseDef[] = [
       },
     ],
     expert_explanation_md:
-      "El resultado de la consulta da 62 personas, de las 316 registradas en Perú, que usan los dos medios de pago.\n\nEl operador `INTERSECT` funciona porque las dos ramas proyectan exactamente las mismas dos columnas, las dos provenientes de la tabla `users`: la identidad que se compara es la persona. Si agregaras cualquier dato de la transacción, no habría ninguna coincidencia.\n\nLa alternativa con `GROUP BY ... HAVING count(DISTINCT t.kind) = 2` lee la tabla una sola vez y escala mejor cuando los tipos son muchos, porque la pregunta «quiénes usaron al menos 3 de estos 5 medios» se resuelve cambiando un número. El operador `INTERSECT` gana en claridad cuando son exactamente dos condiciones y la pregunta de negocio se enuncia como una intersección.",
+      "El resultado de la consulta da 62 personas, de las 316 registradas en Perú, que usan los dos medios de pago.\n\nEl operador `INTERSECT` funciona porque las dos ramas proyectan exactamente las mismas dos columnas, las dos provenientes de la tabla `users`: la identidad que se compara es la persona. Si agregaras cualquier dato de la transacción, no habría ninguna coincidencia.\n\nFuera de este ejercicio, que practica `INTERSECT`, la forma con `GROUP BY ... HAVING count(DISTINCT t.kind) = 2` lee la tabla una sola vez y escala mejor cuando los tipos son muchos, porque la pregunta «quiénes usaron al menos 3 de estos 5 medios» se resuelve cambiando un número. El operador `INTERSECT` gana en claridad cuando son exactamente dos condiciones y la pregunta de negocio se enuncia como una intersección.",
     improvement_feedback: [
       { condition: "no_table_alias_in_join", message_key: "improve.no_table_alias_in_join" },
     ],
@@ -277,12 +267,7 @@ export const exercises: ExerciseDef[] = [
     validation_rules: { order_matters: true, required_concepts: ["set_operations"] },
     reference_solution:
       "SELECT c.id AS customer_id, c.full_name, c.email\nFROM orders AS o\nINNER JOIN customers AS c ON c.id = o.customer_id\nWHERE c.country = 'UY'\n  AND o.status = 'delivered'\n  AND o.created_at < DATE '2025-01-01'\n\nEXCEPT\n\nSELECT c.id AS customer_id, c.full_name, c.email\nFROM orders AS o\nINNER JOIN customers AS c ON c.id = o.customer_id\nWHERE c.country = 'UY'\n  AND o.status = 'delivered'\n  AND o.created_at >= DATE '2025-01-01'\n\nORDER BY customer_id;",
-    alternative_solutions: [
-      {
-        label: "Anti-join con NOT EXISTS",
-        sql: "SELECT DISTINCT c.id AS customer_id, c.full_name, c.email FROM orders AS o INNER JOIN customers AS c ON c.id = o.customer_id WHERE c.country = 'UY' AND o.status = 'delivered' AND o.created_at < DATE '2025-01-01' AND NOT EXISTS (SELECT 1 FROM orders AS o2 WHERE o2.customer_id = c.id AND o2.status = 'delivered' AND o2.created_at >= DATE '2025-01-01') ORDER BY customer_id;",
-      },
-    ],
+    alternative_solutions: [],
     hints: [
       {
         level: 1,
@@ -326,7 +311,7 @@ export const exercises: ExerciseDef[] = [
       },
     ],
     expert_explanation_md:
-      "El resultado de la consulta da 17 clientes uruguayos que compraron en 2024 y no volvieron en 2025.\n\nLa clave está en proyectar solamente columnas del cliente. El operador `EXCEPT` compara fila completa contra fila completa: si arrastras datos del pedido, cada fila es única y la resta no elimina nada.\n\nEl `NOT EXISTS` equivalente suele ser más rápido en tablas grandes, porque el motor se detiene en cuanto encuentra la primera compra de 2025 y no tiene que materializar la lista entera. También es más flexible, porque permite devolver columnas del pedido de 2024, como la fecha de la última compra, que el `EXCEPT` no admitiría. La versión con `EXCEPT` gana en legibilidad cuando la pregunta se enuncia como una resta de conjuntos.\n\nUna advertencia: la forma `NOT IN (SELECT customer_id FROM ...)` parece equivalente, pero si la subconsulta devuelve algún `NULL` el resultado es cero filas sin ningún error. Ni `EXCEPT` ni `NOT EXISTS` tienen esa trampa.",
+      "El resultado de la consulta da 17 clientes uruguayos que compraron en 2024 y no volvieron en 2025.\n\nLa clave está en proyectar solamente columnas del cliente. El operador `EXCEPT` compara fila completa contra fila completa: si arrastras datos del pedido, cada fila es única y la resta no elimina nada.\n\nEl `NOT EXISTS` equivalente, que este ejercicio no acepta porque practica `EXCEPT`, suele ser más rápido en tablas grandes, porque el motor se detiene en cuanto encuentra la primera compra de 2025 y no tiene que materializar la lista entera. También es más flexible, porque permite devolver columnas del pedido de 2024, como la fecha de la última compra, que el `EXCEPT` no admitiría. La versión con `EXCEPT` gana en legibilidad cuando la pregunta se enuncia como una resta de conjuntos.\n\nUna advertencia: la forma `NOT IN (SELECT customer_id FROM ...)` parece equivalente, pero si la subconsulta devuelve algún `NULL` el resultado es cero filas sin ningún error. Ni `EXCEPT` ni `NOT EXISTS` tienen esa trampa.",
     improvement_feedback: [
       {
         condition: "uses_between_for_timestamps",
@@ -361,12 +346,7 @@ export const exercises: ExerciseDef[] = [
     validation_rules: { order_matters: true, required_concepts: ["set_operations", "cte"] },
     reference_solution:
       "WITH solo_emisoras AS (\n  SELECT t.from_account_id AS account_id\n  FROM transfers AS t\n  INNER JOIN accounts AS a ON a.id = t.from_account_id\n  WHERE t.status = 'completed'\n    AND a.currency = 'CLP'\n\n  EXCEPT\n\n  SELECT t.to_account_id\n  FROM transfers AS t\n  WHERE t.status = 'completed'\n)\nSELECT s.account_id, u.full_name, u.city\nFROM solo_emisoras AS s\nINNER JOIN accounts AS a ON a.id = s.account_id\nINNER JOIN users AS u ON u.id = a.user_id\nORDER BY s.account_id;",
-    alternative_solutions: [
-      {
-        label: "Anti-join con NOT EXISTS",
-        sql: "SELECT DISTINCT a.id AS account_id, u.full_name, u.city FROM transfers AS t INNER JOIN accounts AS a ON a.id = t.from_account_id INNER JOIN users AS u ON u.id = a.user_id WHERE t.status = 'completed' AND a.currency = 'CLP' AND NOT EXISTS (SELECT 1 FROM transfers AS r WHERE r.status = 'completed' AND r.to_account_id = a.id) ORDER BY account_id;",
-      },
-    ],
+    alternative_solutions: [],
     hints: [
       {
         level: 1,
@@ -410,7 +390,7 @@ export const exercises: ExerciseDef[] = [
       },
     ],
     expert_explanation_md:
-      "El resultado de la consulta da 48 cuentas en pesos chilenos que envían dinero y nunca reciben.\n\nEl patrón importante es el orden de las operaciones: primero el conjunto, definido por una sola columna que es la clave, y después el enriquecimiento con datos descriptivos. Intentar hacer todo junto obliga a repetir los cruces en las dos ramas y hace que la comparación dependa de columnas que no definen identidad.\n\nFíjate en la asimetría de los filtros: la moneda se filtra solamente en la rama de las emisoras, porque la pregunta es sobre cuentas chilenas, y recibir dinero de cualquier cuenta, chilena o no, ya las descalifica. Es el tipo de detalle que conviene confirmar con quien pide el reporte.\n\nEl `NOT EXISTS` da el mismo resultado y suele ser más rápido con volumen alto, porque corta en la primera coincidencia; necesita `DISTINCT` porque recorre las transferencias y no las cuentas.",
+      "El resultado de la consulta da 48 cuentas en pesos chilenos que envían dinero y nunca reciben.\n\nEl patrón importante es el orden de las operaciones: primero el conjunto, definido por una sola columna que es la clave, y después el enriquecimiento con datos descriptivos. Intentar hacer todo junto obliga a repetir los cruces en las dos ramas y hace que la comparación dependa de columnas que no definen identidad.\n\nFíjate en la asimetría de los filtros: la moneda se filtra solamente en la rama de las emisoras, porque la pregunta es sobre cuentas chilenas, y recibir dinero de cualquier cuenta, chilena o no, ya las descalifica. Es el tipo de detalle que conviene confirmar con quien pide el reporte.\n\nUn `NOT EXISTS` da el mismo resultado y suele ser más rápido con volumen alto, porque corta en la primera coincidencia; necesita `DISTINCT` porque recorre las transferencias y no las cuentas. Este ejercicio no lo acepta porque practica el `EXCEPT` dentro de una expresión de tabla común.",
     improvement_feedback: [
       { condition: "no_table_alias_in_join", message_key: "improve.no_table_alias_in_join" },
     ],

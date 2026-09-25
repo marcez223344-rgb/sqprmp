@@ -4,6 +4,9 @@ import { Lock, Unlock } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { track } from "@/lib/analytics/track";
 import { DatasetBadge } from "@/components/datasets/dataset-badge";
+import { SectionProgressBanner } from "@/components/learn/section-progress-banner";
+import { getLearningPath } from "@/lib/curriculum/queries";
+import { sectionProgress } from "@/lib/learning/section-progress";
 import { ExerciseWorkspace } from "@/components/workspace/exercise-workspace";
 import { LockedWorkspace } from "@/components/workspace/locked-workspace";
 import { hasActiveEntitlement } from "@/lib/auth/entitlements";
@@ -70,6 +73,9 @@ export default async function ExercisePage({ params }: PageProps<"/ejercicio/[sl
       { trigger: "limit_reached", exercise_slug: data.exercise.slug },
       { userId: profile.id },
     );
+  // Same data and counting as the lesson page and the /ruta card (D-42).
+  const pathSection = (await getLearningPath(profile.id)).find((s) => s.slug === data.section.slug);
+  const sectionProgressData = pathSection ? sectionProgress(pathSection.lessons) : null;
 
   return (
     <div className="container-page space-y-6 py-8">
@@ -82,6 +88,10 @@ export default async function ExercisePage({ params }: PageProps<"/ejercicio/[sl
           {t("sectionNumber", { number: data.section.number })} · {data.section.title}
         </span>
       </nav>
+
+      {sectionProgressData ? (
+        <SectionProgressBanner progress={sectionProgressData} sectionNumber={data.section.number} />
+      ) : null}
 
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div className="space-y-2">
@@ -103,7 +113,9 @@ export default async function ExercisePage({ params }: PageProps<"/ejercicio/[sl
             </p>
             <p className="text-muted max-w-xs text-xs">{t("regime.countedDetail")}</p>
           </div>
-        ) : !data.gated ? (
+        ) : !data.gated && !entitled ? (
+          // A learner with access (paid, scholarship, admin) has no allowance to protect, so
+          // «no consumen tu cupo» would describe a limit that does not apply to them (round 6, 5).
           <div className="space-y-1 text-right">
             <p className="border-success/40 bg-success/10 text-success-ink inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium">
               <Unlock aria-hidden="true" className="size-3.5" />

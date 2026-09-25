@@ -8,36 +8,34 @@ export const questions: QuestionDef[] = [
     slug: "oper-q01-precedencia",
     section,
     lesson,
-    type: "query_interpretation",
-    difficulty: "intermediate",
-    topic: "Precedencia",
-    tags: ["where", "precedencia"],
-    estimated_seconds: 60,
-    prompt_md: "¿Qué clientes devuelve esta consulta?",
-    code_md:
-      "```sql\nSELECT id\nFROM customers\nWHERE country = 'AR' OR country = 'UY' AND marketing_opt_in;\n```",
+    type: "multiple",
+    difficulty: "easy",
+    topic: "Negar una comparación",
+    tags: ["where", "not"],
+    estimated_seconds: 50,
+    prompt_md:
+      "En la tabla `orders`, los valores de `status` están en minúsculas (`delivered`, `cancelled`, etc.). ¿Cuáles de estas condiciones devuelven exactamente los mismos pedidos que `NOT status = 'delivered'`? Selecciona todas las que apliquen.",
     options: [
+      { key: "a", body_md: "`status <> 'delivered'`", is_correct: true },
+      { key: "b", body_md: "`status != 'delivered'`", is_correct: true },
+      { key: "c", body_md: "`status NOT IN ('delivered')`", is_correct: true },
       {
-        key: "a",
-        body_md: "Todos los de Argentina, más los de Uruguay que aceptaron marketing.",
-        is_correct: true,
-      },
-      {
-        key: "b",
-        body_md: "Los de Argentina o Uruguay que aceptaron marketing.",
+        key: "d",
+        body_md: "`NOT status = 'Delivered'`",
         is_correct: false,
         why_incorrect_md:
-          "Eso requiere paréntesis: `(country = 'AR' OR country = 'UY') AND marketing_opt_in`.",
+          "La comparación de texto distingue mayúsculas: ningún pedido tiene el estado `Delivered` con mayúscula, así que esta condición deja pasar **todos** los pedidos, incluidos los entregados.",
       },
       {
-        key: "c",
-        body_md: "Los de Argentina que aceptaron marketing, más todos los de Uruguay.",
+        key: "e",
+        body_md: "`status < 'delivered'`",
         is_correct: false,
-        why_incorrect_md: "`AND` se agrupa con la condición de Uruguay, no con la de Argentina.",
+        why_incorrect_md:
+          "`<` compara el orden alfabético: solo deja pasar los estados que van antes de `delivered` en el alfabeto (como `cancelled`) y pierde `paid`, `pending`, `returned` y `shipped`.",
       },
     ],
     explanation_md:
-      "`AND` tiene prioridad sobre `OR`: la condición se lee como `country = 'AR' OR (country = 'UY' AND marketing_opt_in)`.",
+      "`<>` y `!=` son el mismo operador en PostgreSQL («distinto de»), y `NOT IN` con un solo valor en la lista dice lo mismo. La forma recomendada es `status <> 'delivered'`: la negación queda pegada a la comparación y se lee de una vez.",
     is_published: true,
   },
   {
@@ -103,8 +101,25 @@ export const questions: QuestionDef[] = [
     tags: ["where", "not"],
     estimated_seconds: 35,
     prompt_md:
-      "Reescribe `NOT (channel IN ('app', 'web'))` en su forma más legible usando un solo operador de dos palabras. Escribe solo el operador.",
-    answer: { accepted: ["NOT IN"], case_sensitive: false },
+      "Reescribe `NOT (channel IN ('app', 'web'))` en su forma más legible, con un solo operador de dos palabras. Puedes escribir solo el operador o la condición completa.",
+    answer: {
+      accepted: [
+        "NOT IN",
+        "channel NOT IN ('app', 'web')",
+        "channel NOT IN ('web', 'app')",
+        "channel NOT IN ('app','web')",
+        "channel NOT IN ('web','app')",
+        "NOT IN ('app', 'web')",
+        "NOT IN ('web', 'app')",
+        "NOT IN ('app','web')",
+        "NOT IN ('web','app')",
+        "WHERE channel NOT IN ('app', 'web')",
+        "WHERE channel NOT IN ('web', 'app')",
+        "WHERE channel NOT IN ('app','web')",
+        "WHERE channel NOT IN ('web','app')",
+      ],
+      case_sensitive: false,
+    },
     explanation_md: "`channel NOT IN ('app', 'web')` es equivalente y se lee mejor.",
     is_published: true,
   },
@@ -117,7 +132,8 @@ export const questions: QuestionDef[] = [
     topic: "NOT",
     tags: ["where", "not"],
     estimated_seconds: 50,
-    prompt_md: "¿Cuál condición es equivalente a `NOT (is_active AND stock > 0)`?",
+    prompt_md:
+      "En la tabla `products`, `is_active` es una columna `boolean` (verdadero o falso) y `stock` es un número entero. ¿Cuál condición es equivalente a `NOT (is_active AND stock > 0)`?",
     options: [
       { key: "a", body_md: "`NOT is_active OR stock <= 0`", is_correct: true },
       {
@@ -134,7 +150,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "`NOT (a AND b)` ≡ `NOT a OR NOT b`. La negación de `stock > 0` es `stock <= 0`.",
+      "Por la ley de De Morgan, `NOT (a AND b)` equivale a `NOT a OR NOT b`: la negación pasa a cada condición y el `AND` se convierte en `OR`. La negación de `stock > 0` es `stock <= 0`. La equivalencia vale incluso si alguna de las columnas tuviera valores NULL (los verás en la sección 8): las dos formas dan siempre el mismo resultado.",
     is_published: true,
   },
   {
@@ -216,7 +232,7 @@ export const questions: QuestionDef[] = [
     tags: ["where", "between", "in"],
     estimated_seconds: 60,
     prompt_md:
-      "¿Cuáles condiciones son equivalentes a `installments >= 3 AND installments <= 6`? Selecciona todas las que apliquen.",
+      "La columna `installments` de la tabla `payments` guarda la cantidad de cuotas y es de tipo `integer` (solo números enteros). ¿Cuáles condiciones son equivalentes a `installments >= 3 AND installments <= 6`? Selecciona todas las que apliquen.",
     options: [
       { key: "a", body_md: "`installments BETWEEN 3 AND 6`", is_correct: true },
       { key: "b", body_md: "`installments IN (3, 4, 5, 6)`", is_correct: true },
@@ -224,7 +240,8 @@ export const questions: QuestionDef[] = [
         key: "c",
         body_md: "`installments > 3 AND installments < 6`",
         is_correct: false,
-        why_incorrect_md: "Excluye 3 y 6.",
+        why_incorrect_md:
+          "Con `>` y `<` los extremos quedan afuera: excluye los pagos en 3 y en 6 cuotas.",
       },
       {
         key: "d",
@@ -233,7 +250,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "Para enteros, `BETWEEN 3 AND 6`, la lista explícita y la negación del complemento describen el mismo conjunto {3, 4, 5, 6}.",
+      "Como `installments` solo guarda enteros, `BETWEEN 3 AND 6` (que incluye los dos extremos), la lista explícita `IN (3, 4, 5, 6)` y la negación de «menos de 3 o más de 6» describen el mismo conjunto: 3, 4, 5 y 6. Con una columna decimal, la lista `IN` dejaría de ser equivalente, porque no incluiría valores como 3,5.",
     is_published: true,
   },
   {
@@ -259,7 +276,7 @@ export const questions: QuestionDef[] = [
         body_md: "PostgreSQL ordena los extremos automáticamente, así que el problema es otro.",
         is_correct: false,
         why_incorrect_md:
-          "No los ordena. `BETWEEN` es una forma corta de escribir dos comparaciones, y las escribe en el orden en que las diste.",
+          "No los ordena. `BETWEEN` es una forma corta de escribir dos comparaciones, y las escribe en el orden en que las diste. Solo la variante `BETWEEN SYMMETRIC` acepta los extremos en cualquier orden.",
       },
       {
         key: "c",
@@ -277,7 +294,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "`BETWEEN` no valida que el rango tenga sentido: si el primer extremo es mayor que el segundo, devuelve un conjunto vacío sin avisar. Un resultado vacío que no esperabas siempre merece releer el filtro antes de concluir que no hay datos.",
+      "`BETWEEN` no valida que el rango tenga sentido: si el primer extremo es mayor que el segundo, devuelve un conjunto vacío sin avisar. PostgreSQL ofrece `BETWEEN SYMMETRIC`, que ordena los extremos por ti, pero lo habitual es escribir primero el menor. Un resultado vacío que no esperabas siempre merece releer el filtro antes de concluir que no hay datos.",
     is_published: true,
   },
   {
@@ -320,7 +337,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "El orden de precedencia es `NOT`, después `AND`, y por último `OR`. Como `NOT` es el que más aprieta, toma solo la condición inmediata. Cuando una condición mezcla los tres, los paréntesis dejan de ser opcionales: no cambian el significado, lo vuelven visible para quien lea la consulta después.",
+      "El orden de precedencia es `NOT`, después `AND` y por último `OR`. Como `NOT` se resuelve primero, se aplica solo a la condición que tiene inmediatamente a su derecha. Cuando una condición mezcla varios operadores, conviene escribir los paréntesis aunque no cambien el significado, por ejemplo `(NOT is_active) AND stock > 0`: así quien lea la consulta no tiene que recordar el orden de precedencia.",
     is_published: true,
   },
 ];

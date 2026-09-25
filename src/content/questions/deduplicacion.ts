@@ -91,7 +91,10 @@ export const questions: QuestionDef[] = [
     prompt_md:
       "Completa la palabra clave que falta para quedarte solo con los grupos que tienen más de una fila:\n\n`SELECT email, count(*) FROM customers GROUP BY email ______ count(*) > 1;`\n\nEscribe solo esa palabra.",
     code_md: null,
-    answer: { accepted: ["HAVING", "having"], case_sensitive: false },
+    answer: {
+      accepted: ["HAVING", "HAVING count(*) > 1", "HAVING count(*)>1"],
+      case_sensitive: false,
+    },
     explanation_md:
       "`WHERE` filtra filas **antes** de agrupar, así que no puede ver `count(*)`; PostgreSQL responde `aggregate functions are not allowed in WHERE`. `HAVING` filtra los grupos ya formados y es el lugar natural del filtro `count(*) > 1`, que es el patrón universal de detección de duplicados.",
     is_published: true,
@@ -196,13 +199,13 @@ export const questions: QuestionDef[] = [
     tags: ["distinct_on", "postgresql", "sintaxis"],
     estimated_seconds: 55,
     prompt_md:
-      "¿Qué condición obliga PostgreSQL a cumplir cuando escribes `SELECT DISTINCT ON (order_id) ...`?",
+      "Escribes `SELECT DISTINCT ON (order_id) ...` y además quieres ordenar el resultado con `ORDER BY`. ¿Qué regla te exige PostgreSQL para ese `ORDER BY`?",
     code_md: null,
     options: [
       {
         key: "a",
         body_md:
-          "El `ORDER BY` de la consulta debe empezar por las mismas expresiones que el `DISTINCT ON`; lo que venga después decide cuál fila de cada grupo se conserva.",
+          "El `ORDER BY` debe empezar por las mismas expresiones que el `DISTINCT ON`; las columnas que vengan después deciden qué fila de cada grupo se conserva.",
         is_correct: true,
       },
       {
@@ -261,7 +264,7 @@ export const questions: QuestionDef[] = [
       {
         key: "c",
         body_md:
-          "La normalización se aplica en la consulta para comparar; el valor original se conserva en la tabla.",
+          "En la consulta de detección, la normalización se aplica solo para comparar: el valor guardado en la tabla no cambia.",
         is_correct: true,
       },
       {
@@ -278,7 +281,7 @@ export const questions: QuestionDef[] = [
           "Conviene sobrescribir la columna `email` con la versión en minúsculas para que el problema no vuelva a aparecer.",
         is_correct: false,
         why_incorrect_md:
-          "Pierdes cómo lo escribió la persona y no puedes auditar la decisión. La forma correcta de prevenirlo es un índice único funcional sobre `lower(email)`, que impide el duplicado sin destruir el dato original.",
+          "Sobrescribir arregla las filas que ya existen, pero no impide que mañana se inserte `Ana@Ejemplo.lat` junto a `ana@ejemplo.lat`, y además pierdes cómo lo escribió la persona. Lo que impide el duplicado en el origen es un índice único sobre la expresión `lower(email)`.",
       },
     ],
     explanation_md:
@@ -306,7 +309,7 @@ export const questions: QuestionDef[] = [
         right: "GROUP BY por la clave + HAVING count(*) > 1",
       },
       {
-        left: "Necesitas la lista de ids a eliminar conservando una fila por grupo, en un motor cualquiera",
+        left: "Necesitas la lista de ids a eliminar conservando una fila por grupo, con una técnica que funcione en cualquier motor con funciones de ventana",
         right: "ROW_NUMBER sobre la clave en una CTE + filtro por el número de copia",
       },
       {
@@ -395,7 +398,7 @@ export const questions: QuestionDef[] = [
           "Que `DISTINCT` es la solución correcta, porque elimina las filas repetidas que generó el join.",
         is_correct: false,
         why_incorrect_md:
-          "`DISTINCT` solo descarta filas idénticas en todas las columnas proyectadas. Como cada intento aporta un `payments.id` y un importe distintos, las filas no son idénticas y el total sigue inflado.",
+          "`DISTINCT` se aplica a las filas del resultado final, después de calcular la suma, así que no corrige un total ya inflado. Y aunque no hubiera suma, cada intento aporta un `payments.id` y un importe distintos: las filas no son idénticas y `DISTINCT` no descarta ninguna.",
       },
       {
         key: "c",

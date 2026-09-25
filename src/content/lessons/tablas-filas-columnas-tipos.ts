@@ -99,7 +99,7 @@ Cada columna tiene un **tipo de dato**, es decir, la clase de valor que puede gu
 Dos detalles que importan en el trabajo real:
 
 - **El dinero se guarda en \`numeric\`**, nunca en \`double precision\`. \`numeric\` guarda los decimales de forma exacta; \`double precision\` los aproxima en binario, y esas aproximaciones se acumulan hasta que una suma larga cierra con algunos centavos de diferencia.
-- **\`timestamptz\`** (por *timestamp with time zone*, marca de tiempo con zona horaria) guarda un instante absoluto y lo muestra en la zona horaria de la sesión desde la que consultas. Un pedido creado a las 23:30 en Buenos Aires figura como del día siguiente si lo miras en UTC (por *Coordinated Universal Time*, el tiempo universal coordinado), porque allí ya son las 02:30. Volveremos a esto en la sección de fechas.
+- **\`timestamptz\`** (por *timestamp with time zone*, marca de tiempo con zona horaria) guarda un instante absoluto y lo muestra en la zona horaria de la sesión desde la que consultas. Un pedido creado a las 23:30 en Buenos Aires figura como del día siguiente si lo miras en UTC (por *Coordinated Universal Time*, el tiempo universal coordinado), porque allí ya son las 02:30. Volveremos a esto en la sección de fechas. Si ya trabajaste con otras bases de datos: en MySQL o SQL Server un tipo parecido de fecha y hora se llama \`datetime\`; en PostgreSQL, la versión sin zona horaria es \`timestamp\`.
 
 ## Ejemplo ejecutable
 

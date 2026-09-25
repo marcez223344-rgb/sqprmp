@@ -22,7 +22,7 @@ export const questions: QuestionDef[] = [
       { key: "a", body_md: "`NULL`, porque no existe una fila anterior.", is_correct: true },
       {
         key: "b",
-        body_md: "`0`, porque Postgres rellena con cero cuando no hay fila anterior.",
+        body_md: "`0`, porque PostgreSQL rellena con cero cuando no hay fila anterior.",
         is_correct: false,
         why_incorrect_md:
           "El valor por omisión es `NULL`. Solo obtienes `0` si lo pides explícitamente con el tercer argumento: `lag(ventas, 1, 0)`.",
@@ -58,7 +58,7 @@ export const questions: QuestionDef[] = [
     prompt_md:
       "Para traer el valor de la fila **siguiente** dentro de la partición usas la función `___`. Escribe solo el nombre de la función.",
     code_md: null,
-    answer: { accepted: ["LEAD", "lead"], case_sensitive: false },
+    answer: { accepted: ["LEAD", "lead()"], case_sensitive: false },
     explanation_md:
       "`LEAD` mira hacia adelante y `LAG` hacia atrás. Ambas aceptan el desplazamiento como segundo argumento y un valor por omisión como tercero.",
     is_published: true,
@@ -118,14 +118,14 @@ export const questions: QuestionDef[] = [
     tags: ["lag_lead", "numeric", "division"],
     estimated_seconds: 60,
     prompt_md:
-      "La columna `ventas` es `integer` y la serie no tiene meses en cero. La consulta corre sin error, pero `variacion_pct` muestra `0` en casi todos los meses. ¿Cuál es la causa?",
+      "La columna `ventas` es `integer`, la serie tiene una fila por mes y ningún mes tiene ventas en cero. La consulta corre sin error, pero `variacion_pct` muestra `0` en casi todos los meses. ¿Cuál es la causa?",
     code_md:
-      "SELECT\n  mes,\n  ventas,\n  100 * (ventas - lag(ventas) OVER (ORDER BY mes))\n    / lag(ventas) OVER (ORDER BY mes) AS variacion_pct\nFROM ventas_mensuales\nORDER BY mes;",
+      "```sql\nSELECT\n  mes,\n  ventas,\n  (ventas - lag(ventas) OVER (ORDER BY mes))\n    / lag(ventas) OVER (ORDER BY mes) * 100 AS variacion_pct\nFROM ventas_mensuales\nORDER BY mes;\n```",
     options: [
       {
         key: "a",
         body_md:
-          "Los tres operandos son enteros, así que la división es entera y trunca los decimales; hay que forzar `numeric`, por ejemplo con `100.0`.",
+          "La diferencia y el mes anterior son enteros, así que la división es entera: descarta los decimales antes de multiplicar por 100. Hay que forzar `numeric`, por ejemplo escribiendo `100.0 *` al principio.",
         is_correct: true,
       },
       {
@@ -140,18 +140,18 @@ export const questions: QuestionDef[] = [
         body_md: "`lag` no puede usarse dos veces en la misma expresión.",
         is_correct: false,
         why_incorrect_md:
-          "Puedes repetir la misma llamada a `lag` tantas veces como quieras; Postgres la evalúa una sola vez por fila.",
+          "Puedes repetir la misma llamada a `lag` tantas veces como quieras: es válido y cada una devuelve el mismo valor.",
       },
       {
         key: "d",
-        body_md: "Falta `round`, y sin redondeo Postgres devuelve 0.",
+        body_md: "Falta `round`, y sin redondeo PostgreSQL devuelve 0.",
         is_correct: false,
         why_incorrect_md:
-          "`round` solo cambia cómo se presenta un número que ya es decimal; acá el valor ya se truncó antes, en la división.",
+          "`round` solo redondea un número que ya tiene decimales; aquí los decimales se perdieron antes, en la división.",
       },
     ],
     explanation_md:
-      "En Postgres, `integer / integer` devuelve `integer`: `3 / 4` da `0`. Multiplicar por `100.0` (o convertir con `::numeric`) hace que toda la expresión se evalúe en decimal. Como la multiplicación ocurre antes que la división, `100.0 * (...)` ya alcanza.",
+      "En PostgreSQL, `integer / integer` devuelve `integer`: si las ventas pasan de 100 a 110, `(110 - 100) / 100` da `0`, y `0 * 100` sigue siendo `0`. Solo una variación de 100 % o más sobrevive a la división entera. La corrección es `100.0 * (ventas - lag(ventas) OVER (ORDER BY mes)) / lag(ventas) OVER (ORDER BY mes)`: el `100.0` convierte la cuenta a decimal desde el primer paso.",
     is_published: true,
   },
   {
@@ -240,7 +240,7 @@ export const questions: QuestionDef[] = [
     estimated_seconds: 70,
     prompt_md: "¿Qué mide la columna `d` de esta consulta?",
     code_md:
-      "SELECT\n  user_id,\n  played_at,\n  extract(epoch FROM played_at\n    - lag(played_at) OVER (PARTITION BY user_id ORDER BY played_at)) / 86400 AS d\nFROM plays;",
+      "```sql\nSELECT\n  user_id,\n  played_at,\n  extract(epoch FROM played_at\n    - lag(played_at) OVER (PARTITION BY user_id ORDER BY played_at)) / 86400 AS d\nFROM plays;\n```",
     options: [
       {
         key: "a",
@@ -284,9 +284,9 @@ export const questions: QuestionDef[] = [
     tags: ["lag_lead", "first_value", "last_value", "frame"],
     estimated_seconds: 75,
     prompt_md:
-      "Esta consulta debería mostrar, en cada fila, el total del último mes de cada país. En cambio, `ultimo` siempre coincide con `total`. ¿Por qué?",
+      "La tabla `serie_mensual` tiene una fila por país y mes. Esta consulta debería mostrar, en cada fila, el total del último mes de ese país. En cambio, `ultimo` siempre coincide con `total`. ¿Por qué?",
     code_md:
-      "SELECT\n  country,\n  mes,\n  total,\n  last_value(total) OVER (PARTITION BY country ORDER BY mes) AS ultimo\nFROM serie_mensual;",
+      "```sql\nSELECT\n  country,\n  mes,\n  total,\n  last_value(total) OVER (PARTITION BY country ORDER BY mes) AS ultimo\nFROM serie_mensual;\n```",
     options: [
       {
         key: "a",
@@ -317,7 +317,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "Con `ORDER BY` y sin cláusula de marco, Postgres aplica `RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`. La «última fila» de ese marco es la fila actual. Abrir el marco hasta `UNBOUNDED FOLLOWING` resuelve el problema; una alternativa igual de válida y más legible es `first_value(total) OVER (PARTITION BY country ORDER BY mes DESC)`.",
+      "Con `ORDER BY` y sin cláusula de marco, PostgreSQL aplica `RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`. La «última fila» de ese marco es la fila actual. Abrir el marco hasta `UNBOUNDED FOLLOWING` resuelve el problema; una alternativa igual de válida y más legible es `first_value(total) OVER (PARTITION BY country ORDER BY mes DESC)`.",
     is_published: true,
   },
   {
@@ -330,7 +330,7 @@ export const questions: QuestionDef[] = [
     tags: ["lag_lead", "where", "cte"],
     estimated_seconds: 55,
     prompt_md:
-      "Quieres quedarte solo con los meses que cayeron respecto del anterior. ¿Cuál es la forma correcta de filtrar?",
+      "Sobre una serie con una fila por mes, quieres quedarte solo con los meses cuyas ventas cayeron respecto del mes anterior. ¿Cuál es la forma correcta de filtrar?",
     code_md: null,
     options: [
       {
@@ -344,7 +344,7 @@ export const questions: QuestionDef[] = [
         body_md: "Escribir `WHERE ventas < lag(ventas) OVER (ORDER BY mes)` en la misma consulta.",
         is_correct: false,
         why_incorrect_md:
-          "No es válido: el `WHERE` se evalúa antes que las funciones de ventana, así que Postgres rechaza la consulta con «window functions are not allowed in WHERE».",
+          "No es válido: el `WHERE` se evalúa antes que las funciones de ventana, así que PostgreSQL rechaza la consulta con «window functions are not allowed in WHERE».",
       },
       {
         key: "c",
@@ -358,7 +358,7 @@ export const questions: QuestionDef[] = [
         body_md: "Agregar `FILTER (WHERE ventas < 0)` a la llamada de `lag`.",
         is_correct: false,
         why_incorrect_md:
-          "`FILTER` solo se aplica a funciones de agregación, no a funciones de ventana puras como `lag`, y tampoco expresa esa condición.",
+          "`FILTER` solo se aplica a funciones de agregación: con `lag`, PostgreSQL responde «FILTER is not implemented for non-aggregate window functions». Además, `ventas < 0` no expresa «cayó respecto del mes anterior».",
       },
     ],
     explanation_md:
@@ -413,7 +413,7 @@ export const questions: QuestionDef[] = [
       {
         key: "b",
         body_md:
-          "Se corrige agregando una rama `WHEN lag(...) IS NULL THEN 1` antes de la comparación.",
+          "Para que la primera reproducción de cada oyente abra una sesión, basta con agregar antes de la comparación una rama `WHEN lag(played_at) OVER (PARTITION BY user_id ORDER BY played_at) IS NULL THEN 1`.",
         is_correct: true,
       },
       {
@@ -452,7 +452,7 @@ export const questions: QuestionDef[] = [
     tags: ["lag_lead", "date_boundary", "reporting"],
     estimated_seconds: 60,
     prompt_md:
-      "Hoy es 15 de septiembre. Tu informe de variación mensual muestra septiembre con −54 % contra agosto y Dirección pregunta qué pasó. ¿Cuál es la respuesta correcta y qué conviene hacer?",
+      "Hoy es 15 de septiembre. Tu informe de variación mensual de ventas muestra septiembre con −54 % contra agosto, y la dirección de la empresa pregunta qué pasó. ¿Cuál es la respuesta correcta y qué conviene hacer?",
     code_md: null,
     options: [
       {
@@ -480,11 +480,11 @@ export const questions: QuestionDef[] = [
         body_md: "Es una caída real del negocio y hay que investigar el producto.",
         is_correct: false,
         why_incorrect_md:
-          "Antes de investigar el producto conviene descartar el artefacto de corte de datos, que explica la caída por completo.",
+          "Con medio mes transcurrido, una caída cercana al 50 % es exactamente lo que produce comparar medio mes contra un mes completo. Antes de hablar de una caída del negocio hay que comparar períodos equivalentes.",
       },
     ],
     explanation_md:
-      "Un período en curso siempre se ve como una caída enorme. Las dos salidas honestas son filtrarlo (`played_at < date_trunc('month', current_date)`) o marcarlo con una bandera de «incompleto» para que la variación no se lea como un hecho del negocio.",
+      "Un período en curso casi siempre se ve como una caída enorme, porque todavía no terminó. Las dos salidas honestas son filtrarlo (por ejemplo, `fecha < date_trunc('month', current_date)`) o marcarlo con una bandera de «incompleto» para que la variación no se lea como un hecho del negocio.",
     is_published: true,
   },
   {
@@ -518,7 +518,7 @@ export const questions: QuestionDef[] = [
         body_md: "Porque falta `ROWS BETWEEN 1 PRECEDING AND 1 PRECEDING` para fijar el marco.",
         is_correct: false,
         why_incorrect_md:
-          "`lag` no se apoya en el marco: se define por la posición dentro de la partición ordenada. Agregar una cláusula de marco no cambia nada acá.",
+          "`lag` no se apoya en el marco: se define por la posición dentro de la partición ordenada. Agregar una cláusula de marco no cambia nada aquí.",
       },
       {
         key: "d",

@@ -14,7 +14,7 @@ export const questions: QuestionDef[] = [
     tags: ["aggregate", "null_handling"],
     estimated_seconds: 45,
     prompt_md:
-      "`ratings` tiene 7353 filas; 777 tienen `restaurant_rating` NULL. ¿Qué devuelve `count(restaurant_rating)`?",
+      "En Pídelo, la tabla `ratings` tiene 7353 filas y 777 de ellas tienen `restaurant_rating` en NULL. ¿Qué devuelve `SELECT count(restaurant_rating) FROM ratings;`?",
     options: [
       { key: "a", body_md: "6576", is_correct: true },
       {
@@ -79,13 +79,14 @@ export const questions: QuestionDef[] = [
       },
       {
         key: "c",
-        body_md: "0 si no hay cancelados.",
+        body_md: "Dos: una con el `count(*)` y otra con el `max(total)`.",
         is_correct: false,
         why_incorrect_md:
-          "Aun sin filas, la agregación devuelve una fila (`count` = 0, `max` = NULL).",
+          "Cada función de agregación es una columna del resultado, no una fila: `count(*)` y `max(total)` salen lado a lado en la misma fila.",
       },
     ],
-    explanation_md: "Una agregación sin `GROUP BY` siempre produce una fila.",
+    explanation_md:
+      "Una consulta que solo tiene funciones de agregación y no lleva `GROUP BY` resume todas las filas que pasaron el `WHERE` en una única fila, con una columna por cada función.",
     is_published: true,
   },
   {
@@ -151,7 +152,8 @@ export const questions: QuestionDef[] = [
         why_incorrect_md: "La agregación devuelve una fila igual.",
       },
     ],
-    explanation_md: "`count` es la única agregación que nunca devuelve NULL.",
+    explanation_md:
+      "Una agregación sin `GROUP BY` devuelve una fila aunque ninguna fila cumpla el `WHERE`. En esa fila, `count` vale 0, mientras que `sum`, `avg`, `min` y `max` valen NULL, porque no tienen ningún valor sobre el cual calcular.",
     is_published: true,
   },
   {
@@ -199,8 +201,11 @@ export const questions: QuestionDef[] = [
     tags: ["aggregate", "distinct"],
     estimated_seconds: 35,
     prompt_md:
-      "Completa para contar cuántos clientes distintos hicieron pedidos: `SELECT count(___ customer_id) FROM orders;`",
-    answer: { accepted: ["DISTINCT"], case_sensitive: false },
+      "Completa la palabra clave que falta para contar cuántos clientes distintos hicieron pedidos: `SELECT count(___ customer_id) FROM orders;`. Escribe solo la palabra clave.",
+    answer: {
+      accepted: ["DISTINCT", "DISTINCT customer_id", "count(DISTINCT customer_id)"],
+      case_sensitive: false,
+    },
     explanation_md: "`count(DISTINCT columna)` cuenta valores únicos no nulos.",
     is_published: true,
   },
@@ -269,24 +274,31 @@ export const questions: QuestionDef[] = [
     topic: "Reglas de agregación",
     tags: ["aggregate", "null_handling"],
     estimated_seconds: 60,
-    prompt_md: "¿Cuáles afirmaciones son correctas? Selecciona todas las que apliquen.",
+    prompt_md:
+      "¿Cuáles de estas afirmaciones sobre las funciones de agregación en PostgreSQL son correctas? Selecciona todas las que apliquen.",
     options: [
       {
         key: "a",
         body_md: "`count(*)` incluye filas cuyas columnas son todas NULL.",
         is_correct: true,
       },
-      { key: "b", body_md: "`sum` de una columna entera devuelve `bigint`.", is_correct: true },
+      {
+        key: "b",
+        body_md: "`sum` de una columna de tipo `integer` devuelve un `bigint`.",
+        is_correct: true,
+      },
       {
         key: "c",
-        body_md: "`avg` devuelve 0 cuando todos los valores son NULL.",
+        body_md:
+          "`avg` de una columna de tipo `integer` descarta los decimales: el promedio de 1 y 2 da 1.",
         is_correct: false,
-        why_incorrect_md: "Devuelve NULL.",
+        why_incorrect_md:
+          "`avg` sobre enteros devuelve un valor `numeric` con decimales: el promedio de 1 y 2 da 1.5. La división que sí descarta decimales es la de dos enteros con `/`, como `3 / 2`, que da 1.",
       },
       { key: "d", body_md: "`WHERE` se evalúa antes de agregar.", is_correct: true },
     ],
     explanation_md:
-      "`count(*)` cuenta filas sin mirar valores; `sum` de enteros escala a `bigint`; `avg` sin valores es NULL; el filtro precede a la agregación.",
+      "`count(*)` cuenta filas sin mirar sus valores. `sum` sobre una columna `integer` devuelve `bigint`, un entero más grande, para que la suma no se desborde. `avg` sobre enteros devuelve `numeric`, con decimales. Y el `WHERE` filtra las filas antes de que se calcule cualquier agregación.",
     is_published: true,
   },
 ];

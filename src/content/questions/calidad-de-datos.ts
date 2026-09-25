@@ -436,7 +436,7 @@ export const questions: QuestionDef[] = [
       {
         key: "a",
         body_md:
-          "Hay 37 correos que, una vez ignorados los espacios y las mayúsculas, están cargados en más de una fila: son personas registradas dos veces que el conteo de `email` distintos no detectaba.",
+          "Hay 37 correos que, una vez ignorados los espacios y las mayúsculas, aparecen en más de una fila: probables registros repetidos de una misma persona, que el conteo de `email` distintos casi no dejaba ver.",
         is_correct: true,
       },
       {
@@ -462,7 +462,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "Contar valores distintos de una columna de texto sin normalizar subestima los duplicados: `ANA@EJEMPLO.LAT` y `ana@ejemplo.lat` son dos valores distintos y una sola persona. `lower(btrim(...))` es la normalización mínima antes de agrupar texto. Detectar no es fusionar: unificar dos registros de cliente es una decisión de negocio, no del análisis.",
+      "Contar valores distintos de una columna de texto sin normalizar subestima los duplicados: `ANA@EJEMPLO.LAT` y `ana@ejemplo.lat` son dos valores distintos y una sola persona. Con los datos de TiendaViva, el conteo crudo sugiere 2 filas sobrantes (3000 − 2998), mientras que con el correo normalizado los 37 grupos suman 39 filas sobrantes: 35 correos aparecen dos veces y 2 aparecen tres veces. `lower(btrim(...))` es la normalización mínima antes de agrupar texto. Detectar no es fusionar: unificar dos registros de cliente es una decisión de negocio, no del análisis.",
     is_published: true,
   },
   {

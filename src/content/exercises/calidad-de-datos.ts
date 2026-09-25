@@ -396,7 +396,7 @@ export const exercises: ExerciseDef[] = [
     ],
     validation_rules: {
       order_matters: true,
-      required_concepts: ["group_by", "having"],
+      required_concepts: ["group_by"],
     },
     reference_solution:
       "SELECT\n  user_id,\n  track_id,\n  played_at AT TIME ZONE 'UTC' AS played_at_utc,\n  count(*) AS copies\nFROM plays\nGROUP BY user_id, track_id, played_at\nHAVING count(*) > 1\nORDER BY user_id, track_id, played_at_utc;",

@@ -90,14 +90,15 @@ export const questions: QuestionDef[] = [
       },
       {
         key: "e",
-        body_md: "Algunas filas reales de `customers`, con nombre y correo, como ejemplo.",
+        body_md:
+          "El usuario y la contraseña de la base, para que la IA pueda consultar las tablas por su cuenta.",
         is_correct: false,
         why_incorrect_md:
-          "La IA necesita el esquema, no los datos, para escribir la consulta. Pegar filas reales con nombres y correos expone datos personales de clientes.",
+          "Para escribir la consulta, la IA necesita el esquema, no acceso a la base. Una credencial compartida con una herramienta externa da acceso a todos los datos, y nunca se pega en un chat.",
       },
     ],
     explanation_md:
-      "Con las tablas, la columna de unión, el resultado esperado y el motor, la IA tiene lo que necesita para escribir la consulta. Si hace falta mostrar un ejemplo, se inventan valores con la misma forma que los reales.",
+      "Con las tablas, la columna de unión, el resultado esperado y el motor, la IA tiene lo que necesita para escribir la consulta. Lo que nunca va en el pedido son credenciales ni datos reales de personas: si hace falta mostrar un ejemplo, se inventan valores con la misma forma que los reales.",
     is_published: true,
   },
   {
@@ -295,9 +296,9 @@ export const questions: QuestionDef[] = [
     tags: ["fechas", "rango_semiabierto", "timestamptz"],
     estimated_seconds: 45,
     prompt_md:
-      "Una IA filtró agosto con `BETWEEN '2025-08-01' AND '2025-08-31'` sobre una columna `timestamptz`. Lo corriges con un rango semiabierto: `created_at >= '2025-08-01' AND created_at ___ '2025-09-01'`. ¿Qué operador completa el espacio? Escribe solo el operador.",
+      "Una IA filtró agosto con `BETWEEN '2025-08-01' AND '2025-08-31'` sobre una columna `timestamptz` (fecha y hora con zona horaria, parecido al `datetime` de otras bases de datos). Lo corriges con un rango semiabierto: `created_at >= '2025-08-01' AND created_at ___ '2025-09-01'`. ¿Qué operador completa el espacio? Escribe solo el operador.",
     code_md: null,
-    answer: { accepted: ["<"], case_sensitive: false },
+    answer: { accepted: ["<", "< '2025-09-01'"], case_sensitive: false },
     explanation_md:
       "El rango semiabierto incluye el inicio y excluye el fin. Con `<` entra todo el 31 de agosto, hasta la última fracción de segundo, y no entra nada del 1 de septiembre. Con `<=` entraría un movimiento registrado exactamente a las 00:00 del 1 de septiembre.",
     is_published: true,
@@ -312,7 +313,7 @@ export const questions: QuestionDef[] = [
     tags: ["privacidad", "datos_personales", "anonimizar"],
     estimated_seconds: 90,
     prompt_md:
-      "Un compañero quiere que la IA le ayude a escribir una consulta de segmentación. Propone pegar 200 filas de la tabla de clientes de la empresa, con correo y número de DNI, «para que entienda bien los datos». La empresa no tiene una herramienta de IA aprobada. ¿Qué conviene hacer?",
+      "Un compañero quiere que la IA le ayude a escribir una consulta de segmentación. Propone pegar 200 filas de la tabla de clientes de la empresa, con correo y número de documento de identidad, «para que entienda bien los datos». La empresa no tiene una herramienta de IA aprobada. ¿Qué conviene hacer?",
     code_md: null,
     options: [
       {
@@ -330,7 +331,7 @@ export const questions: QuestionDef[] = [
       },
       {
         key: "c",
-        body_md: "Pegar las filas quitando solo la columna del DNI.",
+        body_md: "Pegar las filas quitando solo la columna del documento de identidad.",
         is_correct: false,
         why_incorrect_md:
           "El correo también identifica a una persona, igual que el nombre o el teléfono. Quitar una columna no anonimiza la fila.",

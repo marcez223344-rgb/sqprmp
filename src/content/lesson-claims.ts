@@ -477,7 +477,7 @@ ${MX_JUL_AGO}`,
   {
     lesson: "optimizacion-el-trabajo-que-hace-el-motor",
     dataset: "pidelo",
-    prose: "La primera agrupa 13 284 filas, y la segunda agrupa las 14 437",
+    prose: "la primera agrupa 13 284 filas, y la segunda agrupa las 14 437",
     sql: "SELECT count(*) FILTER (WHERE status = 'delivered'), count(*) FROM orders",
     about: "pedidos entregados y pedidos totales",
   },

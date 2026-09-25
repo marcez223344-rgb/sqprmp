@@ -64,13 +64,13 @@ export const questions: QuestionDef[] = [
     tags: ["fechas", "rangos", "timestamptz"],
     estimated_seconds: 60,
     prompt_md:
-      "`orders.placed_at` es `timestamptz`. Quieres los pedidos del primer semestre de 2025 en UTC, sin perder ninguno. ¿Cuál condición es correcta?",
+      "`orders.placed_at` es `timestamptz`, es decir, fecha y hora con zona horaria (parecido al `datetime` de otras bases de datos). Quieres los pedidos del primer semestre de 2025 en UTC, sin perder ninguno y de forma que el motor pueda usar el índice sobre `placed_at`. ¿Cuál condición es correcta?",
     code_md: null,
     options: [
       {
         key: "a",
         body_md:
-          "`placed_at AT TIME ZONE 'UTC' >= '2025-01-01' AND placed_at AT TIME ZONE 'UTC' < '2025-07-01'`",
+          "`placed_at >= TIMESTAMPTZ '2025-01-01 00:00:00+00' AND placed_at < TIMESTAMPTZ '2025-07-01 00:00:00+00'`",
         is_correct: true,
       },
       {
@@ -78,7 +78,7 @@ export const questions: QuestionDef[] = [
         body_md: "`placed_at AT TIME ZONE 'UTC' BETWEEN '2025-01-01' AND '2025-06-30'`",
         is_correct: false,
         why_incorrect_md:
-          "`BETWEEN` es inclusivo de los dos lados, y `'2025-06-30'` se interpreta como `2025-06-30 00:00:00`. Se pierden todos los pedidos de las 24 horas del 30 de junio salvo los de la medianoche exacta.",
+          "`BETWEEN` es inclusivo de los dos lados, y `'2025-06-30'` se interpreta como `2025-06-30 00:00:00`. Se pierden todos los pedidos de las 24 horas del 30 de junio salvo los de la medianoche exacta. Además, aplicar `AT TIME ZONE` sobre la columna impide usar el índice.",
       },
       {
         key: "c",
@@ -96,7 +96,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "La forma segura de acotar un período sobre marcas de tiempo es el rango semiabierto: `>=` el inicio y `<` el inicio del período siguiente. No depende de la precisión de la columna (segundos, milisegundos) y nunca deja horas fuera. Sobre `timestamptz` hay que fijar además el huso, o el resultado cambia según quién ejecute la consulta.",
+      "La forma segura de acotar un período sobre marcas de tiempo es el rango semiabierto: `>=` el inicio y `<` el inicio del período siguiente. No depende de la precisión de la columna (segundos, milisegundos) y nunca deja horas fuera. Sobre `timestamptz` hay que fijar además el huso, o el resultado cambia según quién ejecute la consulta: escribir los extremos como `TIMESTAMPTZ` con `+00` lo fija en los propios valores y deja la columna sola, así que el índice sigue sirviendo. `placed_at AT TIME ZONE 'UTC' >= '2025-01-01'` devuelve las mismas filas, pero como transforma la columna, el índice ya no sirve.",
     is_published: true,
   },
   {
@@ -137,9 +137,12 @@ export const questions: QuestionDef[] = [
     prompt_md:
       "Un informe resta las devoluciones al bruto, pero los meses sin devoluciones quedan en `NULL` porque el `LEFT JOIN` no encontró filas. Completa la función que falta para que esos meses den 0:\n\n`sum(p.amount) - ______(sum(r.refund_amount), 0) AS net_amount`\n\nEscribe solo el nombre de la función.",
     code_md: null,
-    answer: { accepted: ["coalesce", "COALESCE"], case_sensitive: false },
+    answer: {
+      accepted: ["coalesce", "coalesce(sum(r.refund_amount), 0)"],
+      case_sensitive: false,
+    },
     explanation_md:
-      "`coalesce` devuelve el primer argumento no nulo, así que `coalesce(sum(r.refund_amount), 0)` convierte la ausencia de devoluciones en un cero. Sin ella, cualquier operación aritmética con `NULL` devuelve `NULL` y el mes entero se pierde del informe, aunque sí haya habido ventas.",
+      "`coalesce` devuelve el primer argumento no nulo, así que `coalesce(sum(r.refund_amount), 0)` convierte la ausencia de devoluciones en un cero. Sin ella, cualquier operación aritmética con `NULL` devuelve `NULL`, y esos meses quedan con `net_amount` vacío aunque sí haya habido ventas.",
     is_published: true,
   },
   {
@@ -338,12 +341,13 @@ export const questions: QuestionDef[] = [
       {
         key: "a",
         body_md:
-          "`LEFT JOIN fx_rates f ON f.currency = t.currency AND f.rate_date = (t.created_at AT TIME ZONE 'UTC')::date`, y en el `SELECT`: `t.amount / coalesce(f.usd_rate, 1)`",
+          "`LEFT JOIN fx_rates f ON f.currency = t.currency AND f.rate_date = (t.created_at AT TIME ZONE 'UTC')::date`, y en el `SELECT`: `t.amount / CASE WHEN t.currency = 'USD' THEN 1 ELSE f.usd_rate END`",
         is_correct: true,
       },
       {
         key: "b",
-        body_md: "El mismo join, pero en el `SELECT`: `t.amount * coalesce(f.usd_rate, 1)`",
+        body_md:
+          "El mismo join, pero en el `SELECT`: `t.amount * CASE WHEN t.currency = 'USD' THEN 1 ELSE f.usd_rate END`",
         is_correct: false,
         why_incorrect_md:
           "Multiplicar va en la dirección contraria: 120 000 ARS con una cotización de 1200 darían 144 millones de dólares. Como `usd_rate` son unidades locales por dólar, se divide.",
@@ -366,7 +370,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "Una conversión multimoneda tiene tres decisiones: la dirección (dividir o multiplicar, según cómo esté expresada la cotización), la fecha (la del evento, no la de hoy) y el caso sin cotización (la propia moneda de referencia). `LEFT JOIN` más `coalesce(usd_rate, 1)` resuelve el tercero sin escribir un caso especial.",
+      "Una conversión multimoneda tiene tres decisiones: la dirección (dividir o multiplicar, según cómo esté expresada la cotización), la fecha (la del evento, no la de hoy) y el caso sin cotización (la propia moneda de referencia). El `LEFT JOIN` conserva las transacciones en `USD` y el `CASE` las divide por 1.\n\nUn atajo frecuente es `coalesce(f.usd_rate, 1)`. Da lo mismo mientras toda moneda local tenga cotización en todas las fechas, pero cuando falta una cotización también pone 1 y trata esos pesos como si fueran dólares, sin ningún aviso. En Bolsillo pasa con 12 transacciones del 16 y el 17 de septiembre de 2025, posteriores a la última fecha de `fx_rates`. Con el `CASE`, esas filas quedan en NULL, y un NULL se ve.",
     is_published: true,
   },
   {
@@ -424,45 +428,45 @@ export const questions: QuestionDef[] = [
     type: "single",
     difficulty: "advanced",
     topic: "Elegir la medida de posición según la decisión",
-    tags: ["mediana", "promedio", "distribuciones"],
-    estimated_seconds: 70,
+    tags: ["percentiles", "mediana", "promedio", "distribuciones"],
+    estimated_seconds: 75,
     prompt_md:
-      "Producto va a fijar un límite por transferencia que cubra a la mayoría de los usuarios habituales. Los importes tienen una cola larga: unas pocas transferencias son cientos de veces mayores que el resto. ¿Qué número le entregas?",
+      "Producto va a fijar un límite por transferencia y quiere que el 95 % de las transferencias habituales quede por debajo de ese límite. Los importes tienen una cola larga: unas pocas transferencias son cientos de veces mayores que el resto. ¿Qué número le entregas?",
     code_md: null,
     options: [
       {
         key: "a",
         body_md:
-          "La mediana, con `percentile_cont(0.5) WITHIN GROUP (ORDER BY amount)`, porque describe el importe típico y no se mueve por unas pocas transferencias enormes.",
+          "El percentil 95, con `percentile_cont(0.95) WITHIN GROUP (ORDER BY amount)`: es el importe por debajo del cual queda el 95 % de las transferencias.",
         is_correct: true,
       },
       {
         key: "b",
         body_md:
-          "El promedio con `avg(amount)`, porque usa todos los datos y no descarta información.",
+          "La mediana, con `percentile_cont(0.5) WITHIN GROUP (ORDER BY amount)`, porque describe el importe típico y no se mueve por unas pocas transferencias enormes.",
         is_correct: false,
         why_incorrect_md:
-          "El promedio usa todos los datos, pero con cola larga queda por encima de casi toda la distribución. Un límite fijado con el promedio dejaría afuera a la mayoría de los usuarios habituales, que es justo lo contrario del objetivo.",
+          "La mediana describe bien el importe típico, pero por definición la mitad de las transferencias queda por encima de ella. Un límite fijado en la mediana frenaría a una de cada dos, muy lejos del 95 % pedido.",
       },
       {
         key: "c",
+        body_md:
+          "El promedio con `avg(amount)`, porque usa todos los datos y no descarta información.",
+        is_correct: false,
+        why_incorrect_md:
+          "El promedio no dice qué parte de las transferencias queda por debajo: con una cola larga, las pocas transferencias enormes lo empujan hacia arriba, y su posición en la distribución depende de esos casos extremos. Puede dejar debajo al 70 % o al 90 %; no hay forma de saberlo sin medirlo.",
+      },
+      {
+        key: "d",
         body_md:
           "El máximo con `max(amount)`, para asegurarte de que ninguna transferencia legítima quede bloqueada.",
         is_correct: false,
         why_incorrect_md:
           "Un límite igual al máximo observado no limita nada: por definición ninguna operación pasada lo supera y el control pierde su propósito.",
       },
-      {
-        key: "d",
-        body_md:
-          "El promedio de los importes descartando el 1 % más alto, porque así se elimina la cola y el promedio vuelve a ser representativo.",
-        is_correct: false,
-        why_incorrect_md:
-          "Recortar la cola es una opción válida en algunos análisis, pero exige justificar el umbral elegido y se vuelve difícil de auditar. La mediana llega al mismo lugar sin descartar datos ni introducir un parámetro arbitrario.",
-      },
     ],
     explanation_md:
-      "La medida de posición se elige por la decisión que va a sostener, no por costumbre. Para «qué monto cubre a la mitad de mis usuarios» la respuesta es literalmente la mediana. El promedio sirve cuando el total importa —facturación, costo agregado—, porque `avg × cantidad` reconstruye la suma; la mediana no tiene esa propiedad.",
+      "La medida de posición se elige por la decisión que va a sostener, no por costumbre. «Que el 95 % quede por debajo» es, literalmente, la definición del percentil 95, y como un percentil depende del orden de los valores y no de su tamaño, las transferencias enormes no lo arrastran. La mediana es el percentil 50: responde «cuál es el importe típico», no «qué límite deja pasar a casi todos». El promedio sirve cuando el total importa, como la facturación o el costo agregado, porque `avg × cantidad` reconstruye la suma; ningún percentil tiene esa propiedad.",
     is_published: true,
   },
   {
@@ -475,7 +479,7 @@ export const questions: QuestionDef[] = [
     tags: ["fan_out", "nivel_de_detalle", "join"],
     estimated_seconds: 100,
     prompt_md:
-      "Un pedido de 1000 con 3 ítems y otro de 500 con 1 ítem. ¿Qué devuelve `gmv` en esta consulta y por qué?",
+      "Hay dos pedidos: uno de 1000 con 3 filas en `order_items` y otro de 500 con 1 fila. ¿Qué devuelve `gmv` en esta consulta y por qué?",
     code_md:
       "SELECT sum(o.total_amount) AS gmv,\n       sum(oi.quantity) AS units\nFROM orders o\nJOIN order_items oi ON oi.order_id = o.id;",
     options: [
@@ -584,7 +588,7 @@ export const questions: QuestionDef[] = [
           "Alguien modificó datos viejos; una consulta con el mismo texto siempre devuelve el mismo resultado.",
         is_correct: false,
         why_incorrect_md:
-          "El mismo texto no significa el mismo resultado: `current_date` se evalúa en cada ejecución y mueve el rango. Las cargas tardías existen, pero acá no hacen falta para explicar la diferencia.",
+          "El mismo texto no significa el mismo resultado: `current_date` se evalúa en cada ejecución y mueve el rango. Las cargas tardías existen, pero aquí no hacen falta para explicar la diferencia.",
       },
       {
         key: "c",

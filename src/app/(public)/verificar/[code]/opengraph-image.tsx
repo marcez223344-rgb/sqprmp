@@ -2,6 +2,7 @@ import { ImageResponse } from "next/og";
 import { getTranslations } from "next-intl/server";
 import { OG_CONTENT_TYPE, OG_SIZE, ShareCard } from "@/components/og/share-card";
 import { brand } from "@/config/brand";
+import { sealDataUri } from "@/lib/certificates/seal";
 import { verificationRateLimited, verifyCertificate } from "@/lib/certificates/service";
 
 export const alt = brand.productName;
@@ -35,8 +36,13 @@ export default async function CertificateOpengraphImage({
       <ShareCard
         eyebrow={tVerify("valid.title")}
         headline={result.recipientName}
-        description={result.title}
+        description={
+          result.programHours > 0
+            ? `${result.title} · ${tVerify("fields.programHours")}: ${tVerify("fields.programHoursValue", { hours: result.programHours })}`
+            : result.title
+        }
         footnote={`${tVerify("fields.issuer")} · ${brand.organization}`}
+        seal={sealDataUri()}
       />
     ) : (
       <ShareCard

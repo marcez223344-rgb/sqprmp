@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   gradeAnswer,
+  matchingChoices,
+  multipleBreakdown,
+  normalizeTypedAnswer,
   passThreshold,
   scorePercent,
   shuffle,
@@ -112,5 +115,125 @@ describe("shuffle", () => {
     expect(items).toEqual([1, 2, 3, 4, 5, 6]);
     seed = 42;
     expect(shuffle(items, rng)).toEqual(out);
+  });
+});
+
+describe("fill_blank tolerance (round 6, items 15/20)", () => {
+  // Mirrors src/content/questions/operadores-comparacion-logicos.ts `oper-q04-not-in` once the
+  // full expression is accepted alongside the bare operator.
+  const notIn: AnswerKey = {
+    type: "fill_blank",
+    correctOptionKeys: [],
+    accepted: { accepted: ["NOT IN", "channel NOT IN ('app', 'web')"], case_sensitive: false },
+  };
+
+  it("accepts layout variants of the same expression", () => {
+    for (const given of [
+      "channel NOT IN ('app', 'web')",
+      "channel not in ('app','web')",
+      "channel NOT IN('app' , 'web')",
+      "  channel   NOT   IN ( 'app', 'web' ) ;",
+      "channel NOT IN (‘app’, ‘web’)",
+      "not in",
+      "NOT IN;",
+    ])
+      expect(gradeAnswer(notIn, given), given).toBe(true);
+  });
+
+  it("rejects answers that mean something else", () => {
+    for (const given of [
+      "channel IN ('app', 'web')",
+      "IN",
+      "NOTIN",
+      'channel NOT IN ("app", "web")', // double quotes are identifiers in PostgreSQL
+      "channel NOT IN ('app ', 'web')", // a space inside a literal changes the value
+      "channel NOT IN ('app', 'web', 'tienda')",
+      "channel NOT IN ('app')",
+    ])
+      expect(gradeAnswer(notIn, given), given).toBe(false);
+  });
+
+  it("ignores spaces around operators but never glues two operator characters", () => {
+    expect(normalizeTypedAnswer("amount >= 100", false)).toBe(
+      normalizeTypedAnswer("amount>=100", false),
+    );
+    expect(normalizeTypedAnswer("amount > = 100", false)).not.toBe(
+      normalizeTypedAnswer("amount >= 100", false),
+    );
+    expect(normalizeTypedAnswer("price * 1.21", false)).toBe("price*1.21");
+    expect(normalizeTypedAnswer("created_at :: date", false)).toBe("created_at::date");
+  });
+
+  it("keeps words apart and literals intact", () => {
+    expect(normalizeTypedAnswer("IS  NOT   NULL", false)).toBe("is not null");
+    expect(normalizeTypedAnswer("name = 'O''Brien  x'", true)).toBe("name='O''Brien  x'");
+    expect(normalizeTypedAnswer("x = 'a;';", true)).toBe("x='a;'");
+  });
+
+  it("respects case_sensitive for the whole answer", () => {
+    const strict: AnswerKey = {
+      type: "fill_blank",
+      correctOptionKeys: [],
+      accepted: { accepted: ["COUNT(*)"], case_sensitive: true },
+    };
+    expect(gradeAnswer(strict, "COUNT( * )")).toBe(true);
+    expect(gradeAnswer(strict, "count(*)")).toBe(false);
+  });
+});
+
+describe("multipleBreakdown (round 6, item 18)", () => {
+  it("keeps correct picks correct when the answer is incomplete", () => {
+    const b = multipleBreakdown(["a", "c"], ["a", "c", "d"]);
+    expect(b.outcome("a")).toBe("picked-correct");
+    expect(b.outcome("c")).toBe("picked-correct");
+    expect(b.outcome("d")).toBe("missed");
+    expect(b.outcome("b")).toBe("neutral");
+    expect(b).toMatchObject({ pickedCorrect: 2, pickedWrong: 0, totalCorrect: 3 });
+  });
+
+  it("separates wrong picks from missed ones", () => {
+    const b = multipleBreakdown(["a", "b", "b"], ["a", "c"]);
+    expect(b.outcome("b")).toBe("picked-wrong");
+    expect(b.outcome("c")).toBe("missed");
+    expect(b).toMatchObject({ pickedCorrect: 1, pickedWrong: 1, totalCorrect: 2 });
+  });
+
+  it("treats a non-array answer as nothing picked", () => {
+    expect(multipleBreakdown(null, ["a"])).toMatchObject({ pickedCorrect: 0, pickedWrong: 0 });
+  });
+});
+
+describe("matchingChoices (round 6, item 23)", () => {
+  it("lists a shared right-hand answer once", () => {
+    const rights = ["WHERE", "HAVING", "WHERE", "ORDER BY"];
+    const choices = matchingChoices(rights, () => 0.3);
+    expect(choices).toHaveLength(3);
+    expect(new Set(choices)).toEqual(new Set(["WHERE", "HAVING", "ORDER BY"]));
+  });
+
+  it("still grades both left items that share an answer as correct", () => {
+    const key: AnswerKey = {
+      type: "matching",
+      correctOptionKeys: [],
+      pairs: [
+        { left: "filtra filas", right: "WHERE" },
+        { left: "filtra antes de agrupar", right: "WHERE" },
+        { left: "filtra grupos", right: "HAVING" },
+      ],
+    };
+    expect(
+      gradeAnswer(key, {
+        "filtra filas": "WHERE",
+        "filtra antes de agrupar": "WHERE",
+        "filtra grupos": "HAVING",
+      }),
+    ).toBe(true);
+    expect(
+      gradeAnswer(key, {
+        "filtra filas": "WHERE",
+        "filtra antes de agrupar": "HAVING",
+        "filtra grupos": "HAVING",
+      }),
+    ).toBe(false);
   });
 });

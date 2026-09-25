@@ -16,7 +16,12 @@ import {
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { CATEGORY_STYLES, SectionHeader } from "@/components/ui/section-header";
-import { scorePercent, type LearnerAnswer } from "@/lib/quizzes/grading";
+import {
+  multipleBreakdown,
+  scorePercent,
+  type LearnerAnswer,
+  type MultipleOptionOutcome,
+} from "@/lib/quizzes/grading";
 import type { QuestionFeedback, QuizQuestion, QuizResult } from "@/lib/quizzes/service";
 import {
   answerQuestionAction,
@@ -160,25 +165,41 @@ function Attempt({
         <span>{t("progress", { current: index + 1, total: questions.length })}</span>
         <span>{t("answered", { answered: answered.length, total: questions.length })}</span>
       </div>
-      {/* One segment per question: neutral, correct or incorrect. Decorative; the text above and
-          the running tally below carry the same information. */}
+      {/* One segment per question: pending, current, correct or incorrect. The segments are
+          decorative (a progressbar's children are presentational); the progressbar's value text,
+          the line above and the running tally below carry the same information. The current
+          question is an empty segment with a neutral outline, so it never reads as answered
+          (round 6, item 12). */}
       <div
-        className="flex gap-1"
+        className="flex items-center gap-1"
         role="progressbar"
         aria-valuenow={index + 1}
         aria-valuemin={1}
         aria-valuemax={questions.length}
+        aria-valuetext={t("progress", { current: index + 1, total: questions.length })}
         aria-label={t("progressLabel")}
       >
-        {questions.map((q) => {
+        {questions.map((q, i) => {
           const f = feedbacks[q.id];
+          const isCurrent = i === index;
           return (
             <span
               key={q.id}
               aria-hidden="true"
+              aria-current={isCurrent ? "step" : undefined}
+              data-state={
+                f ? (f.correct ? "correct" : "incorrect") : isCurrent ? "current" : "pending"
+              }
               className={cn(
-                "h-1.5 flex-1 rounded-full",
-                !f ? "bg-surface-2" : f.correct ? "bg-success-ink/60" : "bg-danger/60",
+                "h-2 flex-1 rounded-full",
+                !f
+                  ? isCurrent
+                    ? "bg-surface ring-muted ring-2 ring-inset"
+                    : "bg-surface-2"
+                  : f.correct
+                    ? "bg-success-ink/60"
+                    : "bg-danger/60",
+                isCurrent && f && "ring-muted ring-offset-bg ring-2 ring-offset-1",
               )}
             />
           );
@@ -257,6 +278,22 @@ function Attempt({
   );
 }
 
+/** «Marcaste 2 de 3 correctas», plus the wrongly picked ones, for an incomplete select-all. */
+function MultipleTally({ feedback }: { feedback: QuestionFeedback }) {
+  const t = useTranslations("quiz");
+  const correctKeys = Array.isArray(feedback.correctAnswer) ? feedback.correctAnswer : [];
+  const { pickedCorrect, pickedWrong, totalCorrect } = multipleBreakdown(
+    feedback.given,
+    correctKeys,
+  );
+  return (
+    <p className="text-sm">
+      {t("multipleTally", { picked: pickedCorrect, total: totalCorrect })}
+      {pickedWrong > 0 ? ` ${t("multipleWrongPicks", { count: pickedWrong })}` : null}
+    </p>
+  );
+}
+
 /** The state of the question currently on screen, in the shared four-state vocabulary. */
 function answerStateOf(feedback: QuestionFeedback | null, chosen: boolean): AnswerState {
   if (!feedback) return chosen ? "selected" : "pending";
@@ -290,6 +327,9 @@ function QuestionVerdict({
         eyebrow={feedback.correct ? t("correct") : t("incorrect")}
       >
         {/* Option-based questions reveal the right answer on the rows themselves. */}
+        {!feedback.correct && question.type === "multiple" ? (
+          <MultipleTally feedback={feedback} />
+        ) : null}
         {!feedback.correct && !question.options.length ? (
           <p className="text-sm">
             <span className="text-muted text-xs tracking-[0.06em] uppercase">
@@ -632,14 +672,63 @@ function AnswerInput({
     return { className: state.otherRows, marker: null };
   };
 
+  /**
+   * Select-all rows once graded (round 6, item 18). The verdict is about the whole answer, but each
+   * row states its own outcome in visible words next to an icon: a correct pick stays green even
+   * when the answer was incomplete, a missed correct option is dashed and says so, and only a
+   * wrong pick is red.
+   */
+  const multipleRow = (key: string, outcome: MultipleOptionOutcome) => {
+    const tag = (Icon: typeof CircleCheck, label: string, ink: string) => (
+      <span
+        className={cn("ml-auto inline-flex shrink-0 items-center gap-1 text-xs font-medium", ink)}
+      >
+        <Icon aria-hidden="true" className="size-4" />
+        <span>{label}</span>
+      </span>
+    );
+    const ok = CATEGORY_STYLES["feedback-correct"].ink;
+    const bad = CATEGORY_STYLES["feedback-incorrect"].ink;
+    switch (outcome) {
+      case "picked-correct":
+        return {
+          className: ANSWER_STATE_STYLES["answered-correct"].row,
+          marker: tag(CircleCheck, t("markers.pickedCorrect"), ok),
+        };
+      case "picked-wrong":
+        return {
+          className: ANSWER_STATE_STYLES["answered-incorrect"].row,
+          marker: tag(CircleX, t("markers.pickedWrong"), bad),
+        };
+      case "missed":
+        return {
+          className: REVEALED_CORRECT_ROW,
+          marker: tag(CircleCheck, t("markers.missedCorrect"), ok),
+        };
+      default:
+        return {
+          className: ANSWER_STATE_STYLES["answered-correct"].otherRows,
+          marker: null,
+        };
+    }
+  };
+
   switch (question.type) {
-    case "multiple":
+    case "multiple": {
+      const breakdown = feedback
+        ? multipleBreakdown(
+            feedback.given,
+            Array.isArray(feedback.correctAnswer) ? feedback.correctAnswer : [],
+          )
+        : null;
       return (
         <fieldset className="space-y-2" disabled={locked} aria-describedby={describedBy}>
           <legend className="sr-only">{t("selectMany")}</legend>
           {question.options.map((o) => {
             const selected = Array.isArray(value) && value.includes(o.key);
-            const row = optionRow(o.key, selected);
+            const row = breakdown
+              ? multipleRow(o.key, breakdown.outcome(o.key))
+              : optionRow(o.key, selected);
             return (
               <label
                 key={o.key}
@@ -668,6 +757,7 @@ function AnswerInput({
           })}
         </fieldset>
       );
+    }
     case "fill_blank":
       return (
         <label className="block text-sm">
@@ -685,6 +775,8 @@ function AnswerInput({
       );
     case "matching": {
       const map = typeof value === "object" && value && !Array.isArray(value) ? value : {};
+      // The server already sends each choice once; this guards the React keys regardless.
+      const choices = [...new Set(question.pairs?.right ?? [])];
       const right =
         feedback && typeof feedback.correctAnswer === "object" && feedback.correctAnswer
           ? (feedback.correctAnswer as Record<string, string>)
@@ -707,7 +799,7 @@ function AnswerInput({
                   onChange={(e) => onChange({ ...map, [left]: e.target.value })}
                 >
                   <option value="">{t("choose")}</option>
-                  {(question.pairs?.right ?? []).map((r) => (
+                  {choices.map((r) => (
                     <option key={r} value={r}>
                       {r}
                     </option>

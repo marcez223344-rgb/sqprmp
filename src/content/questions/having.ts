@@ -115,7 +115,7 @@ export const questions: QuestionDef[] = [
       { key: "b", body_md: "Falso", is_correct: true },
     ],
     explanation_md:
-      "`HAVING` no ve los alias del `SELECT`. Repite la expresión agregada completa; si te molesta la repetición, envuelve la agregación en una subconsulta o CTE y filtra afuera.",
+      "`HAVING` no ve los alias del `SELECT`. Repite la expresión agregada completa; si te molesta la repetición, envuelve la agregación en una subconsulta o en una CTE (una consulta con nombre, definida con `WITH`) y filtra en la consulta exterior, donde el alias ya existe.",
     is_published: true,
   },
   {
@@ -127,19 +127,17 @@ export const questions: QuestionDef[] = [
     topic: "WHERE o HAVING",
     tags: ["having", "where"],
     estimated_seconds: 80,
-    prompt_md: "Relaciona cada condición de negocio con la cláusula donde corresponde escribirla.",
+    prompt_md:
+      "En una consulta que agrupa por cliente, relaciona cada condición de negocio con la cláusula donde corresponde escribirla. Cada cláusula puede usarse más de una vez.",
     code_md: null,
     pairs: [
-      { left: "El pedido está entregado", right: "WHERE: se ve en una sola fila" },
-      { left: "El cliente hizo 8 o más pedidos", right: "HAVING: exige contar varias filas" },
-      { left: "El producto está activo", right: "WHERE: se ve en una sola fila" },
-      {
-        left: "El gasto acumulado del cliente supera 200 000",
-        right: "HAVING: exige sumar varias filas",
-      },
+      { left: "El pedido está entregado", right: "WHERE" },
+      { left: "El cliente hizo 8 o más pedidos", right: "HAVING" },
+      { left: "El pedido se pagó en pesos mexicanos (`MXN`)", right: "WHERE" },
+      { left: "El gasto acumulado del cliente supera 200 000", right: "HAVING" },
     ],
     explanation_md:
-      "La prueba es siempre la misma: si la condición se puede responder mirando una fila, va en `WHERE`; si necesita todo el grupo, va en `HAVING`. Poner en `WHERE` lo que se puede es además más rápido, porque reduce las filas antes de agrupar.",
+      "La prueba es siempre la misma: si la condición se puede responder mirando una fila, va en `WHERE`; si necesita todo el grupo, va en `HAVING`. Poner en `WHERE` lo que se puede además deja claro que la condición habla de filas y no depende del motor: PostgreSQL traslada al `WHERE` una condición de `HAVING` sin agregados, pero no todos los motores lo hacen.",
     is_published: true,
   },
   {
@@ -195,7 +193,8 @@ export const questions: QuestionDef[] = [
     topic: "HAVING sin GROUP BY",
     tags: ["having", "aggregate"],
     estimated_seconds: 60,
-    prompt_md: "`orders` tiene 13 284 pedidos entregados. ¿Qué devuelve esta consulta?",
+    prompt_md:
+      "En Pídelo, la tabla `orders` tiene 13 284 pedidos entregados. ¿Qué devuelve esta consulta?",
     code_md:
       "```sql\nSELECT count(*) AS entregados\nFROM orders\nWHERE status = 'delivered'\nHAVING count(*) > 20000;\n```",
     options: [
@@ -236,7 +235,10 @@ export const questions: QuestionDef[] = [
     estimated_seconds: 45,
     prompt_md:
       "Completa la palabra clave que falta para quedarte solo con los platos que vendieron 40 unidades o más:\n\n```sql\nSELECT menu_item_id, sum(quantity) AS unidades\nFROM order_items\nGROUP BY menu_item_id\n____ sum(quantity) >= 40;\n```\n\nEscribe solo la palabra clave.",
-    answer: { accepted: ["HAVING", "having"], case_sensitive: false },
+    answer: {
+      accepted: ["HAVING", "HAVING sum(quantity) >= 40"],
+      case_sensitive: false,
+    },
     explanation_md:
       "El umbral se aplica a `sum(quantity)`, un valor que solo existe una vez formado el grupo: corresponde a `HAVING`.",
     is_published: true,
@@ -295,7 +297,7 @@ export const questions: QuestionDef[] = [
     tags: ["having", "aggregate", "readability"],
     estimated_seconds: 60,
     prompt_md:
-      "Marketing pide el ranking de productos mejor calificados. Con `GROUP BY product_id` y `HAVING avg(rating) >= 4.4`, el primer puesto lo ocupan productos con una única reseña de 5 estrellas. ¿Cuál es la corrección adecuada?",
+      "El departamento de Marketing de TiendaViva pide el ranking de productos mejor calificados. Una consulta sobre `reviews` agrupa con `GROUP BY product_id`, filtra con `HAVING avg(rating) >= 4.4` y ordena por `avg(rating)` de mayor a menor. Los primeros puestos los ocupan productos con una única reseña de 5 estrellas. ¿Cuál es la corrección adecuada?",
     code_md: null,
     options: [
       {
@@ -362,10 +364,9 @@ export const questions: QuestionDef[] = [
       },
       {
         key: "d",
-        body_md: "Solo puede usarse junto con `GROUP BY`.",
-        is_correct: false,
-        why_incorrect_md:
-          "Sin `GROUP BY` la tabla entera es un único grupo y `HAVING` decide si esa fila se devuelve.",
+        body_md:
+          "Puede usar una función de agregación que no aparece en el `SELECT`, por ejemplo `SELECT category_id ... GROUP BY category_id HAVING avg(list_price) > 50000`.",
+        is_correct: true,
       },
       {
         key: "e",
@@ -376,7 +377,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "`HAVING` es tan expresivo como `WHERE`, pero opera sobre grupos. No inventa grupos vacíos, no requiere `GROUP BY` y no debe usarse para condiciones que pertenecen a `WHERE`.",
+      "`HAVING` es tan expresivo como `WHERE`, pero opera sobre grupos: combina condiciones, compara agregados entre sí y puede calcular agregados que no se muestran en el `SELECT`. No inventa grupos vacíos y no debe usarse para condiciones que pertenecen a `WHERE`.",
     is_published: true,
   },
 ];

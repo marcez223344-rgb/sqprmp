@@ -136,8 +136,20 @@ export const exercises: ExerciseDef[] = [
       "SELECT\n  m.category AS rubro,\n  count(*) AS intentos,\n  count(*) FILTER (WHERE t.status = 'failed') AS rechazados,\n  round(100.0 * count(*) FILTER (WHERE t.status = 'failed') / count(*), 2) AS pct_rechazo\nFROM transactions AS t\nINNER JOIN merchants AS m ON m.id = t.merchant_id\nWHERE t.kind IN ('card_payment', 'qr_payment')\n  AND t.created_at >= timestamptz '2025-01-01 00:00:00+00'\n  AND t.created_at <  timestamptz '2025-07-01 00:00:00+00'\nGROUP BY m.category\nHAVING count(*) >= 100\nORDER BY pct_rechazo DESC, rubro;",
     alternative_solutions: [
       {
-        label: "Con CASE y una CTE",
-        sql: "WITH pagos AS (SELECT m.category AS rubro, CASE WHEN t.status = 'failed' THEN 1 ELSE 0 END AS es_rechazo FROM transactions AS t INNER JOIN merchants AS m ON m.id = t.merchant_id WHERE t.kind IN ('card_payment', 'qr_payment') AND t.created_at >= timestamptz '2025-01-01 00:00:00+00' AND t.created_at < timestamptz '2025-07-01 00:00:00+00') SELECT rubro, count(*) AS intentos, sum(es_rechazo) AS rechazados, round(100.0 * sum(es_rechazo) / count(*), 2) AS pct_rechazo FROM pagos GROUP BY rubro HAVING count(*) >= 100 ORDER BY pct_rechazo DESC, rubro;",
+        label: "Con sum(CASE ...) en lugar de FILTER",
+        sql: `SELECT
+  m.category AS rubro,
+  count(*) AS intentos,
+  sum(CASE WHEN t.status = 'failed' THEN 1 ELSE 0 END) AS rechazados,
+  round(100.0 * sum(CASE WHEN t.status = 'failed' THEN 1 ELSE 0 END) / count(*), 2) AS pct_rechazo
+FROM transactions AS t
+INNER JOIN merchants AS m ON m.id = t.merchant_id
+WHERE t.kind IN ('card_payment', 'qr_payment')
+  AND t.created_at >= timestamptz '2025-01-01 00:00:00+00'
+  AND t.created_at <  timestamptz '2025-07-01 00:00:00+00'
+GROUP BY m.category
+HAVING count(*) >= 100
+ORDER BY pct_rechazo DESC, rubro;`,
       },
     ],
     hints: [
@@ -294,7 +306,7 @@ export const exercises: ExerciseDef[] = [
     business_question_md:
       "Debes generar un dataset que devuelva los 10 vendedores con más ingresos en el trimestre junio–agosto de 2025 en México.\n\nSupuestos fijados para este ejercicio:\n\n- «Ingreso de un vendedor» = suma de `order_items.quantity * order_items.unit_price` de sus productos (`products.seller_id`). No se reparten envíos ni descuentos del pedido.\n- Solo pedidos con `status = 'delivered'` y `orders.currency = 'MXN'`; los importes de otras monedas no son sumables entre sí.\n- Período: `orders.created_at` desde el 1 de junio de 2025 inclusive hasta el 1 de septiembre exclusive, **en UTC**.\n- `participacion_pct` se calcula sobre el ingreso total del período de **todos** los vendedores, no solo de los diez que aparecen en la tabla.\n\nColumnas: `vendedor` (`sellers.store_name`), `pedidos` (pedidos distintos en los que participó), `ingresos` (redondeado a 2 decimales) y `participacion_pct` (redondeado a 2 decimales). Ordena por `ingresos` descendente y, si hay empate debes desempatar usando `vendedor` ascendente; devuelve solo las 10 primeras filas.",
     learning_objective:
-      "Construir un ranking de negocio con un denominador global calculado con una ventana, sin que el LIMIT altere la participación.",
+      "Construir un ranking de negocio con un denominador global, calculado con una ventana o con una subconsulta escalar, sin que el LIMIT altere la participación.",
     theory_ref: l3,
     expected_columns: [
       { name: "vendedor", type: "text" },
@@ -304,7 +316,7 @@ export const exercises: ExerciseDef[] = [
     ],
     validation_rules: {
       order_matters: true,
-      required_concepts: ["cte", "window_function"],
+      required_concepts: ["cte"],
     },
     reference_solution:
       "WITH vendidos AS (\n  SELECT\n    p.seller_id,\n    o.id AS order_id,\n    oi.quantity * oi.unit_price AS importe\n  FROM order_items AS oi\n  INNER JOIN orders AS o ON o.id = oi.order_id\n  INNER JOIN products AS p ON p.id = oi.product_id\n  WHERE o.status = 'delivered'\n    AND o.currency = 'MXN'\n    AND o.created_at >= timestamptz '2025-06-01 00:00:00+00'\n    AND o.created_at <  timestamptz '2025-09-01 00:00:00+00'\n),\npor_vendedor AS (\n  SELECT\n    v.seller_id,\n    count(DISTINCT v.order_id) AS pedidos,\n    round(sum(v.importe), 2) AS ingresos\n  FROM vendidos AS v\n  GROUP BY v.seller_id\n)\nSELECT\n  s.store_name AS vendedor,\n  pv.pedidos,\n  pv.ingresos,\n  round(100.0 * pv.ingresos / sum(pv.ingresos) OVER (), 2) AS participacion_pct\nFROM por_vendedor AS pv\nINNER JOIN sellers AS s ON s.id = pv.seller_id\nORDER BY pv.ingresos DESC, s.store_name\nLIMIT 10;",
@@ -398,7 +410,7 @@ export const exercises: ExerciseDef[] = [
     ],
     validation_rules: {
       order_matters: true,
-      required_concepts: ["conditional_aggregation", "having"],
+      required_concepts: ["conditional_aggregation"],
     },
     reference_solution:
       "WITH escuchas AS (\n  SELECT\n    ar.genre AS genero,\n    p.user_id,\n    p.played_at\n  FROM plays AS p\n  INNER JOIN users AS u ON u.id = p.user_id\n  INNER JOIN tracks AS t ON t.id = p.track_id\n  INNER JOIN albums AS al ON al.id = t.album_id\n  INNER JOIN artists AS ar ON ar.id = al.artist_id\n  WHERE u.country = 'MX'\n    AND p.played_at >= timestamptz '2025-07-17 00:00:00+00'\n    AND p.played_at <  timestamptz '2025-09-15 00:00:00+00'\n)\nSELECT\n  e.genero,\n  count(DISTINCT e.user_id) FILTER (WHERE e.played_at < timestamptz '2025-08-16 00:00:00+00') AS oyentes_previos,\n  count(DISTINCT e.user_id) FILTER (WHERE e.played_at >= timestamptz '2025-08-16 00:00:00+00') AS oyentes_actuales,\n  round(\n    100.0 * (\n      count(DISTINCT e.user_id) FILTER (WHERE e.played_at >= timestamptz '2025-08-16 00:00:00+00')\n      - count(DISTINCT e.user_id) FILTER (WHERE e.played_at < timestamptz '2025-08-16 00:00:00+00')\n    ) / count(DISTINCT e.user_id) FILTER (WHERE e.played_at < timestamptz '2025-08-16 00:00:00+00'),\n    2\n  ) AS variacion_pct\nFROM escuchas AS e\nGROUP BY e.genero\nHAVING count(DISTINCT e.user_id) FILTER (WHERE e.played_at < timestamptz '2025-08-16 00:00:00+00') >= 30\nORDER BY variacion_pct DESC, e.genero;",
@@ -483,7 +495,7 @@ export const exercises: ExerciseDef[] = [
     ],
     validation_rules: {
       order_matters: true,
-      required_concepts: ["cte", "window_function"],
+      required_concepts: ["cte"],
     },
     reference_solution:
       "WITH entregados AS (\n  SELECT\n    o.customer_id,\n    o.placed_at,\n    o.promotion_id,\n    row_number() OVER (PARTITION BY o.customer_id ORDER BY o.placed_at, o.id) AS n\n  FROM orders AS o\n  WHERE o.status = 'delivered'\n),\nprimeros AS (\n  SELECT\n    e.customer_id,\n    e.placed_at,\n    CASE WHEN pr.code = 'BIENVENIDA' THEN 'con BIENVENIDA' ELSE 'sin promocion' END AS grupo\n  FROM entregados AS e\n  LEFT JOIN promotions AS pr ON pr.id = e.promotion_id\n  WHERE e.n = 1\n    AND (pr.code = 'BIENVENIDA' OR e.promotion_id IS NULL)\n    AND e.placed_at >= timestamptz '2025-06-01 00:00:00+00'\n    AND e.placed_at <  timestamptz '2025-07-01 00:00:00+00'\n),\nmarcados AS (\n  SELECT\n    p.grupo,\n    CASE WHEN EXISTS (\n      SELECT 1\n      FROM orders AS o2\n      WHERE o2.customer_id = p.customer_id\n        AND o2.status = 'delivered'\n        AND o2.placed_at >  p.placed_at\n        AND o2.placed_at <= p.placed_at + INTERVAL '60 days'\n    ) THEN 1 ELSE 0 END AS recompro\n  FROM primeros AS p\n)\nSELECT\n  m.grupo,\n  count(*) AS clientes,\n  sum(m.recompro) AS recompraron,\n  round(100.0 * sum(m.recompro) / count(*), 2) AS pct_recompra\nFROM marcados AS m\nGROUP BY m.grupo\nORDER BY m.grupo;",

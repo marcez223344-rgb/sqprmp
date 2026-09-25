@@ -44,12 +44,14 @@ if (/(^|\/)\.env(\.[^/]+)?$/.test(rel) && !/\.env\.example$/.test(rel)) {
   process.exit(0);
 }
 
-// 3. Generated files.
+// 3. Database types. Hand-maintained (raw generator output mistypes RPC args with defaults and
+// breaks call sites); scripts/check-types-drift.mjs checks tables against the generator. Owner
+// changed this from deny to ask on 2026-09-25.
 if (/^src\/types\/database\.ts$/.test(rel)) {
   decision(
     EVENT,
-    "deny",
-    "src/types/database.ts is generated. Run `npx supabase gen types typescript --local > src/types/database.ts` instead.",
+    "ask",
+    "src/types/database.ts is maintained by hand to match the migrations; confirm this edit mirrors a migration (scripts/check-types-drift.mjs verifies table shapes).",
   );
   process.exit(0);
 }

@@ -343,3 +343,28 @@ export async function setPromoCodeActiveAction(
   revalidatePath("/admin/promos");
   return { ok: true };
 }
+
+/**
+ * «Marcar resuelto» on a learner's exercise report (D-42). The update and the audit row are
+ * written together inside `admin_resolve_exercise_report`, with the admin's reason.
+ */
+export async function resolveExerciseReportAction(
+  rawId: unknown,
+  rawReason: unknown,
+): Promise<Result> {
+  const admin = await requireAdminProfile();
+  if (!admin) return { ok: false, error: "unauthorized" };
+  const parsed = z
+    .object({ id: z.uuid(), reason: reasonSchema })
+    .safeParse({ id: rawId, reason: rawReason });
+  if (!parsed.success) return { ok: false, error: "validation" };
+  const { error } = await createAdminClient().rpc("admin_resolve_exercise_report", {
+    p_report_id: parsed.data.id,
+    p_actor: admin.id,
+    p_reason: parsed.data.reason,
+  });
+  if (error) return { ok: false, error: error.code === "P0002" ? "not_found" : "unknown" };
+  revalidatePath("/admin/reportes");
+  revalidatePath("/admin");
+  return { ok: true };
+}

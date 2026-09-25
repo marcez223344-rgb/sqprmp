@@ -29,7 +29,7 @@ export const questions: QuestionDef[] = [
         body_md: "Las dos devuelven el acumulado; la segunda solo cambia el orden de salida.",
         is_correct: false,
         why_incorrect_md:
-          "El `ORDER BY` dentro de `OVER` no ordena el resultado: define el marco por omisión, que va del inicio a la fila actual.",
+          "El `ORDER BY` dentro de `OVER` no ordena el resultado: hace que el marco por omisión vaya del inicio de la partición hasta la fila actual.",
       },
       {
         key: "c",
@@ -59,7 +59,7 @@ export const questions: QuestionDef[] = [
     tags: ["window_function", "frame"],
     estimated_seconds: 45,
     prompt_md:
-      "Cuando una ventana tiene `ORDER BY` y no declaras marco, Postgres aplica `___ BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`. Escribe la palabra clave que falta (el modo del marco).",
+      "Cuando una ventana tiene `ORDER BY` y no declaras marco, PostgreSQL aplica `___ BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`. Escribe solo la palabra clave que falta (el modo del marco).",
     answer: { accepted: ["RANGE", "range"], case_sensitive: false },
     explanation_md:
       "El modo por omisión es `RANGE`, no `ROWS`. La diferencia solo se nota cuando hay empates en la clave de orden: con `RANGE`, la fila actual incluye a todas sus empatadas.",
@@ -83,14 +83,14 @@ export const questions: QuestionDef[] = [
         body_md: "100, 300 y 600 respectivamente.",
         is_correct: false,
         why_incorrect_md:
-          "Ese sería el resultado con `ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`, que cuenta filas físicas.",
+          "Un acumulado que avanza fila por fila sale con `ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`, y aun así el orden entre los tres pagos empatados no está garantizado. Con el marco por omisión, las tres filas comparten el mismo valor.",
       },
       {
         key: "c",
         body_md: "650 en las tres filas.",
         is_correct: false,
         why_incorrect_md:
-          "El marco llega hasta la fila actual; el pago del 5 de marzo es posterior y queda fuera.",
+          "El marco llega hasta la fila actual y sus empatadas del mismo día; el pago del 5 de marzo es posterior y queda fuera.",
       },
       {
         key: "d",
@@ -101,7 +101,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "El marco por omisión es `RANGE`, y con `RANGE` «la fila actual» abarca todas las filas con el mismo valor de `fecha`. Las tres comparten el acumulado del día completo: 600. Con `ROWS` verías 100, 300 y 600.",
+      "El marco por omisión es `RANGE`, y con `RANGE` «la fila actual» abarca todas las filas con el mismo valor de `fecha`. Las tres comparten el acumulado del día completo: 600. Con `ROWS` el acumulado avanzaría fila por fila (por ejemplo 100, 300 y 600), en un orden entre empatados que PostgreSQL no garantiza si no agregas un desempate.",
     is_published: true,
   },
   {
@@ -151,7 +151,7 @@ export const questions: QuestionDef[] = [
     tags: ["window_function", "where"],
     estimated_seconds: 40,
     prompt_md:
-      "Si filtras el período en el `WHERE` de la misma consulta que calcula la media móvil, los primeros días del período promedian menos valores de los pedidos.",
+      "Si filtras el período en el `WHERE` de la misma consulta que calcula una media móvil de 7 días, la media de los primeros días del período se calcula con menos de 7 valores.",
     options: [
       { key: "a", body_md: "Verdadero", is_correct: true },
       {
@@ -176,7 +176,7 @@ export const questions: QuestionDef[] = [
     tags: ["window_function", "partition_by"],
     estimated_seconds: 60,
     prompt_md:
-      "Se pedía el acumulado de reproducciones de cada país mes a mes, pero la columna `acumulado` siempre repite el valor de `reproducciones`. ¿Cuál es el error?",
+      "La tabla `mensual` tiene una fila por país y mes. Se pedía el acumulado de reproducciones de cada país mes a mes, pero la columna `acumulado` suma países distintos dentro de un mismo mes y nunca avanza de un mes al siguiente. ¿Cuál es el error?",
     code_md:
       "```sql\nSELECT\n  country,\n  mes,\n  reproducciones,\n  sum(reproducciones) OVER (PARTITION BY mes ORDER BY country) AS acumulado\nFROM mensual;\n```",
     options: [
@@ -191,14 +191,14 @@ export const questions: QuestionDef[] = [
         body_md: "Falta un marco `ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`.",
         is_correct: false,
         why_incorrect_md:
-          "Ese marco ya es el que se aplica por omisión; el problema es sobre qué columnas se particiona y se ordena.",
+          "Cambiar el marco no cambia qué filas forman cada partición: el acumulado seguiría recorriendo países dentro de cada mes. El problema es sobre qué columnas se particiona y se ordena.",
       },
       {
         key: "c",
         body_md: "Falta un `GROUP BY country, mes` en la consulta externa.",
         is_correct: false,
         why_incorrect_md:
-          "La CTE `mensual` ya viene agregada; agrupar de nuevo colapsaría las filas que se quieren mostrar.",
+          "La tabla `mensual` ya tiene una fila por país y mes; agrupar de nuevo no cambia nada y no arregla la ventana.",
       },
       {
         key: "d",
@@ -209,7 +209,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "Particionar por el período deja una partición por mes con una fila por país, así que el acumulado nunca avanza en el tiempo. El período va en el `ORDER BY` de la ventana; la dimensión que reinicia la curva, en el `PARTITION BY`.",
+      "Particionar por el período deja una partición por mes con una fila por país, así que el acumulado recorre países y nunca avanza en el tiempo. El período va en el `ORDER BY` de la ventana; la dimensión que reinicia la cuenta, en el `PARTITION BY`.",
     is_published: true,
   },
   {
@@ -268,8 +268,8 @@ export const questions: QuestionDef[] = [
     prompt_md: "Relaciona cada cláusula de marco con lo que calcula sobre una serie diaria.",
     pairs: [
       {
-        left: "ROWS BETWEEN 6 PRECEDING AND CURRENT ROW",
-        right: "Promedio o suma de las 7 filas que terminan en la actual",
+        left: "ROWS BETWEEN 1 PRECEDING AND CURRENT ROW",
+        right: "Promedio o suma de la fila actual y la inmediatamente anterior",
       },
       {
         left: "ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW",
@@ -280,8 +280,8 @@ export const questions: QuestionDef[] = [
         right: "Acumulado desde el inicio en el que las filas empatadas comparten valor",
       },
       {
-        left: "ROWS BETWEEN 3 PRECEDING AND 3 FOLLOWING",
-        right: "Media centrada que también mira días posteriores",
+        left: "ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING",
+        right: "Suma de lo que queda desde la fila actual hasta el final de la serie",
       },
       {
         left: "Ventana con PARTITION BY y sin ORDER BY",
@@ -346,7 +346,7 @@ export const questions: QuestionDef[] = [
     tags: ["window_function", "frame", "media_movil"],
     estimated_seconds: 80,
     prompt_md:
-      "Sobre `ROWS BETWEEN 3 PRECEDING AND 3 FOLLOWING`, ¿qué afirmaciones son correctas? Selecciona todas las que correspondan.",
+      "En una serie con una fila por día, calculas `avg(ventas) OVER (ORDER BY dia ROWS BETWEEN 3 PRECEDING AND 3 FOLLOWING)`. ¿Qué afirmaciones son correctas? Marca todas las correctas.",
     options: [
       {
         key: "a",
@@ -355,13 +355,14 @@ export const questions: QuestionDef[] = [
       },
       {
         key: "b",
-        body_md: "Las últimas tres filas de la serie promedian menos valores.",
+        body_md:
+          "Las tres primeras y las tres últimas filas de la serie promedian menos de 7 valores.",
         is_correct: true,
       },
       {
         key: "c",
         body_md:
-          "No sirve para un tablero en vivo, porque usa información posterior al día actual.",
+          "El valor de un día puede cambiar cuando se cargan los datos de los días siguientes.",
         is_correct: true,
       },
       {
@@ -376,11 +377,11 @@ export const questions: QuestionDef[] = [
         body_md: "Desplaza la curva suavizada hacia la derecha respecto de la serie original.",
         is_correct: false,
         why_incorrect_md:
-          "Ese desplazamiento es el defecto de la media hacia atrás. La centrada lo evita, y por eso se prefiere en análisis histórico.",
+          "Ese desplazamiento (el suavizado llega tarde a los cambios) es propio de la media hacia atrás, que solo mira días anteriores. La centrada mira tres días a cada lado, así que no se desplaza.",
       },
     ],
     explanation_md:
-      "Una media centrada de 7 días toma tres días antes, el actual y tres después. Sigue mejor la forma de la curva, pero mira al futuro: para operación diaria se usa la media hacia atrás.",
+      "Una media centrada de 7 días toma tres días antes, el actual y tres después. Sigue mejor la forma de la curva, pero usa días posteriores: el valor de los días más recientes cambia a medida que llegan datos nuevos. Por eso, para seguir la operación día a día se usa la media hacia atrás.",
     is_published: true,
   },
   {
@@ -421,44 +422,44 @@ export const questions: QuestionDef[] = [
     lesson: acumulados,
     type: "error_diagnosis",
     difficulty: "intermediate",
-    topic: "Porcentajes acumulados",
-    tags: ["window_function", "numeric_functions"],
+    topic: "Acumulado que se reinicia cada año",
+    tags: ["window_function", "partition_by", "acumulado"],
     estimated_seconds: 60,
     prompt_md:
-      "La columna `pct_acumulado` devuelve 0 en todas las filas, aunque los acumulados son correctos. ¿Cuál es la causa?",
+      "La tabla `ventas_mensuales` tiene una fila por mes, de enero de 2024 a junio de 2025, y la columna `mes` es de tipo `date`. Se pedía el acumulado del año en curso: en enero de 2025 la cuenta debía volver a empezar desde cero. Sin embargo, el acumulado de 2025 sigue sumando sobre el total de 2024. ¿Cómo se corrige?",
     code_md:
-      "```sql\nSELECT\n  artista,\n  sum(reproducciones) OVER (ORDER BY reproducciones DESC, artista)\n    / sum(reproducciones) OVER () * 100 AS pct_acumulado\nFROM por_artista;\n```",
+      "```sql\nSELECT\n  mes,\n  ventas,\n  sum(ventas) OVER (ORDER BY mes) AS acumulado_anual\nFROM ventas_mensuales;\n```",
     options: [
       {
         key: "a",
         body_md:
-          "La división entre dos enteros es entera y trunca a 0; hay que multiplicar por `100.0` antes de dividir o convertir a `numeric`.",
+          "Agregando `PARTITION BY extract(year FROM mes)` a la ventana, para que cada año sea un grupo independiente.",
         is_correct: true,
       },
       {
         key: "b",
-        body_md: "Falta `PARTITION BY artista` en la primera ventana.",
+        body_md: "Cambiando el `ORDER BY mes` por `ORDER BY extract(year FROM mes), mes`.",
         is_correct: false,
         why_incorrect_md:
-          "Eso dejaría una fila por partición y rompería el acumulado; no tiene relación con el 0.",
+          "El orden de las filas sería el mismo que antes. Ordenar no separa grupos: la cuenta solo se reinicia con `PARTITION BY`.",
       },
       {
         key: "c",
-        body_md: "El denominador vale 0 y Postgres devuelve 0 en vez de error.",
+        body_md: "Agregando `WHERE mes >= DATE '2025-01-01'`.",
         is_correct: false,
         why_incorrect_md:
-          "Dividir por cero lanza un error en Postgres, no devuelve 0; y el total de reproducciones no es cero.",
+          "El acumulado de 2025 quedaría bien, pero los meses de 2024 desaparecerían del reporte, que debía mostrar los dos años.",
       },
       {
         key: "d",
-        body_md: "`round` es obligatorio para que el resultado no se trunque.",
+        body_md: "Agregando el marco `ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`.",
         is_correct: false,
         why_incorrect_md:
-          "`round` solo redondea un valor que ya es decimal; el truncamiento ocurre antes, en la división entera.",
+          "Con una fila por mes no hay empates, así que ese marco da el mismo resultado que el marco por omisión: el acumulado seguiría arrastrando 2024.",
       },
     ],
     explanation_md:
-      "`count(*)` y `sum` sobre enteros devuelven `bigint`, y `bigint / bigint` es división entera. Escribir `100.0 * numerador / denominador` fuerza aritmética decimal desde el primer operador.",
+      "El acumulado del año en curso (en inglés, _year to date_ o YTD) es un acumulado por grupo: el año va en el `PARTITION BY` y el mes en el `ORDER BY`. También sirve `PARTITION BY date_trunc('year', mes)`. Con esa partición, enero de cada año vuelve a empezar y los dos años se muestran en el mismo resultado.",
     is_published: true,
   },
 ];

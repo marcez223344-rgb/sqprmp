@@ -48,7 +48,7 @@ export const questions: QuestionDef[] = [
     tags: ["group_by"],
     estimated_seconds: 40,
     prompt_md:
-      "`orders.status` toma 2 valores y `payment_method` 3, y todas las combinaciones existen. ¿Cuántas filas devuelve `GROUP BY status, payment_method`?",
+      "En la tabla `orders` de Pídelo, la columna `status` toma 2 valores distintos (`delivered` y `cancelled`), la columna `payment_method` toma 3 (`card`, `cash` y `wallet`), y existen pedidos para todas las combinaciones. ¿Cuántas filas devuelve `SELECT status, payment_method, count(*) FROM orders GROUP BY status, payment_method;`?",
     options: [
       { key: "a", body_md: "6", is_correct: true },
       {
@@ -90,7 +90,8 @@ export const questions: QuestionDef[] = [
         key: "c",
         body_md: "En `SELECT` como `count(status = 'delivered')`.",
         is_correct: false,
-        why_incorrect_md: "Eso cuenta filas donde la expresión no es NULL (todas); no filtra.",
+        why_incorrect_md:
+          "`count(expresión)` cuenta las filas donde la expresión no es NULL, y `status = 'delivered'` vale `true` o `false`, nunca NULL, para todo pedido con estado. Por eso cuenta todos los pedidos, entregados o no: no filtra nada.",
       },
     ],
     explanation_md:
@@ -154,8 +155,11 @@ export const questions: QuestionDef[] = [
     tags: ["group_by", "date_functions"],
     estimated_seconds: 40,
     prompt_md:
-      "Completa la función que reduce un timestamp al primer instante de su mes: `___('month', placed_at)`.",
-    answer: { accepted: ["date_trunc"], case_sensitive: false },
+      "Completa el nombre de la función que lleva un `timestamptz` (fecha y hora) al primer instante de su mes: `___('month', placed_at)`. Escribe solo el nombre de la función.",
+    answer: {
+      accepted: ["date_trunc", "date_trunc('month', placed_at)"],
+      case_sensitive: false,
+    },
     explanation_md: "`date_trunc('month', ts)` es la base de cualquier serie mensual.",
     is_published: true,
   },
@@ -169,7 +173,7 @@ export const questions: QuestionDef[] = [
     tags: ["group_by", "outer_join"],
     estimated_seconds: 50,
     prompt_md:
-      "Un reporte de pedidos por mes muestra 8 filas para 9 meses: falta febrero. ¿Qué pasó?",
+      "Un reporte cuenta pedidos por mes con `GROUP BY date_trunc('month', placed_at)` sobre un período de 9 meses y devuelve 8 filas: falta febrero. La consulta no tiene ningún `WHERE` que excluya ese mes. ¿Qué pasó?",
     options: [
       {
         key: "a",
@@ -237,13 +241,14 @@ export const questions: QuestionDef[] = [
     tags: ["group_by", "aggregate"],
     estimated_seconds: 55,
     prompt_md:
-      "En una promoción con `max_uses_per_customer = 1`, ¿qué indica que `usos` sea mayor que `clientes`?",
+      "En Pídelo, la columna `max_uses_per_customer` de `promotions` indica cuántas veces puede usar cada cliente una promoción. Para una promoción con `max_uses_per_customer = 1`, ¿qué indica que `usos` sea mayor que `clientes` en esta consulta?",
     code_md:
       "```sql\nSELECT promotion_id, count(*) AS usos, count(DISTINCT customer_id) AS clientes\nFROM orders\nWHERE promotion_id IS NOT NULL\nGROUP BY promotion_id;\n```",
     options: [
       {
         key: "a",
-        body_md: "Al menos un cliente la usó más de una vez: abuso del tope.",
+        body_md:
+          "Al menos un cliente la usó más de una vez, es decir, alguien superó el tope de un uso por cliente.",
         is_correct: true,
       },
       {

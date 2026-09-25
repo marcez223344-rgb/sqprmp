@@ -16,7 +16,7 @@ export const questions: QuestionDef[] = [
     tags: ["sargabilidad", "indices", "fechas"],
     estimated_seconds: 60,
     prompt_md:
-      "Una tabla `orders` tiene un índice sobre `placed_at` (tipo `timestamptz`). El filtro `WHERE date_trunc('month', placed_at) = DATE '2025-07-01'` devuelve el resultado correcto, pero el motor recorre la tabla entera igual. ¿Por qué?",
+      "Una tabla `orders` tiene un índice sobre `placed_at`, de tipo `timestamptz` (fecha y hora con zona horaria, parecido al `datetime` de otras bases de datos). El filtro `WHERE date_trunc('month', placed_at) = DATE '2025-07-01'` devuelve el resultado correcto, pero el motor recorre la tabla entera igual. ¿Por qué?",
     code_md: null,
     options: [
       {
@@ -31,7 +31,7 @@ export const questions: QuestionDef[] = [
           "Porque `date_trunc` devuelve un `timestamp` y la columna es `timestamptz`, y PostgreSQL nunca usa un índice cuando los tipos difieren.",
         is_correct: false,
         why_incorrect_md:
-          "La diferencia de tipos no es la causa. Aunque los tipos coincidieran exactamente, el índice seguiría sin servir: lo que lo inutiliza es que el filtro compara una **expresión calculada**, no el valor indexado.",
+          "La premisa es falsa: `date_trunc` aplicado a un `timestamptz` devuelve otro `timestamptz`, así que no hay diferencia de tipos. Y aunque la hubiera, PostgreSQL sabe comparar tipos de fecha distintos usando el índice. Lo que lo inutiliza es que el filtro compara una **expresión calculada**, no el valor indexado.",
       },
       {
         key: "c",
@@ -39,7 +39,7 @@ export const questions: QuestionDef[] = [
           "Porque `date_trunc` no es una función inmutable y PostgreSQL no puede indexar valores que cambian.",
         is_correct: false,
         why_incorrect_md:
-          "La inmutabilidad importa para poder crear un índice por expresión, pero el problema aquí es anterior: no existe ningún índice sobre esa expresión, solo sobre la columna cruda.",
+          "Es cierto que `date_trunc` sobre un `timestamptz` no es inmutable (su resultado depende de la zona horaria de la sesión), y eso importa si quisieras crear un índice sobre esa expresión. Pero no explica este caso: aquí no existe ningún índice sobre la expresión, solo sobre la columna cruda, y ese índice no sirve para un filtro que habla de otra cosa.",
       },
       {
         key: "d",
@@ -51,7 +51,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "Un índice B-tree es una estructura ordenada por el **valor de la columna**. Solo sirve si el filtro habla de ese valor. Envolver la columna en `date_trunc`, `extract`, `to_char` o `upper` obliga al motor a evaluar la expresión fila por fila. La versión sargable expresa lo mismo como rango: `placed_at >= TIMESTAMPTZ '2025-07-01 00:00:00+00' AND placed_at < TIMESTAMPTZ '2025-08-01 00:00:00+00'`.",
+      "Un índice B-tree es una estructura ordenada por el **valor de la columna**. Solo sirve si el filtro habla de ese valor. Envolver la columna en `date_trunc`, `extract`, `to_char` o `upper` obliga al motor a evaluar la expresión fila por fila, salvo que exista un índice creado sobre esa misma expresión. La versión sargable expresa lo mismo como rango: `placed_at >= TIMESTAMPTZ '2025-07-01 00:00:00+00' AND placed_at < TIMESTAMPTZ '2025-08-01 00:00:00+00'`.",
     is_published: true,
   },
   {
@@ -86,15 +86,18 @@ export const questions: QuestionDef[] = [
     lesson: l3,
     type: "fill_blank",
     difficulty: "intermediate",
-    topic: "La construcción segura para la no-existencia",
-    tags: ["not_exists", "null", "subconsultas"],
-    estimated_seconds: 45,
+    topic: "Reducir el detalle a una fila por pedido antes de unir",
+    tags: ["cte", "group_by", "grano"],
+    estimated_seconds: 50,
     prompt_md:
-      "Completa las dos palabras que faltan para listar los repartidores que no tienen ningún pedido entregado, sin que un `NULL` en `orders.courier_id` vacíe el resultado:\n\n`SELECT c.id FROM couriers AS c WHERE ___ ______ (SELECT 1 FROM orders AS o WHERE o.courier_id = c.id AND o.status = 'delivered');`\n\nEscribe solo esas dos palabras.",
+      "Quieres mostrar cada pedido con sus unidades vendidas sin que el join multiplique filas, así que primero reduces `order_items` a una sola fila por pedido. Completa la columna que falta en el `GROUP BY`:\n\n```sql\nWITH unidades_por_pedido AS (\n  SELECT order_id, sum(quantity) AS unidades\n  FROM order_items\n  GROUP BY ______\n)\nSELECT o.id, o.total, u.unidades\nFROM orders AS o\nLEFT JOIN unidades_por_pedido AS u ON u.order_id = o.id;\n```\n\nEscribe solo lo que va en el hueco.",
     code_md: null,
-    answer: { accepted: ["NOT EXISTS", "not exists"], case_sensitive: false },
+    answer: {
+      accepted: ["order_id", "order_items.order_id", "1"],
+      case_sensitive: false,
+    },
     explanation_md:
-      "`NOT EXISTS` evalúa fila por fila: si no aparece ninguna coincidencia, la fila de afuera pasa. Un `NULL` en `orders.courier_id` simplemente no coincide con ningún `c.id` y no afecta al resto. `NOT IN`, en cambio, se expande a una cadena de `<>` y un solo `NULL` en la lista hace que la condición nunca sea verdadera: la consulta devuelve cero filas sin ningún mensaje de error.",
+      "Agrupar por `order_id` deja la CTE (la consulta con nombre del `WITH`) con una fila por pedido, así que al unirla con `orders` cada pedido sigue apareciendo una sola vez. `GROUP BY 1`, que agrupa por la primera columna del `SELECT`, es equivalente. El `LEFT JOIN` conserva los pedidos que no tienen líneas: en Pídelo hay 178, y quedan con `unidades` en NULL. Es el patrón de «reducir antes de unir»: el join trabaja con 14 259 filas ya agregadas en lugar de con las 35 589 líneas de detalle.",
     is_published: true,
   },
   {
@@ -227,7 +230,7 @@ export const questions: QuestionDef[] = [
           "Las tres son equivalentes en costo, porque el planificador reescribe cualquiera de ellas en la misma forma.",
         is_correct: false,
         why_incorrect_md:
-          "El planificador no puede convertir `JOIN + DISTINCT` en un *semi join* en el caso general, porque el `DISTINCT` se aplica al resultado proyectado y podría estar ahí por otra razón.",
+          "PostgreSQL no reescribe `JOIN + DISTINCT` como un *semi join*: ejecuta el join completo, con una fila por cada pedido entregado de cada restaurante, y recién después elimina las repetidas. A y B, en cambio, sí se resuelven como *semi join*.",
       },
     ],
     explanation_md:
@@ -244,7 +247,7 @@ export const questions: QuestionDef[] = [
     tags: ["sargabilidad", "like", "indices"],
     estimated_seconds: 90,
     prompt_md:
-      "La tabla `orders` tiene índices sobre `placed_at`, `total` y `payment_method`, y `restaurants` tiene un índice sobre `name`. **Selecciona todos** los filtros que el motor puede resolver aprovechando el índice correspondiente.",
+      "La tabla `orders` tiene índices sobre `placed_at`, `total` y `payment_method`, y `restaurants` tiene un índice sobre `name`. La base usa la intercalación `C` (en inglés *collation*, las reglas con las que se ordena el texto), igual que el entorno de práctica. **Selecciona todos** los filtros que el motor puede resolver aprovechando el índice correspondiente.",
     code_md: null,
     options: [
       {
@@ -277,7 +280,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "La regla es una sola: **la columna sola de un lado del operador, la expresión constante del otro**. Los rangos (`>=`, `<`, `BETWEEN`), la igualdad, `IN` sobre una lista y `LIKE` con prefijo fijo respetan el orden del índice. Las funciones sobre la columna, la aritmética sobre la columna y los comodines iniciales lo rompen.",
+      "La regla es una sola: **la columna sola de un lado del operador, la expresión constante del otro**. Los rangos (`>=`, `<`, `BETWEEN`), la igualdad, `IN` sobre una lista y `LIKE` con prefijo fijo respetan el orden del índice. Las funciones sobre la columna, la aritmética sobre la columna y los comodines iniciales lo rompen.\n\nUn detalle sobre `LIKE 'Fuego%'`: aprovecha un índice común porque la base usa la intercalación `C`. En una base con otra intercalación (por ejemplo `es_AR.UTF-8`, habitual en servidores reales), el índice tiene que crearse con la clase de operadores `text_pattern_ops` para que sirva a un `LIKE` con prefijo.",
     is_published: true,
   },
   {
@@ -368,72 +371,73 @@ export const questions: QuestionDef[] = [
     section,
     lesson: l1,
     type: "single",
-    difficulty: "easy",
+    difficulty: "intermediate",
     topic: "Dónde poner un filtro que no depende de una agregación",
-    tags: ["where", "having", "orden_logico"],
-    estimated_seconds: 60,
+    tags: ["where", "having", "orden_logico", "planificador"],
+    estimated_seconds: 75,
     prompt_md:
-      "Estas dos consultas sobre `orders` devuelven exactamente el mismo resultado. ¿Qué diferencia hay en el trabajo que hace el motor?",
+      "Estas dos consultas sobre `orders` devuelven exactamente el mismo resultado. ¿Qué es correcto decir sobre ellas en PostgreSQL?",
     code_md:
       "-- A\nSELECT restaurant_id, count(*) AS pedidos\nFROM orders\nWHERE status = 'delivered'\nGROUP BY restaurant_id;\n\n-- B\nSELECT restaurant_id, count(*) AS pedidos\nFROM orders\nGROUP BY restaurant_id, status\nHAVING status = 'delivered';",
     options: [
       {
         key: "a",
         body_md:
-          "A descarta las filas antes de agrupar; B forma grupos para todos los estados y recién después descarta los que no sirven, así que agrupa más filas de las necesarias.",
+          "En el orden lógico, B agrupa todos los estados y después descarta grupos. En la práctica, el planificador de PostgreSQL mueve al `WHERE` una condición de `HAVING` que no usa agregados, así que ejecuta las dos de la misma forma. Aun así, A es la forma recomendada: dice lo que quieres y no depende de esa optimización.",
         is_correct: true,
       },
       {
         key: "b",
         body_md:
-          "B es más eficiente porque `HAVING` se aplica sobre los grupos, que son muchos menos que las filas originales.",
+          "B siempre hace más trabajo en PostgreSQL, porque agrupa las 14 437 filas y recién después descarta los grupos cuyo `status` no es `'delivered'`.",
         is_correct: false,
         why_incorrect_md:
-          "El `HAVING` se aplica a menos elementos, sí, pero para llegar a ese punto el motor ya tuvo que agrupar **todas** las filas de la tabla, incluidas las que iba a descartar. El trabajo caro es la agrupación, no el filtro final.",
+          "Eso describe el orden lógico, no la ejecución. El planificador traslada al `WHERE` las condiciones de `HAVING` que no contienen agregados, y el plan de B filtra las filas antes de agrupar, igual que el de A: en un servidor PostgreSQL, `EXPLAIN` muestra el mismo plan para las dos.",
       },
       {
         key: "c",
-        body_md: "Ninguna: `WHERE` y `HAVING` son sinónimos y el motor los trata igual.",
+        body_md:
+          "B es más eficiente porque `HAVING` se aplica sobre los grupos, que son muchos menos que las filas originales.",
         is_correct: false,
         why_incorrect_md:
-          "No son sinónimos. `WHERE` filtra filas antes de agrupar y `HAVING` filtra grupos después; por eso `HAVING` puede referirse a `count(*)` y `WHERE` no.",
+          "Para tener grupos primero hay que agrupar, así que filtrar después nunca puede ahorrar trabajo frente a filtrar antes. Y en PostgreSQL las dos terminan con el mismo plan: B no gana nada.",
       },
       {
         key: "d",
         body_md: "B falla, porque `HAVING` solo admite condiciones sobre funciones de agregación.",
         is_correct: false,
         why_incorrect_md:
-          "`HAVING` admite cualquier expresión válida para el grupo, incluidas las columnas del `GROUP BY`. La consulta se ejecuta; simplemente hace más trabajo del necesario.",
+          "`HAVING` admite cualquier expresión válida para el grupo, incluidas las columnas del `GROUP BY`. La consulta se ejecuta sin error.",
       },
     ],
     explanation_md:
-      "El orden lógico es `FROM` → `WHERE` → `GROUP BY` → `HAVING` → `SELECT` → `ORDER BY` → `LIMIT`. Cada fila descartada en `WHERE` es una fila que el `GROUP BY` no procesa. La regla práctica: si el filtro no depende de una agregación, va en `WHERE`. El planificador de PostgreSQL arregla varios casos como este por su cuenta, pero no todos, y escribir el filtro en el lugar correcto no cuesta nada.",
+      "El orden lógico es `FROM` → `WHERE` → `GROUP BY` → `HAVING` → `SELECT` → `ORDER BY` → `LIMIT`, y describe qué significa la consulta, no necesariamente cómo la ejecuta el motor. PostgreSQL detecta que `status = 'delivered'` en el `HAVING` no usa ningún agregado y lo aplica antes de agrupar. No puede hacer lo mismo con una condición que sí usa un agregado, como `count(*) > 5`, ni en algunos casos más complejos, por ejemplo con `GROUPING SETS`. La regla práctica sigue siendo la misma: si el filtro no depende de una agregación, escríbelo en `WHERE`. Es más claro para quien lee y no depende de lo que haga el planificador de cada motor.",
     is_published: true,
   },
   {
     slug: "optimizacion-q11-distinct-arregla-el-total",
     section,
-    lesson: l3,
+    lesson: l1,
     type: "true_false",
     difficulty: "intermediate",
-    topic: "DISTINCT frente a un total inflado por un join",
-    tags: ["distinct", "cardinalidad", "agregacion"],
-    estimated_seconds: 45,
+    topic: "Por qué SELECT * puede costar más que las columnas justas",
+    tags: ["select_estrella", "indices", "index_only_scan"],
+    estimated_seconds: 50,
     prompt_md:
-      "Si un `sum(amount)` sale inflado porque un join multiplicó las filas, agregar `DISTINCT` al `SELECT` corrige el total.",
+      "`orders` tiene un índice sobre `placed_at`. La consulta `SELECT placed_at FROM orders WHERE placed_at >= TIMESTAMPTZ '2025-07-01 00:00:00+00'` puede responderse leyendo solo el índice, sin abrir la tabla. En cambio, `SELECT * FROM orders WHERE placed_at >= TIMESTAMPTZ '2025-07-01 00:00:00+00'` pierde esa posibilidad.",
     code_md: null,
     options: [
-      { key: "a", body_md: "Falso", is_correct: true },
+      { key: "a", body_md: "Verdadero", is_correct: true },
       {
         key: "b",
-        body_md: "Verdadero",
+        body_md: "Falso",
         is_correct: false,
         why_incorrect_md:
-          "`DISTINCT` se aplica a las filas del resultado final, después de que las agregaciones ya se calcularon. La suma inflada sigue inflada: lo único que `DISTINCT` puede hacer es eliminar filas de salida idénticas entre sí.",
+          "Un índice guarda, además de la ubicación de cada fila, el valor de las columnas indexadas. Si la consulta solo pide esas columnas, PostgreSQL puede contestar desde el índice, con un paso del plan llamado `Index Only Scan`. `SELECT *` pide columnas que el índice no tiene, y para leerlas hay que ir a la tabla fila por fila.",
       },
     ],
     explanation_md:
-      "`DISTINCT` nunca deshace una multiplicación de filas dentro de una agregación, y como reflejo ante un número raro es peligroso: esconde un error de grano y, de paso, obliga al motor a ordenar o agrupar todas las filas de más que ya generó. Cuando un total sale raro, el camino es contar filas paso a paso hasta encontrar el join que cambió el grano.",
+      "Pedir solo las columnas que usas reduce lo que el motor lee y transporta, y además deja abierta la lectura desde el índice sin tocar la tabla. El enunciado dice «puede» por dos motivos: PostgreSQL necesita saber que las páginas de la tabla están al día, algo que registra el mantenimiento automático (`VACUUM`), y el planificador elige ese camino solo si le resulta más barato. `SELECT *` sirve para explorar una tabla, no para una consulta que alimenta un reporte.",
     is_published: true,
   },
   {

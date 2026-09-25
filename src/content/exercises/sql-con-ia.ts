@@ -1011,34 +1011,7 @@ SELECT pais, puesto, artista, oyentes
 FROM ranking
 WHERE puesto <= 3
 ORDER BY pais, puesto, artista;`,
-    alternative_solutions: [
-      {
-        label: "Sin funciones de ventana: contar cuántos artistas tienen más oyentes",
-        sql: `WITH oyentes AS (
-  SELECT u.country, ar.id AS artist_id, ar.name AS artista, count(DISTINCT p.user_id) AS oyentes
-  FROM plays AS p
-  INNER JOIN users AS u ON u.id = p.user_id
-  INNER JOIN tracks AS t ON t.id = p.track_id
-  INNER JOIN albums AS al ON al.id = t.album_id
-  INNER JOIN artists AS ar ON ar.id = al.artist_id
-  WHERE p.played_at >= '2025-08-01' AND p.played_at < '2025-09-01'
-  GROUP BY u.country, ar.id, ar.name
-),
-puestos AS (
-  SELECT
-    o.country AS pais,
-    o.artista,
-    o.oyentes,
-    1 + (SELECT count(*) FROM oyentes AS x
-         WHERE x.country = o.country AND x.oyentes > o.oyentes) AS puesto
-  FROM oyentes AS o
-)
-SELECT pais, puesto, artista, oyentes
-FROM puestos
-WHERE puesto <= 3
-ORDER BY pais, puesto, artista;`,
-      },
-    ],
+    alternative_solutions: [],
     hints: [
       {
         level: 1,
@@ -1082,7 +1055,7 @@ ORDER BY pais, puesto, artista;`,
       },
     ],
     expert_explanation_md:
-      "El resultado de la consulta da 20 filas: tres artistas en cuatro países y cuatro en Argentina y Perú, donde hay un empate en el tercer puesto. En Argentina, **Astro y Faro** y **Tinta de Junio** tuvieron 62 oyentes cada uno; en Perú, **Andénón** y **Viento y Astro** tuvieron 31.\n\nLa consulta de la IA devolvía 18 filas y se veía perfecta: tres artistas por país, como pedía el título. Ese es el problema. `row_number()` asigna números consecutivos sin repetir, así que ante un empate elige a uno de los empatados según el orden en que el motor encuentra las filas y descarta al otro. El artista que quedaba afuera podía cambiar de una ejecución a otra, y la portada publicada dependía de un criterio arbitrario.\n\nLas tres funciones de ranking difieren solo en cómo tratan los empates:\n\n- `row_number()`: 1, 2, 3, 4. Nunca repite, nunca empata.\n- `rank()`: 1, 2, 3, 3, 5. Los empatados comparten puesto y el siguiente salta. Es lo que pidió la dirección.\n- `dense_rank()`: 1, 2, 3, 3, 4. Comparte puesto sin saltar.\n\nEn estos datos `dense_rank()` daría el mismo resultado, porque los únicos empates están en el tercer puesto. Si dos artistas empataran en el primero, `dense_rank()` agregaría un cuarto artista con el puesto 3, y la regla deportiva no lo permite.\n\nLa IA agrupó por `ar.name`. Aquí los nombres no se repiten, pero agrupar también por `ar.id` protege el conteo si algún día dos artistas se llaman igual. La alternativa sin funciones de ventana calcula el puesto como «1 más la cantidad de artistas con más oyentes», que es la definición exacta de `rank()`.",
+      "El resultado de la consulta da 20 filas: tres artistas en cuatro países y cuatro en Argentina y Perú, donde hay un empate en el tercer puesto. En Argentina, **Astro y Faro** y **Tinta de Junio** tuvieron 62 oyentes cada uno; en Perú, **Andénón** y **Viento y Astro** tuvieron 31.\n\nLa consulta de la IA devolvía 18 filas y se veía perfecta: tres artistas por país, como pedía el título. Ese es el problema. `row_number()` asigna números consecutivos sin repetir, así que ante un empate elige a uno de los empatados según el orden en que el motor encuentra las filas y descarta al otro. El artista que quedaba afuera podía cambiar de una ejecución a otra, y la portada publicada dependía de un criterio arbitrario.\n\nLas tres funciones de ranking difieren solo en cómo tratan los empates:\n\n- `row_number()`: 1, 2, 3, 4. Nunca repite, nunca empata.\n- `rank()`: 1, 2, 3, 3, 5. Los empatados comparten puesto y el siguiente salta. Es lo que pidió la dirección.\n- `dense_rank()`: 1, 2, 3, 3, 4. Comparte puesto sin saltar.\n\nEn estos datos `dense_rank()` daría el mismo resultado, porque los únicos empates están en el tercer puesto. Si dos artistas empataran en el primero, `dense_rank()` agregaría un cuarto artista con el puesto 3, y la regla deportiva no lo permite.\n\nLa IA agrupó por `ar.name`. Aquí los nombres no se repiten, pero agrupar también por `ar.id` protege el conteo si algún día dos artistas se llaman igual. Sin funciones de ventana, el puesto se puede calcular como «1 más la cantidad de artistas con más oyentes», que es la definición exacta de `rank()`; este ejercicio no acepta esa forma porque lo que practica es elegir la función de ranking.",
     reward: defaultReward("advanced"),
     solution_unlock: defaultSolutionUnlock,
     is_published: true,

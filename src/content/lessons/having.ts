@@ -152,7 +152,7 @@ En la consulta A, un cliente con 10 pedidos cancelados y 2 entregados **no apare
 
 ## Rendimiento y legibilidad
 
-\`WHERE\` reduce el volumen de datos **antes** de agrupar, así que el motor forma los grupos con menos filas y la consulta termina antes. Cuando una condición puede ir en \`WHERE\`, ponla ahí: se ejecuta más rápido y además le dice a quien lea la consulta que esa condición habla de filas individuales. Deja en \`HAVING\` únicamente las condiciones sobre agregados.
+\`WHERE\` reduce el volumen de datos **antes** de agrupar, así que el motor forma los grupos con menos filas. Cuando una condición puede ir en \`WHERE\`, ponla ahí. Si la escribes en \`HAVING\` sin ninguna función de agregación, PostgreSQL la traslada al \`WHERE\` por su cuenta y el costo termina siendo el mismo, pero no conviene depender de esa optimización: el \`WHERE\` le dice a quien lea la consulta que esa condición habla de filas individuales, y funciona igual en cualquier motor. Deja en \`HAVING\` únicamente las condiciones sobre agregados.
 
 Esto funciona, pero confunde a quien lo lea:
 

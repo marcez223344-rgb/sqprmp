@@ -73,25 +73,27 @@ export const questions: QuestionDef[] = [
     difficulty: "easy",
     topic: "Booleanos",
     tags: ["where"],
-    estimated_seconds: 30,
-    prompt_md: "¿Cuál de estas condiciones **no** es equivalente a las otras dos?",
+    estimated_seconds: 35,
+    prompt_md:
+      "La columna `is_active` de la tabla `products` es de tipo `boolean` (verdadero o falso). ¿Cuál de estas condiciones produce un **error** en PostgreSQL?",
     options: [
-      { key: "a", body_md: "`WHERE is_active = 'yes'`", is_correct: true },
+      { key: "a", body_md: "`WHERE is_active = 1`", is_correct: true },
       {
         key: "b",
         body_md: "`WHERE is_active = TRUE`",
         is_correct: false,
-        why_incorrect_md: "Es la forma explícita de filtrar verdaderos.",
+        why_incorrect_md: "Es válida: es la forma explícita de quedarte con los productos activos.",
       },
       {
         key: "c",
         body_md: "`WHERE is_active`",
         is_correct: false,
-        why_incorrect_md: "Una columna booleana ya es una condición válida por sí misma.",
+        why_incorrect_md:
+          "Es válida: una columna booleana ya es una condición por sí misma, y equivale a `is_active = TRUE`.",
       },
     ],
     explanation_md:
-      "PostgreSQL acepta `'yes'` como literal booleano, pero es una forma poco clara y no portable; las opciones b y c son las recomendadas. La opción a es la que se aparta de la convención.",
+      "PostgreSQL tiene un tipo `boolean` propio y no lo compara con números: `is_active = 1` falla con `operator does not exist: boolean = integer`. En MySQL los booleanos se guardan como 0 y 1, y por eso esa costumbre aparece a menudo. En PostgreSQL escribe `is_active` o `is_active = TRUE`.",
     is_published: true,
   },
   {
@@ -103,31 +105,34 @@ export const questions: QuestionDef[] = [
     topic: "Orden de evaluación",
     tags: ["where", "alias"],
     estimated_seconds: 40,
-    prompt_md: "Quieres los pedidos con neto mayor a 100 000. ¿Cuál consulta funciona?",
+    prompt_md:
+      "Quieres los productos cuyo valor de inventario (precio de lista por unidades en stock) supera 100 000. ¿Cuál consulta funciona?",
     options: [
       {
         key: "a",
         body_md:
-          "```sql\nSELECT id, subtotal - discount AS neto\nFROM orders\nWHERE subtotal - discount > 100000;\n```",
+          "```sql\nSELECT id, list_price * stock AS valor_inventario\nFROM products\nWHERE list_price * stock > 100000;\n```",
         is_correct: true,
       },
       {
         key: "b",
         body_md:
-          "```sql\nSELECT id, subtotal - discount AS neto\nFROM orders\nWHERE neto > 100000;\n```",
+          "```sql\nSELECT id, list_price * stock AS valor_inventario\nFROM products\nWHERE valor_inventario > 100000;\n```",
         is_correct: false,
-        why_incorrect_md: "El alias `neto` no existe cuando se evalúa `WHERE`.",
+        why_incorrect_md:
+          "El alias `valor_inventario` todavía no existe cuando se evalúa el `WHERE`, así que la consulta falla con un error de columna inexistente.",
       },
       {
         key: "c",
         body_md:
-          "```sql\nSELECT id, subtotal - discount AS neto\nWHERE subtotal - discount > 100000\nFROM orders;\n```",
+          "```sql\nSELECT id, list_price * stock AS valor_inventario\nWHERE list_price * stock > 100000\nFROM products;\n```",
         is_correct: false,
-        why_incorrect_md: "`WHERE` va después de `FROM`, no antes.",
+        why_incorrect_md:
+          "`WHERE` va después de `FROM`, no antes; así escrita da un error de sintaxis.",
       },
     ],
     explanation_md:
-      "En `WHERE` se repite la expresión; los alias solo están disponibles en `ORDER BY`.",
+      "El `WHERE` se evalúa antes que la lista del `SELECT`, así que en el `WHERE` hay que repetir la expresión. El alias sí se puede usar en `ORDER BY`, que se evalúa después.",
     is_published: true,
   },
   {
@@ -174,7 +179,10 @@ export const questions: QuestionDef[] = [
     estimated_seconds: 40,
     prompt_md:
       "¿Qué carácter comodín de `LIKE` representa **exactamente un** carácter? Escribe solo el carácter.",
-    answer: { accepted: ["_"], case_sensitive: false },
+    answer: {
+      accepted: ["_", "'_'", "guion bajo", "guión bajo", "subrayado"],
+      case_sensitive: false,
+    },
     explanation_md: "`_` equivale a un carácter cualquiera; `%` a cero o más.",
     is_published: true,
   },
@@ -227,7 +235,7 @@ export const questions: QuestionDef[] = [
     tags: ["where", "date_boundary"],
     estimated_seconds: 40,
     prompt_md:
-      "¿Cuál condición incluye **todo** el 15 de marzo de 2025 y nada más, para una columna `timestamptz`?",
+      "La columna `created_at` es de tipo `timestamptz` (fecha y hora con zona horaria; en MySQL o SQL Server un tipo parecido se llama `datetime`). ¿Cuál condición incluye **todo** el 15 de marzo de 2025 y nada más?",
     options: [
       {
         key: "a",
@@ -245,7 +253,7 @@ export const questions: QuestionDef[] = [
         body_md: "`created_at BETWEEN '2025-03-15' AND '2025-03-15 23:59:59'`",
         is_correct: false,
         why_incorrect_md:
-          "Funciona casi siempre, pero excluye los milisegundos finales del día y es frágil; el rango semiabierto es la forma recomendada.",
+          "Deja afuera lo que ocurrió después de las 23:59:59 y antes de la medianoche, por ejemplo a las 23:59:59.5, porque PostgreSQL guarda fracciones de segundo. El rango semiabierto no tiene ese hueco.",
       },
     ],
     explanation_md: "Inicio inclusivo, fin exclusivo: `>= día AND < día siguiente`.",
@@ -308,13 +316,14 @@ export const questions: QuestionDef[] = [
         body_md: "`extract(month from created_at) = 4 AND extract(year from created_at) = 2025`",
         is_correct: false,
         why_incorrect_md:
-          "Aplicar funciones a la columna impide usar el índice: el motor recorre toda la tabla.",
+          "Devuelve las mismas filas, pero aplicar una función a la columna impide usar el índice sobre `created_at`: el motor tiene que calcular la función en cada fila de la tabla.",
       },
       {
         key: "c",
         body_md: "`to_char(created_at, 'YYYY-MM') = '2025-04'`",
         is_correct: false,
-        why_incorrect_md: "Mismo problema: la función sobre la columna anula el índice.",
+        why_incorrect_md:
+          "Devuelve las mismas filas, pero tiene el mismo problema: la función aplicada a la columna impide usar el índice.",
       },
     ],
     explanation_md:

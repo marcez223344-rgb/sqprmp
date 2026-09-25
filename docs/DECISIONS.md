@@ -876,6 +876,30 @@ levels, or the levels stop following path order, so a new section cannot be adde
 from the catalogue instead of typed by hand (it is how «6 niveles» and «39 secciones» drifted); the
 course description no longer carries a number.
 
+### D-42 · Round 6 decisions: gate quiz length, exercise reports, certificate hours and seal, section progress
+
+**Status:** Accepted (owner, 2026-09-25, question tool). Items 22, 14, 25 and 8 of round 6
+(`docs/FEEDBACK_LOG.md`).
+
+- **Gate quizzes serve 6 questions, not 10 (amends D-37).** He found ten too long. Options offered:
+  5, 6 or keep 10, with the luck trade-off (a learner at 55 % per item passes one attempt ~16 % of
+  the time at 6 vs ~10 % at 10). He chose 6. `limits.quiz.gateQuestions` = 6; the four gate banks
+  keep 14 questions, and retries now prefer unseen questions, which offsets part of the loss.
+- **Per-exercise feedback is a private report, not public comments.** A «Reportar un problema»
+  button on each exercise sends a note (with the exercise and the learner's last SQL) to `/admin`
+  only. Public comments were rejected for now: moderation load, spam, and an empty thread makes a
+  new site look deserted. Revisit after launch.
+- **Certificates state program hours and carry a drawn seal.** «Carga horaria estimada: N horas»,
+  summed from the authored lesson and exercise estimates of the certificate's sections, identical
+  for every holder. Personal time on page was rejected (it only counts open tabs and undercounts).
+  A vector seal in brand colours, not emoji (inconsistent rendering, informal for employers).
+  **Amended (owner, 2026-09-25, question tool):** the hours appear only on the final certificate
+  «Analista SQL Profesional» (29 h); the per-level figures (4, 14, 13 h) read as light. Config:
+  `limits.certificates.programHoursShownFor`. The seal stays on every certificate.
+- **Section progress percentage inside each section page.** /ruta cards already show it; he wants
+  it at the top of the section page too (lessons, exercises and quiz together). Not per level,
+  overall or per certificate.
+
 ## Owner-only follow-ups from 2026-09-23
 
 - **`SUPABASE_SECRET_KEY` is invalid in production** (see the runbook note in

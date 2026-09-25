@@ -27,6 +27,17 @@ export interface FeedbackInput {
 }
 
 /**
+ * An inclusive upper bound written as a bare date (`<= '2025-03-15'`, `BETWEEN … AND DATE
+ * '2025-03-15'`). Against a timestamp that bound is midnight, so the rest of the last day is lost.
+ * Only a feedback heuristic: grading never depends on it.
+ */
+const DATE_LITERAL = String.raw`(?:date\s*)?'\d{4}-\d{2}-\d{2}'(?:\s*::\s*date)?`;
+const DATE_ONLY_INCLUSIVE_BOUND = new RegExp(
+  String.raw`<=\s*${DATE_LITERAL}|\bbetween\s+${DATE_LITERAL}\s+and\s+${DATE_LITERAL}`,
+  "i",
+);
+
+/**
  * Turns comparator findings + AST heuristics into categorized, educational feedback
  * (never just "incorrecto"). Blocking items explain why the answer is not accepted;
  * warnings point at likely misconceptions; tips are readability improvements.
@@ -100,6 +111,15 @@ export function buildFeedback(input: FeedbackInput): {
       messageKey: "aggregation_level",
       severity: "warning",
     });
+  } else if (
+    rowDelta !== 0 &&
+    mistakes.has("date_boundary") &&
+    DATE_ONLY_INCLUSIVE_BOUND.test(input.sql)
+  ) {
+    // No size threshold here: the rows lost to `<= 'día'` are one whole day, which is easily
+    // more than 5 % of a short range (31 of 510 in `pedidos-primera-quincena-marzo`, owner
+    // feedback round 6 item 11). Behind the threshold the learner got only a bare row count.
+    items.push({ category: "date_boundary", messageKey: "date_boundary", severity: "warning" });
   } else if (rowDelta !== 0 && Math.abs(rowDelta) <= Math.max(3, stats.expectedRows * 0.05)) {
     if (mistakes.has("date_boundary") && /<=|between/i.test(input.sql)) {
       items.push({ category: "date_boundary", messageKey: "date_boundary", severity: "warning" });

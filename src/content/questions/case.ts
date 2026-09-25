@@ -53,7 +53,7 @@ export const questions: QuestionDef[] = [
     tags: ["case", "logica"],
     estimated_seconds: 60,
     prompt_md:
-      "En `sellers` hay 41 vendedores con `rating >= 4.5` y 29 con `rating` entre 4.0 y 4.49. ¿Cuántas filas devolverá la etiqueta `Destacado`?",
+      "En la tabla `sellers` de TiendaViva hay 41 vendedores con `rating >= 4.5` y 29 con `rating` entre 4.0 y 4.49. ¿En cuántas filas del resultado la columna `segmento` valdrá `Destacado`?",
     code_md:
       "```sql\nSELECT\n  CASE\n    WHEN rating >= 4.0 THEN 'Confiable'\n    WHEN rating >= 4.5 THEN 'Destacado'\n    ELSE 'A mejorar'\n  END AS segmento\nFROM sellers;\n```",
     options: [
@@ -157,7 +157,7 @@ export const questions: QuestionDef[] = [
     prompt_md:
       "Completa la palabra clave que cierra toda expresión `CASE`, antes del alias: `CASE WHEN stock = 0 THEN 'Sin stock' ELSE 'Disponible' ____ AS estado`. Escribe solo la palabra.",
     code_md: null,
-    answer: { accepted: ["END", "end"], case_sensitive: false },
+    answer: { accepted: ["END", "END AS estado"], case_sensitive: false },
     explanation_md:
       "Toda expresión `CASE` termina con `END`. No se cierra con paréntesis ni con `THEN`, y el alias va después del `END`.",
     is_published: true,
@@ -252,25 +252,25 @@ export const questions: QuestionDef[] = [
     topic: "COALESCE, NULLIF y CASE",
     tags: ["case", "null_handling"],
     estimated_seconds: 70,
-    prompt_md: "Relaciona cada expresión con lo que hace.",
+    prompt_md: "Relaciona cada expresión con lo que hace. Cada descripción se usa una sola vez.",
     code_md: null,
     pairs: [
       {
         left: "COALESCE(description, 'sin detalle')",
-        right: "Devuelve el primer valor que no sea NULL",
+        right: "Devuelve el primer valor de la lista que no sea NULL",
       },
       { left: "NULLIF(installments, 0)", right: "Devuelve NULL cuando el valor es igual a 0" },
       {
         left: "CASE WHEN amount >= 100000 THEN 'Alto' ELSE 'Normal' END",
-        right: "Clasifica cada fila en categorías según una condición",
+        right: "Forma buscada: clasifica según una condición de umbral (>=)",
       },
       {
         left: "CASE kind WHEN 'topup' THEN 'Carga' ELSE 'Otro' END",
-        right: "Compara una columna contra valores fijos por igualdad",
+        right: "Forma simple: compara una columna contra valores fijos, solo por igualdad",
       },
     ],
     explanation_md:
-      "`COALESCE` y `NULLIF` son atajos de `CASE` especializados en NULL. Cuando hay tres o más categorías o condiciones con rangos, vuelve a la forma buscada de `CASE`.",
+      "`COALESCE` y `NULLIF` son atajos de `CASE` para dos situaciones frecuentes con NULL. `COALESCE(a, b)` equivale a `CASE WHEN a IS NOT NULL THEN a ELSE b END`, y `NULLIF(a, b)` equivale a `CASE WHEN a = b THEN NULL ELSE a END`. La forma simple de `CASE` (`CASE columna WHEN valor ...`) solo compara por igualdad; para umbrales o rangos se usa la forma buscada (`CASE WHEN condición ...`).",
     is_published: true,
   },
   {

@@ -225,6 +225,69 @@ describe("detectConcepts", () => {
       concepts("select date_trunc('month', created_at) from orders").has("date_functions"),
     ).toBe(true);
   });
+  it("recognizes joins on derived tables, LATERAL, VALUES and set-returning functions", () => {
+    const has = (sql: string, k: "outer_join" | "inner_join") => concepts(sql).has(k);
+    const derived = "(select customer_id, count(*) as n from orders group by customer_id) as f";
+    for (const kind of ["left", "right", "full"])
+      expect(
+        has(
+          `select c.id, f.n from customers c ${kind} join ${derived} on f.customer_id = c.id`,
+          "outer_join",
+        ),
+        kind,
+      ).toBe(true);
+    expect(
+      has(
+        `select c.id, f.n from customers c join ${derived} on f.customer_id = c.id`,
+        "inner_join",
+      ),
+    ).toBe(true);
+    expect(
+      has(
+        `select c.id, f.n from customers c inner join ${derived} on f.customer_id = c.id`,
+        "outer_join",
+      ),
+    ).toBe(false);
+    expect(
+      has(
+        "select c.id, l.n from customers c left join lateral (select count(*) as n from orders o where o.customer_id = c.id) l on true",
+        "outer_join",
+      ),
+    ).toBe(true);
+    expect(
+      has(
+        "select c.id, l.n from customers c cross join lateral (select count(*) as n from orders o where o.customer_id = c.id) l",
+        "inner_join",
+      ),
+    ).toBe(true);
+    expect(
+      has(
+        "select c.id, v.label from customers c left join (values ('AR', 'Argentina')) as v(code, label) on v.code = c.country",
+        "outer_join",
+      ),
+    ).toBe(true);
+    expect(
+      has(
+        "select g.d, count(o.id) from generate_series(1, 12) as g(d) left join orders o on extract(month from o.created_at) = g.d group by g.d",
+        "outer_join",
+      ),
+    ).toBe(true);
+    expect(
+      has(
+        "select c.id from customers c left join generate_series(1, 3) as g(n) on g.n = c.id",
+        "outer_join",
+      ),
+    ).toBe(true);
+    // A function call in an expression is not a join.
+    expect(has("select coalesce(id, 0) from customers", "inner_join")).toBe(false);
+  });
+  it("counts the % operator as numeric_functions, like mod()", () => {
+    expect(concepts("select stock % 12 as loose from products").has("numeric_functions")).toBe(
+      true,
+    );
+    expect(concepts("select mod(stock, 12) from products").has("numeric_functions")).toBe(true);
+    expect(concepts("select stock / 12 from products").has("numeric_functions")).toBe(false);
+  });
 });
 
 describe("buildFeedback", () => {
@@ -280,6 +343,34 @@ describe("buildFeedback", () => {
     expect(fb.items.filter((i) => i.severity === "tip").map((i) => i.messageKey)).toEqual(
       expect.arrayContaining(["improve.uses_select_star", "improve.no_table_alias_in_join"]),
     );
+  });
+  it("round 6 item 11: explains `<= 'día'` on a timestamp however many rows the last day holds", () => {
+    const sql =
+      "select id from orders where created_at >= '2025-03-01' and created_at <= '2025-03-15'";
+    // 31 of 510 rows lost: above the 5 % window the generic heuristics use.
+    const fb = run(sql, 479, 510, { commonMistakeCategories: ["date_boundary"] });
+    expect(fb.correct).toBe(false);
+    expect(fb.items.map((i) => i.category)).toContain("date_boundary");
+    const between = run(
+      "select id from orders where created_at between date '2025-03-01' and date '2025-03-15'",
+      479,
+      510,
+      { commonMistakeCategories: ["date_boundary"] },
+    );
+    expect(between.items.map((i) => i.category)).toContain("date_boundary");
+    // Not flagged when the exercise does not list the mistake, or when the rows match.
+    expect(run(sql, 479, 510).items.map((i) => i.category)).not.toContain("date_boundary");
+    expect(
+      run(sql, 510, 510, { commonMistakeCategories: ["date_boundary"] }).items.map(
+        (i) => i.category,
+      ),
+    ).not.toContain("date_boundary");
+    // A large gap with a half-open range is some other defect, not the boundary.
+    expect(
+      run("select id from orders where created_at < '2025-03-16'", 100, 510, {
+        commonMistakeCategories: ["date_boundary"],
+      }).items.map((i) => i.category),
+    ).not.toContain("date_boundary");
   });
   it("blocks prohibited patterns", () => {
     const fb = run("select id from orders limit 5", 3, 3, { prohibitedPatterns: ["\\blimit\\b"] });

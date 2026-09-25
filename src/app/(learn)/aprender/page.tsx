@@ -2,9 +2,11 @@ import Link from "next/link";
 import {
   ArrowRight,
   Award,
+  CircleCheck,
   Coins,
   Flame,
   Gauge,
+  Lock,
   RefreshCw,
   ShieldCheck,
   SquareTerminal,
@@ -12,19 +14,27 @@ import {
   Target,
 } from "lucide-react";
 import { getFormatter, getTranslations } from "next-intl/server";
-import { badgeContainerClasses } from "@/components/progress/badge-styles";
+import { badgeCardClasses, badgeContainerClasses } from "@/components/progress/badge-styles";
 import { GoalsForm } from "@/components/progress/goals-form";
 import { Meter, StatTile } from "@/components/progress/stat-tile";
+import { XpExplainer } from "@/components/progress/xp-explainer";
 import { Card } from "@/components/ui/card";
 import { SectionHeader } from "@/components/ui/section-header";
 import { buttonVariants } from "@/components/ui/button";
 import { getBadgeVisual } from "@/config/badges";
 import { limits } from "@/config/limits";
+import { hasActiveEntitlement } from "@/lib/auth/entitlements";
 import { requireOnboardedProfile } from "@/lib/auth/session";
 import { publishedLessons } from "@/lib/curriculum/path-summary";
 import { getLearningPath } from "@/lib/curriculum/queries";
 import { getDashboard } from "@/lib/progress/queries";
 import { cn } from "@/lib/utils/cn";
+
+/**
+ * Badges previewed on the dashboard: enough to show the latest ones earned and what comes next,
+ * few enough that the card stays a preview of /logros rather than a copy of it.
+ */
+const BADGE_PREVIEW_COUNT = 6;
 
 export async function generateMetadata() {
   const t = await getTranslations("app");
@@ -33,13 +43,24 @@ export async function generateMetadata() {
 
 export default async function DashboardPage() {
   const profile = await requireOnboardedProfile("/aprender");
-  const [d, t, format, path] = await Promise.all([
+  const [d, t, format, path, entitled] = await Promise.all([
     getDashboard(profile),
     getTranslations("dashboard"),
     getFormatter(),
     getLearningPath(profile.id),
+    // Decided on the server from the same check the exercise gate uses: a learner who paid, has a
+    // scholarship or is an admin has no free allowance to track (owner feedback, round 6 item 5).
+    hasActiveEntitlement(profile),
   ]);
-  const earnedBadges = d.badges.filter((b) => b.earned_at);
+  const earnedBadges = d.badges
+    .filter((b) => b.earned_at)
+    .sort((a, b) => (b.earned_at ?? "").localeCompare(a.earned_at ?? ""));
+  // Latest earned first, then the next ones still ahead, so the card is never empty and a locked
+  // badge is always stated as locked in words, not only by a paler colour.
+  const previewBadges = [...earnedBadges, ...d.badges.filter((b) => !b.earned_at)].slice(
+    0,
+    BADGE_PREVIEW_COUNT,
+  );
   // Built from the parts that actually have a value: a learner with no history used to see a
   // dangling "·" because the longest-streak half of the line was meaningless at zero.
   const streakFacts = [
@@ -134,6 +155,7 @@ export default async function DashboardPage() {
           tone="primary"
         />
       </dl>
+      <XpExplainer className="-mt-4" />
 
       <div className="grid gap-6 md:grid-cols-3">
         {/* The focal card: the only action on this page that matters, with the same treatment the
@@ -184,7 +206,7 @@ export default async function DashboardPage() {
               </Link>
             </>
           )}
-          {d.freeLimit > 0 && profile.role !== "admin" ? (
+          {d.freeLimit > 0 && !entitled ? (
             <div className="text-muted space-y-1 text-xs">
               <p>{t("freeCounter", { used: d.freeUsed, limit: d.freeLimit })}</p>
               {/* Without this line, "4 de 5 usados" next to "Ejercicios 6" reads as a bug. */}
@@ -247,28 +269,56 @@ export default async function DashboardPage() {
           <p className="text-muted text-sm">
             {t("badges.count", { earned: earnedBadges.length, total: d.badges.length })}
           </p>
-          <ul className="flex flex-wrap gap-2">
-            {earnedBadges.slice(0, 6).map((b) => {
+          {earnedBadges.length === 0 ? (
+            <p className="text-muted text-xs">{t("badges.none")}</p>
+          ) : null}
+          {/* Names are printed, not hidden behind icon-only chips: several badges share a family
+              hue and their icons were hard to tell apart (owner feedback, round 6 item 2). Earned
+              vs locked is carried by the icon, the border style and the words, never colour alone. */}
+          <ul className="space-y-2">
+            {previewBadges.map((b) => {
               const visual = getBadgeVisual(b.slug);
               const BadgeIcon = visual.icon;
+              const earned = Boolean(b.earned_at);
+              const StateIcon = earned ? CircleCheck : Lock;
               return (
-                <li key={b.slug}>
-                  <Link
-                    href={{ pathname: "/logros", hash: b.slug }}
-                    aria-label={t("badges.chipLabel", { title: b.title })}
+                <li
+                  key={b.slug}
+                  className={cn(
+                    "flex items-start gap-3 rounded-md border p-2",
+                    badgeCardClasses(earned),
+                  )}
+                >
+                  <span
+                    aria-hidden="true"
                     className={cn(
-                      "flex size-11 items-center justify-center rounded-full border",
-                      badgeContainerClasses(visual.category, visual.tier, true),
+                      "relative flex size-9 shrink-0 items-center justify-center rounded-full border",
+                      badgeContainerClasses(visual.category, visual.tier, earned),
                     )}
                   >
-                    <BadgeIcon aria-hidden="true" className="size-5" strokeWidth={1.75} />
-                  </Link>
+                    <BadgeIcon className="size-4.5" strokeWidth={earned ? 1.75 : 1.25} />
+                  </span>
+                  <div className="min-w-0 space-y-0.5">
+                    <Link
+                      href={{ pathname: "/logros", hash: b.slug }}
+                      className="text-sm font-semibold underline-offset-4 hover:underline"
+                    >
+                      {b.title}
+                    </Link>
+                    <p className="text-muted text-xs">{b.description}</p>
+                    <p
+                      className={cn(
+                        "inline-flex items-center gap-1 text-xs",
+                        earned ? "text-success-ink" : "text-muted",
+                      )}
+                    >
+                      <StateIcon aria-hidden="true" className="size-3.5 shrink-0" />
+                      {earned ? t("badges.earned") : t("badges.locked")}
+                    </p>
+                  </div>
                 </li>
               );
             })}
-            {earnedBadges.length === 0 ? (
-              <li className="text-muted text-xs">{t("badges.none")}</li>
-            ) : null}
           </ul>
           <Link href="/logros" className="text-primary text-sm underline underline-offset-4">
             {t("badges.all")}

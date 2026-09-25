@@ -15,14 +15,15 @@ export const questions: QuestionDef[] = [
     tags: ["window_function", "group_by"],
     estimated_seconds: 40,
     prompt_md:
-      "`transactions` de una cuenta tiene 127 filas. ¿Cuántas devuelve `SELECT id, avg(amount) OVER (PARTITION BY kind) FROM transactions WHERE account_id = 2364;`?",
+      "En Bolsillo, la cuenta 2364 tiene 188 movimientos en la tabla `transactions`. ¿Cuántas filas devuelve `SELECT id, avg(amount) OVER (PARTITION BY kind) FROM transactions WHERE account_id = 2364;`?",
     options: [
-      { key: "a", body_md: "127: una por movimiento.", is_correct: true },
+      { key: "a", body_md: "188: una por movimiento.", is_correct: true },
       {
         key: "b",
-        body_md: "Una por `kind`.",
+        body_md: "Una por cada tipo de movimiento (`kind`).",
         is_correct: false,
-        why_incorrect_md: "Eso sería `GROUP BY kind`. Las ventanas no colapsan filas.",
+        why_incorrect_md:
+          "Eso haría `GROUP BY kind`. Una función de ventana calcula el promedio de cada tipo y lo repite en cada fila, sin juntar filas.",
       },
       {
         key: "c",
@@ -31,7 +32,8 @@ export const questions: QuestionDef[] = [
         why_incorrect_md: "Una fila sería una agregación sin `GROUP BY` ni `OVER`.",
       },
     ],
-    explanation_md: "Las funciones de ventana agregan sin reducir el número de filas.",
+    explanation_md:
+      "Las funciones de ventana calculan agregados sin reducir el número de filas: cada movimiento conserva su fila y recibe al lado el promedio de su tipo.",
     is_published: true,
   },
   {
@@ -148,8 +150,8 @@ export const questions: QuestionDef[] = [
     tags: ["window_function", "order_by"],
     estimated_seconds: 40,
     prompt_md:
-      "Completa la cláusula que convierte `sum(amount) OVER (...)` en un acumulado cronológico: `sum(amount) OVER (___ ___ created_at)`.",
-    answer: { accepted: ["ORDER BY"], case_sensitive: false },
+      "Completa las dos palabras clave que convierten `sum(amount) OVER (...)` en un acumulado cronológico: `sum(amount) OVER (___ ___ created_at)`. Escribe solo esas dos palabras.",
+    answer: { accepted: ["ORDER BY", "ORDER BY created_at"], case_sensitive: false },
     explanation_md:
       "`ORDER BY` dentro de `OVER` hace que el agregado avance fila a fila en ese orden.",
     is_published: true,
@@ -164,7 +166,7 @@ export const questions: QuestionDef[] = [
     tags: ["window_function"],
     estimated_seconds: 60,
     prompt_md:
-      "En una serie diaria, ¿qué marco define una media móvil de los últimos 7 días **incluido el actual**?",
+      "En una serie con exactamente una fila por día, sin días faltantes, ¿qué marco define una media móvil de los últimos 7 días **incluido el actual**?",
     options: [
       { key: "a", body_md: "`ROWS BETWEEN 6 PRECEDING AND CURRENT ROW`", is_correct: true },
       {
@@ -181,7 +183,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "6 anteriores + la actual = 7 filas. Las primeras filas de la serie promedian menos valores porque el marco se recorta.",
+      "Seis filas anteriores más la actual son 7 filas, y como hay una fila por día, son 7 días. Las primeras filas de la serie promedian menos valores porque el marco se recorta. Si faltaran días, `ROWS` contaría filas y no días de calendario.",
     is_published: true,
   },
   {
@@ -194,7 +196,7 @@ export const questions: QuestionDef[] = [
     tags: ["window_function"],
     estimated_seconds: 40,
     prompt_md:
-      "Verdadero o falso: con `ORDER BY fecha` y fechas repetidas, `RANGE` incluye en el marco todas las filas con la misma fecha que la actual, mientras que `ROWS` no.",
+      "Con `ORDER BY fecha`, fechas repetidas y un marco que termina en `CURRENT ROW`, `RANGE` incluye en el marco todas las filas con la misma fecha que la actual, incluso las que vienen después de ella, mientras que `ROWS` no incluye esas filas posteriores.",
     options: [
       { key: "a", body_md: "Verdadero", is_correct: true },
       {
@@ -202,11 +204,11 @@ export const questions: QuestionDef[] = [
         body_md: "Falso",
         is_correct: false,
         why_incorrect_md:
-          "`RANGE` agrupa empates del `ORDER BY`; `ROWS` cuenta filas físicas una a una.",
+          "Con `RANGE`, «la fila actual» abarca a todas las filas empatadas en el `ORDER BY`; `ROWS` cuenta filas una por una y termina exactamente en la fila actual.",
       },
     ],
     explanation_md:
-      "Por eso un acumulado con `RANGE` (el marco por defecto) puede «saltar» en filas con el mismo valor de orden; agrega una columna de desempate o usa `ROWS`.",
+      "Por eso, en un acumulado con `RANGE` (el marco por omisión), todas las filas de la misma fecha muestran el mismo valor, que ya incluye a todas ellas. Si necesitas que avance fila por fila, agrega una columna de desempate al `ORDER BY` o usa `ROWS`.",
     is_published: true,
   },
   {
@@ -283,7 +285,7 @@ export const questions: QuestionDef[] = [
     tags: ["window_function"],
     estimated_seconds: 50,
     prompt_md:
-      "Para una persona con 3 eventos KYC, ¿qué muestra `intentos` en cada una de sus filas?",
+      "En la tabla `kyc_events` de Bolsillo (eventos de KYC, por _know your customer_: las verificaciones de identidad), una persona tiene 3 eventos. ¿Qué muestra `intentos` en cada una de sus filas?",
     code_md:
       "```sql\nSELECT user_id, event_at, outcome,\n       count(*) OVER (PARTITION BY user_id) AS intentos\nFROM kyc_events;\n```",
     options: [

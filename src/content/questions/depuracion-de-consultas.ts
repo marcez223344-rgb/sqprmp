@@ -60,7 +60,7 @@ export const questions: QuestionDef[] = [
     tags: ["depuracion", "grano", "join"],
     estimated_seconds: 60,
     prompt_md:
-      "En una consulta sobre `orders` con varios joins, `count(*)` devuelve 21 974 y `count(DISTINCT o.id)` devuelve 13 156. ¿Qué te dice esa diferencia?",
+      "En una consulta sobre `orders` con varios joins, `count(*)` devuelve 21 964 y `count(DISTINCT o.id)` devuelve 13 156. ¿Qué te dice esa diferencia?",
     options: [
       {
         key: "a",
@@ -70,17 +70,17 @@ export const questions: QuestionDef[] = [
       },
       {
         key: "b",
-        body_md: "Que 8 818 pedidos están duplicados en la tabla `orders`.",
+        body_md: "Que 8 808 pedidos están duplicados en la tabla `orders`.",
         is_correct: false,
         why_incorrect_md:
           "`orders.id` es clave primaria: no hay duplicados en la tabla. Las filas repetidas las produce el join, no el origen.",
       },
       {
         key: "c",
-        body_md: "Que hay 8 818 filas con `o.id` en NULL.",
+        body_md: "Que hay 8 808 filas con `o.id` en NULL.",
         is_correct: false,
         why_incorrect_md:
-          "`count(DISTINCT o.id)` ignora los nulos, pero aquí el `INNER JOIN` viene de una clave primaria y no genera nulos. La brecha se explica por repetición, no por ausencia.",
+          "En una consulta que parte de `orders`, `o.id` es la clave primaria de esa tabla y nunca es NULL. La brecha se explica por repetición de pedidos, no por ausencia de valores.",
       },
       {
         key: "d",
@@ -175,7 +175,7 @@ export const questions: QuestionDef[] = [
     tags: ["depuracion", "left-join", "null"],
     estimated_seconds: 80,
     prompt_md:
-      "Esta consulta debería mostrar, por ciudad, cuántos clientes hay y cuántos recibieron algún pedido. La columna `cobertura_pct` da 100,00 en todas las ciudades. ¿Por qué?",
+      "Esta consulta debería mostrar, por ciudad, cuántos clientes hay (`clientes`) y cuántos recibieron algún pedido (`con_entrega`). En todas las ciudades las dos columnas dan el mismo número, como si el 100 % de los clientes hubiera recibido un pedido. ¿Por qué?",
     code_md:
       "```sql\nSELECT c.city,\n  count(DISTINCT c.id) AS clientes,\n  count(DISTINCT o.customer_id) AS con_entrega\nFROM customers AS c\nLEFT JOIN orders AS o ON o.customer_id = c.id\nWHERE o.status = 'delivered'\nGROUP BY 1;\n```",
     options: [
@@ -266,9 +266,9 @@ export const questions: QuestionDef[] = [
     tags: ["depuracion", "null", "exists"],
     estimated_seconds: 50,
     prompt_md:
-      "Completa la palabra clave que reemplaza a `NOT IN` sin sufrir el problema de los NULL, porque pregunta por la existencia de una fila en lugar de comparar valores: `WHERE NOT ______ (SELECT 1 FROM categories AS h WHERE h.parent_id = c.id)`.",
+      "Completa la palabra clave que, junto al `NOT` que ya está escrito, reemplaza a `NOT IN` sin sufrir el problema de los NULL, porque pregunta por la existencia de una fila en lugar de comparar valores:\n\n`WHERE NOT ______ (SELECT 1 FROM categories AS h WHERE h.parent_id = c.id)`\n\nEscribe solo la palabra que va en el hueco.",
     code_md: null,
-    answer: { accepted: ["EXISTS", "exists"], case_sensitive: false },
+    answer: { accepted: ["EXISTS", "NOT EXISTS"], case_sensitive: false },
     explanation_md:
       "`NOT EXISTS` evalúa si la subconsulta produce alguna fila. No compara valores, así que los NULL no intervienen: devuelve verdadero o falso, nunca NULL. Es la reescritura preferida de `NOT IN` y suele ser también la más eficiente, porque se detiene en la primera coincidencia.",
     is_published: true,
@@ -283,7 +283,7 @@ export const questions: QuestionDef[] = [
     tags: ["depuracion", "null", "agregacion"],
     estimated_seconds: 60,
     prompt_md:
-      "`shipments` tiene 2 993 envíos de un transportista, de los cuales 222 no tienen `delivered_at`. ¿Cuál es la diferencia entre `avg(horas)` y `sum(horas) / count(*)` para esos envíos?",
+      "`shipments` tiene 2 993 envíos de un transportista, de los cuales 222 no tienen `delivered_at`. Para cada envío calculas `horas`, la duración entre `shipped_at` y `delivered_at` en horas, que queda en NULL cuando falta `delivered_at`. ¿Cuál es la diferencia entre `avg(horas)` y `sum(horas) / count(*)` para esos envíos?",
     options: [
       {
         key: "a",
@@ -327,7 +327,7 @@ export const questions: QuestionDef[] = [
     tags: ["depuracion", "grano", "promedio"],
     estimated_seconds: 90,
     prompt_md:
-      "Te piden el ticket promedio por canal. Tu consulta une `orders` con `order_items` y calcula `avg(o.total_amount)`. El resultado da un 28 % por encima del que informa facturación. ¿Cuál es la lectura correcta de tu número?",
+      "Te piden el ticket promedio por canal. Tu consulta une `orders` con `order_items` y calcula `avg(o.total_amount)`. Según el canal, el resultado da entre un 27 % y un 36 % por encima del que informa facturación. ¿Cuál es la lectura correcta de tu número?",
     options: [
       {
         key: "a",
@@ -379,7 +379,7 @@ export const questions: QuestionDef[] = [
       {
         key: "a",
         body_md:
-          "Descarta en silencio los pedidos sin envío (cancelados y pendientes), así que el informe deja de cubrir a todos los pedidos.",
+          "Descarta en silencio los pedidos sin envío (cancelados, pendientes y pagados que todavía no se despacharon), así que el informe deja de cubrir a todos los pedidos.",
         is_correct: true,
       },
       {
@@ -438,7 +438,7 @@ export const questions: QuestionDef[] = [
       },
       {
         left: "division by zero",
-        right: "El denominador quedó vacío: protégelo con nullif y averigua por qué no tenía filas",
+        right: "El denominador vale cero: protégelo con nullif y averigua por qué vale cero",
       },
     ],
     explanation_md:

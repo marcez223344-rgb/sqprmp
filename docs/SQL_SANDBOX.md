@@ -199,6 +199,26 @@ function-wrapped columns in `WHERE` — and three were narrowed (indentation, `O
 single-letter aliases); the reasons are recorded next to each function. Style items never affect
 grading: `correct` comes from the comparator and blocking items only.
 
+## Grading path and the published-solutions guard
+
+`gradeSubmission` (`src/lib/validation/grade.ts`) is the whole verdict for one submission: engine
+execution, comparator against the stored expected result, `buildFeedback`. `submitExercise` calls
+it and nothing else decides `correct`. `tests/sandbox/reference-solutions.test.ts` sends every
+exercise's reference and alternative solutions through that same function, on the real
+`worker_threads` engine, against `supabase/seed/0003_expected_results.sql` (what production
+holds), and fails on any published solution graded wrong, including a timeout. It closes two
+gaps `content:verify` leaves open: verify compares alternatives with the comparator only (not with
+`required_concepts`, `prohibited_patterns` or the hard timeout), and it regenerates the seed
+instead of checking the committed one.
+
+Alternatives whose result matches but that lack a concept in the exercise's `required_concepts`
+are listed in that test as a quarantine (exact match; fixing one means removing its entry). Each is
+a content decision (drop the requirement, or drop or relabel the alternative), not a grader fix.
+
+The `date_boundary` warning (`<= 'YYYY-MM-DD'` or `BETWEEN` with bare dates on a timestamp) fires
+whenever the row count differs and the exercise lists that mistake, with no size threshold: a
+lost final day can be well over 5 % of a short range (owner feedback round 6, item 11).
+
 ## Runtime notes
 
 - `@electric-sql/pglite` is listed in `serverExternalPackages` (next.config.ts) and the worker lives in `sandbox-runtime/`, outside `src/`. Bundled, PGlite resolves to a build whose wasm loader throws `instantiateWasm is not a function`, so the graded engine never booted under `next start` — every submission came back as an engine error while every local test passed. `GET /api/health/sandbox` (bearer `CRON_SECRET`) executes one query through the real engine and is the fastest way to confirm a deployment.

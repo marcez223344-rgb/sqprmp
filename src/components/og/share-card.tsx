@@ -34,6 +34,9 @@ export function markDataUri(): string {
   return `data:image/svg+xml;utf8,${encodeURIComponent(MARK)}`;
 }
 
+/** The seal's view box is 120x150; drawn at 1.4x it stays clear of the headline column. */
+const SEAL_SIZE = { width: 168, height: 210 } as const;
+
 export interface ShareCardProps {
   /** Small label above the headline: the product name, or what kind of page this is. */
   eyebrow: string;
@@ -41,6 +44,8 @@ export interface ShareCardProps {
   description?: string;
   /** Bottom-right line; defaults to the site host. */
   footnote?: string;
+  /** Image drawn top-right (a data URI): the certificate seal on a valid certificate's card. */
+  seal?: string;
 }
 
 /**
@@ -53,6 +58,7 @@ export function ShareCard({
   headline,
   description,
   footnote,
+  seal,
 }: ShareCardProps): ReactElement {
   return (
     <div
@@ -112,7 +118,25 @@ export function ShareCard({
         </div>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 24, maxWidth: 1000 }}>
+      {seal ? (
+        // eslint-disable-next-line @next/next/no-img-element -- satori renders <img>, not next/image
+        <img
+          src={seal}
+          width={SEAL_SIZE.width}
+          height={SEAL_SIZE.height}
+          alt=""
+          style={{ position: "absolute", top: 56, right: 72 }}
+        />
+      ) : null}
+
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 24,
+          maxWidth: seal ? 1000 - SEAL_SIZE.width : 1000,
+        }}
+      >
         <div style={{ display: "flex", fontSize: 64, lineHeight: 1.15, color: C.text }}>
           {headline}
         </div>

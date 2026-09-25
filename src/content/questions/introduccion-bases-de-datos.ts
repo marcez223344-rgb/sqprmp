@@ -42,7 +42,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "El modelo relacional guarda cada tipo de entidad (clientes, pedidos) en una tabla y las conecta mediante identificadores, como `orders.customer_id` → `customers.id`.",
+      "El modelo relacional guarda cada tipo de entidad (clientes, pedidos) en su propia tabla y las conecta mediante identificadores. Por ejemplo, la columna `customer_id` de la tabla `orders` guarda el `id` de la tabla `customers`, es decir, indica qué cliente hizo cada pedido.",
     is_published: true,
   },
   {
@@ -148,35 +148,54 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "`orders.customer_id` apunta a `customers.id`. Guardar solo el identificador evita duplicar los datos del cliente en cada pedido y permite combinar ambas tablas cuando hace falta.",
+      "La columna `customer_id` de la tabla `orders` guarda el valor de la columna `id` de la tabla `customers`, así que cada pedido apunta a un cliente concreto. Guardar solo el identificador evita duplicar los datos del cliente en cada pedido y permite combinar ambas tablas cuando hace falta.",
     is_published: true,
   },
   {
     slug: "intro-q05-roles",
     section,
     lesson: "que-es-una-base-de-datos",
-    type: "multiple",
+    type: "single",
     difficulty: "very_easy",
     topic: "Quién usa SQL",
     tags: ["carrera"],
     estimated_seconds: 40,
     prompt_md:
-      "¿Qué roles suelen usar SQL a diario en una empresa de datos? Selecciona todos los que apliquen.",
+      "Según lo que viste en la lección, ¿cuál de estas afirmaciones sobre quién usa SQL es correcta?",
     options: [
-      { key: "a", body_md: "Analista de datos", is_correct: true },
-      { key: "b", body_md: "Analista de marketing o de producto", is_correct: true },
-      { key: "c", body_md: "Ingeniero de datos", is_correct: true },
+      {
+        key: "a",
+        body_md:
+          "Lo usan tanto perfiles técnicos (ingenieros y científicos de datos) como analistas de áreas de negocio, por ejemplo de marketing, finanzas u operaciones.",
+        is_correct: true,
+      },
+      {
+        key: "b",
+        body_md:
+          "Solo lo usa el equipo técnico; las demás áreas reciben reportes ya hechos y nunca consultan los datos por su cuenta.",
+        is_correct: false,
+        why_incorrect_md:
+          "La lección nombra a analistas de producto, de marketing y de finanzas, y a personas de operaciones, entre quienes usan SQL. No es una habilidad exclusiva del equipo técnico.",
+      },
+      {
+        key: "c",
+        body_md:
+          "Solo lo usan quienes programan aplicaciones web; en análisis de datos se trabaja con hojas de cálculo.",
+        is_correct: false,
+        why_incorrect_md:
+          "Es al revés de lo que muestra la lección: el análisis de datos es justamente uno de los usos principales de SQL, porque escala a volúmenes que una hoja de cálculo no maneja.",
+      },
       {
         key: "d",
         body_md:
-          "Ninguno más: fuera del equipo técnico nadie escribe SQL, solo recibe reportes ya hechos",
+          "Es un conocimiento que casi nunca se evalúa en los procesos de selección para roles de datos.",
         is_correct: false,
         why_incorrect_md:
-          "En la práctica, muchas personas de marketing, finanzas y operaciones consultan los datos por su cuenta; SQL es una habilidad transversal, no exclusiva del equipo técnico.",
+          "Es al revés: en los procesos de selección para roles de datos, SQL suele ser la primera prueba técnica.",
       },
     ],
     explanation_md:
-      "SQL es la habilidad común a casi todos los roles de datos y, con frecuencia, la primera prueba técnica en un proceso de selección.",
+      "SQL es una habilidad transversal: la usan perfiles técnicos y también analistas de distintas áreas del negocio. Además, en los procesos de selección para roles de datos suele ser la primera prueba técnica.",
     is_published: true,
   },
   {
@@ -230,7 +249,7 @@ export const questions: QuestionDef[] = [
     tags: ["metodo", "agregacion"],
     estimated_seconds: 60,
     prompt_md:
-      "Marketing pide: «Cantidad de pedidos y ventas totales por país durante la semana del Hot Sale (12 al 18 de mayo de 2025), sin cancelados». ¿Qué forma debe tener el resultado?",
+      "El equipo de marketing pide: «Cantidad de pedidos y ventas totales por país durante la semana del Hot Sale (12 al 18 de mayo de 2025), sin cancelados». ¿Qué forma debe tener el resultado?",
     options: [
       {
         key: "a",
@@ -242,7 +261,7 @@ export const questions: QuestionDef[] = [
         body_md: "Una fila por pedido con su país e importe.",
         is_correct: false,
         why_incorrect_md:
-          "Eso es el detalle, no el resumen que pide marketing; faltaría agregar por país.",
+          "Eso es el detalle, no el resumen que pide el equipo de marketing: faltaría agregar los pedidos por país.",
       },
       {
         key: "c",
@@ -312,7 +331,7 @@ export const questions: QuestionDef[] = [
       {
         key: "a",
         body_md:
-          "Funciona igual con cien o con cien millones de filas y se puede versionar y compartir como texto.",
+          "La misma consulta sirve con cien o con cien millones de filas, y como es texto se puede guardar, versionar y compartir.",
         is_correct: true,
       },
       {

@@ -53,12 +53,11 @@ export const limits = {
      */
     minUnseenOnRetry: 3,
     /**
-     * Length for a section that closes a level and feeds a certificate. Ten items at 80 % tolerate
-     * two mistakes, which makes them as forgiving as five for a learner who knows the material and
-     * far harder to pass by luck (see docs/GAMIFICATION.md § Section quizzes). Requires a bank of
-     * 13+ published questions.
+     * Length for a section that closes a level and feeds a certificate. Was 10 (D-37); the owner
+     * found ten questions too long and chose 6 (D-42), accepting that a guesser passes more often.
+     * The gate banks keep 14 questions, so a retry can be drawn entirely from unseen ones.
      */
-    gateQuestions: 10,
+    gateQuestions: 6,
   },
 
   rewards: {
@@ -143,6 +142,21 @@ export const limits = {
     adminSearch: { capacity: 60, refillPerSecond: 1 },
     /** Admin CSV export: a full table scan per call, so a few per minute is plenty. */
     adminExport: { capacity: 5, refillPerSecond: 5 / 60 },
+    /**
+     * Exercise problem reports (D-42). Each one lands in the owner's inbox, so the bucket is sized
+     * for someone reporting several exercises in a sitting (5 at once, then one every 10 minutes),
+     * not for a script filling the list.
+     */
+    exerciseReport: { capacity: 5, refillPerSecond: 1 / 600 },
+  },
+
+  /** Private per-exercise reports (D-42). The same bounds are CHECK constraints in the migration. */
+  exerciseReport: {
+    /** Shortest note accepted: a word or two («mal», «error») does not say what to fix. */
+    noteMinLength: 10,
+    noteMaxLength: 1000,
+    /** The learner's SQL is attached for context and cut here rather than refused. */
+    sqlMaxChars: 8192,
   },
 
   alias: {
@@ -159,6 +173,12 @@ export const limits = {
 
   certificates: {
     minQuizScorePercent: 80,
+    /**
+     * Certificates (requirement slugs) that print «Carga horaria estimada» (D-42). Owner,
+     * 2026-09-25: only the final certificate; the per-level figures (4, 14 and 13 h) read as light
+     * next to it. The seal is on every certificate regardless.
+     */
+    programHoursShownFor: ["analista-sql-profesional"] as readonly string[],
   },
 
   promoCodes: {
@@ -193,6 +213,8 @@ export const limits = {
     learnerPickerResults: 8,
     /** Shortest search term the learner picker acts on; one or two letters match everyone. */
     learnerPickerMinChars: 2,
+    /** Exercise reports listed at once in /admin/reportes, newest first. */
+    reportsListMax: 200,
   },
 } as const;
 

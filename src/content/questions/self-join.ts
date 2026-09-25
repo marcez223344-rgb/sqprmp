@@ -16,7 +16,7 @@ export const questions: QuestionDef[] = [
     tags: ["self_join", "alias"],
     estimated_seconds: 45,
     prompt_md:
-      "En un self join, ¿por qué hay que ponerle un alias distinto a cada copia de la tabla?",
+      "Un self join es un JOIN de una tabla consigo misma. ¿Por qué cada copia de la tabla necesita un nombre distinto, es decir, un alias?",
     options: [
       {
         key: "a",
@@ -47,7 +47,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "Sin alias, `FROM categories INNER JOIN categories` produce «table name categories specified more than once». Con dos alias, cada copia es una fuente de datos independiente y `alias.columna` deja de ser ambiguo.",
+      'Sin alias, `FROM categories INNER JOIN categories` produce el error `table name "categories" specified more than once`. Con dos nombres distintos, cada copia es una fuente de datos independiente y `alias.columna` deja de ser ambiguo. Técnicamente alcanza con que los dos nombres sean distintos, pero lo habitual es darle un alias descriptivo a cada copia (`hija` y `padre`, por ejemplo) para que la consulta se lea mejor.',
     is_published: true,
   },
   {
@@ -203,7 +203,7 @@ export const questions: QuestionDef[] = [
         body_md: "El resultado es idéntico.",
         is_correct: false,
         why_incorrect_md:
-          "No lo es: `<>` acepta tanto (a, b) como (b, a), y la desigualdad estricta se queda con una sola.",
+          "No lo es: `<>` acepta tanto el par (a, b) como el par (b, a), mientras que `>` acepta solo el orden en el que el segundo id es mayor.",
       },
       {
         key: "c",
@@ -220,7 +220,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "Cuando el par no tiene un orden propio, la desigualdad estricta es la que elimina los espejos. `<>` solo sirve cuando la dirección del par sí importa (por ejemplo, «un pago anterior a otro»).",
+      "Las dos condiciones descartan que una fila se empareje consigo misma, pero solo `>` (o `<`) deja una única versión de cada par, porque de (456, 684) y (684, 456) solo una cumple que el segundo id sea mayor. `<>` sirve cuando sí quieres las dos direcciones, por ejemplo para listar, para cada producto, todos los demás productos del mismo vendedor.",
     is_published: true,
   },
   {
@@ -321,20 +321,21 @@ export const questions: QuestionDef[] = [
     topic: "Self join o función de ventana",
     tags: ["self_join", "window_function"],
     estimated_seconds: 80,
-    prompt_md: "Relaciona cada necesidad con la herramienta más adecuada.",
+    prompt_md:
+      "Relaciona cada necesidad con la herramienta más adecuada. Cada herramienta se usa una sola vez.",
     code_md: null,
     pairs: [
       {
-        left: "Mostrar cada subcategoría junto al nombre de su categoría padre",
-        right: "Self join",
+        left: "Mostrar solo las subcategorías, cada una junto al nombre de su categoría padre",
+        right: "INNER JOIN de la tabla consigo misma por parent_id",
       },
       {
-        left: "Listar todos los pares de productos parecidos del mismo vendedor",
-        right: "Self join con una desigualdad de ids",
+        left: "Listar cada par de productos del mismo vendedor una sola vez",
+        right: "Self join con b.id > a.id en el ON",
       },
       {
-        left: "Incluir también las categorías que no tienen padre",
-        right: "LEFT JOIN sobre la propia tabla",
+        left: "Listar todas las categorías, incluidas las que no tienen padre, con el nombre del padre",
+        right: "LEFT JOIN de la tabla consigo misma",
       },
       {
         left: "Comparar cada pago con el pago anterior de la misma cuenta",
@@ -359,11 +360,12 @@ export const questions: QuestionDef[] = [
     tags: ["self_join", "performance"],
     estimated_seconds: 55,
     prompt_md:
-      "Unes `products` (1500 filas) consigo misma y olvidas la condición del `ON`. ¿Cuántas filas intenta producir el motor?",
+      "Unes la tabla `products` de TiendaViva (1500 filas) consigo misma para buscar productos del mismo vendedor, pero por error escribes `ON a.seller_id = a.seller_id`: las dos columnas son de la misma copia `a`. ¿Cuántas filas devuelve la consulta?",
     options: [
       {
         key: "a",
-        body_md: "2 250 000 filas: cada fila combinada con todas las demás.",
+        body_md:
+          "2 250 000 filas: la condición es verdadera para cualquier combinación, así que cada fila se combina con todas las filas de la otra copia.",
         is_correct: true,
       },
       {
@@ -371,7 +373,7 @@ export const questions: QuestionDef[] = [
         body_md: "1500 filas: una por producto.",
         is_correct: false,
         why_incorrect_md:
-          "Sin condición de unión no hay nada que limite las combinaciones a una por fila.",
+          "La condición no relaciona las dos copias, así que no hay nada que limite las combinaciones a una por fila.",
       },
       {
         key: "c",
@@ -382,14 +384,14 @@ export const questions: QuestionDef[] = [
       },
       {
         key: "d",
-        body_md: "0 filas: PostgreSQL rechaza la consulta.",
+        body_md: "Ninguna: PostgreSQL rechaza la consulta porque la condición no usa la copia `b`.",
         is_correct: false,
         why_incorrect_md:
-          "Con `CROSS JOIN` o con la sintaxis de comas no hay error: la consulta corre y devuelve el producto cartesiano.",
+          "El `ON` acepta cualquier condición booleana, aunque use una sola de las dos copias. La consulta corre sin error y devuelve el producto cartesiano, es decir, todas las combinaciones posibles.",
       },
     ],
     explanation_md:
-      "1500 × 1500 = 2 250 000. Por eso conviene ejecutar `count(*)` antes de agregar columnas: si el número se parece al cuadrado del tamaño de la tabla, falta una condición en el `ON`.",
+      "`a.seller_id = a.seller_id` es verdadero en todas las filas (la columna no tiene NULL), así que el `ON` no descarta nada: 1500 × 1500 = 2 250 000 filas. Lo mismo pasa con `CROSS JOIN` o con la sintaxis de comas (`FROM products a, products b`) sin condición. En cambio, un `INNER JOIN` sin `ON` da error de sintaxis. Por eso conviene ejecutar `count(*)` antes de agregar columnas: si el número se parece al cuadrado del tamaño de la tabla, la condición no está relacionando las dos copias.",
     is_published: true,
   },
 ];

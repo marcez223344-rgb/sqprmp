@@ -119,86 +119,48 @@ Follow-ups he raised after seeing it live:
 ## 2026-09-25 · Round 6 (24 items, quiz and learner-experience test run)
 
 He took several quizzes and exercises on the live site. Numbering is his (there is no item 3).
+«Done» below means shipped in the round-6 push of 2026-09-25.
 
-| #   | Item                                                                                                    | Status                                                                                                |
-| --- | ------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| 1   | «XP total» is not explained anywhere                                                                    | Queued                                                                                                |
-| 2   | Badge icons on «Mi aprendizaje» are hard to tell apart                                                  | Queued                                                                                                |
-| 4   | «¿Qué roles suelen usar SQL a diario?» — select-all with a debatable answer (marketing/product analyst) | Queued — part of the full quiz audit (21)                                                             |
-| 5   | «Los ejercicios de esta sección no consumen tu cupo gratis» shown to learners who paid or have a beca   | Queued                                                                                                |
-| 6   | Primary-key question: is it correct?                                                                    | Checked: the marked answer is correct; included in the audit for wording                              |
-| 7   | The same question/example appears twice                                                                 | Queued — audit (21) plus retry sampling (10)                                                          |
-| 8   | Show progress percentages in sections too                                                               | Queued — /ruta cards show «x de y lecciones · z %» since F1; clarify where he means                   |
-| 9   | Explain that PostgreSQL `timestamp` ≈ `datetime` in other databases                                     | Queued                                                                                                |
-| 10  | The same quiz question came back on a retry although the copy says «te tocan otras preguntas»           | Confirmed bug: retries sample the whole bank at random, ignoring what the learner saw                 |
-| 11  | «Primera quincena de marzo»: his query was marked wrong                                                 | Confirmed bug: his query is identical to the reference solution; checker under investigation          |
-| 12  | Quiz progress bar: the current question should be distinguishable (grey/neutral)                        | Queued                                                                                                |
-| 13  | Copy button on the revealed solution                                                                    | Queued                                                                                                |
-| 14  | Comments per exercise: possible? how hard?                                                              | Decision pending                                                                                      |
-| 15  | Screenshot: an answer he believed correct was marked wrong («channel NOT IN»)                           | Confirmed bug: fill-in answers must match an exact accepted string                                    |
-| 16  | De Morgan question (`NOT (is_active AND stock > 0)`): correct?                                          | Checked: the marked answer is correct (holds with NULL too)                                           |
-| 17  | Same as 16, «are you really sure?»                                                                      | Checked, see 16                                                                                       |
-| 18  | Select-all question with two correct choices shown in red                                               | Confirmed UI problem: correct choices he picked are drawn red because the whole answer was incomplete |
-| 19  | BETWEEN / IN / NOT(...) equivalence question: correct?                                                  | Checked: the three marked choices are equivalent for integer `installments`                           |
-| 20  | «channel NOT IN» answer marked incorrect                                                                | Same as 15                                                                                            |
-| 21  | Review ALL quiz questions — learners will be angry if many are wrong                                    | Queued — full audit of the 444-question bank                                                          |
-| 22  | A 10-question quiz is still too long                                                                    | Decision pending                                                                                      |
-| 23  | Matching dropdown shows duplicated values                                                               | Confirmed bug: options are not de-duplicated                                                          |
-| 24  | Congratulate the learner when a certificate is issued                                                   | Queued                                                                                                |
-| 25  | Hours studied on the certificate; emoji / clipart / icon                                                | Decision pending                                                                                      |
+| #   | Item                                                               | Status                                                                                                                                                                                                                                                                                                                                                                                                   |
+| --- | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | «XP total» is not explained anywhere                               | Done — «¿Qué es el XP y cómo se gana?» panel on Mi aprendizaje; every figure read from `limits`                                                                                                                                                                                                                                                                                                          |
+| 2   | Badge icons on «Mi aprendizaje» are hard to tell apart             | Done — each badge shows its name, description and «Obtenida / Por obtener» (icon + border + text, not colour only)                                                                                                                                                                                                                                                                                       |
+| 4   | «¿Qué roles suelen usar SQL a diario?» — debatable select-all      | Done — rewritten as an objective single-choice question (quiz audit)                                                                                                                                                                                                                                                                                                                                     |
+| 5   | Free-quota message shown to learners who paid or have a beca       | Done — hidden when `hasActiveEntitlement`; the dashboard's free-slot counter follows the same rule                                                                                                                                                                                                                                                                                                       |
+| 6   | Primary-key question: is it correct?                               | Correct as written; wording clarified (PK expanded, example added)                                                                                                                                                                                                                                                                                                                                       |
+| 7   | The same question/example appears twice                            | Done — duplicates replaced in every bank (audit), and retries prefer unseen questions (10)                                                                                                                                                                                                                                                                                                               |
+| 8   | Show progress percentages in sections too                          | Done (D-42) — «Avance de la sección» bar on every lesson, quiz and exercise page; same count as the /ruta card                                                                                                                                                                                                                                                                                           |
+| 9   | `timestamp` ≈ `datetime` in other databases                        | Done — one sentence in the types and dates lessons, and in the questions that introduce the type                                                                                                                                                                                                                                                                                                         |
+| 10  | A question came back on retry although the copy promises otherwise | Done — retries draw unseen → previously wrong → answered right; copy says «primero las que todavía no viste, mientras queden»                                                                                                                                                                                                                                                                            |
+| 11  | «Primera quincena de marzo»: his query was marked wrong            | **Correction to the earlier finding:** his query was not the reference. Production shows `<= '2025-03-15'`, which drops the 31 orders of the 15th after 00:00 (the exercise's own trap). The grader was right; the feedback never said why. Fixed: the date-boundary hint now fires whenever an inclusive bare-date bound is used. A new test grades every published solution through the learner's path |
+| 12  | Quiz progress bar: current question distinguishable                | Done — current step is an outlined neutral segment, `aria-current="step"`, «Pregunta x de y» value text                                                                                                                                                                                                                                                                                                  |
+| 13  | Copy button on the revealed solution                               | Done — «Copiar» under the solution and each alternative, announced «Copiado»                                                                                                                                                                                                                                                                                                                             |
+| 14  | Comments per exercise                                              | Done (D-42: private report, not public comments) — «Reportar un problema» dialog; reports reach only `/admin/reportes`; resolution is audit-logged. Migration applied with his approval                                                                                                                                                                                                                  |
+| 15  | «channel NOT IN» answer marked wrong                               | Done — fill-in grading tolerates spacing, `;` and curly quotes; the question accepts the full condition; every fill-in audited for accepted forms                                                                                                                                                                                                                                                        |
+| 16  | De Morgan question: correct?                                       | Correct (holds under NULL too); prompt now states the column types                                                                                                                                                                                                                                                                                                                                       |
+| 17  | Same as 16                                                         | See 16                                                                                                                                                                                                                                                                                                                                                                                                   |
+| 18  | Select-all: correct picks shown in red                             | Done — «Correcta» / «Te faltó marcar esta» / «No había que marcarla», plus «Marcaste x de y correctas»                                                                                                                                                                                                                                                                                                   |
+| 19  | BETWEEN / IN / NOT(...) equivalence: correct?                      | Correct; prompt now states `installments` is an integer                                                                                                                                                                                                                                                                                                                                                  |
+| 20  | Same as 15                                                         | See 15                                                                                                                                                                                                                                                                                                                                                                                                   |
+| 21  | Review ALL quiz questions                                          | Done — all 444 checked against PostgreSQL 18 in PGlite: 64 were factually wrong and fixed, about 200 reworded or given more accepted answers; bank sizes unchanged. Seven lesson claims corrected too                                                                                                                                                                                                    |
+| 22  | A 10-question quiz is still too long                               | Done (D-42) — the four certificate gates serve 6                                                                                                                                                                                                                                                                                                                                                         |
+| 23  | Matching dropdown shows duplicated values                          | Done — options de-duplicated; grading unchanged                                                                                                                                                                                                                                                                                                                                                          |
+| 24  | Congratulate the learner when a certificate is issued              | Done — congratulation block on /certificados right after issuance (server-verified, reduced-motion aware)                                                                                                                                                                                                                                                                                                |
+| 25  | Hours on the certificate; emoji / icon                             | Done (D-42) — drawn seal on every certificate; «Carga horaria estimada» (29 h) only on Analista SQL Profesional, by his choice                                                                                                                                                                                                                                                                           |
 
-### Round 6 — findings so far and plan (written before a context compaction, 2026-09-25)
+### Found during round 6, not reported by him
 
-Nothing has been changed for this round yet; only investigation.
-
-**Confirmed causes**
-
-- **11 (quincena):** the exercise is `pedidos-primera-quincena-marzo` in
-  `src/content/exercises/where.ts`. His query is identical to `reference_solution`, so the defect is
-  in grading, not in his SQL. Not yet reproduced. Suspects: the server engine's session TimeZone vs
-  the UTC expected results (D-20), the `expected_columns` type `timestamp` vs the real `timestamptz`,
-  or stale expected results. Next step (`sql-sandbox-engineer`): reproduce through the real submit
-  path locally; read his attempt row in production read-only (`exercise_attempts`: submitted SQL and
-  feedback category); fix; add a regression test that submits every exercise's reference solution
-  through the same path the learner uses.
-- **15 / 20 (fill-in answers):** `src/lib/quizzes/grading.ts` → `fill_blank` accepts only an exact
-  match (after `normalizeText`) against `accepted[]`. The NOT IN question
-  (`src/content/questions/operadores-comparacion-logicos.ts:106`) accepts only `NOT IN`, so a full
-  correct expression is rejected. Fix both: add accepted variants in content and make normalization
-  tolerant of whitespace around commas and parentheses and of quote style. Audit every
-  `fill_blank` for the same problem.
-- **10 / 7 (repeats on retry):** `src/lib/quizzes/sampling.ts` → `sampleQuestions` draws from the
-  whole bank at random and never looks at what the learner already answered, while the copy
-  promises «te tocan otras preguntas». Fix: prefer questions the learner has not seen (read their
-  previous attempts; no schema change expected), then questions they got wrong; make the copy
-  truthful.
-- **18 (select-all colours):** correct choices the learner picked are drawn red when the whole
-  answer is incomplete. They should read «correcta» (green), the missed one «te faltó marcar esta»,
-  and the verdict should say how many were right.
-- **23 (matching dropdown):** the right-hand options are not de-duplicated.
-- **Checked as correct content (no change needed, answer him with the reasoning):** 6 (primary
-  key), 16/17 (De Morgan; holds under three-valued logic because `NOT (stock > 0)` and `stock <= 0`
-  are both NULL for a NULL stock), 19 (`IN (3,4,5,6)`, `BETWEEN 3 AND 6` and
-  `NOT (installments < 3 OR installments > 6)` are equivalent for integer `installments`). His
-  wrong marks there came from 18 (confusing colours) and from not selecting all three.
-
-**Plan (not started)**
-
-1. Full audit of the 444 quiz questions (item 21), split by section ranges across `content-author`
-   agents: factual correctness on PostgreSQL 18; no subjective select-all questions such as item 4;
-   every `fill_blank` accepts all reasonable correct forms; no duplicated examples inside a
-   section's bank (7); where `timestamp`/`timestamptz` appears, say that other databases call it
-   `datetime` (9, also one line in the dates lesson). Run `content:validate`/`verify`, then publish.
-2. Quiz UI (`frontend-engineer`): 12 (current question neutral in the progress bar), 18, 23, and
-   the retry copy (10).
-3. Learner UI: 1 (explain XP where it is shown), 2 (badge names visible or in accessible
-   tooltips), 5 (hide the free-quota message when the learner has access), 13 (copy button on the
-   revealed solution), 24 (a congratulation moment when a certificate is issued).
-4. Owner decisions to ask with the question tool, each with context: 14 (per-exercise comments:
-   needs a table, RLS and moderation, a medium feature), 22 (quiz length: gate quizzes are 10
-   questions today, D-37; options 6 or 8), 25 (certificate: «horas estimadas del programa» from the
-   lesson estimates rather than personal time, which is only a floor; an icon or seal rather than
-   emoji), 8 (where he wants more percentages: /ruta cards already show them since F1).
+- **29 published alternative solutions were graded wrong if submitted** (they lacked a concept the
+  exercise requires). Each was removed, rewritten, or the incidental requirement dropped;
+  `tests/sandbox/reference-solutions.test.ts` now fails if any published solution is rejected.
+- **The concept checker missed joins on a subquery** (`LEFT JOIN (SELECT …) AS f`), so such correct
+  answers were rejected for «outer_join». Fixed.
+- **Lessons with false claims**: `sum` over `bigint` returns `numeric`; `SPLIT_PART` part 1 returns
+  the whole text; funnel figures (545 with both, not 1225); `HAVING` without an aggregate is not
+  slower in PostgreSQL; a composite index can still serve its second column (badly); prefix `LIKE`
+  needs C collation or `text_pattern_ops`; `ILIKE` does not use a plain index.
+- **Bolsillo has 12 transactions dated after the dataset's «today»** (16–17 Sep 2025) with no FX
+  rate. No exercise is affected today; queued for `dataset-engineer`.
 
 ## Earlier rounds
 

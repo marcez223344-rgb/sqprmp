@@ -25,13 +25,18 @@ Level `n` requires `100·n·(n−1)/2` total XP (100, 300, 600, 1000, 1500 …);
 - **Length (D-33, amended by D-37).** An attempt serves the number of questions **that section**
   declares (`quiz_questions` in `src/content/sections.ts`, resolved by
   `quizLengthForSection()`), out of a bank of 8–12. Today: 5 for the 31 sections whose exercises
-  already carry the evidence, 6 for the 8 sections with four or fewer exercises (and for the four
-  certificate gates until their banks are deep enough for 10),
+  already carry the evidence, 6 for the 8 sections with four or fewer exercises and for the four
+  certificate gates (`limits.quiz.gateQuestions`; 10 under D-37, cut to 6 by D-42),
   `limits.quiz.questionsPerAttempt` = 6 as the default for a section that declares nothing. The
   bank is not reduced: the sample is drawn per attempt, so a retry asks a different set, and
   `limits.quiz.minUnseenOnRetry` = 3 keeps at least three questions out of any attempt (enforced by
   `content:validate`). Sampling is server-side; the browser never receives the questions that were
   not drawn.
+- **Retry priority (round 6, item 10).** `sampleQuestions()` receives the learner's history
+  (`quizHistory()` in `src/lib/quizzes/service.ts`, read server-side before the attempt is frozen)
+  and draws only from the freshest non-empty group: never served → last answer wrong → answered
+  right. The coverage rule below applies inside that group. With no history the draw is the plain
+  one. The copy promises unseen questions first «mientras queden», which is what this guarantees.
 - **Which lengths are legal.** `limits.quiz.lengthsAllowed` = 5, 6, 10, 11, 12 — the lengths at
   which the 80 % threshold is honest. At 7, 8 or 9 the learner is told 80 % and judged at 86–89 %,
   and at 4 a single mistake fails the attempt (D-37 has the table and the error rates).
@@ -74,6 +79,30 @@ every exercise of section 39 «SQL con IA». Family autonomía, tier III, icon `
 without hints). Once per learner like every badge; no XP or coins attached. Learners who had
 already completed the section when the badge shipped received it through the migration's backfill
 (`20260925120000_badge_section_completed.sql`, [DATABASE_DESIGN.md](DATABASE_DESIGN.md) §4o).
+
+## Certificates: program hours and seal
+
+Eligibility and issuance stay in the DB (`certificate_eligible`, `issue_certificate`; sections
+listed in `certificate_requirements.rules`). D-42 adds two presentation rules:
+
+- **«Carga horaria estimada: N horas»** on the PDF, the public verification page, its share image
+  and each card of `/certificados` — only for the certificates listed in
+  `limits.certificates.programHoursShownFor` (owner, 2026-09-25: the final certificate only; the
+  per-level figures read as light). `displayedProgramHours()` applies the list in one place and
+  returns 0 elsewhere, which every surface treats as "omit". It describes the program, not the person: the same number for
+  every holder, no personal time tracking. `src/lib/certificates/hours.ts` sums, over the
+  requirement's published sections, theory `estimated_minutes` + exercise `estimated_minutes` +
+  the quiz as questions served per attempt × mean `estimated_seconds` of the bank (not the whole
+  bank). The total is rounded once to the nearest whole hour, half up, minimum 1. Missing data
+  counts zero and is logged (`missingSections`, `missingItems`), so the figure can under-state
+  but never invent; a unit test keeps the current content at zero missing. The verification RPC
+  returns only the title, so the verify page resolves the requirement by title; an unresolved
+  one omits the row. At the time of writing: Fundamentos 4 h, Análisis de Negocio 14 h,
+  Analítico Avanzado 13 h, Analista Profesional 29 h (recomputed from content on every deploy).
+- **Seal**: a vector rosette with ribbons and the brand mark, defined once as shape data in
+  `src/lib/certificates/seal.ts` and drawn from it by the web component, the PDF and the share
+  image, in the light brand palette so it prints the same everywhere. Decorative (`aria-hidden`);
+  never shown on a revoked certificate, since a seal reads as "valid".
 
 ## Abuse controls
 

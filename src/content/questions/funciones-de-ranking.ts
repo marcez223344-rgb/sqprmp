@@ -122,8 +122,8 @@ export const questions: QuestionDef[] = [
     tags: ["ranking", "window_function"],
     estimated_seconds: 35,
     prompt_md:
-      "Completa la función que reparte las filas ordenadas en cuatro bloques de tamaño parejo: `___(4) OVER (ORDER BY reproducciones DESC)`.",
-    answer: { accepted: ["ntile"], case_sensitive: false },
+      "Completa el nombre de la función que reparte las filas ordenadas en cuatro bloques de tamaño parejo: `___(4) OVER (ORDER BY reproducciones DESC)`. Escribe solo el nombre.",
+    answer: { accepted: ["ntile", "ntile(4)"], case_sensitive: false },
     explanation_md:
       "`ntile(n)` asigna a cada fila un número de bloque entre 1 y n según su posición en el orden declarado.",
     is_published: true,
@@ -207,10 +207,10 @@ export const questions: QuestionDef[] = [
       {
         key: "d",
         body_md:
-          "`SELECT DISTINCT genre, title ... LIMIT 3` por cada género en consultas separadas.",
+          "Numerar con `dense_rank() OVER (ORDER BY reproducciones DESC)`, sin `PARTITION BY`, y filtrar el puesto en una capa externa.",
         is_correct: false,
         why_incorrect_md:
-          "Funciona a fuerza de repetir consultas, pero no escala ni responde en un solo resultado; el ranking por partición lo resuelve de una vez.",
+          "Sin `PARTITION BY` el ranking es uno solo para todo el catálogo: devuelve las canciones con las tres cantidades de reproducciones más altas en general, no tres por género.",
       },
     ],
     explanation_md:
@@ -343,7 +343,7 @@ export const questions: QuestionDef[] = [
     tags: ["ranking", "order_by"],
     estimated_seconds: 50,
     prompt_md:
-      "Un reporte diario usa `row_number() OVER (ORDER BY monthly_listeners DESC)` y los puestos de dos artistas empatados se intercambian entre ejecuciones. ¿Cuál es la mejor corrección?",
+      "Un reporte diario necesita un puesto distinto para cada artista y usa `row_number() OVER (ORDER BY monthly_listeners DESC)`. Los puestos de dos artistas empatados se intercambian entre ejecuciones. ¿Cuál es la mejor corrección?",
     options: [
       {
         key: "a",
@@ -362,7 +362,7 @@ export const questions: QuestionDef[] = [
         body_md: "Cambiar a `rank()` y dejar el resto igual.",
         is_correct: false,
         why_incorrect_md:
-          "`rank()` estabiliza el número (ambos reciben el mismo), pero si el reporte necesita un puesto distinto por artista sigue faltando el desempate.",
+          "`rank()` les da a los dos el mismo puesto, y el reporte necesita un puesto distinto para cada artista.",
       },
       {
         key: "d",
@@ -390,7 +390,7 @@ export const questions: QuestionDef[] = [
       {
         key: "a",
         body_md:
-          "Con `row_number()` cada grupo devuelve exactamente 3 filas; con `rank()` puede devolver más si hay empates.",
+          "Con `row_number()` cada grupo devuelve exactamente 3 filas (o todas, si tiene menos de 3); con `rank()` puede devolver más si hay empates.",
         is_correct: true,
       },
       {

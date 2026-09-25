@@ -125,23 +125,29 @@ export function detectConcepts(statement: Statement, functions: string[]): Set<S
         if (NULL_FN.has(fn)) found.add("null_handling");
         break;
       }
+      case "binary":
+        // `a % b` is `mod(a, b)` in operator form; requiring the function name graded a correct
+        // query wrong (found by tests/sandbox/reference-solutions.test.ts).
+        if (n.op === "%") found.add("numeric_functions");
+        break;
       case "unary":
         if (n.op === "IS NULL" || n.op === "IS NOT NULL") found.add("null_handling");
         break;
       case "extract":
         found.add("date_functions");
         break;
-      case "table":
-        if (n.join) {
-          const jt = String((n.join as { type?: string }).type ?? "").toUpperCase();
-          if (jt.includes("LEFT") || jt.includes("RIGHT") || jt.includes("FULL"))
-            found.add("outer_join");
-          else found.add("inner_join");
-        }
-        break;
       case "statement":
         // Nested statement in FROM/subquery
         break;
+    }
+    // A FROM item carries its own join. Every kind can: a table, a derived table or VALUES
+    // (`statement`, also LATERAL) and a set-returning function (`call`). Reading it only on
+    // `table` rejected a correct `LEFT JOIN (SELECT …) AS f` for a missing outer_join.
+    if (n.join && (n.type === "table" || n.type === "statement" || n.type === "call")) {
+      const jt = String((n.join as { type?: string }).type ?? "").toUpperCase();
+      if (jt.includes("LEFT") || jt.includes("RIGHT") || jt.includes("FULL"))
+        found.add("outer_join");
+      else found.add("inner_join");
     }
     for (const [k, v] of Object.entries(n)) {
       if (k === "type") continue;

@@ -111,10 +111,10 @@ export const questions: QuestionDef[] = [
     tags: ["alias", "texto"],
     estimated_seconds: 30,
     prompt_md:
-      "Completa el operador que une textos en PostgreSQL: `SELECT 'CAT-' ___ id AS codigo FROM categories;`",
-    answer: { accepted: ["||"], case_sensitive: false },
+      "Completa el operador que une textos en PostgreSQL: `SELECT 'CAT-' ___ id AS codigo FROM categories;`. Escribe solo el operador.",
+    answer: { accepted: ["||", "'CAT-' || id", "'CAT-' || id AS codigo"], case_sensitive: false },
     explanation_md:
-      "`||` concatena. `+` no funciona con textos en PostgreSQL: concatena en SQL Server, no acá.\n\n`||` es el operador de concatenación del estándar ISO SQL y se comporta igual en PostgreSQL, Oracle, SQLite y DB2. MySQL lee `||` como el OR lógico salvo que tenga activado el modo `PIPES_AS_CONCAT`, así que allí se usa `CONCAT()`. `CONCAT()` también corre en PostgreSQL y es la opción portable; la diferencia práctica es que `'A' || NULL` es NULL y `CONCAT('A', NULL)` es `'A'`.",
+      "`||` concatena. `+` no une textos en PostgreSQL (sí lo hace en SQL Server): `'CAT-' + id` da error.\n\n`||` es el operador de concatenación del estándar ISO SQL y se comporta igual en PostgreSQL, Oracle, SQLite y DB2. MySQL lee `||` como el OR lógico salvo que tenga activado el modo `PIPES_AS_CONCAT`, así que allí se usa `CONCAT()`. `CONCAT()` también corre en PostgreSQL y es la opción portable; la diferencia práctica es que `'A' || NULL` es NULL y `CONCAT('A', NULL)` es `'A'`.",
     is_published: true,
   },
   {
@@ -127,27 +127,27 @@ export const questions: QuestionDef[] = [
     tags: ["alias", "aritmetica"],
     estimated_seconds: 50,
     prompt_md:
-      "Con `subtotal = 100`, `discount = 20` y una tasa de 0.21, ¿qué valor devuelve `impuesto`?",
+      "Una fila tiene `subtotal = 100` y `discount = 20`. Quien escribió la consulta quería calcular un impuesto del 21 % sobre el neto. ¿Qué valor devuelve la columna `impuesto` para esa fila?",
     code_md: "```sql\nSELECT subtotal - discount * 0.21 AS impuesto\nFROM orders;\n```",
     options: [
-      { key: "a", body_md: "`95.80`", is_correct: true },
+      { key: "a", body_md: "95,8", is_correct: true },
       {
         key: "b",
-        body_md: "`16.80`",
+        body_md: "16,8",
         is_correct: false,
         why_incorrect_md:
           "Eso sería `(subtotal - discount) * 0.21`. Sin paréntesis, la multiplicación se resuelve primero.",
       },
       {
         key: "c",
-        body_md: "`80`",
+        body_md: "80",
         is_correct: false,
         why_incorrect_md:
           "Ignora la multiplicación; la expresión sí multiplica `discount` por 0.21.",
       },
     ],
     explanation_md:
-      "`*` tiene prioridad sobre `-`: `100 - (20 * 0.21) = 95.80`. Si querías el impuesto sobre el neto, escribe `(subtotal - discount) * 0.21`.",
+      "`*` tiene prioridad sobre `-`: la expresión se calcula como `100 - (20 * 0.21)`, que da 95,8 (PostgreSQL lo muestra como `95.8000`). El resultado no es un impuesto, aunque el alias lo diga. Para el impuesto sobre el neto hay que escribir `(subtotal - discount) * 0.21`, que da 16,8.",
     is_published: true,
   },
   {
@@ -213,7 +213,7 @@ export const questions: QuestionDef[] = [
     tags: ["alias", "readability"],
     estimated_seconds: 50,
     prompt_md:
-      "Finanzas te pide un reporte con el neto de cada pedido para pegarlo en una planilla que luego consumirá otra consulta. ¿Qué alias conviene?",
+      "El área de Finanzas te pide un reporte con el neto de cada pedido (`subtotal - discount`). El resultado se va a guardar como tabla y otra consulta lo va a leer después. ¿Qué alias conviene para la columna del neto?",
     options: [
       { key: "a", body_md: "`AS neto_pedido`", is_correct: true },
       {
@@ -221,14 +221,14 @@ export const questions: QuestionDef[] = [
         body_md: '`AS "Neto del pedido"`',
         is_correct: false,
         why_incorrect_md:
-          "Funciona, pero obliga a usar comillas dobles en cada consulta posterior y suele romper herramientas.",
+          "Funciona, pero obliga a escribir el nombre entre comillas dobles, con las mismas mayúsculas y espacios, en cada consulta posterior. Un solo carácter distinto produce un error de columna inexistente.",
       },
       {
         key: "c",
-        body_md: "Sin alias; la planilla ya tiene encabezados.",
+        body_md: "Sin alias: el nombre de la columna no importa.",
         is_correct: false,
         why_incorrect_md:
-          "La columna se llamaría `?column?` y la consulta posterior no podría referenciarla con claridad.",
+          "Sin alias, PostgreSQL llama `?column?` a una columna calculada, y la consulta posterior no tendría un nombre claro con el que usarla.",
       },
     ],
     explanation_md:

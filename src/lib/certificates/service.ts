@@ -8,6 +8,7 @@ import {
   summarizeSectionProgress,
   type SectionProgressSummary,
 } from "@/lib/certificates/progress";
+import { displayedProgramHours } from "@/lib/certificates/program-hours";
 import { getLearningPath } from "@/lib/curriculum/queries";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -27,6 +28,8 @@ export interface RequirementStatus {
   }[];
   /** Share of the requirement's published lessons already completed (display only). */
   percent: number;
+  /** D-42: program hours, the same for every holder; 0 where the certificate does not show them. */
+  programHours: number;
   eligible: boolean;
   certificate: {
     publicId: string;
@@ -98,6 +101,7 @@ export async function getRequirementStatuses(profile: Profile): Promise<Requirem
         skills: r.skills,
         sections: secs,
         percent: requirementPercent(secs.map((x) => x.progress)),
+        programHours: displayedProgramHours(r.slug, rules.sections ?? []),
         eligible,
         certificate: cert
           ? {
@@ -157,6 +161,8 @@ export interface CertificateDetail {
   skills: string[];
   issuedAt: string;
   revoked: boolean;
+  /** D-42 program hours; 0 when not shown for this certificate or unknown (line omitted). */
+  programHours: number;
 }
 
 /** Owner-only detail (RLS restricts to the learner's own rows or admins). */
@@ -165,7 +171,7 @@ export async function getOwnCertificate(publicId: string): Promise<CertificateDe
   const { data } = await supabase
     .from("certificates")
     .select(
-      "public_id, verification_code, recipient_name, issued_at, revoked_at, certificate_requirements ( title, skills )",
+      "public_id, verification_code, recipient_name, issued_at, revoked_at, certificate_requirements ( slug, title, skills, rules )",
     )
     .eq("public_id", publicId)
     .maybeSingle();
@@ -179,6 +185,9 @@ export async function getOwnCertificate(publicId: string): Promise<CertificateDe
     skills: req?.skills ?? [],
     issuedAt: data.issued_at,
     revoked: data.revoked_at !== null,
+    programHours: req
+      ? displayedProgramHours(req.slug, ((req.rules ?? {}) as RequirementRules).sections ?? [])
+      : 0,
   };
 }
 
@@ -189,6 +198,8 @@ export interface VerificationResult {
   skills: string[];
   issuedAt: string;
   revoked: boolean;
+  /** D-42 program hours; 0 when not shown for this certificate or unknown (row omitted). */
+  programHours: number;
 }
 
 /**
@@ -213,6 +224,16 @@ export async function verifyCertificate(code: string): Promise<VerificationResul
   const { data } = await supabase.rpc("verify_certificate", { p_code: code });
   const row = data?.[0];
   if (!row) return null;
+  // `verify_certificate` returns the requirement's title, not its slug or rules, so the sections
+  // are read from the requirement with that title (titles are unique in practice, and active
+  // requirements are readable by anyone under RLS). An inactive or renamed requirement yields 0
+  // hours and the page omits the row rather than guessing.
+  const { data: req } = await supabase
+    .from("certificate_requirements")
+    .select("slug, rules")
+    .eq("title", row.title)
+    .limit(1)
+    .maybeSingle();
   return {
     publicId: row.public_id,
     recipientName: row.recipient_name,
@@ -220,5 +241,8 @@ export async function verifyCertificate(code: string): Promise<VerificationResul
     skills: row.skills,
     issuedAt: row.issued_at,
     revoked: row.revoked,
+    programHours: req
+      ? displayedProgramHours(req.slug, ((req.rules ?? {}) as RequirementRules).sections ?? [])
+      : 0,
   };
 }

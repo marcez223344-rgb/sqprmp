@@ -265,11 +265,11 @@ Dos advertencias. El dataset tiene 14 437 filas: en una tabla de cientos de mill
     dataset: "pidelo",
     body_md: `## Las tres formas de unir dos tablas
 
-Cuando escribes un \`JOIN\`, el motor decide **cómo** hacerlo. Hay tres estrategias, y reconocerlas en el plan te dice si el problema es el join o es otra cosa.
+El motor decide **cómo** ejecutar cada \`JOIN\`. Reconocer sus tres estrategias en el plan te dice si el problema es el join o es otra cosa.
 
-**Nested Loop** («bucle anidado»): toma cada fila de la tabla de afuera y busca sus coincidencias en la de adentro. Es excelente cuando la de afuera aporta pocas filas y la de adentro tiene un índice por la columna del join. Se vuelve terrible cuando la de afuera aporta muchas más filas de las que el planificador estimó, porque el costo es filas de afuera por costo de cada búsqueda.
+**Nested Loop** («bucle anidado»): toma cada fila de la tabla de afuera y busca sus coincidencias en la de adentro. Es excelente cuando la de afuera aporta pocas filas y la de adentro tiene un índice por la columna del join. Se vuelve terrible cuando la de afuera aporta muchas más filas de las estimadas, porque el costo es filas de afuera por costo de cada búsqueda.
 
-**Hash Join**: arma en memoria una tabla de búsqueda por valor, llamada *hash*, con el lado más chico, y después pasa el lado grande por encima buscando coincidencias. Es la estrategia típica para unir dos conjuntos grandes por igualdad y no necesita ningún índice. Su punto débil es la memoria: si el lado chico no entra, el motor parte el trabajo en tandas que van a disco.
+**Hash Join**: arma en memoria una tabla de búsqueda (*hash*) con el lado más chico y pasa el lado grande por encima buscando coincidencias. Es la estrategia típica para unir dos conjuntos grandes por igualdad y no necesita índices. Su punto débil es la memoria: si el lado chico no entra, el motor parte el trabajo en tandas que van a disco.
 
 **Merge Join** («unión por mezcla»): necesita las dos entradas ordenadas por la columna del join y avanza en paralelo por las dos, como cuando cruzas dos listas ordenadas. Muy bueno si ese orden ya lo da un índice, caro si hay que ordenar antes.
 
@@ -279,7 +279,7 @@ Un \`Hash Join\` que construye el *hash* con la tabla grande indica algo mal est
 
 Un **índice compuesto** es un índice sobre varias columnas, por ejemplo \`(restaurant_id, placed_at)\` en la tabla \`orders\`. Está ordenado primero por \`restaurant_id\`, el restaurante del pedido, y dentro de cada restaurante por \`placed_at\`, el momento en que se hizo. Funciona como una guía ordenada por apellido y, dentro de cada apellido, por nombre.
 
-De ese orden sale la **regla del prefijo izquierdo**: el índice sirve si el filtro usa la primera columna, o la primera y la segunda, pero no si usa solamente la segunda.
+De ese orden sale la **regla del prefijo izquierdo**, una regla de diseño: el índice rinde de verdad si el filtro usa la primera columna, o la primera y la segunda. Con solo la segunda, PostgreSQL todavía puede usarlo (recorriéndolo entero o, desde la versión 18, saltando de restaurante en restaurante con un *skip scan*), pero mucho peor que con un índice que empiece por \`placed_at\`, y a menudo prefiere leer la tabla.
 
 \`\`\`sql
 -- Aprovecha el índice: filtra por la primera columna
@@ -290,21 +290,19 @@ WHERE restaurant_id = 42
   AND placed_at >= TIMESTAMPTZ '2025-08-01 00:00:00+00'
   AND placed_at <  TIMESTAMPTZ '2025-09-01 00:00:00+00'
 
--- No lo aprovecha: saltea la primera columna
+-- Lo aprovecha mal: saltea la primera columna
 WHERE placed_at >= TIMESTAMPTZ '2025-08-01 00:00:00+00'
 \`\`\`
 
 De ahí la recomendación al armar uno: **las columnas de igualdad primero y la de rango al final**. Una columna de rango en el medio corta el orden para todo lo que viene después.
 
-Hay un beneficio extra: ese mismo índice resuelve \`ORDER BY placed_at\` dentro de un restaurante sin ordenar nada, porque las filas ya salen en ese orden. En el plan lo notas por la ausencia de un nodo \`Sort\`.
+Además, ese mismo índice resuelve \`ORDER BY placed_at\` dentro de un restaurante sin ordenar nada, porque las filas ya salen en ese orden. En el plan lo notas por la ausencia de un nodo \`Sort\`.
 
 ## Índice cubriente
 
 Un **índice cubriente** (*covering index*) contiene todas las columnas que la consulta necesita, así que el motor responde sin tocar la tabla. Si pides \`restaurant_id\` y \`placed_at\` y el índice es \`(restaurant_id, placed_at)\`, la consulta está cubierta. Si agregas \`total\` al \`SELECT\`, el atajo desaparece, porque esa columna solo está en la tabla.
 
 PostgreSQL permite pedir columnas que viajan dentro del índice sin formar parte de su orden, con la cláusula \`INCLUDE\`: \`CREATE INDEX ... ON orders (restaurant_id, placed_at) INCLUDE (total)\`.
-
-Cuando el filtro necesita una función alrededor de la columna, lo que se pide es un índice por expresión.
 
 ## Un índice no es gratis
 
@@ -322,7 +320,7 @@ Un pedido que un ingeniero de datos puede evaluar en cinco minutos trae cinco co
 4. El índice que propones, con las columnas en orden y el motivo de ese orden.
 5. Qué mediste antes y qué esperas después.
 
-Lo que ese pedido no es: «ponle un índice a \`orders\`». Y hay una pregunta previa que a veces lo vuelve innecesario: ¿se puede reescribir la consulta para leer menos filas? Un índice acelera el acceso a las filas que pides, y no arregla una consulta que pide filas que no necesita.
+Lo que ese pedido no es: «ponle un índice a \`orders\`». Y antes conviene preguntarse si se puede reescribir la consulta para leer menos filas. Un índice acelera el acceso a las filas que pides, y no arregla una consulta que pide filas que no necesita.
 
 ## Errores comunes
 

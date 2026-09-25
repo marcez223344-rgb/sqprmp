@@ -167,18 +167,18 @@ export const questions: QuestionDef[] = [
   {
     slug: "entrevista-q05-antiunion-palabra-clave",
     section,
-    lesson: l3,
+    lesson: l1,
     type: "fill_blank",
     difficulty: "easy",
-    topic: "La antiunión segura ante nulos",
-    tags: ["not_exists", "antiunion", "null"],
-    estimated_seconds: 40,
+    topic: "Reiniciar la numeración en cada grupo",
+    tags: ["row_number", "partition_by", "top_n"],
+    estimated_seconds: 45,
     prompt_md:
-      "Completa el operador que hace segura la antiunión cuando la subconsulta puede devolver nulos:\n\n`SELECT * FROM couriers AS c WHERE ______ (SELECT 1 FROM orders AS o WHERE o.courier_id = c.id);`\n\nEscribe las dos palabras.",
+      "Te piden «los 2 restaurantes con más pedidos de cada ciudad». La tabla `pedidos_por_restaurante` tiene una fila por restaurante, con su `restaurant_id`, su `city_name` y su cantidad de `pedidos`. Completa las dos palabras clave que hacen que la numeración vuelva a empezar en 1 para cada ciudad:\n\n```sql\nSELECT city_name, restaurant_id, pedidos\nFROM (\n  SELECT city_name, restaurant_id, pedidos,\n         row_number() OVER (______ city_name ORDER BY pedidos DESC, restaurant_id) AS puesto\n  FROM pedidos_por_restaurante\n) AS t\nWHERE puesto <= 2;\n```\n\nEscribe solo las dos palabras.",
     code_md: null,
-    answer: { accepted: ["NOT EXISTS", "not exists"], case_sensitive: false },
+    answer: { accepted: ["PARTITION BY", "PARTITION BY city_name"], case_sensitive: false },
     explanation_md:
-      "`NOT EXISTS` pregunta si la subconsulta devuelve **alguna** fila, no compara valores, así que un nulo simplemente no coincide y no contamina el resultado. Es la forma preferida para antiuniones en PostgreSQL y además suele planificarse igual o mejor que `NOT IN`.",
+      "`PARTITION BY city_name` divide las filas en un grupo por ciudad y `row_number()` numera dentro de cada uno, así que cada ciudad tiene su puesto 1 y su puesto 2. Sin la partición, la numeración recorre todos los restaurantes juntos y el filtro `puesto <= 2` devuelve solo dos restaurantes en total. El `restaurant_id` al final del `ORDER BY` desempata dos restaurantes con la misma cantidad de pedidos para que el resultado sea siempre el mismo, y el filtro va en la consulta de afuera porque el `WHERE` se evalúa antes que las funciones de ventana.",
     is_published: true,
   },
   {
@@ -287,7 +287,7 @@ export const questions: QuestionDef[] = [
       {
         key: "a",
         body_md:
-          "Devuelve el mismo valor para todos los días de una racha, porque la fecha y el número de fila avanzan de a uno.",
+          "Devuelve el mismo valor para todos los días de una racha, porque la fecha y el número de fila avanzan de uno en uno.",
         is_correct: true,
       },
       {
@@ -332,7 +332,7 @@ export const questions: QuestionDef[] = [
     tags: ["fechas", "between", "rango_semiabierto"],
     estimated_seconds: 55,
     prompt_md:
-      "`placed_at` es `timestamptz`. Quieres los pedidos de agosto de 2025 en UTC. ¿Cuál es la condición correcta?",
+      "`placed_at` es `timestamptz`, es decir, fecha y hora con zona horaria (parecido al `datetime` de otras bases de datos). Quieres los pedidos de agosto de 2025 en UTC. ¿Cuál es la condición correcta?",
     code_md: null,
     options: [
       {
@@ -398,7 +398,7 @@ export const questions: QuestionDef[] = [
         body_md: "Falta `DISTINCT` en el `SELECT` para eliminar las filas repetidas.",
         is_correct: false,
         why_incorrect_md:
-          "`DISTINCT` no arregla una suma: dos pedidos distintos pueden tener el mismo total y `DISTINCT` eliminaría uno legítimo. La solución es agregar al grano correcto, por ejemplo sumando `quantity * unit_price` o agregando los pedidos antes de unir.",
+          "`DISTINCT` se aplica a las filas del resultado, después de sumar, así que no corrige un total ya inflado. La solución es volver al grano de una fila por pedido: filtrar por producto con `EXISTS` en lugar de unir, o agregar los ítems antes de unir.",
       },
       {
         key: "d",
@@ -409,7 +409,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "Antes de agregar, pregúntate siempre **qué representa una fila** del resultado intermedio. Después de unir pedidos con ítems, una fila es una línea de pedido, así que sumar una columna del pedido la repite. Las salidas habituales son sumar `quantity * unit_price` (que sí vive en el grano de la línea) o agregar los ítems en una subconsulta antes de unir.",
+      "Antes de agregar, pregúntate siempre **qué representa una fila** del resultado intermedio. Después de unir pedidos con ítems, una fila es una línea de pedido, así que sumar una columna del pedido la repite. Como aquí los ítems solo sirven para filtrar por producto, la salida más directa es no unirlos: `WHERE EXISTS (SELECT 1 FROM order_items AS oi WHERE oi.order_id = o.id AND oi.product_id = ...)` conserva una fila por pedido. Si además necesitas datos de los ítems, agrégalos en una subconsulta antes de unir. Sumar `quantity * unit_price` también evita la repetición, pero mide otra cosa: el importe de las líneas, sin envío ni descuentos.",
     is_published: true,
   },
   {
@@ -422,7 +422,7 @@ export const questions: QuestionDef[] = [
     tags: ["acumulado", "window_function", "pareto"],
     estimated_seconds: 90,
     prompt_md:
-      "Te piden «el grupo más chico de restaurantes que explica el 50 % del GMV». ¿Qué tiene de malo el filtro de esta consulta?",
+      "Te piden «el grupo más chico de restaurantes que explica el 50 % del GMV» (por *gross merchandise value*, el valor bruto de lo vendido). En la tabla `acumulado`, `gmv_acumulado` es la suma del GMV desde el restaurante más grande hasta el de esa fila, incluida. ¿Qué tiene de malo el filtro de esta consulta?",
     code_md:
       "SELECT restaurant_name, gmv, gmv_acumulado\nFROM acumulado\nWHERE gmv_acumulado <= 0.5 * gmv_total\nORDER BY gmv DESC;",
     options: [

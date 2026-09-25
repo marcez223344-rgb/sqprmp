@@ -713,9 +713,8 @@ const outlines: Outline[] = [
  *   precedence, when a construct is the wrong tool). Five items at 80 % allow one mistake.
  * - 6 — "standard": four or fewer exercises, so the quiz carries more of the judgement and covers
  *   more of the section's concepts.
- * - 10 — "gate" (`limits.quiz.gateQuestions`): sections that close a level and feed a certificate.
- *   Assigned since 2026-09-23, when the four banks reached 14 published questions each (ten served
- *   plus four never seen in a given attempt).
+ * - gate (`limits.quiz.gateQuestions`, 6 since D-42): sections that close a level and feed a
+ *   certificate. The owner found 10 too long; the bank of 14 stays, so a retry has 8 unseen.
  *
  * A section absent from this table falls back to `limits.quiz.questionsPerAttempt`.
  */
@@ -728,7 +727,7 @@ const quizQuestionsBySection: Record<string, number> = {
   distinct: 6, // 3 exercises, bank of 10
   where: 6, // 4 exercises
   "operadores-comparacion-logicos": 6, // 3 exercises, bank of 10
-  null: 10, // certificate gate (bank of 14)
+  null: 6, // certificate gate (D-42; bank of 14)
   // N2 · Transformar datos
   "funciones-de-texto": 5,
   "funciones-numericas": 5,
@@ -742,7 +741,7 @@ const quizQuestionsBySection: Record<string, number> = {
   "inner-join": 5,
   "left-right-full-join": 5,
   "self-join": 5,
-  "joins-multiples-tablas": 10, // certificate gate (bank of 14)
+  "joins-multiples-tablas": 6, // certificate gate (D-42; bank of 14)
   // N4 · Consultas avanzadas
   subconsultas: 5,
   cte: 5,
@@ -751,7 +750,7 @@ const quizQuestionsBySection: Record<string, number> = {
   "funciones-de-ventana": 5,
   "funciones-de-ranking": 5,
   "totales-acumulados-promedios-moviles": 5,
-  "lag-y-lead": 10, // certificate gate (bank of 14)
+  "lag-y-lead": 6, // certificate gate (D-42; bank of 14)
   // N5 · Analítica aplicada
   "cohortes-y-retencion": 5,
   funnels: 5,
@@ -765,7 +764,7 @@ const quizQuestionsBySection: Record<string, number> = {
   "casos-de-negocio": 5,
   "desafios-de-entrevista": 5,
   "sql-con-ia": 5,
-  "proyectos-finales": 10, // certificate gate (bank of 14)
+  "proyectos-finales": 6, // certificate gate (D-42; bank of 14)
 };
 
 export const sections: SectionDef[] = outlines.map((o, i) => ({

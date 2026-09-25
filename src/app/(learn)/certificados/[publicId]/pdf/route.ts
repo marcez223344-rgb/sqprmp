@@ -17,7 +17,11 @@ export async function GET(_req: Request, ctx: RouteContext<"/certificados/[publi
   // RLS limits this read to the learner's own certificates (or admins).
   const cert = await getOwnCertificate(publicId);
   if (!cert) return new NextResponse(null, { status: 404 });
-  const [t, format] = await Promise.all([getTranslations("certificates.pdf"), getFormatter()]);
+  const [t, tCert, format] = await Promise.all([
+    getTranslations("certificates.pdf"),
+    getTranslations("certificates"),
+    getFormatter(),
+  ]);
   const verifyUrl = `${clientEnv().NEXT_PUBLIC_APP_URL}/verificar/${cert.verificationCode}`;
   const pdf = await renderCertificatePdf(
     cert,
@@ -29,6 +33,8 @@ export async function GET(_req: Request, ctx: RouteContext<"/certificados/[publi
       verifyAt: t("verifyAt"),
       id: t("id"),
       revoked: t("revoked"),
+      programHours:
+        cert.programHours > 0 ? tCert("programHours", { hours: cert.programHours }) : null,
     },
     verifyUrl,
     format.dateTime(new Date(cert.issuedAt), { dateStyle: "long" }),

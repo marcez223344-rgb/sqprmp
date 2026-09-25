@@ -70,7 +70,7 @@ export const questions: QuestionDef[] = [
         body_md: "Falso",
         is_correct: false,
         why_incorrect_md:
-          "El `ORDER BY` escrito al final pertenece a la consulta combinada completa. Para ordenar una rama por separado hay que encerrarla entre paréntesis con su propio `ORDER BY`.",
+          "El `ORDER BY` escrito al final pertenece a la consulta combinada completa, no a la última rama. Una rama solo puede llevar su propio `ORDER BY` si se encierra entre paréntesis, y aun así el orden del resultado final lo decide únicamente el `ORDER BY` exterior.",
       },
     ],
     explanation_md:
@@ -89,9 +89,9 @@ export const questions: QuestionDef[] = [
     prompt_md:
       "Escribe la palabra clave de PostgreSQL que, colocada entre dos consultas, devuelve las filas que están en la primera y no están en la segunda. Escribe solo esa palabra (sin `SELECT` ni nada más).",
     code_md: null,
-    answer: { accepted: ["EXCEPT", "except"], case_sensitive: false },
+    answer: { accepted: ["EXCEPT", "EXCEPT DISTINCT"], case_sensitive: false },
     explanation_md:
-      "`EXCEPT` resta conjuntos: `A EXCEPT B` devuelve las filas distintas de `A` que no aparecen en `B`. No es simétrico, así que invertir las ramas responde otra pregunta. En otros motores (Oracle clásico) la misma operación se llama `MINUS`.",
+      "`EXCEPT` resta conjuntos: `A EXCEPT B` devuelve las filas distintas de `A` que no aparecen en `B` (`EXCEPT DISTINCT` es la forma larga y equivale a lo mismo). No es simétrico, así que invertir las ramas responde otra pregunta. En otros motores (Oracle clásico) la misma operación se llama `MINUS`, palabra que PostgreSQL no reconoce.",
     is_published: true,
   },
   {
@@ -273,7 +273,7 @@ export const questions: QuestionDef[] = [
     tags: ["union_all", "escenario", "reportes"],
     estimated_seconds: 75,
     prompt_md:
-      "Finanzas te pide un libro de movimientos: todos los cobros de la tabla `payments` y todas las devoluciones de la tabla `returns`, en una sola lista con las columnas `fecha`, `tipo` y `monto`, para sumarla después por mes. En los datos hay dos cobros distintos del mismo monto, el mismo día y del mismo tipo. ¿Qué operador usas para combinar las dos consultas y por qué?",
+      "El departamento de Finanzas te pide un libro de movimientos: todos los cobros de la tabla `payments` y todas las devoluciones de la tabla `returns`, en una sola lista con las columnas `fecha`, `tipo` y `monto`, para sumarla después por mes. En los datos hay dos cobros distintos del mismo monto, el mismo día y del mismo tipo. ¿Qué operador usas para combinar las dos consultas y por qué?",
     code_md: null,
     options: [
       {
@@ -393,11 +393,11 @@ export const questions: QuestionDef[] = [
         body_md: "Devuelve todos los productos, porque `NULL` no coincide con ningún `id`.",
         is_correct: false,
         why_incorrect_md:
-          "Ese razonamiento aplicaría a `NOT EXISTS`. Con `NOT IN`, un solo `NULL` en la lista hace que ninguna fila califique.",
+          "La idea de que un `NULL` «no coincide con nada y no molesta» describe a `NOT EXISTS`, que devuelve los productos que nunca aparecen (no todos). Con `NOT IN`, un solo `NULL` en la lista hace que ninguna fila cumpla la condición.",
       },
     ],
     explanation_md:
-      "Es la trampa clásica de `NOT IN`. `EXCEPT` y `NOT EXISTS` no la tienen: en las operaciones de conjuntos, dos filas con `NULL` en la misma columna se consideran iguales, así que la comparación es determinista. Ante una columna que admite nulos, prefiere `SELECT id FROM products EXCEPT SELECT product_id FROM items` o un `NOT EXISTS`.",
+      "Es la trampa clásica de `NOT IN`. `EXCEPT` y `NOT EXISTS` no la tienen: `EXCEPT` compara filas completas (y trata dos `NULL` como iguales), así que un `NULL` en la segunda rama no borra el resultado, y `NOT EXISTS` solo pregunta si hay filas relacionadas. Ante una columna que admite `NULL`, prefiere `SELECT id FROM products EXCEPT SELECT product_id FROM items` o un `NOT EXISTS`.",
     is_published: true,
   },
   {
@@ -410,7 +410,7 @@ export const questions: QuestionDef[] = [
     tags: ["except", "columnas", "diagnostico"],
     estimated_seconds: 80,
     prompt_md:
-      "Esta consulta debía devolver los clientes que compraron en 2024 y no volvieron en 2025, pero devuelve prácticamente a todos los clientes de 2024. ¿Por qué?",
+      "En TiendaViva, los pedidos van de enero de 2024 a septiembre de 2025. Esta consulta debía devolver los clientes que compraron en 2024 y no volvieron en 2025, pero devuelve una fila por cada pedido entregado de 2024, incluidos los de clientes que sí volvieron en 2025. ¿Por qué?",
     code_md:
       "```sql\nSELECT customer_id, created_at, total_amount\nFROM orders\nWHERE status = 'delivered' AND created_at < DATE '2025-01-01'\nEXCEPT\nSELECT customer_id, created_at, total_amount\nFROM orders\nWHERE status = 'delivered' AND created_at >= DATE '2025-01-01';\n```",
     options: [

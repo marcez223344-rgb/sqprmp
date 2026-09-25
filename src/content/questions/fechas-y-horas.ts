@@ -41,7 +41,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "`DATE_TRUNC('month', ...)` lleva cualquier instante al primer día del mes a las 00:00, así que todos los pedidos del mismo mes de un mismo año comparten un valor. `EXTRACT` responde «qué parte»; `DATE_TRUNC`, «qué período».",
+      "`DATE_TRUNC('month', ...)` lleva cualquier instante al primer día de su mes a las 00:00, así que todos los pedidos de un mismo mes y un mismo año comparten un valor y forman una fila de la serie. `EXTRACT` responde a la pregunta «qué parte de la fecha es», mientras que `DATE_TRUNC` responde a «a qué período pertenece».",
     is_published: true,
   },
   {
@@ -54,7 +54,7 @@ export const questions: QuestionDef[] = [
     tags: ["date_boundary", "between", "where"],
     estimated_seconds: 60,
     prompt_md:
-      "La consulta no produce ningún mensaje de error, pero el total de enero siempre queda por debajo del que informa facturación. `created_at` es de tipo `timestamptz`. ¿Cuál es la causa?",
+      "La consulta no produce ningún mensaje de error, pero el total de enero siempre queda por debajo del que informa el área de facturación. `created_at` es de tipo `timestamptz`, es decir, guarda fecha y hora (en otras bases de datos, como MySQL o SQL Server, un tipo parecido se llama `datetime`). ¿Cuál es la causa?",
     code_md:
       "```sql\nSELECT id, total_amount\nFROM orders\nWHERE created_at BETWEEN DATE '2025-01-01' AND DATE '2025-01-31';\n```",
     options: [
@@ -101,7 +101,16 @@ export const questions: QuestionDef[] = [
     prompt_md:
       "Quieres todos los pedidos de **agosto de 2025** sobre una columna `timestamptz`, usando el patrón `created_at >= DATE '2025-08-01' AND created_at < DATE '____'`. ¿Qué fecha completa el segundo límite? Escríbela en formato `AAAA-MM-DD`.",
     code_md: null,
-    answer: { accepted: ["2025-09-01"], case_sensitive: false },
+    answer: {
+      accepted: [
+        "2025-09-01",
+        "'2025-09-01'",
+        "DATE '2025-09-01'",
+        "2025-9-1",
+        "created_at < DATE '2025-09-01'",
+      ],
+      case_sensitive: false,
+    },
     explanation_md:
       "El límite superior es el primer instante del mes siguiente. Con `<` (estricto) se incluye todo el 31 de agosto y no se cuela ningún pedido de septiembre.",
     is_published: true,
@@ -125,11 +134,11 @@ export const questions: QuestionDef[] = [
         body_md: "Falso",
         is_correct: false,
         why_incorrect_md:
-          "PostgreSQL sigue el estándar ISO 8601, donde la semana empieza el lunes. Si el negocio necesita semanas que empiecen el domingo, hay que ajustarlo a mano (por ejemplo, truncando `fecha + INTERVAL '1 day'` y restando el día después).",
+          "Es verdadero. PostgreSQL sigue el estándar ISO 8601, en el que la semana empieza el lunes, así que `DATE_TRUNC('week', ...)` devuelve el lunes de esa semana a las 00:00.",
       },
     ],
     explanation_md:
-      "Es una fuente habitual de discusiones entre reportes: conviene dejar el criterio de inicio de semana escrito en la definición de la métrica.",
+      "PostgreSQL sigue el estándar ISO 8601, en el que la semana empieza el lunes: `DATE_TRUNC('week', DATE '2025-09-17')` devuelve el lunes 15 de septiembre de 2025 a las 00:00. Si el negocio necesita semanas que empiecen el domingo, hay que ajustarlo a mano, por ejemplo con `DATE_TRUNC('week', fecha + INTERVAL '1 day') - INTERVAL '1 day'`. Como es una fuente habitual de diferencias entre reportes, conviene dejar escrito en la definición de la métrica qué día empieza la semana.",
     is_published: true,
   },
   {
@@ -255,7 +264,7 @@ export const questions: QuestionDef[] = [
         body_md: "`placed_at + 45` suma 45 minutos a un `timestamptz`.",
         is_correct: false,
         why_incorrect_md:
-          "No se puede sumar un número suelto a un timestamp: hay que expresarlo como intervalo (`45 * INTERVAL '1 minute'` o `INTERVAL '45 minutes'`).",
+          "PostgreSQL rechaza la operación con el error «operator does not exist: timestamp with time zone + integer»: un número suelto no tiene unidad. Hay que expresarlo como intervalo (`45 * INTERVAL '1 minute'` o `INTERVAL '45 minutes'`). Solo con el tipo `date` sumar un entero es válido, y ahí el número se interpreta como días.",
       },
       {
         key: "e",
@@ -278,17 +287,24 @@ export const questions: QuestionDef[] = [
     topic: "Funciones de fecha y su uso",
     tags: ["date_functions", "to_char", "age"],
     estimated_seconds: 70,
-    prompt_md: "Relaciona cada necesidad de reporte con la función más adecuada de PostgreSQL.",
+    prompt_md:
+      "Relaciona cada necesidad de reporte con la función o expresión de PostgreSQL más adecuada. Cada una se usa una sola vez.",
     code_md: null,
     pairs: [
-      { left: "Agrupar los pedidos por trimestre para una serie temporal", right: "DATE_TRUNC" },
-      { left: "Saber en qué día de la semana se hicieron más pedidos", right: "EXTRACT" },
+      {
+        left: "Agrupar los pedidos por trimestre de cada año para una serie temporal",
+        right: "DATE_TRUNC",
+      },
+      {
+        left: "Obtener el número del día de la semana (0 = domingo, 6 = sábado) de cada pedido",
+        right: "EXTRACT",
+      },
       { left: "Mostrar la fecha como 31/08/2025 en un PDF", right: "TO_CHAR" },
       { left: "Expresar la antigüedad de un vendedor en años y meses", right: "AGE" },
       { left: "Sumar 7 días a la fecha de un pedido", right: "INTERVAL" },
     ],
     explanation_md:
-      "`DATE_TRUNC` arma períodos, `EXTRACT` saca partes, `TO_CHAR` da formato de presentación, `AGE` expresa antigüedades en años/meses/días e `INTERVAL` desplaza una fecha en el tiempo.",
+      "`DATE_TRUNC` arma períodos (`DATE_TRUNC('quarter', created_at)`), `EXTRACT` saca una parte como número (`EXTRACT(DOW FROM created_at)`, donde `DOW` es *day of week*, día de la semana), `TO_CHAR` da formato de presentación (`TO_CHAR(created_at, 'DD/MM/YYYY')`), `AGE` expresa antigüedades en años, meses y días, e `INTERVAL` desplaza una fecha en el tiempo (`created_at + INTERVAL '7 days'`).",
     is_published: true,
   },
   {
@@ -379,7 +395,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "Con columnas `date` los filtros por día son directos; con `timestamptz` siempre conviene pensar en rangos de instantes: `>= inicio AND < siguiente inicio`.",
+      "`date` guarda solo el día, y `timestamp` y `timestamptz` guardan fecha y hora. Si vienes de otras bases de datos, como MySQL o SQL Server, allí un tipo parecido se llama `datetime`; en PostgreSQL ese nombre no existe y se usa `timestamp` (sin zona horaria) o `timestamptz` (con zona horaria). Con columnas `date` los filtros por día son directos. Con `timestamptz` siempre conviene pensar en rangos de instantes: `>= inicio AND < siguiente inicio`.",
     is_published: true,
   },
 ];

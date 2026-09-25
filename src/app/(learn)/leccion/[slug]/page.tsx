@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { CompleteLessonButton } from "@/components/learn/complete-lesson-button";
+import { SectionProgressBanner } from "@/components/learn/section-progress-banner";
 import { Markdown } from "@/components/learn/markdown";
 import { QuizRunner } from "@/components/quiz/quiz-runner";
 import { Card } from "@/components/ui/card";
@@ -20,8 +21,9 @@ import { buttonVariants } from "@/components/ui/button";
 import { brand } from "@/config/brand";
 import { canReadLesson } from "@/lib/auth/entitlements";
 import { requireOnboardedProfile } from "@/lib/auth/session";
-import { getLessonBySlug, getPremiumLessonBody } from "@/lib/curriculum/queries";
+import { getLearningPath, getLessonBySlug, getPremiumLessonBody } from "@/lib/curriculum/queries";
 import { recordLessonView } from "@/lib/curriculum/progress";
+import { sectionProgress } from "@/lib/learning/section-progress";
 import { getQuiz } from "@/lib/quizzes/service";
 import { touchActivity } from "@/lib/rewards/service";
 import { buildPageMetadata } from "@/lib/seo/metadata";
@@ -98,6 +100,10 @@ export default async function LessonPage({ params }: PageProps<"/leccion/[slug]"
   }
   const quiz =
     access === "ok" && lesson.kind === "quiz" ? await getQuiz(profile, lesson.slug) : null;
+  // Read after `recordLessonView`, so opening a lesson is already reflected. Same data and the same
+  // counting as the /ruta card of this section (D-42).
+  const pathSection = (await getLearningPath(profile.id)).find((s) => s.id === section.id);
+  const progress = pathSection ? sectionProgress(pathSection.lessons) : null;
 
   return (
     <div className="container-page max-w-3xl space-y-8 py-10">
@@ -110,6 +116,10 @@ export default async function LessonPage({ params }: PageProps<"/leccion/[slug]"
           {t("sectionNumber", { number: section.number })} · {section.title}
         </span>
       </nav>
+
+      {progress ? (
+        <SectionProgressBanner progress={progress} sectionNumber={section.number} />
+      ) : null}
 
       <header className="space-y-3">
         <p className="border-border bg-surface-2 text-muted inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold tracking-wide uppercase">

@@ -188,7 +188,8 @@
       "count": "{earned} de {total} obtenidas",
       "none": "Completa tu primer ejercicio para obtener la primera insignia.",
       "all": "Ver todas las insignias",
-      "chipLabel": "{title} · insignia obtenida"
+      "earned": "Obtenida",
+      "locked": "Por obtener"
     },
     "mastery": {
       "title": "Dominio por sección",
@@ -215,7 +216,16 @@
       "body": "Vuelve sobre las preguntas que fallaste o que ya casi olvidas. Cinco minutos alcanzan.",
       "cta": "Repasar ahora"
     },
-    "freeCounterSections": "Los ejercicios de {sections} no usan este cupo: son gratis siempre."
+    "freeCounterSections": "Los ejercicios de {sections} no usan este cupo: son gratis siempre.",
+    "xpInfo": {
+      "summary": "¿Qué es el XP y cómo se gana?",
+      "intro": "XP son puntos de experiencia: miden lo que practicaste y hacen subir tu nivel. No se gastan; las pistas se pagan con monedas.",
+      "exercise": "Resolver un ejercicio por primera vez: entre {min} y {max} XP según la dificultad. Cada pista que pides descuenta un {hintPercent} % (hasta {maxPercent} %) y, si ves la solución antes de resolverlo, conservas el {revealPercent} %.",
+      "quiz": "Aprobar por primera vez el quiz de una sección (con {pass} % o más de respuestas correctas): {perCorrect} XP por respuesta correcta y {bonus} XP adicionales.",
+      "section": "Completar una sección: {xp} XP.",
+      "rules": "Repetir un ejercicio ya resuelto o un quiz ya aprobado no suma XP. Puedes sumar hasta {cap} XP por día.",
+      "levels": "Tu nivel depende del XP total: el nivel 2 pide {level2} XP, el nivel 3 pide {level3} XP y cada nivel siguiente pide más que el anterior."
+    }
   },
   "onboarding": {
     "title": "Configura tu perfil",
@@ -403,6 +413,16 @@
     },
     "progress": "{done} de {total} lecciones · {percent} %",
     "progressAria": "Progreso de la sección {number}: {percent}%",
+    "sectionProgress": {
+      "title": "Avance de la sección: {percent} %",
+      "label": "Avance de la sección {number}",
+      "complete": "Sección completada",
+      "theory": "{done} de {total, plural, one {# lección de teoría} other {# lecciones de teoría}}",
+      "exercises": "{done} de {total, plural, one {# ejercicio} other {# ejercicios}}",
+      "quizzes": "{done} de {total} quizzes aprobados",
+      "quizPassed": "quiz aprobado",
+      "quizPending": "quiz sin aprobar"
+    },
     "current": "Continúa aquí",
     "levelProgress": "{done} de {total} secciones completadas",
     "premiumLesson": "Incluida en el acceso completo",
@@ -473,7 +493,7 @@
     },
     "quiz": {
       "title": "Quiz de la sección · {count} preguntas",
-      "intro": "Cada respuesta se corrige al instante y no se puede cambiar. Necesitas {percent}% de aciertos para aprobar; puedes repetir el quiz y te tocan otras preguntas.",
+      "intro": "Cada respuesta se corrige al instante y no se puede cambiar. Necesitas {percent}% de aciertos para aprobar; puedes repetir el quiz y te tocan primero las preguntas que todavía no viste, mientras queden.",
       "lastAttempt": "Tu último intento: {score}/{total}.",
       "empty": "Este quiz todavía no tiene preguntas publicadas."
     },
@@ -687,6 +707,37 @@
       "savedLink": "Ver mis consultas guardadas",
       "error": "No pudimos guardar la consulta."
     },
+    "report": {
+      "open": "Reportar un problema con este ejercicio",
+      "title": "Reportar un problema",
+      "intro": "Tu reporte le llega solo al instructor, no se publica.",
+      "categoryLegend": "¿Qué pasó?",
+      "categories": {
+        "confusing_statement": "El enunciado es confuso",
+        "marked_wrong": "Mi respuesta era correcta y se marcó como incorrecta",
+        "data_error": "Hay un error en los datos",
+        "other": "Otro"
+      },
+      "noteLabel": "Cuéntanos qué pasó",
+      "noteHint": "Entre {min} y {max} caracteres. Si puedes, indica qué esperabas y qué obtuviste.",
+      "sqlIncluded": "Se adjunta la consulta que tienes en el editor.",
+      "sqlEmpty": "El editor está vacío, así que el reporte va sin consulta.",
+      "sqlTruncated": "Tu consulta es muy larga: se adjuntan los primeros {max} caracteres.",
+      "submit": "Enviar reporte",
+      "sending": "Enviando…",
+      "cancel": "Cancelar",
+      "success": "Recibimos tu reporte. Lo revisa el instructor.",
+      "errors": {
+        "category_required": "Elige qué tipo de problema encontraste.",
+        "note_too_short": "Escribe al menos {min} caracteres.",
+        "note_too_long": "Usa como máximo {max} caracteres.",
+        "validation": "Revisa los datos del reporte.",
+        "rate_limited": "Enviaste varios reportes seguidos. Espera unos minutos y vuelve a intentarlo.",
+        "unauthorized": "Tu sesión expiró. Vuelve a ingresar para enviar el reporte.",
+        "not_found": "No encontramos este ejercicio. Recarga la página e inténtalo de nuevo.",
+        "unknown": "No pudimos enviar el reporte. Inténtalo de nuevo en unos minutos."
+      }
+    },
     "rewardEarned": "+{xp} XP · +{coins} monedas",
     "badgesEarned": "{count, plural, =1 {1 insignia nueva} other {# insignias nuevas}}",
     "expectedColumnsHint": "Tu resultado debe tener estas columnas.",
@@ -735,6 +786,13 @@
       "countedDetail": "Este ejercicio es del curso pago y usa tu cupo. Los ejercicios de las secciones gratis no cuentan aquí."
     },
     "referenceMaterial": "Material de referencia",
+    "copySolution": {
+      "button": "Copiar",
+      "label": "Copiar la solución",
+      "alternativeLabel": "Copiar la alternativa {label}",
+      "copied": "Copiado",
+      "failed": "No pudimos copiar. Selecciona el texto y cópialo con Ctrl+C (⌘+C en Mac)."
+    },
     "savedQueries": {
       "open": "Mis consultas guardadas",
       "intro": "Tus consultas guardadas, de la más reciente a la más antigua. Cargar una reemplaza lo que haya en el editor.",
@@ -979,6 +1037,7 @@
       "flags": "Feature flags",
       "audit": "Auditoría",
       "metrics": "Métricas",
+      "reports": "Reportes de ejercicios",
       "stats": {
         "signups7d": "Altas (7 días)",
         "wau": "Activos (7 días)",
@@ -1430,6 +1489,40 @@
       "cancel": "Cancelar",
       "required": "El motivo es obligatorio (mínimo {min} caracteres)."
     },
+    "reports": {
+      "title": "Reportes de ejercicios",
+      "intro": "Problemas que las personas reportaron desde un ejercicio. Solo los ve la administración.",
+      "filterLabel": "Estado",
+      "filters": {
+        "open": "Abiertos",
+        "resolved": "Resueltos",
+        "all": "Todos"
+      },
+      "count": "{count, plural, =1 {1 reporte} other {# reportes}}",
+      "empty": {
+        "open": "No hay reportes abiertos.",
+        "resolved": "Todavía no hay reportes resueltos.",
+        "all": "Todavía no hay reportes."
+      },
+      "unavailable": "No pudimos leer los reportes. Recarga la página.",
+      "reportedBy": "Reportado por",
+      "noAlias": "sin alias",
+      "openExercise": "Abrir ejercicio",
+      "exerciseRemoved": "El ejercicio ya no existe ({slug}).",
+      "noteLabel": "Nota",
+      "sqlLabel": "Consulta del editor",
+      "noSql": "Sin consulta adjunta.",
+      "status": {
+        "open": "Abierto",
+        "resolved": "Resuelto"
+      },
+      "resolvedOn": "Resuelto el {date}",
+      "resolve": "Marcar resuelto",
+      "resolveTitle": "Marcar resuelto: {exercise}",
+      "resolvePrompt": "Qué hiciste (queda en el registro de auditoría)",
+      "resolveDone": "Reporte marcado como resuelto.",
+      "resolveFailed": "No pudimos marcarlo como resuelto."
+    },
     "learnerPicker": {
       "placeholder": "Busca por alias o nombre",
       "hint": "Escribe al menos {min} caracteres.",
@@ -1496,15 +1589,20 @@
     "markers": {
       "yoursCorrect": "tu respuesta, correcta",
       "yoursIncorrect": "tu respuesta, incorrecta",
-      "correctOption": "respuesta correcta"
+      "correctOption": "respuesta correcta",
+      "pickedCorrect": "Correcta",
+      "pickedWrong": "No había que marcarla",
+      "missedCorrect": "Te faltó marcar esta"
     },
+    "multipleTally": "{total, plural, one {Marcaste {picked} de # correcta.} other {Marcaste {picked} de # correctas.}}",
+    "multipleWrongPicks": "{count, plural, one {Además marcaste # opción que no era correcta.} other {Además marcaste # opciones que no eran correctas.}}",
     "resultHeading": "Resultado",
     "verdictPassed": "Aprobado",
     "verdictFailed": "No alcanzado",
     "reviewHeading": "Revisión",
     "reviewHint": "{count, plural, one {Revisa primero la que falló.} other {Revisa primero las # que fallaron.}}",
     "nextHeading": "Qué sigue",
-    "retryNewSample": "Repetir con otras preguntas",
+    "retryNewSample": "Repetir el quiz",
     "scoreWithPercent": "{score} de {total} correctas · {percent} %",
     "reviewDonePercent": "Sesión de repaso terminada: {percent} % de aciertos. Las respuestas del repaso no suman XP ni cuentan como intento.",
     "tallyPercent": "{correct} correctas de {answered} respondidas · {percent} %"
@@ -1530,12 +1628,19 @@
     "sectionDone": "Sección completada:",
     "sectionPending": "Sección pendiente:",
     "skills": "Habilidades",
+    "programHours": "Carga horaria estimada: {hours, plural, one {# hora} other {# horas}}",
     "issuedOn": "Emitido el {date}",
     "downloadPdf": "Descargar PDF",
     "verifyLink": "Ver página de verificación",
     "addToLinkedIn": "Agregar a mi perfil de LinkedIn",
     "opensNewTab": "(se abre en una pestaña nueva)",
     "howToEarn": "Para obtenerlo: completa todas las lecciones y ejercicios de cada sección y aprueba cada quiz con al menos {percent} %.",
+    "issuedNotice": {
+      "title": "Felicitaciones, {name}: obtuviste el certificado «{title}»",
+      "titleNoName": "Felicitaciones: obtuviste el certificado «{title}»",
+      "body": "Completaste todas las secciones de la ruta y aprobaste sus quizzes. El certificado ya es verificable: quien tenga el enlace o el código puede confirmar que es auténtico.",
+      "next": "Descárgalo en PDF o agrégalo a tu perfil de LinkedIn con los botones de abajo."
+    },
     "issue": {
       "nameLabel": "Nombre completo para el certificado",
       "nameHint": "Así aparecerá impreso en el certificado. Solo letras, espacios, apóstrofes y guiones.",
@@ -1590,6 +1695,8 @@
       "title": "Ruta",
       "skills": "Habilidades",
       "issuedAt": "Fecha de emisión",
+      "programHours": "Carga horaria estimada",
+      "programHoursValue": "{hours, plural, one {# hora} other {# horas}}",
       "id": "ID",
       "instructor": "Instructor",
       "issuer": "Emisor"

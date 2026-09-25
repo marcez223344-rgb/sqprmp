@@ -37,12 +37,7 @@ export const exercises: ExerciseDef[] = [
     validation_rules: { order_matters: true, required_concepts: ["cte", "group_by"] },
     reference_solution:
       "WITH gasto_por_cliente AS (\n  SELECT c.id AS customer_id, c.country, sum(o.total_amount) AS gasto\n  FROM orders AS o\n  INNER JOIN customers AS c ON c.id = o.customer_id\n  WHERE o.status = 'delivered'\n    AND o.created_at >= DATE '2025-01-01'\n  GROUP BY c.id, c.country\n)\nSELECT\n  country,\n  count(*) AS clientes,\n  round(avg(gasto), 2) AS gasto_promedio\nFROM gasto_por_cliente\nGROUP BY country\nORDER BY country;",
-    alternative_solutions: [
-      {
-        label: "Subconsulta derivada en FROM",
-        sql: "SELECT country, count(*) AS clientes, round(avg(gasto), 2) AS gasto_promedio FROM (SELECT c.id AS customer_id, c.country, sum(o.total_amount) AS gasto FROM orders AS o INNER JOIN customers AS c ON c.id = o.customer_id WHERE o.status = 'delivered' AND o.created_at >= DATE '2025-01-01' GROUP BY c.id, c.country) AS gasto_por_cliente GROUP BY country ORDER BY country;",
-      },
-    ],
+    alternative_solutions: [],
     hints: [
       {
         level: 1,
@@ -85,7 +80,7 @@ export const exercises: ExerciseDef[] = [
       },
     ],
     expert_explanation_md:
-      "El resultado de la consulta da seis filas, una por país. La clave es que hay **dos niveles de agregación**: una suma por cliente y un promedio sobre esas sumas. La expresión de tabla común existe justamente para materializar el nivel intermedio con un nombre legible.\n\nLa subconsulta derivada escrita en el `FROM` produce el mismo plan de ejecución; la expresión de tabla común gana en legibilidad y te deja probar el primer paso por separado mientras la escribes.\n\nSobre el resultado: Colombia y Argentina muestran cifras enormes frente a México o Perú porque cada país factura en su moneda local. Comparar la columna `gasto_promedio` entre países sin convertir las monedas sería un error de análisis, no de SQL.",
+      "El resultado de la consulta da seis filas, una por país. La clave es que hay **dos niveles de agregación**: una suma por cliente y un promedio sobre esas sumas. La expresión de tabla común existe justamente para materializar el nivel intermedio con un nombre legible.\n\nUna subconsulta derivada escrita en el `FROM` produce el mismo plan de ejecución, aunque este ejercicio pide la expresión de tabla común porque es lo que practica la sección; la expresión de tabla común gana en legibilidad y te deja probar el primer paso por separado mientras la escribes.\n\nSobre el resultado: Colombia y Argentina muestran cifras enormes frente a México o Perú porque cada país factura en su moneda local. Comparar la columna `gasto_promedio` entre países sin convertir las monedas sería un error de análisis, no de SQL.",
     improvement_feedback: [
       { condition: "uses_select_star", message_key: "improve.uses_select_star" },
     ],
@@ -362,12 +357,7 @@ export const exercises: ExerciseDef[] = [
     validation_rules: { order_matters: true, required_concepts: ["cte", "group_by"] },
     reference_solution:
       "WITH canjes AS (\n  SELECT o.promotion_id, o.customer_id\n  FROM orders AS o\n  WHERE o.promotion_id IS NOT NULL\n    AND o.status = 'delivered'\n),\nusos AS (\n  SELECT promotion_id, customer_id, count(*) AS usos\n  FROM canjes\n  GROUP BY promotion_id, customer_id\n),\nexcesos AS (\n  SELECT u.customer_id, u.usos, p.code, p.max_uses_per_customer\n  FROM usos AS u\n  INNER JOIN promotions AS p ON p.id = u.promotion_id\n  WHERE p.max_uses_per_customer IS NOT NULL\n    AND u.usos > p.max_uses_per_customer\n)\nSELECT\n  e.code,\n  e.customer_id,\n  c.full_name,\n  e.usos,\n  e.max_uses_per_customer,\n  e.usos - e.max_uses_per_customer AS exceso\nFROM excesos AS e\nINNER JOIN customers AS c ON c.id = e.customer_id\nORDER BY exceso DESC, e.code, e.customer_id;",
-    alternative_solutions: [
-      {
-        label: "Subconsulta derivada en lugar de CTE",
-        sql: "SELECT p.code, u.customer_id, c.full_name, u.usos, p.max_uses_per_customer, u.usos - p.max_uses_per_customer AS exceso FROM (SELECT promotion_id, customer_id, count(*) AS usos FROM orders WHERE promotion_id IS NOT NULL AND status = 'delivered' GROUP BY promotion_id, customer_id) AS u INNER JOIN promotions AS p ON p.id = u.promotion_id INNER JOIN customers AS c ON c.id = u.customer_id WHERE p.max_uses_per_customer IS NOT NULL AND u.usos > p.max_uses_per_customer ORDER BY exceso DESC, p.code, u.customer_id;",
-      },
-    ],
+    alternative_solutions: [],
     hints: [
       {
         level: 1,
@@ -411,7 +401,7 @@ export const exercises: ExerciseDef[] = [
       },
     ],
     expert_explanation_md:
-      "El resultado de la consulta da 21 filas: 15 clientes excedieron el código `BIENVENIDA`, cuyo tope es 1, y 6 excedieron el código `VUELVE`; dos de ellos lo usaron tres veces. Es exactamente el problema de calidad que el dataset documenta, y acá queda cuantificado.\n\nLa consulta se lee como el razonamiento del área de Riesgo: qué cuenta como canje, cuántos canjes hizo cada cliente en cada promoción, cuáles superan el tope y quiénes son esas personas. Cada expresión de tabla común se puede ejecutar por separado para auditar el paso.\n\nLa versión con subconsulta derivada es igual de correcta y más corta; con tres pasos, la expresión de tabla común gana en mantenibilidad, sobre todo cuando mañana Riesgo pida agregar el monto descontado, porque alcanza con arrastrar una columna más en el primer paso. Un detalle de negocio: los importes de descuento están expresados en la moneda de cada ciudad, así que sumarlos entre países exigiría convertirlos primero.",
+      "El resultado de la consulta da 21 filas: 15 clientes excedieron el código `BIENVENIDA`, cuyo tope es 1, y 6 excedieron el código `VUELVE`; dos de ellos lo usaron tres veces. Es exactamente el problema de calidad que el dataset documenta, y acá queda cuantificado.\n\nLa consulta se lee como el razonamiento del área de Riesgo: qué cuenta como canje, cuántos canjes hizo cada cliente en cada promoción, cuáles superan el tope y quiénes son esas personas. Cada expresión de tabla común se puede ejecutar por separado para auditar el paso.\n\nUna versión con subconsultas derivadas daría el mismo resultado y sería más corta, pero este desafío pide expresiones de tabla común; con tres pasos, la expresión de tabla común gana en mantenibilidad, sobre todo cuando mañana Riesgo pida agregar el monto descontado, porque alcanza con arrastrar una columna más en el primer paso. Un detalle de negocio: los importes de descuento están expresados en la moneda de cada ciudad, así que sumarlos entre países exigiría convertirlos primero.",
     improvement_feedback: [
       { condition: "uses_select_star", message_key: "improve.uses_select_star" },
     ],

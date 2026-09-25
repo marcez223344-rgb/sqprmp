@@ -83,7 +83,7 @@ Consequences for authoring:
 - One exercise = one primary skill (+ at most two supporting ones). Difficulty must match section level.
 - Expected output columns are explicit in the statement (names in `snake_case`, Spanish or English consistently per dataset — datasets use English column names as in most LATAM companies; explanations in Spanish).
 - Validation rules must be explicit: ordering only when the business question asks for an order; numeric tolerance for averages/percentages; `allow_extra_columns: false` by default.
-- Reference solution runs against the dataset snapshot and is verified by the content build (`npm run content:verify`); alternative solutions must produce identical results.
+- Reference solution runs against the dataset snapshot and is verified by the content build (`npm run content:verify`); alternative solutions must produce identical results **and pass the exercise's own grading** (`required_concepts`, prohibited patterns, timeout): a learner who copies a published alternative must not be marked wrong. `tests/sandbox/reference-solutions.test.ts` enforces this. An approach the exercise does not accept goes in the explanation, not in the alternatives.
 - Include ≥ 3 common mistakes tied to the feedback engine categories (missing filter, wrong join, aggregation level, NULL handling, date boundary, duplicates, wrong columns, wrong order).
 - Expert explanation: why the query works, alternatives, performance/readability note.
 - Rewards follow [§6 Rewards](#6-rewards-defaults) defaults, which restate the values from [GAMIFICATION.md](GAMIFICATION.md); deviations need a reason.

@@ -148,7 +148,7 @@ export const exercises: ExerciseDef[] = [
     ],
     validation_rules: {
       order_matters: true,
-      required_concepts: ["group_by", "outer_join"],
+      required_concepts: ["group_by"],
     },
     reference_solution:
       "WITH cobrados AS (\n  SELECT\n    o.id,\n    c.country,\n    o.currency,\n    date_trunc('month', o.created_at AT TIME ZONE 'UTC')::date AS month,\n    p.amount\n  FROM orders o\n  JOIN customers c ON c.id = o.customer_id\n  JOIN payments p ON p.order_id = o.id AND p.status IN ('approved', 'refunded')\n)\nSELECT\n  b.country,\n  b.currency,\n  b.month,\n  count(*) AS paid_orders,\n  sum(b.amount) AS gross_amount,\n  coalesce(sum(r.refund_amount), 0) AS refunded_amount,\n  sum(b.amount) - coalesce(sum(r.refund_amount), 0) AS net_amount\nFROM cobrados b\nLEFT JOIN returns r ON r.order_id = b.id\nGROUP BY b.country, b.currency, b.month\nORDER BY b.country, b.month;",
@@ -254,7 +254,7 @@ export const exercises: ExerciseDef[] = [
     ],
     validation_rules: {
       order_matters: true,
-      required_concepts: ["inner_join", "outer_join", "group_by", "having"],
+      required_concepts: ["inner_join", "group_by", "having"],
     },
     reference_solution:
       "SELECT\n  r.name AS restaurant,\n  r.cuisine,\n  count(*) AS delivered_orders,\n  round(sum(o.total), 2) AS gmv,\n  round(sum(o.total * r.commission_pct / 100), 2) AS commission_revenue,\n  round(avg(ra.restaurant_rating), 2) AS avg_rating,\n  round(100.0 * count(*) FILTER (WHERE o.delivered_at > o.placed_at + o.promised_minutes * interval '1 minute') / count(*), 2) AS late_pct\nFROM orders o\nJOIN restaurants r ON r.id = o.restaurant_id\nJOIN cities ci ON ci.id = r.city_id\nLEFT JOIN ratings ra ON ra.order_id = o.id\nWHERE ci.name = 'Ciudad de México'\n  AND o.status = 'delivered'\n  AND o.placed_at AT TIME ZONE 'UTC' >= '2025-01-01'\n  AND o.placed_at AT TIME ZONE 'UTC' < '2025-07-01'\nGROUP BY r.id, r.name, r.cuisine\nHAVING count(*) >= 25\nORDER BY commission_revenue DESC, restaurant;",
@@ -372,7 +372,7 @@ export const exercises: ExerciseDef[] = [
       },
       {
         label: "Importe devuelto con CASE en lugar de FILTER",
-        sql: "WITH vendidos AS (\n  SELECT\n    pr.seller_id,\n    oi.quantity,\n    oi.quantity * oi.unit_price AS line_amount,\n    CASE WHEN o.status = 'returned' THEN oi.quantity * oi.unit_price ELSE 0 END AS returned_line\n  FROM orders o\n  JOIN customers c ON c.id = o.customer_id\n  JOIN payments p ON p.order_id = o.id AND p.status IN ('approved', 'refunded')\n  JOIN order_items oi ON oi.order_id = o.id\n  JOIN products pr ON pr.id = oi.product_id\n  WHERE c.country = 'MX'\n    AND o.created_at AT TIME ZONE 'UTC' >= '2025-01-01'\n    AND o.created_at AT TIME ZONE 'UTC' < '2025-07-01'\n)\nSELECT\n  s.store_name,\n  sum(v.quantity) AS units_sold,\n  sum(v.line_amount) AS gross_amount,\n  sum(v.returned_line) AS returned_amount,\n  round(100.0 * sum(v.returned_line) / sum(v.line_amount), 2) AS returned_pct\nFROM vendidos v\nJOIN sellers s ON s.id = v.seller_id\nGROUP BY s.id, s.store_name\nHAVING sum(v.quantity) >= 40\nORDER BY gross_amount DESC, store_name;",
+        sql: "WITH vendidos AS (\n  SELECT\n    pr.seller_id,\n    oi.quantity,\n    oi.quantity * oi.unit_price AS line_amount,\n    o.status\n  FROM orders o\n  JOIN customers c ON c.id = o.customer_id\n  JOIN payments p ON p.order_id = o.id AND p.status IN ('approved', 'refunded')\n  JOIN order_items oi ON oi.order_id = o.id\n  JOIN products pr ON pr.id = oi.product_id\n  WHERE c.country = 'MX'\n    AND o.created_at AT TIME ZONE 'UTC' >= '2025-01-01'\n    AND o.created_at AT TIME ZONE 'UTC' < '2025-07-01'\n)\nSELECT\n  s.store_name,\n  sum(v.quantity) AS units_sold,\n  sum(v.line_amount) AS gross_amount,\n  sum(CASE WHEN v.status = 'returned' THEN v.line_amount ELSE 0 END) AS returned_amount,\n  round(100.0 * sum(CASE WHEN v.status = 'returned' THEN v.line_amount ELSE 0 END) / sum(v.line_amount), 2) AS returned_pct\nFROM vendidos v\nJOIN sellers s ON s.id = v.seller_id\nGROUP BY s.id, s.store_name\nHAVING sum(v.quantity) >= 40\nORDER BY gross_amount DESC, store_name;",
       },
     ],
     hints: [
@@ -465,7 +465,7 @@ export const exercises: ExerciseDef[] = [
     ],
     validation_rules: {
       order_matters: true,
-      required_concepts: ["inner_join", "outer_join", "group_by", "conditional_aggregation"],
+      required_concepts: ["inner_join", "group_by", "conditional_aggregation"],
     },
     reference_solution:
       "WITH pagos AS (\n  SELECT\n    t.status,\n    a.user_id,\n    m.category,\n    t.amount / coalesce(f.usd_rate, 1) AS amount_usd\n  FROM transactions t\n  JOIN accounts a ON a.id = t.account_id\n  JOIN merchants m ON m.id = t.merchant_id\n  LEFT JOIN fx_rates f\n    ON f.currency = t.currency\n   AND f.rate_date = (t.created_at AT TIME ZONE 'UTC')::date\n  WHERE t.kind IN ('card_payment', 'qr_payment')\n    AND t.status IN ('completed', 'reversed')\n    AND t.created_at AT TIME ZONE 'UTC' >= '2025-01-01'\n    AND t.created_at AT TIME ZONE 'UTC' < '2025-07-01'\n)\nSELECT\n  category,\n  count(*) FILTER (WHERE status = 'completed') AS completed_payments,\n  count(*) FILTER (WHERE status = 'reversed') AS reversed_payments,\n  count(DISTINCT user_id) FILTER (WHERE status = 'completed') AS users,\n  round(sum(amount_usd) FILTER (WHERE status = 'completed'), 2) AS amount_usd,\n  round(sum(amount_usd) FILTER (WHERE status = 'completed') / count(*) FILTER (WHERE status = 'completed'), 2) AS avg_ticket_usd,\n  round(100.0 * count(*) FILTER (WHERE status = 'reversed') / count(*), 2) AS reversed_pct\nFROM pagos\nGROUP BY category\nORDER BY amount_usd DESC;",
@@ -688,7 +688,7 @@ export const exercises: ExerciseDef[] = [
     alternative_solutions: [
       {
         label: "Banderas por persona calculadas antes de agregar",
-        sql: "WITH cohorte AS (\n  SELECT\n    u.id,\n    u.signup_at,\n    date_trunc('month', u.signup_at AT TIME ZONE 'UTC')::date AS cohort_month\n  FROM users u\n  WHERE u.signup_at AT TIME ZONE 'UTC' < '2025-07-01'\n),\nescuchas AS (\n  SELECT DISTINCT user_id, track_id, played_at FROM plays\n),\npor_persona AS (\n  SELECT\n    c.id,\n    c.cohort_month,\n    count(*) FILTER (WHERE e.played_at < c.signup_at + interval '7 days') AS plays_7d,\n    count(e.track_id) AS unique_plays_30d\n  FROM cohorte c\n  LEFT JOIN escuchas e\n    ON e.user_id = c.id\n   AND e.played_at >= c.signup_at\n   AND e.played_at < c.signup_at + interval '30 days'\n  GROUP BY c.id, c.cohort_month\n)\nSELECT\n  p.cohort_month,\n  count(*) AS users,\n  count(*) FILTER (WHERE p.plays_7d > 0) AS activated_7d,\n  count(*) FILTER (WHERE EXISTS (\n    SELECT 1 FROM plays pl\n    WHERE pl.user_id = p.id\n      AND pl.played_at >= (SELECT c.signup_at FROM cohorte c WHERE c.id = p.id) + interval '30 days'\n      AND pl.played_at < (SELECT c.signup_at FROM cohorte c WHERE c.id = p.id) + interval '60 days'\n  )) AS retained_d30,\n  count(*) FILTER (WHERE EXISTS (\n    SELECT 1 FROM subscriptions s, cohorte c\n    WHERE c.id = p.id AND s.user_id = p.id\n      AND s.started_on >= (c.signup_at AT TIME ZONE 'UTC')::date\n      AND s.started_on < (c.signup_at AT TIME ZONE 'UTC')::date + 30\n  )) AS converted_30d,\n  round(avg(CASE WHEN p.unique_plays_30d > 0 THEN p.unique_plays_30d ELSE 0 END), 2) AS avg_unique_plays_30d\nFROM por_persona p\nGROUP BY p.cohort_month\nORDER BY p.cohort_month;",
+        sql: "WITH cohorte AS (\n  SELECT\n    u.id,\n    u.signup_at,\n    date_trunc('month', u.signup_at AT TIME ZONE 'UTC')::date AS cohort_month\n  FROM users u\n  WHERE u.signup_at AT TIME ZONE 'UTC' < '2025-07-01'\n),\nescuchas AS (\n  SELECT DISTINCT user_id, track_id, played_at FROM plays\n),\npor_persona AS (\n  SELECT\n    c.id,\n    c.signup_at,\n    c.cohort_month,\n    count(*) FILTER (WHERE e.played_at < c.signup_at + interval '7 days') AS plays_7d,\n    count(e.track_id) AS unique_plays_30d\n  FROM cohorte c\n  LEFT JOIN escuchas e\n    ON e.user_id = c.id\n   AND e.played_at >= c.signup_at\n   AND e.played_at < c.signup_at + interval '30 days'\n  GROUP BY c.id, c.signup_at, c.cohort_month\n)\nSELECT\n  p.cohort_month,\n  count(*) AS users,\n  count(*) FILTER (WHERE p.plays_7d > 0) AS activated_7d,\n  count(*) FILTER (WHERE EXISTS (\n    SELECT 1 FROM plays pl\n    WHERE pl.user_id = p.id\n      AND pl.played_at >= p.signup_at + interval '30 days'\n      AND pl.played_at < p.signup_at + interval '60 days'\n  )) AS retained_d30,\n  count(*) FILTER (WHERE EXISTS (\n    SELECT 1 FROM subscriptions s\n    WHERE s.user_id = p.id\n      AND s.started_on >= (p.signup_at AT TIME ZONE 'UTC')::date\n      AND s.started_on < (p.signup_at AT TIME ZONE 'UTC')::date + 30\n  )) AS converted_30d,\n  round(avg(CASE WHEN p.unique_plays_30d > 0 THEN p.unique_plays_30d ELSE 0 END), 2) AS avg_unique_plays_30d\nFROM por_persona p\nGROUP BY p.cohort_month\nORDER BY p.cohort_month;",
       },
     ],
     hints: [

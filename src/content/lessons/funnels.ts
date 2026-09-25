@@ -151,13 +151,13 @@ Ninguna de las dos columnas tiene un error de cálculo. Están respondiendo dos 
 
 **Cualquier orden**, también llamado «alcanzó el paso»: la unidad hizo el evento del paso *k* en algún momento, sin importar cuándo. Se calcula contando los hitos que no son nulos.
 
-> «1225 usuarios se suscribieron y además, en algún momento, habían creado una playlist.»
+> «1225 usuarios se suscribieron en algún momento, hayan armado una playlist o no.»
 
 **Orden estricto**, también llamado secuencial: la unidad hizo todos los eventos hasta el paso *k* y cada uno **después** del anterior. Se calcula comparando las marcas de tiempo de cada hito.
 
 > «135 usuarios siguieron el camino escuchar → armar playlist → suscribirse, en ese orden.»
 
-Los otros 1090 usuarios se suscribieron **antes** de armar su primera playlist, así que la playlist no pudo haber influido en la suscripción. Para el equipo de marketing, que quiere saber si armar playlists empuja a suscribirse, la columna estricta es la única que sirve: la otra mezcla lo que ocurrió junto con lo que ocurrió por causa del paso anterior.
+De los otros 1090 suscriptores, 680 nunca armaron una playlist y 410 se suscribieron **antes** de armar la primera, así que en ninguno de esos casos la playlist pudo haber influido en la suscripción. Para el equipo de marketing, que quiere saber si armar playlists empuja a suscribirse, la columna estricta es la única que sirve: la otra mezcla lo que ocurrió junto con lo que ocurrió por causa del paso anterior.
 
 ## Cómo se escribe cada una
 

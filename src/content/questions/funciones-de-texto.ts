@@ -15,7 +15,7 @@ export const questions: QuestionDef[] = [
     tags: ["text_functions", "calidad-de-datos"],
     estimated_seconds: 45,
     prompt_md:
-      "En `customers` hay correos guardados en mayúsculas. ¿Cuál de estas condiciones devuelve **solo** esos registros?",
+      "En `customers` hay correos guardados con letras mayúsculas, cuando la regla es guardarlos en minúsculas. ¿Cuál de estas condiciones devuelve **solo** los correos que tienen al menos una letra mayúscula?",
     code_md: null,
     options: [
       { key: "a", body_md: "`WHERE email <> LOWER(email)`", is_correct: true },
@@ -86,7 +86,7 @@ export const questions: QuestionDef[] = [
     estimated_seconds: 40,
     prompt_md: "¿Qué devuelve `SELECT LENGTH('Rincón');` en PostgreSQL? Escribe solo el número.",
     code_md: null,
-    answer: { accepted: ["6"], case_sensitive: false },
+    answer: { accepted: ["6", "seis"], case_sensitive: false },
     explanation_md:
       "`LENGTH` cuenta **caracteres**, y `ó` es un solo carácter: el resultado es 6. `OCTET_LENGTH('Rincón')` devolvería 7, porque en UTF-8 la `ó` ocupa dos bytes. Usa caracteres para validar límites de texto y bytes para dimensionar almacenamiento.",
     is_published: true,
@@ -196,7 +196,7 @@ export const questions: QuestionDef[] = [
       { left: "INITCAP", right: "Deja en mayúscula la primera letra de cada palabra" },
       {
         left: "POSITION",
-        right: "Indica en qué carácter aparece un texto buscado, o 0 si no está",
+        right: "Indica la posición en la que aparece un texto buscado, o 0 si no está",
       },
       { left: "SPLIT_PART", right: "Devuelve el trozo n del texto partido por un separador" },
       { left: "LENGTH", right: "Cuenta la cantidad de caracteres" },
@@ -340,7 +340,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "Es una de las trampas más silenciosas del trabajo con texto. `SPLIT_PART` evita el problema (devuelve cadena vacía si el separador no aparece); con `POSITION`, valida antes que el separador exista.",
+      "Es una de las trampas más silenciosas del trabajo con texto. `SPLIT_PART(codigo, '-', 1)` evita el problema: si el guion no aparece, el trozo 1 es el texto completo (y el trozo 2, una cadena vacía), así que nunca recorta un carácter por error. Si usas `POSITION`, comprueba antes que el separador exista.",
     is_published: true,
   },
   {
@@ -355,7 +355,7 @@ export const questions: QuestionDef[] = [
     prompt_md:
       "Completa el índice que falta para quedarte con la referencia numérica de `'Transferencia #1841'`: `SPLIT_PART(description, '#', ___)`. Escribe solo el número.",
     code_md: null,
-    answer: { accepted: ["2"], case_sensitive: false },
+    answer: { accepted: ["2", "dos"], case_sensitive: false },
     explanation_md:
       "`SPLIT_PART` numera los trozos desde 1: el trozo 1 es `'Transferencia '` y el 2 es `'1841'`. El resultado es texto; si necesitas ordenarlo como número, conviértelo con `CAST(... AS integer)`.",
     is_published: true,

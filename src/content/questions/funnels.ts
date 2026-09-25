@@ -131,7 +131,7 @@ export const questions: QuestionDef[] = [
     tags: ["funnel", "numeric_functions"],
     estimated_seconds: 50,
     prompt_md:
-      "`pedidos` y su valor del paso anterior son ambos de tipo `integer`. ¿Qué devuelve la columna `conversion` para el paso 2, donde hay 13 843 pedidos sobre 14 437 del paso 1?",
+      "En la tabla `por_paso` (una fila por paso del funnel), la columna `pedidos` es de tipo `integer`. ¿Qué devuelve la columna `conversion` para el paso 2, donde hay 13 843 pedidos sobre 14 437 del paso 1?",
     code_md:
       "```sql\nSELECT paso,\n       100 * pedidos / lag(pedidos) OVER (ORDER BY paso) AS conversion\nFROM por_paso;\n```",
     options: [
@@ -210,7 +210,7 @@ export const questions: QuestionDef[] = [
     tags: ["funnel", "orden_temporal"],
     estimated_seconds: 60,
     prompt_md:
-      "En Ritmo, 1225 usuarios tienen playlist y suscripción, pero solo 135 se suscribieron después de crear su primera playlist. ¿Qué afirmación es correcta?",
+      "En el funnel de activación de Ritmo (alta → primera escucha → primera playlist → primera suscripción), el paso de suscripción da 1225 usuarios contado en cualquier orden (cualquiera que se haya suscrito alguna vez) y 135 contado en orden estricto (quienes hicieron cada paso después del anterior). ¿Qué afirmación es correcta?",
     options: [
       {
         key: "a",
@@ -234,14 +234,15 @@ export const questions: QuestionDef[] = [
       },
       {
         key: "d",
-        body_md: "La diferencia se debe a usuarios con más de una playlist.",
+        body_md:
+          "La diferencia se debe a usuarios con más de una playlist, que se cuentan varias veces en el 1225.",
         is_correct: false,
         why_incorrect_md:
-          "Ambas cifras parten del mismo `min(created_at)` por usuario, así que tener varias playlists no cambia nada: la diferencia es puramente de orden temporal.",
+          "Las dos cifras cuentan usuarios distintos, no playlists: nadie se cuenta dos veces. La diferencia está en qué exige cada definición: el conteo estricto pide haber hecho los pasos anteriores, y en ese orden.",
       },
     ],
     explanation_md:
-      "Los 1090 usuarios de diferencia se suscribieron antes de armar su primera playlist. Si la pregunta de negocio es «¿armar una playlist empuja a suscribirse?», el único número relevante es el estricto; el otro confunde coincidencia con secuencia.",
+      "De los 1090 usuarios de diferencia, 680 se suscribieron sin haber armado nunca una playlist y 410 se suscribieron antes de armar la primera. Si la pregunta de negocio es «¿armar una playlist empuja a suscribirse?», el número que la responde es el estricto; el otro mezcla a quienes hicieron las dos cosas en cualquier orden, o solo una.",
     is_published: true,
   },
   {
@@ -255,7 +256,7 @@ export const questions: QuestionDef[] = [
     estimated_seconds: 40,
     prompt_md:
       "Para construir la tabla de hitos de un funnel secuencial, la marca de tiempo de cada paso se obtiene con la función de agregación `___(columna_de_fecha)` agrupando por unidad. Escribe el nombre de la función.",
-    answer: { accepted: ["min", "MIN", "min()"], case_sensitive: false },
+    answer: { accepted: ["min", "min()", "min(columna_de_fecha)"], case_sensitive: false },
     explanation_md:
       "Se usa `min()`: el **primer** momento en que la unidad alcanzó ese paso. Con `max()` medirías la última vez que hizo la acción, y un usuario que armó una playlist en enero y otra en agosto podría pasar de cumplir el orden a no cumplirlo sin haber cambiado de comportamiento.",
     is_published: true,
@@ -281,8 +282,10 @@ export const questions: QuestionDef[] = [
       {
         key: "b",
         body_md:
-          "Si un hito es `date` y el otro `timestamptz`, hay que fijar el huso explícitamente antes de compararlos.",
-        is_correct: true,
+          "Basta con comprobar que el hito del paso 4 no sea NULL, porque quien llegó al paso 4 necesariamente pasó antes por los anteriores.",
+        is_correct: false,
+        why_incorrect_md:
+          "En los datos reales los eventos pueden ocurrir en cualquier orden, o saltarse pasos: alguien puede suscribirse sin haber armado nunca una playlist. Un funnel secuencial tiene que comprobar el camino completo.",
       },
       {
         key: "c",
@@ -307,7 +310,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "Un paso secuencial exige el camino completo: todas las condiciones anteriores combinadas con `AND`. Los NULL se descartan solos, porque cualquier comparación con NULL da NULL y `FILTER` solo cuenta las filas donde la condición es verdadera. Y al mezclar `date` con `timestamptz`, PostgreSQL usa el huso de la sesión si no se lo fijas, lo que hace el resultado dependiente de quién ejecuta la consulta.",
+      "Un paso secuencial exige el camino completo: todas las condiciones anteriores combinadas con `AND`. Los NULL se descartan solos, porque cualquier comparación con NULL da NULL y `FILTER` solo cuenta las filas donde la condición es verdadera. Que exista el último hito no prueba nada sobre los anteriores.",
     is_published: true,
   },
   {
@@ -320,7 +323,7 @@ export const questions: QuestionDef[] = [
     tags: ["funnel", "date_functions"],
     estimated_seconds: 45,
     prompt_md:
-      "`started_on` es `date` y `created_at` es `timestamptz`. La condición `started_on >= created_at::date` produce el mismo resultado para cualquier persona que la ejecute.",
+      "En Ritmo, la columna `started_on` de la tabla `subscriptions` es `date` y la columna `created_at` de la tabla `playlists` es `timestamptz` (marca de tiempo con huso horario). La condición `started_on >= created_at::date` produce el mismo resultado para cualquier persona que la ejecute.",
     options: [
       { key: "a", body_md: "Falso", is_correct: true },
       {
@@ -332,7 +335,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "Un `::date` o un `date_trunc` sobre `timestamptz` sin huso explícito es no determinista entre sesiones. La forma reproducible es `(created_at AT TIME ZONE 'UTC')::date`, que fija el calendario con el que se corta la fecha y deja el resultado igual para todo el mundo.",
+      "Un `::date` o un `date_trunc` sobre `timestamptz` sin huso explícito puede dar resultados distintos según la configuración de la sesión. La forma reproducible es `(created_at AT TIME ZONE 'UTC')::date`: `AT TIME ZONE 'UTC'` convierte el valor a un `timestamp` sin huso en hora UTC (lo que otras bases de datos llaman `datetime`) y fija el calendario con el que se corta la fecha, así que el resultado es el mismo para todo el mundo.",
     is_published: true,
   },
   {
@@ -391,7 +394,7 @@ export const questions: QuestionDef[] = [
     tags: ["funnel", "aggregate", "numeric_functions"],
     estimated_seconds: 70,
     prompt_md:
-      "Operaciones te pide «cuánto tarda un pedido típico en entregarse». La mayoría se entrega entre 30 y 45 minutos, pero un puñado de pedidos quedó trabado varias horas. ¿Qué métrica entregas?",
+      "El departamento de Operaciones te pide «cuánto tarda un pedido típico en entregarse». La mayoría se entrega entre 30 y 45 minutos, pero un puñado de pedidos quedó trabado varias horas. ¿Qué métrica entregas?",
     options: [
       {
         key: "a",

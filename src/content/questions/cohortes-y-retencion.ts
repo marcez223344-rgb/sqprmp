@@ -85,14 +85,14 @@ export const questions: QuestionDef[] = [
     tags: ["cohortes", "retencion", "join"],
     estimated_seconds: 75,
     prompt_md:
-      "Esta consulta debería devolver, por cohorte, el porcentaje de oyentes con alguna reproducción. Devuelve 100,00 en todas las filas. ¿Cuál es el problema?",
+      "Esta consulta sobre Ritmo debería devolver, por cohorte (el mes de alta), el porcentaje de oyentes con al menos una reproducción. Devuelve 100,00 en todas las filas. ¿Cuál es el problema?",
     code_md:
-      "```sql\nWITH cohortes AS (\n  SELECT id, date_trunc('month', signup_at AT TIME ZONE 'UTC')::date AS cohorte\n  FROM users\n)\nSELECT\n  c.cohorte,\n  round(100.0 * count(DISTINCT c.id) / count(DISTINCT c.id), 2) AS retencion_pct\nFROM cohortes AS c\nINNER JOIN plays AS p ON p.user_id = c.id\nGROUP BY 1;\n```",
+      "```sql\nWITH cohortes AS (\n  SELECT id, date_trunc('month', signup_at AT TIME ZONE 'UTC')::date AS cohorte\n  FROM users\n)\nSELECT\n  c.cohorte,\n  round(100.0 * count(DISTINCT p.user_id) / count(DISTINCT c.id), 2) AS retencion_pct\nFROM cohortes AS c\nINNER JOIN plays AS p ON p.user_id = c.id\nGROUP BY 1;\n```",
     options: [
       {
         key: "a",
         body_md:
-          "El `INNER JOIN` deja fuera a los oyentes sin reproducciones, así que numerador y denominador cuentan exactamente al mismo conjunto.",
+          "El `INNER JOIN` deja fuera a los oyentes sin reproducciones, así que el denominador ya no es la cohorte completa: numerador y denominador cuentan exactamente a las mismas personas.",
         is_correct: true,
       },
       {
@@ -104,10 +104,11 @@ export const questions: QuestionDef[] = [
       },
       {
         key: "c",
-        body_md: "`count(DISTINCT c.id)` debería ser `count(*)`.",
+        body_md:
+          "Hay que quitar los `DISTINCT` y usar `count(*)` en el numerador y en el denominador.",
         is_correct: false,
         why_incorrect_md:
-          "Cambiar la función de conteo no repara nada: con `count(*)` en ambos lados la división sigue dando 1, porque el problema es que ambos lados miden lo mismo.",
+          "Sin `DISTINCT` se contarían reproducciones en lugar de personas, y aun así la división seguiría dando 100, porque los dos conteos saldrían de las mismas filas del `INNER JOIN`.",
       },
       {
         key: "d",
@@ -118,7 +119,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "El denominador debe salir de la cohorte completa, calculada antes de mirar la actividad. La forma correcta arma la cohorte, arma aparte el conjunto de personas con actividad y las une con `LEFT JOIN`: `count(*)` da la cohorte y `count(a.id)` los retenidos.",
+      "El denominador debe salir de la cohorte completa, calculada antes de mirar la actividad. La forma correcta arma la cohorte, arma aparte el conjunto de personas con actividad (una fila por persona) y las une con `LEFT JOIN`: `count(*)` da el tamaño de la cohorte y `count(a.user_id)`, que ignora los `NULL` de quienes no tuvieron actividad, da los retenidos.",
     is_published: true,
   },
   {
@@ -177,9 +178,9 @@ export const questions: QuestionDef[] = [
     estimated_seconds: 50,
     prompt_md:
       "Completa la cláusula que hace determinista el cálculo de la cohorte, para que `date_trunc` no dependa de la zona horaria de la sesión:\n\n```sql\ndate_trunc('month', signup_at ______ 'UTC')::date AS cohorte\n```\n\nEscribe solo las palabras que faltan.",
-    answer: { accepted: ["AT TIME ZONE", "at time zone"], case_sensitive: false },
+    answer: { accepted: ["AT TIME ZONE", "AT TIME ZONE 'UTC'"], case_sensitive: false },
     explanation_md:
-      "`signup_at` es `timestamptz`. `AT TIME ZONE 'UTC'` lo convierte a una marca de tiempo sin huso en UTC, de modo que el corte del calendario es el mismo en cualquier máquina. Sin esa conversión, un alta del 1 de marzo a las 00:30 UTC cae en febrero para una sesión configurada en Bogotá.",
+      "`signup_at` es `timestamptz` (marca de tiempo con huso horario). `AT TIME ZONE 'UTC'` lo convierte a un `timestamp` sin huso expresado en hora UTC (lo que otras bases de datos llaman `datetime`), de modo que el corte del calendario es el mismo en cualquier máquina. Sin esa conversión, un alta del 1 de marzo a las 00:30 UTC cae en febrero para una sesión configurada en Bogotá.",
     is_published: true,
   },
   {
@@ -229,7 +230,7 @@ export const questions: QuestionDef[] = [
       {
         key: "a",
         body_md:
-          "Leer una columna (el mismo `mes_indice` en cohortes distintas) sirve para saber si el producto mejoró con el tiempo.",
+          "Leer una columna (el mismo `mes_indice` en cohortes distintas) compara cohortes en el mismo momento de su vida, por ejemplo todas en su tercer mes.",
         is_correct: true,
       },
       {
@@ -247,7 +248,7 @@ export const questions: QuestionDef[] = [
       {
         key: "d",
         body_md:
-          "Una diagonal reúne cohortes distintas en el mismo mes de calendario, útil para detectar efectos externos.",
+          "Una diagonal reúne celdas de cohortes distintas que corresponden al mismo mes de calendario, lo que ayuda a detectar efectos de ese mes, como una caída del servicio.",
         is_correct: true,
       },
       {
@@ -256,11 +257,11 @@ export const questions: QuestionDef[] = [
           "El promedio de una columna es comparable aunque algunas cohortes no hayan vivido ese mes completo.",
         is_correct: false,
         why_incorrect_md:
-          "Si una cohorte no vivió ese mes, no aporta numerador pero sí aportaría denominador en un promedio mal armado; la columna solo se promedia sobre cohortes completamente observadas.",
+          "Una cohorte que todavía no completó ese mes tiene en esa celda una retención parcial o vacía, y mezclarla en el promedio lo baja sin que el comportamiento haya cambiado. La columna solo se promedia sobre las cohortes que ya completaron ese mes.",
       },
     ],
     explanation_md:
-      "La matriz se lee en tres direcciones: a lo ancho (curva de vida), a lo alto (comparación entre cohortes en el mismo momento de vida) y en diagonal (efectos del calendario). Las dos afirmaciones falsas confunden la forma triangular, que es un artefacto del tiempo observado, con una señal del producto.",
+      "La matriz se lee en tres direcciones: a lo ancho (curva de vida de una cohorte), a lo alto (comparación entre cohortes en el mismo momento de vida) y en diagonal (efectos del calendario). Las dos afirmaciones falsas confunden la forma triangular, que se debe solo al tiempo que se alcanzó a observar, con una señal del producto.",
     is_published: true,
   },
   {
@@ -278,7 +279,7 @@ export const questions: QuestionDef[] = [
       {
         key: "a",
         body_md:
-          "Nada pasó: esa gente no llegó a tener 30 días de observación, así que la cohorte debe excluirse hasta que complete la ventana.",
+          "No hay evidencia de que haya pasado algo: nadie de esa cohorte llegó a tener 30 días de observación, así que la cohorte debe excluirse (o marcarse como incompleta) hasta que complete la ventana.",
         is_correct: true,
       },
       {
@@ -307,7 +308,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "Una métrica a N días solo puede calcularse sobre quienes ya tuvieron N días dentro de los datos. El filtro `signup_at < <fin de datos> - N días` es parte de la definición de la métrica, no un detalle técnico.",
+      "Una métrica a N días solo puede calcularse sobre quienes ya tuvieron N días dentro de los datos. El filtro «`signup_at` anterior al fin de los datos menos N días» es parte de la definición de la métrica, no un detalle técnico. Por la misma razón, las altas de la segunda quincena de agosto tampoco llegaron a los 30 días.",
     is_published: true,
   },
   {
@@ -320,12 +321,12 @@ export const questions: QuestionDef[] = [
     tags: ["cohortes", "matriz", "interpretacion"],
     estimated_seconds: 70,
     prompt_md:
-      "En la curva de retención de Ritmo, el mes 0 da 53,80 % y el mes 1, 75,33 %: la retención sube antes de empezar a bajar. ¿Cuál es la explicación?",
+      "En la curva de retención mensual de Ritmo, promediando las cohortes de enero de 2024 a marzo de 2025, el mes 0 (el mes del alta) da 53,40 % y el mes 1 da 74,77 %: la retención sube antes de empezar a bajar. ¿Cuál es la explicación?",
     options: [
       {
         key: "a",
         body_md:
-          "El mes 0 es un mes parcial: quien se registra el día 28 solo tiene tres días de ese mes para ser contado como activo.",
+          "El mes 0 es un mes parcial: quien se registra el día 28 de un mes de 30 días solo tiene tres días de ese mes (el 28, el 29 y el 30) para ser contado como activo.",
         is_correct: true,
       },
       {
@@ -406,7 +407,7 @@ export const questions: QuestionDef[] = [
     tags: ["retencion", "fechas", "between"],
     estimated_seconds: 85,
     prompt_md:
-      "Esta CTE debería marcar a quienes reprodujeron algo entre el día 1 y el día 30 después de su alta. ¿Qué problema tiene?",
+      "Esta consulta debería listar a quienes reprodujeron algo entre el día 1 y el día 30 después de su alta, contando como día 30 las 24 horas que empiezan 30 días después del alta. ¿Qué problema tiene?",
     code_md:
       "```sql\nSELECT DISTINCT c.id\nFROM cohortes AS c\nINNER JOIN plays AS p ON p.user_id = c.id\nWHERE p.played_at BETWEEN c.signup_at + INTERVAL '1 day'\n                      AND c.signup_at + INTERVAL '30 days';\n```",
     options: [
@@ -428,7 +429,7 @@ export const questions: QuestionDef[] = [
         body_md: "Falta `AT TIME ZONE 'UTC'` en las dos comparaciones.",
         is_correct: false,
         why_incorrect_md:
-          "La suma de un intervalo a un `timestamptz` y la comparación entre dos `timestamptz` no dependen del huso de la sesión. El huso solo hace falta cuando se corta el calendario.",
+          "Comparar dos `timestamptz` no depende del huso horario de la sesión, y el problema del límite superior aparece con cualquier huso. `AT TIME ZONE` hace falta cuando se corta el calendario (por ejemplo, con `date_trunc`).",
       },
       {
         key: "d",
@@ -479,7 +480,7 @@ export const questions: QuestionDef[] = [
       },
     ],
     explanation_md:
-      "Enero a marzo de 2024 son 31 + 29 = 60 días. Un índice de período hecho con días no es comparable entre cohortes, porque los meses duran distinto: el mes 1 valdría 28, 29, 30 o 31 según el caso. La forma correcta es `12 * (año_mes - año_cohorte) + (mes_mes - mes_cohorte)`.",
+      "Del 1 de enero al 1 de marzo de 2024 hay 31 + 29 = 60 días. Un índice de período hecho con días no es comparable entre cohortes, porque los meses duran distinto: el mes 1 valdría 28, 29, 30 o 31 según el caso. La forma correcta es `12 * (año de mes - año de cohorte) + (número de mes de mes - número de mes de cohorte)`, que en SQL se escribe con `extract(year FROM ...)` y `extract(month FROM ...)`.",
     is_published: true,
   },
 ];

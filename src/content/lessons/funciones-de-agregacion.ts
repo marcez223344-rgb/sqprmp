@@ -59,7 +59,7 @@ Si **todas** las filas son NULL, o si no hay ninguna fila, \`sum\` y \`avg\` dev
 
 - **Mezclar monedas.** La columna \`total\` de la tabla \`orders\` guarda el importe del pedido en la moneda de su ciudad. Si promedias \`total\` sobre todas las ciudades a la vez, estás combinando pesos mexicanos con soles peruanos y el resultado no corresponde a ningún importe real. Filtra por una ciudad o convierte los importes a una moneda común antes de promediar.
 - **Promediar promedios.** Si primero calculas la calificación promedio de cada restaurante y después promedias esos promedios, un local con 3 calificaciones pesa lo mismo que uno con 300. Ese número no es la calificación promedio de la plataforma; para obtenerla hay que promediar todas las calificaciones juntas.
-- **Tipos enteros.** \`avg\` sobre una columna de enteros devuelve un valor \`numeric\` con muchos decimales, y \`sum\` sobre enteros devuelve un \`bigint\`. Para presentar el resultado, redondea con \`round(x, 2)\`.
+- **Tipos enteros.** \`avg\` sobre una columna de enteros devuelve un valor \`numeric\` con muchos decimales, y \`sum\` sobre una columna \`integer\` devuelve un \`bigint\` (sobre una \`bigint\`, devuelve un \`numeric\`). Para presentar el resultado, redondea con \`round(x, 2)\`.
 
 ## Ejemplo resuelto
 

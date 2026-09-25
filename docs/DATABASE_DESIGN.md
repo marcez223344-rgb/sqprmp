@@ -57,6 +57,7 @@ payment_events (provider-keyed, idempotent) · feature_flags · rate_limits · a
 - **solution_reveals** `id`, `user_id`, `exercise_id`, `reason ('attempts','hints','time','explicit')`, `created_at` UNIQUE `(user_id, exercise_id)`.
 - **quiz_attempts** `id`, `user_id`, `lesson_id`, `section_id`, `score int`, `total int`, `passed bool`, `status ('in_progress'|'submitted')`, `question_ids uuid[]`, `started_at`, `submitted_at` (null while open); **quiz_answers** `id`, `quiz_attempt_id`, `user_id`, `question_id`, `answer jsonb`, `is_correct`, `answered_at`. An attempt row is created when the learner opens the quiz and holds the sampled questions in delivery order; unique `(user_id, lesson_id) where status = 'in_progress'` allows one open attempt per quiz and unique `(quiz_attempt_id, question_id)` makes each answer final.
 - **saved_queries** `id`, `user_id`, `exercise_id NULL`, `dataset_id`, `title`, `sql`, timestamps.
+- **exercise_reports** `id`, `user_id`, `exercise_id NULL` (`on delete set null`), `exercise_slug` (set by trigger from the id), `category ('confusing_statement','marked_wrong','data_error','other')`, `note` (10–1000 chars), `learner_sql NULL` (≤ 8192 chars), `status ('open','resolved')`, `resolved_at`, `resolved_by`, `resolution_note`, timestamps. Private report to the owner (D-42); see §4p.
 - **learning_goals** `user_id PK`, `daily_xp_target`, `weekly_minutes_target`, `reminder_opt_in`.
 - **streaks** `user_id PK`, `current_length`, `longest_length`, `last_activity_date date`, `timezone text`, `freezes_available int DEFAULT 1`; **streak_freezes** `id`, `user_id`, `used_on date`.
 - **daily_activity** `user_id`, `activity_date` (PK pair), `xp_earned`, `minutes_active`, `exercises_completed`. _(Source for streaks/goals; `activity_date` computed in the user's timezone.)_
@@ -92,7 +93,7 @@ payment_events (provider-keyed, idempotent) · feature_flags · rate_limits · a
 
 ## 3. Key functions (RPC, `SECURITY DEFINER`, `search_path` pinned, callable only by service role or with explicit checks)
 
-`complete_onboarding(payload)`, `check_alias_available(alias)`, `award_reward(user_id, event_key, source, xp, coins, meta)` (idempotent), `record_attempt(...)`, `unlock_hint(user_id, exercise_id, level)`, `reveal_solution(...)`, `grant_entitlement(...)`, `apply_payment_event(...)`, `redeem_promo(...)`, `issue_certificate(...)`, `consume_rate_limit(key, cost, capacity, refill_per_sec)`, `admin_user_directory(...)`, `admin_user_stats(free_limit)`, `free_exercises_used(user_id)`, `has_active_entitlement(user_id)`, `touch_daily_activity(...)`, `sync_exercise_lesson_progress(...)`, `leaderboard(period, limit)`, `evaluate_streaks()` (pg_cron nightly), `delete_user_data(user_id)`.
+`complete_onboarding(payload)`, `check_alias_available(alias)`, `award_reward(user_id, event_key, source, xp, coins, meta)` (idempotent), `record_attempt(...)`, `unlock_hint(user_id, exercise_id, level)`, `reveal_solution(...)`, `grant_entitlement(...)`, `apply_payment_event(...)`, `redeem_promo(...)`, `issue_certificate(...)`, `consume_rate_limit(key, cost, capacity, refill_per_sec)`, `admin_user_directory(...)`, `admin_user_stats(free_limit)`, `admin_resolve_exercise_report(report_id, actor, reason)`, `free_exercises_used(user_id)`, `has_active_entitlement(user_id)`, `touch_daily_activity(...)`, `sync_exercise_lesson_progress(...)`, `leaderboard(period, limit)`, `evaluate_streaks()` (pg_cron nightly), `delete_user_data(user_id)`.
 
 ## 4. RLS policy matrix
 
@@ -114,6 +115,7 @@ Roles: `anon` (public visitor), `learner` (authenticated, `profiles.role='learne
 | attempts, query_executions, hint_usage, solution_reveals, quiz_attempts, quiz_answers | –                                                                                                                    | S own (insert via server/RPC only)                                       | S all                   | learners never insert directly                                                                                                         |
 | exercise_progress, lesson_progress                                                    | –                                                                                                                    | S own; U own only `draft_sql`, `draft_saved_at`                          | S all                   | status changed by RPC                                                                                                                  |
 | saved_queries                                                                         | –                                                                                                                    | CRUD own                                                                 | S all                   |                                                                                                                                        |
+| exercise_reports                                                                      | –                                                                                                                    | S own; I own (content columns only)                                      | S all, U all            | resolved via `admin_resolve_exercise_report` (service role, audited)                                                                   |
 | learning_goals                                                                        | –                                                                                                                    | S/I/U own                                                                | S all                   |                                                                                                                                        |
 | streaks, daily_activity, streak_freezes                                               | –                                                                                                                    | S own                                                                    | S all                   | written by RPC/cron                                                                                                                    |
 | reward_ledger, user_totals, user_badges, suspicious_activity                          | –                                                                                                                    | S own (not suspicious_activity)                                          | S all                   | written by RPC                                                                                                                         |
@@ -282,6 +284,28 @@ in the product reads it. `pgTAP 0003` asserts the new posture where it used to a
   next reward would miss a learner who finished the section and earns nothing afterwards.
 - No table, column, policy or table grant changed. `pgTAP 0015` covers not-earned-before,
   earned-on-completion, idempotency, no effect on other badges, and execute revoked from learners.
+
+### 4p. Private exercise reports (migration `20260925150000_exercise_reports.sql`, D-42)
+
+- «Reportar un problema con este ejercicio» writes one `exercise_reports` row with the learner's
+  own session (server action `src/lib/reports/actions.ts`: Zod → session → rate limit
+  `exercise-report:<uid>` → insert). It is one of the few learner-writable tables, on purpose: RLS
+  (`with check (user_id = auth.uid())`) is what pins the reporter, not the application.
+- Column-level grants: a learner may insert only `user_id, exercise_id, exercise_slug, category,
+note, learner_sql`; the before-insert trigger (security definer) overwrites `exercise_slug` with
+  the slug of `exercise_id` and forces `status = 'open'` with the `resolved_*` columns null, so the
+  browser can neither forge the exercise reference nor file a report as already resolved.
+- No learner update or delete policy. Admins read all and have an update policy, but the app
+  resolves through `admin_resolve_exercise_report(report, actor, reason)` (service role only), which
+  flips the status and writes `audit_logs` (`exercise_report.resolved`) in the same transaction and
+  refuses an already resolved report (`P0002`).
+- `exercise_id` is `on delete set null` and the slug is kept, so re-seeding or retiring an exercise
+  never erases what learners reported. `user_id` cascades with the profile (the report is the
+  learner's personal data).
+- Indexes: `(user_id, created_at desc)`, `(status, created_at desc)` for the admin list,
+  `(exercise_id)`. `pgTAP 0016` covers anon denied, own insert/read, cross-user insert and read
+  denied, learner cannot set status or resolve, slug derived from the id, checks, admin reads all,
+  audited resolve, no double resolve, and the FK delete rule.
 
 ## 5. Indexes (initial)
 
