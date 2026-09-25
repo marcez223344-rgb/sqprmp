@@ -7,8 +7,12 @@ import { buildPageMetadata } from "@/lib/seo/metadata";
 import { cn } from "@/lib/utils/cn";
 
 export async function generateMetadata() {
-  const t = await getTranslations("curriculum");
-  return buildPageMetadata({ path: "/curriculo", title: t("title"), description: t("intro") });
+  const [sections, t] = await Promise.all([getLearningPath(), getTranslations("curriculum")]);
+  return buildPageMetadata({
+    path: "/curriculo",
+    title: t("title"),
+    description: t("intro", { sections: sections.length }),
+  });
 }
 
 export default async function CurriculumPage() {
@@ -17,7 +21,9 @@ export default async function CurriculumPage() {
     <div className="container-page max-w-4xl space-y-8 py-12">
       <header className="space-y-3">
         <h1 className="text-4xl">{t("title")}</h1>
-        <p className="text-muted max-w-prose text-lg">{t("intro")}</p>
+        <p className="text-muted max-w-prose text-lg">
+          {t("intro", { sections: sections.length })}
+        </p>
         <Link href="/ingresar" className={cn(buttonVariants())}>
           {t("cta")}
         </Link>

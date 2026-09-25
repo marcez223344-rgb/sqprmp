@@ -837,6 +837,12 @@ y verificar IA para SQL», never «tutor con IA» or «powered by AI». Revisit 
 subscriptions exist and paying users ask for it, with a hard monthly cap and no access to reference
 solutions.
 
+**Badge, 2026-09-25 (owner: «build it now»).** «Verificador de IA» is awarded for completing
+`sql-con-ia` — every published exercise solved, the same definition the existing
+`sections_completed` badges use — through a new criteria kind `section_completed`
+(migration `20260925120000_badge_section_completed.sql`, with backfill). Production apply only on
+his explicit approval in conversation.
+
 **Amended 2026-09-24 (owner, question tool), superseding sub-decision (4).** After seeing the
 outline he asked «why optional? can't we make it mandatory?». It is now **mandatory**: section 39
 counts toward the course's 100 % like any other, and `analista-sql-profesional` requires
@@ -848,6 +854,27 @@ section 39 through the normal chain; sections are upserted highest number first
 The badge is **deferred** (it needs a new badge-criteria kind, i.e. a schema migration he chose not
 to take yet). Free-offer copy on the home and pricing pages approved as drafted. Outline approved,
 informed by the owner's screenshots of Codecademy's «Learn How to Use AI for SQL».
+
+### D-41 · The UI groups the path by the course's 6 levels, not by the difficulty label
+
+**Status:** Accepted (owner, 2026-09-25, question tool). He asked why the home page says «6 niveles»
+while /ruta showed 4 headings.
+
+**Cause.** `docs/CURRICULUM.md` designs 6 levels (N1 Fundamentos 1–8, N2 Transformar datos 9–13,
+N3 Agregar y combinar 14–20, N4 Consultas avanzadas 21–28, N5 Analítica aplicada 29–35,
+N6 Profesional 36–40) and the certificates close on them (8, 20, 28, 40). But on 2026-09-18 each
+section was given a 4-value difficulty label (`sections.level`: beginner/intermediate/advanced/
+expert, enforced by a check constraint), and /ruta, /perfil and the landing chips grouped by that
+label, captioned «Nivel 1…4». Two plans made at different times, never reconciled.
+
+**Decision.** The 6 levels are defined once, by section slug, in `src/config/course-levels.ts`, and
+every UI grouping reads them (`src/lib/curriculum/course-levels.ts`). `sections.level` stays as an
+internal difficulty label; no database change. A unit test fails if a section has no level, two
+levels, or the levels stop following path order, so a new section cannot be added unassigned.
+
+**Also (same round).** The section count in the landing, /curriculo and pricing copy is now filled
+from the catalogue instead of typed by hand (it is how «6 niveles» and «39 secciones» drifted); the
+course description no longer carries a number.
 
 ## Owner-only follow-ups from 2026-09-23
 

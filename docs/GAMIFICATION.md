@@ -66,12 +66,14 @@ Level `n` requires `100·n·(n−1)/2` total XP (100, 300, 600, 1000, 1500 …);
 
 ## Badges
 
-Data-driven criteria (`badges.criteria`): `exercises_completed`, `exercises_without_hints`, `sections_completed`, `streak`, `level`. Evaluated by `evaluate_badges()` after each reward; returns newly earned slugs for the UI banner. Seeded set: 12 badges (first exercise, 5, 20; 5 without hints; 1 and 3 full sections; streaks 3/7/30; levels 3/5/10).
+Data-driven criteria (`badges.criteria`): `exercises_completed`, `exercises_without_hints`, `sections_completed` (a count), `section_completed` (one section by slug: `{"kind":"section_completed","section":"sql-con-ia"}`), `streak`, `level`. Evaluated by `evaluate_badges()` after each reward; returns newly earned slugs for the UI banner. A section counts as completed when every published exercise in it is completed (`completed_section_slugs()`, shared by both section criteria; quizzes are not required, unlike certificate eligibility). Seeded set: 13 badges (first exercise, 5, 20; 5 without hints; 1 and 3 full sections; «Verificador de IA»; streaks 3/7/30; levels 3/5/10).
 
-**Deferred: «Verificador de IA».** A badge for completing section 39 «SQL con IA» (D-40) needs a
-new criteria kind (`section_completed` with a slug; today every criterion is a count), i.e. a schema
-migration. The owner chose to launch the section without it (2026-09-24); add it when he approves
-that migration.
+**«Verificador de IA»** (`verificador-de-ia`, owner approval 2026-09-25, D-40): earned by completing
+every exercise of section 39 «SQL con IA». Family autonomía, tier III, icon `SearchCheck`
+(checking an AI's SQL instead of trusting it is independent judgement, one step beyond solving
+without hints). Once per learner like every badge; no XP or coins attached. Learners who had
+already completed the section when the badge shipped received it through the migration's backfill
+(`20260925120000_badge_section_completed.sql`, [DATABASE_DESIGN.md](DATABASE_DESIGN.md) §4o).
 
 ## Abuse controls
 

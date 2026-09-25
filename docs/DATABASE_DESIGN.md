@@ -169,7 +169,7 @@ Every migration that creates a table must: `enable row level security`, add poli
 
 - `award_reward(user, event_key, source, xp, coins, metadata, activity_date, daily_cap)` is the only writer of `reward_ledger`, `user_totals`, `daily_activity` and (via `touch_streak`) `streaks`; service role only. Idempotency = unique `(user_id, event_key)`; the XP cap applies per `activity_date` (learner timezone, computed by the server).
 - `level_for_xp()` (SQL) and `levelForXp()` (TS) implement the same curve; both are tested.
-- Badges: `evaluate_badges(user)` reads real progress and inserts `user_badges` idempotently, returning new slugs.
+- Badges: `evaluate_badges(user)` reads real progress and inserts `user_badges` idempotently, returning new slugs. Since `20260925120000` the section-completion part is `completed_section_slugs(user)` (§4o).
 - `learning_goals` is learner-writable (own row); everything else is read-only for learners.
 - Rules narrative: [GAMIFICATION.md](GAMIFICATION.md).
 
@@ -266,6 +266,22 @@ with the service role and delivers the left labels and the right candidates as t
 shuffled lists (`matchingSides()` in `src/lib/quizzes/service.ts`). The view is also no longer
 granted to `anon` — it published every quiz prompt including paid sections, and nothing anonymous
 in the product reads it. `pgTAP 0003` asserts the new posture where it used to assert the old one.
+
+### 4o. Badge for a specific section (migration `20260925120000_badge_section_completed.sql`)
+
+- New criteria kind `{"kind":"section_completed","section":"<slug>"}`, first used by
+  `verificador-de-ia` (section `sql-con-ia`, D-40, owner approval 2026-09-25).
+- "Section completed" has one definition, `completed_section_slugs(user)` (service role only): every
+  **published exercise** of the section has `exercise_progress.status = 'completed'`; a section with
+  no published exercises never counts. It is the query that used to sit inline in
+  `evaluate_badges()`, moved verbatim, so the `sections_completed` count and the new slug criterion
+  cannot disagree. It is **not** `check_section_completion()` (certificates), which also requires the
+  section quizzes; badges never did.
+- Backfill in the same migration: any learner whose completed set already contains a
+  `section_completed` badge's section gets the badge (`on conflict do nothing`). Evaluation on the
+  next reward would miss a learner who finished the section and earns nothing afterwards.
+- No table, column, policy or table grant changed. `pgTAP 0015` covers not-earned-before,
+  earned-on-completion, idempotency, no effect on other badges, and execute revoked from learners.
 
 ## 5. Indexes (initial)
 

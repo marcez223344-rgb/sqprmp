@@ -4,6 +4,7 @@ import {
   Award,
   BarChart3,
   BookOpen,
+  Briefcase,
   Check,
   ChevronRight,
   CircleDashed,
@@ -12,6 +13,7 @@ import {
   Layers,
   ListChecks,
   Network,
+  Shapes,
   Sprout,
   SquareTerminal,
   Trophy,
@@ -25,8 +27,10 @@ import {
   progressRailClasses,
   type ProgressState,
 } from "@/components/progress/progress-state";
+import type { CourseLevelKey } from "@/config/course-levels";
+import { groupByCourseLevel } from "@/lib/curriculum/course-levels";
 import { sectionMinutes } from "@/lib/curriculum/path-summary";
-import { LEVEL_ORDER, type PathLesson, type PathSection } from "@/lib/curriculum/queries";
+import type { PathLesson, PathSection } from "@/lib/curriculum/queries";
 import { lessonNeedsAccess } from "@/lib/progress/lesson-lock";
 import { cn } from "@/lib/utils/cn";
 
@@ -40,11 +44,13 @@ const SECTION_PROGRESS_STATE: Record<SectionState, ProgressState> = {
   soon: "soon",
 };
 
-const LEVEL_ICON: Record<(typeof LEVEL_ORDER)[number], LucideIcon> = {
-  beginner: Sprout,
-  intermediate: Layers,
-  advanced: Network,
-  expert: BarChart3,
+const LEVEL_ICON: Record<CourseLevelKey, LucideIcon> = {
+  n1: Sprout,
+  n2: Shapes,
+  n3: Layers,
+  n4: Network,
+  n5: BarChart3,
+  n6: Briefcase,
 };
 
 /**
@@ -94,10 +100,7 @@ export async function LearningPath({
   hasAccess?: boolean;
 }) {
   const t = await getTranslations("path");
-  const byLevel = LEVEL_ORDER.map((level) => ({
-    level,
-    sections: sections.filter((s) => s.level === level),
-  })).filter((g) => g.sections.length);
+  const byLevel = groupByCourseLevel(sections);
 
   // The focal card: the first section the learner can actually continue with. A published section
   // with no published lesson yet has nothing to continue, and skipping it keeps this cue on the

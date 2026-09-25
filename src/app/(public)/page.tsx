@@ -6,6 +6,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { brand } from "@/config/brand";
 import { founder } from "@/config/founder";
 import { limits } from "@/config/limits";
+import { groupByCourseLevel } from "@/lib/curriculum/course-levels";
 import { getLearningPath } from "@/lib/curriculum/queries";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { cn } from "@/lib/utils/cn";
@@ -34,10 +35,10 @@ export default async function LandingPage() {
     .map((p) => p[0])
     .join("")
     .slice(0, 2);
-  const levelOrder = ["beginner", "intermediate", "advanced", "expert"] as const;
-  const levelSummary = levelOrder
-    .map((level) => ({ level, count: sections.filter((s) => s.level === level).length }))
-    .filter(({ count }) => count > 0);
+  const levelSummary = groupByCourseLevel(sections).map(({ level, sections: inLevel }) => ({
+    level,
+    count: inLevel.length,
+  }));
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -172,7 +173,7 @@ export default async function LandingPage() {
       <section className="container-page grid gap-6 py-16 md:grid-cols-2">
         <Card className="space-y-4">
           <h2 className="text-2xl">{t("curriculum.title")}</h2>
-          <p className="text-muted">{t("curriculum.subtitle")}</p>
+          <p className="text-muted">{t("curriculum.subtitle", { sections: sections.length })}</p>
           <Link href="/curriculo" className={cn(buttonVariants({ variant: "secondary" }))}>
             {t("curriculum.cta")}
           </Link>

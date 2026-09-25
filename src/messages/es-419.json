@@ -85,7 +85,7 @@
     },
     "curriculum": {
       "title": "Un camino de principiante a analista profesional",
-      "subtitle": "6 niveles y 40 secciones: desde SELECT hasta funciones de ventana, cohortes y desafíos de entrevista.",
+      "subtitle": "6 niveles y {sections} secciones: desde SELECT hasta funciones de ventana, cohortes y desafíos de entrevista.",
       "cta": "Explorar el currículo completo"
     },
     "pricing": {
@@ -105,10 +105,12 @@
       "title": "La ruta de aprendizaje",
       "sections": "{count} secciones",
       "levels": {
-        "beginner": "Fundamentos",
-        "intermediate": "Agregación y JOINs",
-        "advanced": "Subconsultas y ventanas",
-        "expert": "Análisis de negocio"
+        "n1": "Fundamentos",
+        "n2": "Transformar datos",
+        "n3": "Agregar y combinar",
+        "n4": "Consultas avanzadas",
+        "n5": "Analítica aplicada",
+        "n6": "Profesional"
       }
     }
   },
@@ -370,7 +372,7 @@
   },
   "curriculum": {
     "title": "Currículo completo",
-    "intro": "Seis niveles, cuarenta secciones. Cada sección combina teoría breve, ejercicios sobre datos de negocio realistas y un quiz. Las secciones marcadas como «Próximamente» se publican semana a semana.",
+    "intro": "Seis niveles, {sections} secciones. Cada sección combina teoría breve, ejercicios sobre datos de negocio realistas y un quiz. Las secciones marcadas como «Próximamente» se publican semana a semana.",
     "cta": "Empieza gratis con Google"
   },
   "path": {
@@ -381,10 +383,12 @@
     "certificateMilestone": "Al completar esta sección obtienes un certificado",
     "minutes": "{minutes} min",
     "levels": {
-      "beginner": "Nivel 1 · Fundamentos",
-      "intermediate": "Nivel 2 · Agregar y combinar",
-      "advanced": "Nivel 3 · Consultas avanzadas",
-      "expert": "Nivel 4 · Analítica profesional"
+      "n1": "Nivel 1 · Fundamentos",
+      "n2": "Nivel 2 · Transformar datos",
+      "n3": "Nivel 3 · Agregar y combinar",
+      "n4": "Nivel 4 · Consultas avanzadas",
+      "n5": "Nivel 5 · Analítica aplicada",
+      "n6": "Nivel 6 · Profesional"
     },
     "state": {
       "soon": "Próximamente",
@@ -843,7 +847,7 @@
       "priceSoon": "Precio por confirmar",
       "once": "pago único",
       "items": {
-        "all": "Los 6 niveles y las 40 secciones (se publican semana a semana)",
+        "all": "Los 6 niveles y las {sections} secciones (se publican semana a semana)",
         "quizzes": "Quizzes con explicaciones y repaso de errores",
         "certificates": "Certificados verificables por nivel",
         "updates": "Nuevos datasets y ejercicios sin costo adicional",

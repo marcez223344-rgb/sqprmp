@@ -8,7 +8,8 @@ import { Card } from "@/components/ui/card";
 import { requireOnboardedProfile } from "@/lib/auth/session";
 import { getRequirementStatuses } from "@/lib/certificates/service";
 import { publishedLessons } from "@/lib/curriculum/path-summary";
-import { getLearningPath, LEVEL_ORDER } from "@/lib/curriculum/queries";
+import { groupByCourseLevel } from "@/lib/curriculum/course-levels";
+import { getLearningPath } from "@/lib/curriculum/queries";
 import { profileToFormInput } from "@/lib/profile/schemas";
 import { createClient } from "@/lib/supabase/server";
 
@@ -39,18 +40,20 @@ export default async function ProfilePage() {
   ]);
   const t = await getTranslations("profile");
   // Same grouping and counting as /ruta (published lessons only), so the numbers match.
-  const byLevel = LEVEL_ORDER.map((level) => {
-    const lessons = path
-      .filter((s) => s.level === level && s.is_published)
-      .flatMap((s) => publishedLessons(s.lessons));
-    const done = lessons.filter((l) => l.status === "completed").length;
-    return {
-      level,
-      done,
-      total: lessons.length,
-      percent: lessons.length ? Math.round((done / lessons.length) * 100) : 0,
-    };
-  }).filter((g) => g.total > 0);
+  const byLevel = groupByCourseLevel(path)
+    .map(({ level, sections }) => {
+      const lessons = sections
+        .filter((s) => s.is_published)
+        .flatMap((s) => publishedLessons(s.lessons));
+      const done = lessons.filter((l) => l.status === "completed").length;
+      return {
+        level,
+        done,
+        total: lessons.length,
+        percent: lessons.length ? Math.round((done / lessons.length) * 100) : 0,
+      };
+    })
+    .filter((g) => g.total > 0);
   const issued = statuses.flatMap((s) =>
     s.certificate && !s.certificate.revoked ? [{ title: s.title, ...s.certificate }] : [],
   );

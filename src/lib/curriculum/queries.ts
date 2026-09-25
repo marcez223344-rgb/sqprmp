@@ -44,8 +44,6 @@ export interface PathSection extends Pick<
   completed_lessons: number;
 }
 
-export const LEVEL_ORDER = ["beginner", "intermediate", "advanced", "expert"] as const;
-
 export const CURRICULUM_CACHE_TAG = "curriculum";
 
 /**

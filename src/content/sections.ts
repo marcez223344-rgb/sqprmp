@@ -1,7 +1,7 @@
 import type { SectionDef } from "./schemas/curriculum";
 
 /**
- * The 39-section learning path (docs/CURRICULUM.md §1). `is_published: false` sections are
+ * The learning path (docs/CURRICULUM.md §1). `is_published: false` sections are
  * visible as outlines ("Próximamente") but cannot be started. `requires` is linear inside a
  * level; the first section of a level requires the last section of the previous level.
  */

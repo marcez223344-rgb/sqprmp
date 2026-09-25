@@ -9,6 +9,7 @@ import {
   Library,
   Medal,
   Rocket,
+  SearchCheck,
   Sparkles,
   Star,
   TrendingUp,
@@ -30,6 +31,10 @@ import {
  * - `tres-secciones`: `layers` → `Library`. `Layers` is the intermediate **level** icon.
  * - `nivel-5`: `award` → `Medal`. `Award` belongs to the badges feature itself (page, nav, card):
  *   a member of a set must not wear the set's own symbol.
+ * - `verificador-de-ia` (section «SQL con IA», added 2026-09-25): `SearchCheck`, family autonomía,
+ *   tier III. Checking an AI's SQL instead of trusting it is independent judgement, the same family
+ *   as solving without hints, one step further. `ShieldCheck` was not used: it marks certificates
+ *   and verification pages.
  * - unknown slugs: `Award` as a deliberate fallback, so a badge added in the database later
  *   renders a real card instead of a blank one.
  *
@@ -63,6 +68,7 @@ export const badgeVisuals: Readonly<Record<string, BadgeVisual>> = {
   "cinco-ejercicios": { icon: Rocket, category: "practica", tier: 2 },
   "veinte-ejercicios": { icon: TrendingUp, category: "practica", tier: 3 },
   "sin-pistas-cinco": { icon: Brain, category: "autonomia", tier: 2 },
+  "verificador-de-ia": { icon: SearchCheck, category: "autonomia", tier: 3 },
   "seccion-completa": { icon: BookCheck, category: "dominio", tier: 1 },
   "tres-secciones": { icon: Library, category: "dominio", tier: 2 },
   "racha-3": { icon: CalendarCheck, category: "constancia", tier: 1 },

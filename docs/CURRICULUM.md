@@ -15,6 +15,8 @@ One course ("Ruta SQL para Analistas de Datos") organized in **6 levels** and **
 | **N5 · Analítica aplicada**  | 29 Cohortes y retención · 30 Funnels · 31 Deduplicación · 32 Investigaciones de calidad de datos · 33 Depuración de consultas · 34 Fundamentos de optimización · 35 Índices y planes de ejecución  | —                                                     |
 | **N6 · Profesional**         | 36 SQL analítico avanzado · 37 Casos de negocio · 38 Desafíos de entrevista técnica · 39 SQL con IA · 40 Proyectos finales (capstone)                                                              | **Certificado: Analista SQL Profesional** (full path) |
 
+The UI (`/ruta`, `/curriculo`, `/perfil`, landing) groups sections by these six levels, defined by section slug in `src/config/course-levels.ts` (a unit test fails if a section is missing). The `sections.level` column (beginner/intermediate/advanced/expert) is only an internal difficulty label and is not used for grouping.
+
 Prerequisites are linear inside a level; levels unlock when the previous level's section challenges are passed (mastery learning). Learners can _preview_ any lesson's theory but not submit gated exercises.
 
 Free tier: the first 5 practical exercises (`FREE_EXERCISE_LIMIT`, sections 2–3) plus all theory of N1 are free; everything else requires an entitlement (D-01).

@@ -3,7 +3,7 @@
 begin;
 
 insert into public.courses (slug, title, description, sort_order, is_published)
-values ($c0$ruta-sql-analistas$c0$, $c1$Ruta SQL para Analistas de Datos$c1$, $c2$De cero a analista profesional: 6 niveles y 40 secciones con ejercicios sobre datos de negocio de América Latina, quizzes y certificados verificables.$c2$, 0, true)
+values ($c0$ruta-sql-analistas$c0$, $c1$Ruta SQL para Analistas de Datos$c1$, $c2$De cero a analista profesional: 6 niveles con ejercicios sobre datos de negocio de América Latina, quizzes y certificados verificables.$c2$, 0, true)
 on conflict (slug) do update set title = excluded.title, description = excluded.description, sort_order = excluded.sort_order, is_published = excluded.is_published;
 
 insert into public.sections (course_id, slug, number, level, title, summary, objectives, is_free_theory, is_published, certificate_slug)

@@ -7,6 +7,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { brand } from "@/config/brand";
 import { limits } from "@/config/limits";
 import { getCurrentProfile } from "@/lib/auth/session";
+import { getLearningPath } from "@/lib/curriculum/queries";
 import { getAccessStatus, getCatalog } from "@/lib/payments/service";
 import { buildPageMetadata } from "@/lib/seo/metadata";
 import { cn } from "@/lib/utils/cn";
@@ -22,11 +23,13 @@ export async function generateMetadata() {
 
 export default async function PricingPage({ searchParams }: PageProps<"/precios">) {
   const params = await searchParams;
-  const [t, format, catalog, profile] = await Promise.all([
+  // The anonymous learning path reads the cached catalogue, so the section count costs no query.
+  const [t, format, catalog, profile, sections] = await Promise.all([
     getTranslations("pricing"),
     getFormatter(),
     getCatalog(),
     getCurrentProfile(),
+    getLearningPath(),
   ]);
   const access = profile ? await getAccessStatus(profile) : null;
   const usd =
@@ -72,7 +75,7 @@ export default async function PricingPage({ searchParams }: PageProps<"/precios"
             {(["all", "quizzes", "certificates", "updates", "support"] as const).map((k) => (
               <li key={k} className="flex gap-2">
                 <Check aria-hidden="true" className="text-success mt-0.5 size-4 shrink-0" />
-                {t(`full.items.${k}`)}
+                {t(`full.items.${k}`, { sections: sections.length })}
               </li>
             ))}
           </ul>

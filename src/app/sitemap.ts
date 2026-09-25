@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { absoluteUrl } from "@/lib/seo/urls";
 
 /**
- * Only pages a signed-out crawler can actually render belong here. The 40 sections and
+ * Only pages a signed-out crawler can actually render belong here. The sections and
  * their lessons live behind `/leccion/[slug]`, which the proxy redirects to sign-in, so
  * listing them would publish 347 redirects; see the note in docs/DESIGN_SYSTEM.md §9 and
  * the report to the owner about a public per-section preview.

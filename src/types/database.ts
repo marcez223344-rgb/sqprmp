@@ -2551,6 +2551,7 @@ export type Database = {
           streak_length: number;
         }[];
       };
+      completed_section_slugs: { Args: { p_user_id: string }; Returns: string[] };
       evaluate_badges: { Args: { p_user_id: string }; Returns: string[] };
       level_for_xp: { Args: { p_xp: number }; Returns: number };
       touch_daily_activity: {
