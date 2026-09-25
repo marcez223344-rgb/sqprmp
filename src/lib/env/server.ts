@@ -35,6 +35,11 @@ const schema = z.object({
     .transform((v) => v === "true"),
   MERCADOPAGO_ACCESS_TOKEN: z.string().optional(),
   MERCADOPAGO_WEBHOOK_SECRET: z.string().optional(),
+  /** Owner email alerts (D-43). Optional: absent or empty means alerts are skipped, not an error. */
+  RESEND_API_KEY: z
+    .string()
+    .optional()
+    .transform((v) => v?.trim() || undefined),
 });
 
 export type ServerEnv = z.infer<typeof schema>;

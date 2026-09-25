@@ -1,19 +1,29 @@
 import { getFormatter, getTranslations } from "next-intl/server";
 import { PromoForm } from "@/components/admin/promo-form";
+import { PromoRedemptions } from "@/components/admin/promo-redemptions";
 import { ReasonActionButton } from "@/components/admin/reason-action-button";
 import { Card } from "@/components/ui/card";
 import { requireAdmin } from "@/lib/auth/session";
 import { setPromoCodeActiveAction } from "@/lib/admin/actions";
-import { getPromoCodesAdmin } from "@/lib/admin/queries";
+import { isUnseen } from "@/lib/admin/attention";
+import {
+  getPromoCodesAdmin,
+  getPromosSeenAt,
+  getRecentPromoRedemptionsAdmin,
+} from "@/lib/admin/queries";
 
 export const metadata = { title: "Códigos · Administración" };
 
 export default async function AdminPromosPage() {
   await requireAdmin();
-  const [t, format, promos] = await Promise.all([
+  const renderedAt = new Date().toISOString();
+  const [t, tr, format, promos, redemptions, seenAt] = await Promise.all([
     getTranslations("admin.promos"),
+    getTranslations("admin.promos.redemptions"),
     getFormatter(),
     getPromoCodesAdmin(),
+    getRecentPromoRedemptionsAdmin(),
+    getPromosSeenAt(),
   ]);
   return (
     <div className="container-page max-w-5xl space-y-8 py-10">
@@ -21,6 +31,31 @@ export default async function AdminPromosPage() {
         <h1 className="text-3xl">{t("title")}</h1>
         <p className="text-muted">{t("intro")}</p>
       </header>
+      <Card>
+        <h2 className="mb-1 text-xl">{tr("title")}</h2>
+        <p className="text-muted mb-3 text-sm">{tr("intro")}</p>
+        {redemptions === null ? (
+          <p role="status" className="text-danger text-sm">
+            {tr("unavailable")}
+          </p>
+        ) : (
+          <PromoRedemptions
+            renderedAt={renderedAt}
+            rows={redemptions.map((r) => ({
+              id: r.id,
+              alias: r.alias,
+              code: r.code,
+              kindLabel: r.kind ? t(`kinds.${r.kind as "scholarship"}`) : null,
+              createdAt: r.createdAt,
+              when: format.dateTime(new Date(r.createdAt), {
+                dateStyle: "medium",
+                timeStyle: "short",
+              }),
+              isNew: isUnseen(r.createdAt, seenAt),
+            }))}
+          />
+        )}
+      </Card>
       <Card>
         <h2 className="mb-3 text-xl">{t("create")}</h2>
         <PromoForm />

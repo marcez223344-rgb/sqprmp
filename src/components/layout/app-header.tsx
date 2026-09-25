@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { Logo } from "@/components/layout/logo";
 import { SignOutForm } from "@/components/layout/sign-out-form";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { getAdminAttentionCount } from "@/lib/admin/queries";
 import { isLeaderboardEnabled } from "@/lib/progress/leaderboard";
 
 interface AppHeaderProps {
@@ -15,7 +16,25 @@ interface AppHeaderProps {
 }
 
 export async function AppHeader({ alias, displayName, isAdmin, onboarded }: AppHeaderProps) {
-  const [t, leaderboard] = await Promise.all([getTranslations("app"), isLeaderboardEnabled()]);
+  const [t, leaderboard, attention] = await Promise.all([
+    getTranslations("app"),
+    isLeaderboardEnabled(),
+    // Admin-only read (service role): never computed, and never sent, for a learner.
+    isAdmin && onboarded ? getAdminAttentionCount() : Promise.resolve(0),
+  ]);
+  // Visible number for sighted users, full phrase for screen readers («3 novedades»).
+  const attentionBadge =
+    attention > 0 ? (
+      <>
+        <span
+          aria-hidden="true"
+          className="border-warning/40 bg-warning/10 text-warning-ink ml-1.5 rounded-full border px-1.5 text-xs font-semibold tabular-nums"
+        >
+          {attention}
+        </span>
+        <span className="sr-only">, {t("nav.adminAttention", { count: attention })}</span>
+      </>
+    ) : null;
   const links: { href: Route; label: string }[] = [
     { href: "/aprender", label: t("nav.dashboard") },
     { href: "/ruta", label: t("nav.path") },
@@ -59,6 +78,7 @@ export async function AppHeader({ alias, displayName, isAdmin, onboarded }: AppH
               >
                 <ShieldCheck aria-hidden="true" className="mr-1 inline size-4" />
                 {t("nav.admin")}
+                {attentionBadge}
               </Link>
             ) : null}
           </nav>
@@ -95,6 +115,7 @@ export async function AppHeader({ alias, displayName, isAdmin, onboarded }: AppH
               >
                 <ShieldCheck aria-hidden="true" className="mr-1 inline size-4" />
                 {t("nav.admin")}
+                {attentionBadge}
               </Link>
             ) : null}
           </div>

@@ -1,9 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import { z } from "zod";
 import { limits } from "@/config/limits";
 import { track } from "@/lib/analytics/track";
+import { parseSeenAt, PROMOS_SEEN_COOKIE } from "@/lib/admin/attention";
 import { searchLearnersAdmin } from "@/lib/admin/queries";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { ACCESS_GRANT_KINDS, MAX_ACCESS_DAYS } from "@/lib/payments/access-grants";
@@ -366,5 +368,28 @@ export async function resolveExerciseReportAction(
   if (error) return { ok: false, error: error.code === "P0002" ? "not_found" : "unknown" };
   revalidatePath("/admin/reportes");
   revalidatePath("/admin");
+  return { ok: true };
+}
+
+/**
+ * Marks the code redemptions listed on /admin/promos as seen (D-43 header badge). `rawSeenAt` is
+ * the moment the page was rendered on the server, not "now": a redemption that lands between the
+ * render and this call stays counted. The value only ever affects the admin's own badge, and a
+ * future timestamp is clamped so it cannot hide what has not happened yet.
+ */
+export async function markPromoRedemptionsSeenAction(rawSeenAt: unknown): Promise<Result> {
+  const admin = await requireAdminProfile();
+  if (!admin) return { ok: false, error: "unauthorized" };
+  const parsed = z.iso.datetime().safeParse(rawSeenAt);
+  if (!parsed.success) return { ok: false, error: "validation" };
+  const seenAt = parseSeenAt(parsed.data) ?? new Date().toISOString();
+  const store = await cookies();
+  store.set(PROMOS_SEEN_COOKIE, seenAt, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    maxAge: limits.admin.promosSeenCookieMaxAgeDays * 24 * 60 * 60,
+  });
   return { ok: true };
 }

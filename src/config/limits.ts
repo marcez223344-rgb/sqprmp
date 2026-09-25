@@ -215,6 +215,27 @@ export const limits = {
     learnerPickerMinChars: 2,
     /** Exercise reports listed at once in /admin/reportes, newest first. */
     reportsListMax: 200,
+    /** Code redemptions listed in /admin/promos, newest first. */
+    redemptionsListMax: 50,
+    /**
+     * Lifetime of the cookie that remembers when the admin last opened /admin/promos (the «seen»
+     * mark behind the header counter). A year: losing it only re-counts old redemptions once.
+     */
+    promosSeenCookieMaxAgeDays: 365,
+  },
+
+  /** Owner-only email alerts (D-43). */
+  ownerNotifications: {
+    /**
+     * Emails per event type per hour, across all learners. Each learner is already rate-limited
+     * per action; this is the ceiling for many accounts at once, so a spammer cannot flood the
+     * owner's inbox. Events beyond it are still stored and counted in the header badge.
+     */
+    maxPerHour: { exercise_report: 20, promo_redemption: 20 },
+    /** The learner's note is cut to this many characters in the email; the full text is in /admin. */
+    noteExcerptChars: 500,
+    /** Resend call timeout. The email runs after the response, so this bounds background work only. */
+    requestTimeoutMs: 8000,
   },
 } as const;
 

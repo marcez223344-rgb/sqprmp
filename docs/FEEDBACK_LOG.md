@@ -162,6 +162,13 @@ He took several quizzes and exercises on the live site. Numbering is his (there 
 - **Bolsillo has 12 transactions dated after the dataset's «today»** (16–17 Sep 2025) with no FX
   rate. No exercise is affected today; queued for `dataset-engineer`.
 
+## 2026-09-25 · Round 7 (after round 6 shipped)
+
+| #   | Item                                                   | Status                                                                                                                                                                  |
+| --- | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| R1  | How do I know if someone complained about an exercise? | Shipped — open reports counted on the header «Admin» link and the /admin hub; listed at /admin/reportes. Email per report (D-43) starts once OA-28 (Resend key) is done |
+| R2  | Notify me (e.g. email) when someone uses my beca code  | Shipped — «Canjes recientes» on /admin/promos (who, which code, when), unseen uses counted on the «Admin» link. Email per redemption (D-43) starts once OA-28 is done   |
+
 ## Earlier rounds
 
 Reconstructed from `docs/DECISIONS.md`, `docs/reviews/**` and the commit history; rows are added

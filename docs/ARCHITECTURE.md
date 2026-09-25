@@ -48,6 +48,7 @@ Three trust zones:
 | Quality          | ESLint (flat config) + Prettier + `tsc --noEmit`; GitHub Actions                                                                                                            | Requirement                                                                                                      |
 | Analytics        | First-party `analytics_events` table (D-08); optional PostHog later                                                                                                         | Privacy                                                                                                          |
 | Rate limiting    | Postgres token bucket RPC (no Redis in MVP)                                                                                                                                 | Fewer moving parts                                                                                               |
+| Owner email      | Resend REST API via `fetch` (no SDK), owner-only alerts sent with `after()` (D-43)                                                                                          | One POST; no dependency; never on the learner's request path                                                     |
 
 Versions were pinned in Phase 1 (see `package.json`; Vitest 5 chosen over 3 to clear a dev-only advisory); no library is added without an entry in DECISIONS.md if it affects security, cost or architecture.
 

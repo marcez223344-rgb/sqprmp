@@ -14,17 +14,23 @@ import {
 import { getTranslations } from "next-intl/server";
 import { Card } from "@/components/ui/card";
 import { requireAdmin } from "@/lib/auth/session";
-import { countOpenExerciseReports, getAdminMetrics } from "@/lib/admin/queries";
+import {
+  countOpenExerciseReports,
+  countPromoRedemptionsSince,
+  getAdminMetrics,
+  getPromosSeenAt,
+} from "@/lib/admin/queries";
 
 export const metadata = { title: "Administración" };
 
 export default async function AdminPage() {
   await requireAdmin();
-  const [t, tm, m, openReports] = await Promise.all([
+  const [t, tm, m, openReports, unseenRedemptions] = await Promise.all([
     getTranslations("admin.hub"),
     getTranslations("admin.metrics"),
     getAdminMetrics(),
     countOpenExerciseReports(),
+    getPromosSeenAt().then(countPromoRedemptionsSince),
   ]);
   const tools: { href: Route; label: string; icon: typeof Users; badge?: number }[] = [
     {
@@ -47,7 +53,12 @@ export default async function AdminPage() {
     },
     { href: "/admin/usuarios", label: t("users"), icon: Users },
     { href: "/admin/certificados", label: t("certificates"), icon: Award },
-    { href: "/admin/promos", label: t("promos"), icon: Ticket },
+    {
+      href: "/admin/promos",
+      label: t("promos"),
+      icon: Ticket,
+      badge: unseenRedemptions ?? undefined,
+    },
     { href: "/admin/flags", label: t("flags"), icon: Flag },
     { href: "/admin/auditoria", label: t("audit"), icon: ScrollText },
     { href: "/admin/metricas", label: t("metrics"), icon: BarChart3 },

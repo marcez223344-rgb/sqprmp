@@ -82,11 +82,19 @@ describe("reportInputSchema", () => {
 
 let profile: Partial<Profile> | null = null;
 let rateLimitAllowed: boolean | null = true;
-let exerciseRow: { id: string; slug: string } | null = { id: EXERCISE, slug: "select-basico" };
+let exerciseRow: { id: string; slug: string; title?: string } | null = {
+  id: EXERCISE,
+  slug: "select-basico",
+};
 let insertError: { code: string } | null = null;
 const inserted: unknown[] = [];
 
+const scheduled: (() => Promise<unknown>)[] = [];
+
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+vi.mock("@/lib/notifications/owner", () => ({
+  notifyOwnerAfterResponse: (load: () => Promise<unknown>) => scheduled.push(load),
+}));
 vi.mock("@/lib/auth/session", () => ({ getCurrentProfile: async () => profile }));
 vi.mock("@/lib/supabase/admin", () => ({
   createAdminClient: () => ({
@@ -123,9 +131,10 @@ describe("reportExerciseProblemAction", () => {
   beforeEach(() => {
     profile = { id: LEARNER, onboarding_completed_at: "2026-09-01T00:00:00Z", deleted_at: null };
     rateLimitAllowed = true;
-    exerciseRow = { id: EXERCISE, slug: "select-basico" };
+    exerciseRow = { id: EXERCISE, slug: "select-basico", title: "Selección básica" };
     insertError = null;
     inserted.length = 0;
+    scheduled.length = 0;
   });
 
   const input = {
@@ -182,8 +191,34 @@ describe("reportExerciseProblemAction", () => {
     ]);
   });
 
-  it("reports a database failure as a generic error", async () => {
+  it("reports a database failure as a generic error, and alerts nobody", async () => {
     insertError = { code: "23514" };
     expect(await reportExerciseProblemAction(input)).toEqual({ ok: false, error: "unknown" });
+    expect(scheduled).toHaveLength(0);
+  });
+
+  it("schedules the owner alert only after the row is stored, with alias but no SQL (D-43)", async () => {
+    profile = { ...profile, alias: "ana_datos" };
+    expect(await reportExerciseProblemAction(input)).toEqual({ ok: true });
+    expect(scheduled).toHaveLength(1);
+    const event = await scheduled[0]!();
+    expect(event).toEqual({
+      type: "exercise_report",
+      alias: "ana_datos",
+      exerciseTitle: "Selección básica",
+      exerciseSlug: "select-basico",
+      category: "data_error",
+      note,
+    });
+    expect(JSON.stringify(event)).not.toContain("select * from pedidos");
+  });
+
+  it("does not alert for a refused report", async () => {
+    rateLimitAllowed = false;
+    await reportExerciseProblemAction(input);
+    exerciseRow = null;
+    rateLimitAllowed = true;
+    await reportExerciseProblemAction(input);
+    expect(scheduled).toHaveLength(0);
   });
 });

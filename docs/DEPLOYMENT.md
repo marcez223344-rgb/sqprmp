@@ -154,6 +154,29 @@ Fix — the key must come from the **dashboard**, not from the CLI:
 
 If the key was ever pasted into a chat, a log or a commit, rotate it in the dashboard first.
 
+## 5f. Owner email alerts (D-43)
+
+The app emails the owner, and only the owner, when a learner reports an exercise problem or redeems
+a beca / promo code. It uses Resend's REST API (`src/lib/notifications/owner.ts`); there is no SDK.
+
+- **Env var:** `RESEND_API_KEY` (server-only, optional). Set it in Vercel → Settings → Environment
+  Variables for **Production** (and Preview only if you want alerts from preview deployments), then
+  redeploy. Leave it unset locally unless you are testing the alert itself.
+- **Recipient and sender:** `src/config/notifications.ts`. The sender is Resend's shared
+  `onboarding@resend.dev`, which only delivers to the address the Resend account was created with,
+  so the account must be `marcelopisner@gmail.com` (OA-28). A verified domain lifts that limit.
+- **Without the key** nothing breaks: each event logs one line,
+  `[owner-notify] exercise_report: RESEND_API_KEY is not set; email skipped`, and the «Admin»
+  counter in the header still shows the event.
+- **How to verify after setting it:** from a learner account, use «Reportar un problema» on any
+  exercise. Within a minute an email «Nuevo reporte: <ejercicio>» should arrive. If it does not,
+  open Vercel → the deployment → Logs and filter for `owner-notify`: `HTTP 401/403` means the key
+  is wrong or lacks sending access; `HTTP 422` usually means the recipient is not the Resend account
+  address; `hourly cap reached` means more than `limits.ownerNotifications.maxPerHour` events of that
+  type arrived in the last hour (the events are still in `/admin`). Resend's dashboard → Emails also
+  lists every accepted message.
+- **Rotation:** create a new key in Resend, replace it in Vercel, redeploy, then delete the old key.
+
 ## 6. Rollback
 
 App: re-deploy the previous build from the Vercel dashboard. DB: migrations are forward-only; destructive changes require an expand/contract plan and a fresh `npm run db:backup` taken immediately before the migration (section 7). While the project is on the Supabase Free plan there is no platform-side backup to fall back on.
@@ -265,7 +288,7 @@ If you ever want a belt-and-braces check, compare the newest folder date in `Dat
 
 A database dump alone cannot bring the product back. These are not in the backup and must not be:
 
-- `.env.local` and the Vercel environment variables (`SUPABASE_SECRET_KEY`, `SANDBOX_SIGNING_SECRET`, `CERTIFICATE_SIGNING_SECRET`, `CRON_SECRET`, the Hotmart credentials, the Google OAuth client secret). `CERTIFICATE_SIGNING_SECRET` deserves special care: lose it and every certificate already issued stops verifying.
+- `.env.local` and the Vercel environment variables (`SUPABASE_SECRET_KEY`, `SANDBOX_SIGNING_SECRET`, `CERTIFICATE_SIGNING_SECRET`, `CRON_SECRET`, the Hotmart credentials, `RESEND_API_KEY`, the Google OAuth client secret). `CERTIFICATE_SIGNING_SECRET` deserves special care: lose it and every certificate already issued stops verifying.
 - The Supabase project settings that live in the dashboard: Google as an auth provider, the redirect URLs, the SMTP sender.
 
 Keep one copy of these in a **password manager** (1Password, Bitwarden, KeePass — an encrypted vault, not a file). Do **not** put them in the repository, in the `DataMindsBackups` folder, in a note, in a chat message, or in a plain-text file on the desktop: the backup folder is the one place an attacker who already has your laptop will look, and it would hand them the database along with the keys to it.

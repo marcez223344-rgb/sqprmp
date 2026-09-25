@@ -102,6 +102,8 @@ Pipeline: token compared in constant time → event stored idempotently (`paymen
 
 **Promo codes:** `promo_codes` (admins create rows in Supabase Studio until Phase 8 tooling) → learners redeem on `/acceso` (rate-limited); scholarships grant an entitlement for `access_days` (NULL = lifetime), discounts are recorded for the owner to apply manually in the provider.
 
+**Who used a code (D-43):** `/admin/promos` lists recent redemptions (alias, code, date) and marks the ones redeemed since the admin's last visit; the header «Admin» counter includes them, and each redemption emails the owner (alias, code, what it granted, uses left) once `RESEND_API_KEY` is set. The email is scheduled after the `redeem_promo` transaction commits and after the response, so it can never block or undo a redemption.
+
 ## 5c. Granting access by hand: "otorgado" is not "pagado" (2026-09-24)
 
 The admin panel used to have a single "otorgar acceso por alias" form. Whatever the reason — a

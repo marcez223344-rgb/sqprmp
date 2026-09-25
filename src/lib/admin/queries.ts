@@ -1,6 +1,8 @@
 import "server-only";
+import { cookies } from "next/headers";
 import { features } from "@/config/features";
 import { limits } from "@/config/limits";
+import { attentionTotal, parseSeenAt, PROMOS_SEEN_COOKIE } from "@/lib/admin/attention";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Json } from "@/types/database";
 import {
@@ -428,4 +430,49 @@ export async function countOpenExerciseReports(): Promise<number | null> {
     .select("id", { count: "exact", head: true })
     .eq("status", "open");
   return error ? null : (count ?? 0);
+}
+
+/** Redemptions after `since` (all of them when there is no mark). Null when unreadable. */
+export async function countPromoRedemptionsSince(since: string | null): Promise<number | null> {
+  let query = createAdminClient()
+    .from("promo_redemptions")
+    .select("id", { count: "exact", head: true });
+  if (since) query = query.gt("created_at", since);
+  const { count, error } = await query;
+  return error ? null : (count ?? 0);
+}
+
+/** The admin's «seen» mark for /admin/promos, from their own httpOnly cookie. */
+export async function getPromosSeenAt(): Promise<string | null> {
+  const store = await cookies();
+  return parseSeenAt(store.get(PROMOS_SEEN_COOKIE)?.value);
+}
+
+/** The header badge: open reports + unseen redemptions. Only call it for an admin. */
+export async function getAdminAttentionCount(): Promise<number> {
+  const seenAt = await getPromosSeenAt();
+  const [reports, redemptions] = await Promise.all([
+    countOpenExerciseReports(),
+    countPromoRedemptionsSince(seenAt),
+  ]);
+  return attentionTotal(reports, redemptions);
+}
+
+/** Who used which code and when, for /admin/promos. Alias only; no email. Null when unreadable. */
+export async function getRecentPromoRedemptionsAdmin() {
+  const { data, error } = await createAdminClient()
+    .from("promo_redemptions")
+    .select(
+      "id, created_at, promo_codes(code, kind), profiles!promo_redemptions_user_id_fkey(alias)",
+    )
+    .order("created_at", { ascending: false })
+    .limit(limits.admin.redemptionsListMax);
+  if (error) return null;
+  return (data ?? []).map((r) => ({
+    id: r.id,
+    createdAt: r.created_at,
+    code: (r.promo_codes as { code: string; kind: string } | null)?.code ?? null,
+    kind: (r.promo_codes as { code: string; kind: string } | null)?.kind ?? null,
+    alias: (r.profiles as { alias: string | null } | null)?.alias ?? null,
+  }));
 }

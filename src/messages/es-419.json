@@ -137,7 +137,8 @@
       "review": "Repaso",
       "savedQueries": "Consultas",
       "certificates": "Certificados",
-      "leaderboard": "Ranking"
+      "leaderboard": "Ranking",
+      "adminAttention": "{count, plural, one {# novedad} other {# novedades}}"
     },
     "signOut": "Salir",
     "signedInAs": "Sesión iniciada como"
@@ -1352,7 +1353,21 @@
         "regenerate": "Generar otro código",
         "accessEndsOn": "Quien lo canjee hoy tendría acceso hasta el {date}."
       },
-      "unlimitedUses": "sin límite"
+      "unlimitedUses": "sin límite",
+      "redemptions": {
+        "title": "Canjes recientes",
+        "intro": "Quién usó cada código y cuándo. Los marcados como nuevos se canjearon desde tu última visita a esta página.",
+        "empty": "Todavía nadie canjeó un código.",
+        "caption": "Canjes de códigos, del más reciente al más antiguo",
+        "cols": {
+          "learner": "Estudiante",
+          "code": "Código",
+          "when": "Fecha"
+        },
+        "new": "Nuevo",
+        "noAlias": "Sin alias",
+        "unavailable": "No pudimos cargar los canjes."
+      }
     },
     "flags": {
       "title": "Feature flags",
@@ -1864,5 +1879,30 @@
       "cta": "Ir a mi perfil"
     },
     "privacy": "Solo aparecen quienes activaron la participación en su perfil. No se muestra tu nombre, tu correo ni tu país."
+  },
+  "ownerEmail": {
+    "noAlias": "Un estudiante sin alias",
+    "footer": "Aviso automático de {product}. Solo lo recibes tú.",
+    "report": {
+      "subject": "Nuevo reporte: {exercise}",
+      "lead": "{who} reportó un problema en un ejercicio.",
+      "exercise": "Ejercicio: {title} ({slug})",
+      "category": "Motivo: {category}",
+      "note": "Nota:",
+      "truncated": "(nota recortada; el texto completo está en el panel)",
+      "cta": "Revisar en el panel: {url}",
+      "ctaLabel": "Revisar reportes abiertos"
+    },
+    "promo": {
+      "subjectScholarship": "Código de beca usado: {code}",
+      "subjectDiscount": "Código de descuento usado: {code}",
+      "lead": "{who} canjeó el código {code}.",
+      "grantedScholarship": "Otorgó: {days, plural, one {# día} other {# días}} de acceso completo.",
+      "grantedDiscount": "Otorgó: {percent} % de descuento en el pago.",
+      "usesCapped": "Usos: {used} de {max} ({remaining, plural, =0 {ya no quedan canjes} one {queda # canje} other {quedan # canjes}}).",
+      "usesUnlimited": "Usos: {used} (código sin límite de canjes).",
+      "cta": "Ver canjes en el panel: {url}",
+      "ctaLabel": "Ver canjes"
+    }
   }
 }

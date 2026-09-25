@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { limits } from "@/config/limits";
 import { getCurrentProfile } from "@/lib/auth/session";
+import { notifyOwnerAfterResponse } from "@/lib/notifications/owner";
 import { reportInputSchema } from "@/lib/reports/schemas";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -53,7 +54,7 @@ export async function reportExerciseProblemAction(raw: unknown): Promise<ReportA
   // Only exercises a learner can see can be reported; the slug is resolved again by the database.
   const { data: exercise } = await supabase
     .from("exercises_public")
-    .select("id, slug")
+    .select("id, slug, title")
     .eq("id", parsed.data.exerciseId)
     .maybeSingle();
   if (!exercise?.id || !exercise.slug) return { ok: false, error: "not_found" };
@@ -67,6 +68,20 @@ export async function reportExerciseProblemAction(raw: unknown): Promise<ReportA
     learner_sql: parsed.data.sql,
   });
   if (error) return { ok: false, error: "unknown" };
+
+  // Owner alert (D-43): only after the row exists, and after the response, so an email problem
+  // can neither slow nor fail the learner's report. No SQL and no email address in it.
+  const { alias } = profile;
+  const { note, category } = parsed.data;
+  const { slug, title } = exercise;
+  notifyOwnerAfterResponse(async () => ({
+    type: "exercise_report",
+    alias,
+    exerciseTitle: title ?? null,
+    exerciseSlug: slug,
+    category,
+    note,
+  }));
 
   revalidatePath("/admin/reportes");
   revalidatePath("/admin");

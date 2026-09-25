@@ -9,6 +9,8 @@ import { limits } from "@/config/limits";
 import { manualTransferChannels, transferChannelIsReady } from "@/config/pricing";
 import { clientEnv } from "@/lib/env/client";
 import { getCurrentProfile, getCurrentUser } from "@/lib/auth/session";
+import { loadPromoRedemptionEvent } from "@/lib/notifications/events";
+import { notifyOwnerAfterResponse } from "@/lib/notifications/owner";
 import { getProvider } from "@/lib/payments/index";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -113,6 +115,10 @@ export async function redeemPromoAction(
   }
   const row = data?.[0];
   await track("promo_redeemed", { kind: row?.kind ?? "discount" }, { userId: user.id });
+  // Owner alert (D-43), after the redemption is committed and after the response.
+  const userId = user.id;
+  notifyOwnerAfterResponse(() => loadPromoRedemptionEvent(userId));
+  revalidatePath("/admin/promos");
   revalidatePath("/acceso");
   return {
     ok: true,

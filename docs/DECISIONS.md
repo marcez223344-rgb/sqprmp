@@ -900,6 +900,39 @@ course description no longer carries a number.
   it at the top of the section page too (lessons, exercises and quiz together). Not per level,
   overall or per certificate.
 
+### D-43 · Owner-only email alerts via Resend, plus an in-app counter
+
+**Status:** Accepted (owner, 2026-09-25, question tool). Partly answers OA-25: this is email to the
+**owner only**; email to learners is still undecided and OA-25 stays open for that part.
+
+- **What triggers an email.** One email per event, sent immediately: (1) a learner submits an
+  exercise report (D-42); (2) someone redeems a beca / promo code. Nothing else.
+- **Transport: Resend's REST API with `fetch`** (`src/lib/notifications/owner.ts`), no SDK and no
+  new npm dependency — one POST is the whole integration. Sender `onboarding@resend.dev` because
+  there is no domain yet (OA-06); Resend only lets that shared sender deliver to the account
+  owner's own address, which is the recipient here (`notifications.owner.email` in
+  `src/config/notifications.ts`, the owner's Resend login). Once a domain is verified the sender
+  moves to it, and only then could any other recipient be added.
+- **Optional by construction.** `RESEND_API_KEY` is optional in `src/lib/env/server.ts`; without it
+  every alert is a no-op plus one server log line. The OA-28 key is the only switch.
+- **Never on the learner's path.** The email is scheduled with Next's `after()` once the database
+  write has succeeded, so a slow or failing Resend call cannot slow or fail the report or the
+  redemption. Failures are logged by event type and HTTP status only — no key, body or address.
+- **Flood cap.** `limits.ownerNotifications.maxPerHour` (20 per event type per hour, all learners
+  together) on the shared Postgres token bucket, on top of each learner's own rate limit. Beyond
+  it the event is still stored and counted; only the email is skipped. The limiter fails closed.
+- **What the email contains.** Report: learner @alias, exercise title + slug, category, the note
+  cut to `limits.ownerNotifications.noteExcerptChars`, link to `/admin/reportes`. Redemption:
+  @alias, code, what it granted, uses left if capped, link to `/admin/promos`. No SQL, no email
+  address, no display name. Learner text is HTML-escaped; subjects are single-line.
+- **In-app counter.** The header's «Admin» link shows open exercise reports + code redemptions the
+  admin has not seen, as a number with a screen-reader phrase («3 novedades»). «Seen» needs no
+  migration: an httpOnly cookie records when the admin last opened `/admin/promos` (single admin;
+  a second admin simply has their own mark). `/admin/promos` now lists recent redemptions (who,
+  which code, when), with «Nuevo» on the unseen ones.
+- **Rejected:** a daily digest (he asked for immediate); email via Supabase Auth's SMTP (meant for
+  auth links, low hourly cap); a `seen_at` column (a migration for one admin's badge).
+
 ## Owner-only follow-ups from 2026-09-23
 
 - **`SUPABASE_SECRET_KEY` is invalid in production** (see the runbook note in
