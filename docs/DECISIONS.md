@@ -840,8 +840,8 @@ solutions.
 **Badge, 2026-09-25 (owner: «build it now»).** «Verificador de IA» is awarded for completing
 `sql-con-ia` — every published exercise solved, the same definition the existing
 `sections_completed` badges use — through a new criteria kind `section_completed`
-(migration `20260925120000_badge_section_completed.sql`, with backfill). Production apply only on
-his explicit approval in conversation.
+(migration `20260925120000_badge_section_completed.sql`, with backfill). Applied to production on
+2026-09-25 after his explicit approval in conversation; verified read-only.
 
 **Amended 2026-09-24 (owner, question tool), superseding sub-decision (4).** After seeing the
 outline he asked «why optional? can't we make it mandatory?». It is now **mandatory**: section 39
